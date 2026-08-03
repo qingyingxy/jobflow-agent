@@ -21,5 +21,5 @@ def upsert_profile(
     user_id: CurrentUserId,
     session: DatabaseSession,
 ) -> ProfileRead:
-    changes = payload.model_dump(exclude_unset=True)
+    changes = payload.model_dump(mode="json", exclude_unset=True)
     return ProfileService(session).upsert(user_id, changes)

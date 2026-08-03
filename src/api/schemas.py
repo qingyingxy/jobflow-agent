@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.domain.eligibility import SearchPreferences
 from src.domain.job import StructuredJobDescription, normalize_job_text
 
 
@@ -13,14 +14,14 @@ class ProfileUpdate(BaseModel):
     graduation_year: int | None = Field(default=None, ge=2000, le=2100)
     degree: str | None = Field(default=None, max_length=100)
     major: str | None = Field(default=None, max_length=100)
-    search_preferences: dict[str, Any] | None = None
+    search_preferences: SearchPreferences = Field(default_factory=SearchPreferences)
 
 
 class ProfileRead(ProfileUpdate):
     model_config = ConfigDict(from_attributes=True)
 
     user_id: str
-    search_preferences: dict[str, Any] = Field(default_factory=dict)
+    search_preferences: SearchPreferences = Field(default_factory=SearchPreferences)
     created_at: datetime
     updated_at: datetime
 

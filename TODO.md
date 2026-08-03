@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M04 核心实现已完成，下一步 M05
-> 核心实现进度：4 / 11
+> 当前阶段：M05 核心实现已完成，下一步 M06
+> 核心实现进度：5 / 11
 > 外部验收：M04 还需要配置真实模型，用 3 条真实中文 JD 做手动解析验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
@@ -110,18 +110,18 @@
 
 ### M05 资格规则
 
-- [ ] 定义 `EligibilityInput`、单项结果和总体结果 Schema
-- [ ] 定义 `SearchPreferences` Schema，至少明确 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days` 和 `internship_duration_months` 的类型、范围和 `null` 语义
-- [ ] 将 Eligibility Checker 实现为纯函数
-- [ ] 支持 `pass / fail / unknown`
-- [ ] 实现毕业年份检查
-- [ ] 实现学历和专业检查
-- [ ] 实现地点检查
-- [ ] 实现实习时长和到岗时间检查
-- [ ] 对学历、专业、地点和日期使用确定性规范化，不把模糊语义交给评分函数猜测
-- [ ] 每条结果保存规则名、结论、原因、JD 原文依据和需要用户补充的信息
-- [ ] 实现总体资格汇总：任一 `fail` 则总体 `fail`，否则有 `unknown` 则总体 `unknown`
-- [ ] 覆盖信息缺失、边界年份、学历层级、地点别名、日期边界和多条件组合测试
+- [x] 定义 `EligibilityInput`、单项结果和总体结果 Schema
+- [x] 定义 `SearchPreferences` Schema，至少明确 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days` 和 `internship_duration_months` 的类型、范围和 `null` 语义
+- [x] 将 Eligibility Checker 实现为纯函数
+- [x] 支持 `pass / fail / unknown`
+- [x] 实现毕业年份检查
+- [x] 实现学历和专业检查
+- [x] 实现地点检查
+- [x] 实现实习时长和到岗时间检查
+- [x] 对学历、专业、地点和日期使用确定性规范化，不把模糊语义交给评分函数猜测
+- [x] 每条结果保存规则名、结论、原因、JD 原文依据和需要用户补充的信息
+- [x] 实现总体资格汇总：任一 `fail` 则总体 `fail`，否则有 `unknown` 则总体 `unknown`
+- [x] 覆盖信息缺失、边界年份、学历层级、地点别名、日期边界和多条件组合测试
 
 验收：相同输入始终得到相同结果；缺少用户信息或 JD 信息时返回 `unknown`，不能默认通过或失败。
 

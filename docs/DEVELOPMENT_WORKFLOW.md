@@ -138,11 +138,13 @@ jobflow-agent/
 │   ├── domain/
 │   │   ├── profile.py
 │   │   ├── job.py
+│   │   ├── eligibility.py
 │   │   ├── analysis.py
 │   │   ├── application.py
 │   │   └── suggestion.py
 │   ├── services/
 │   │   ├── jd_analysis.py
+│   │   ├── eligibility_checker.py
 │   │   ├── evidence_matching.py
 │   │   ├── application_service.py
 │   │   └── discovery_service.py
@@ -281,6 +283,31 @@ POST /api/jobs/{job_id}/parse
 
 默认 `STRUCTURED_MODEL_PROVIDER=fake`，本地开发无需模型密钥。真实模型使用 `STRUCTURED_MODEL_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 和 `LLM_TIMEOUT_SECONDS` 配置；Parser 不依赖供应商特有的响应格式。
 
+### 5.2 EligibilityChecker
+
+M05 将资格判断与技能匹配分开。`SearchPreferences` 是用户偏好的唯一输入 Schema，至少包含：
+
+```text
+preferred_locations: list[str] | null
+job_types: list[campus | internship | full_time | part_time] | null
+earliest_start_date: date | null
+weekly_days: int(1..7) | null
+internship_duration_months: int(>=0) | null
+```
+
+`null` 表示没有提供足够信息，参与相关规则时返回 `unknown`；空列表表示用户明确没有设置该类限制。用户可提供的实习月数和每周到岗天数分别按“可提供时长”和“可到岗天数”解释，必须达到岗位要求。用户最早可到岗日期必须早于或等于岗位要求日期。
+
+输入输出保持显式边界：
+
+```text
+CandidateProfileInput + SearchPreferences + StructuredJobDescription
+→ EligibilityInput
+→ check_eligibility（纯函数）
+→ EligibilityCheck[] + EligibilityResult
+```
+
+每个 `EligibilityCheck` 保存规则名、字段、`pass / fail / unknown`、原因、JD 原文依据和待补充信息。规则对学历层级、专业族、地点别名、日期和数值使用确定性规范化；无法安全规范化时返回 `unknown`，不交给评分逻辑猜测。总体结果固定按 `fail > unknown > pass` 汇总。
+
 Evidence Validator 必须保证：
 
 - `supported / partial` 至少引用一个有效 `evidence_id`；
@@ -307,7 +334,7 @@ Evidence Validator 必须保证：
 
 MVP 使用同步分析 API。`POST /api/jobs/{job_id}/analyze` 等待 Parser、资格、证据和评分全部完成后返回新结果；可安全处理的非法证据匹配降级为 `unsupported` 并作为风险保存，只有无法降级的模型或校验错误才终止分析。只有整条流水线成功才保存 JobAnalysis；失败只写 AgentRun 并返回统一错误，不保存 `pending` 或半成品结果。`GET /api/jobs/{job_id}/analysis` 只读取当前用户最新、成功且 `invalidated_at` 为空的结果。用户画像、证据、岗位文本或分析规则变化时，相关旧分析写入失效时间。
 
-### 5.2 ApplicationService
+### 5.3 ApplicationService
 
 核心方法：
 
@@ -336,7 +363,7 @@ decide_suggestion
 
 材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
 
-### 5.3 DiscoveryService
+### 5.4 DiscoveryService
 
 ```text
 求职偏好
@@ -415,7 +442,7 @@ API 只负责请求校验、身份识别、调用 Service 和错误转换。
 
 岗位分析 API 在核心 MVP 中同步执行，不返回后台 Job ID，也不要求前端轮询。`POST /api/candidates` 让手动岗位在 M10 完成前即可进入申请闭环。材料建议请求必须包含 SuggestionTargetInput，不能从不存在的 ResumeVersion 猜测原文。
 
-M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状；M04 已补齐唯一事实来源、字段原文依据、跨字段语义校验、可替换 Model Client、`JobParseResult`、`AgentRun` 和解析接口。字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
+M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状；M04 已补齐唯一事实来源、字段原文依据、跨字段语义校验、可替换 Model Client、`JobParseResult`、`AgentRun` 和解析接口。M05 的 `EligibilityInput` 只接受经过 `SearchPreferences` 校验的用户偏好，不直接读取任意 JSON 字段。字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
 
 M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取、修改和删除必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。硬删除证据后，同时删除引用它的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
 

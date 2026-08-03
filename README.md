@@ -847,6 +847,21 @@ M04 提供同步解析接口 `POST /api/jobs/{job_id}/parse`。默认使用 Fake
 
 M04 不负责完整分析持久化；M07 在 Parser、Eligibility 和 Evidence 接口稳定后实现 `JobAnalysis`，统一保存解析、资格、证据匹配和评分结果。
 
+### M05 资格规则
+
+M05 将资格判断与技能匹配分开，使用纯函数 `check_eligibility`，不调用模型，也不写数据库。输入为用户画像、经过校验的 `SearchPreferences` 和结构化 JD，输出总体资格结果及逐项检查：
+
+```text
+CandidateProfileInput + SearchPreferences + StructuredJobDescription
+→ EligibilityInput
+→ check_eligibility
+→ EligibilityCheck[] + EligibilityResult
+```
+
+检查覆盖毕业年份、学历、专业、地点、岗位类型、实习时长、每周到岗天数和最早到岗时间。每条结果包含 `pass / fail / unknown`、规则名、原因、JD 原文依据和待补充信息；总体结果按 `fail > unknown > pass` 汇总。学历层级、专业族、北京/北京市等地点别名、日期和数值比较均使用确定性规则，无法安全规范化时返回 `unknown`。
+
+`SearchPreferences` 明确以下字段的类型和范围：`preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days(1～7)` 和 `internship_duration_months(>=0)`。`null` 表示信息未提供，相关规则返回 `unknown`；空列表表示明确没有该类限制。M02 旧字段 `target_roles` 和 `locations` 暂时保留兼容，但资格检查只使用规范字段。
+
 ### M07 分析持久化与 API 约定
 
 MVP 采用同步分析接口，不引入后台队列和轮询任务：
@@ -885,11 +900,13 @@ jobflow-agent/
 │   ├── domain/
 │   │   ├── profile.py
 │   │   ├── job.py
+│   │   ├── eligibility.py
 │   │   ├── analysis.py
 │   │   ├── application.py
 │   │   └── suggestion.py
 │   ├── services/
 │   │   ├── jd_analysis.py
+│   │   ├── eligibility_checker.py
 │   │   ├── evidence_matching.py
 │   │   ├── application_service.py
 │   │   └── discovery_service.py
@@ -911,7 +928,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M04 的核心实现已完成，核心进度为 4 / 11，下一步是 M05。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析接口和运行记录链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M05 的核心实现已完成，核心进度为 5 / 11，下一步是 M06。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析接口、资格规则和运行记录链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 
