@@ -33,9 +33,17 @@ LangGraph / Temporal / Redis
 
 ### 2.1 轻量模块化单体
 
-系统由 Next.js、FastAPI 和数据库组成。SQLite 用于本地 MVP，PostgreSQL + pgvector 用于需要接近部署环境、JSONB 或向量检索的阶段。后端保持一个部署单元，通过 `api / domain / services / infrastructure` 保持边界，不为每个小实体分别创建 Repository、Schema 和 Service 文件。
+系统由 Next.js、FastAPI 和数据库组成。SQLite 是 M01～M11 核心 MVP 的开发和验收数据库；PostgreSQL + pgvector 是发布前切换验证以及 JSONB、向量检索等可选能力的升级路径，不计入核心里程碑进度。后端保持一个部署单元，通过 `api / domain / services / infrastructure` 保持边界，不为每个小实体分别创建 Repository、Schema 和 Service 文件。
 
-PostgreSQL 基础设施复用 Memory-RAG 的方案：使用 `pgvector/pgvector:pg16` Docker 镜像、固定数据库用户和数据库名、持久化卷以及 `pg_isready` 健康检查。JobFlow 的数据库访问仍使用 SQLAlchemy，表结构变更仍使用 Alembic；这里只复用数据库运行方式，不复用 Memory-RAG 的手写 SQL 存储层。
+PostgreSQL 基础设施复用 Memory-RAG 的方案：使用 `pgvector/pgvector:pg16` Docker 镜像、固定数据库用户和数据库名、持久化卷以及 `pg_isready` 健康检查。JobFlow 的数据库访问仍使用 SQLAlchemy，表结构变更仍使用 Alembic；这里只复用数据库运行方式，不复用 Memory-RAG 的手写 SQL 存储层。没有 Docker 或 PostgreSQL 环境时，开发者仍可完整推进核心 MVP；切换验证集中放在发布前检查中完成。
+
+数据库范围：
+
+| 场景 | 数据库 | 是否阻塞 M01～M11 | 必须验证的内容 |
+|---|---|---:|---|
+| 本地开发、测试和核心演示 | SQLite | 是 | 迁移、规则、事务、API 和端到端链路 |
+| 发布前切换验证 | PostgreSQL 16 | 否 | 全新迁移、核心测试、JSON/时间/约束兼容性 |
+| 可选向量召回 | PostgreSQL + pgvector | 否 | 扩展迁移、向量索引和召回回归测试 |
 
 Python 环境统一使用 `uv` 管理。依赖声明写入 `pyproject.toml`，锁文件使用 `uv.lock`，不维护单独的 `requirements.txt`。所有 Python 命令通过 `uv run` 执行。
 
@@ -73,7 +81,7 @@ Copy-Item .env.example .env
 uv run alembic upgrade head
 ```
 
-数据库文件默认位于 `./data/jobflow.db`。如果需要验证 PostgreSQL：
+数据库文件默认位于 `./data/jobflow.db`。到发布前检查或确实需要 PostgreSQL 专有能力时，再执行切换验证：
 
 ```text
 docker compose up -d postgres
@@ -168,17 +176,22 @@ jobflow-agent/
 |---|---|---|
 | `UserProfile` | 用户信息和偏好 | graduation_year、degree、search_preferences JSON（PostgreSQL 可升级为 JSONB） |
 | `EvidenceItem` | 真实经历证据 | type、title、claim、skills、source |
+| `RawJobDocument` | 岗位原始文档 Schema | source_url、source_type、raw_content、retrieved_at、trace_id |
 | `JobSource` | 招聘来源配置 | name、adapter_type、entry_url、enabled |
-| `JobPosting` | 外部岗位事实 | company、title、raw_content、content_hash、source_url |
+| `JobPosting` | 外部岗位事实 | company、title、raw_content、content_hash、source_url、retrieved_at |
+| `JobParseResult` | 与用户无关的岗位解析缓存 | job_posting_id、content_hash、schema_version、parser_version、prompt_version、model、structured_jd |
 | `CandidateJob` | 用户与岗位关系 | user_id、job_posting_id、status |
-| `JobAnalysis` | JD 和资格分析 | parsed_jd、eligibility、score、content_hash |
+| `JobAnalysis` | 当前用户的资格与匹配分析 | user_id、job_posting_id、parse_result_id、analysis_version、eligibility、matches、score、risks、created_at、invalidated_at |
 | `RequirementMatch` | 要求与证据对应 | requirement、support_level、evidence_ids |
 | `Application` | 正式申请 | candidate_job_id、status、next_action |
-| `ResumeSuggestion` | 建议和审批结果 | original_text、suggested_text、status、final_text |
+| `ResumeSuggestion` | 建议和审批结果 | user_id、application_id、job_analysis_id、target_type、original_text、suggested_text、evidence_ids、status、final_text |
 | `DomainEvent` | 用户可见时间线 | entity_type、entity_id、event_type、payload |
-| `AgentRun` | 必要技术轨迹 | model、prompt_version、output、validation_result、trace |
+| `AgentRun` | 从 M04 开始保存的必要技术轨迹 | user_id、run_type、target、status、model、prompt_version、input_hash、output、validation_result、started_at、finished_at、error |
+| `DiscoveryRun` | 用户手动发现运行 | user_id、source、status、found_count、created_count、duplicate_count、failure_summary、started_at、finished_at |
 
-求职偏好直接保存在 `UserProfile.search_preferences`。岗位原文、内容指纹和读取时间直接保存在 `JobPosting`。审批状态和最终文本直接保存在 `ResumeSuggestion`。
+求职偏好直接保存在 `UserProfile.search_preferences`，但写入和读取必须经过 `SearchPreferences` Schema。参与资格判断的字段至少包括 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days` 和 `internship_duration_months`，并明确类型、范围和 `null` 语义；其他纯展示偏好仍可保留在 JSON 中。`RawJobDocument` 是导入和后续解析之间传递的 Schema，不单独建表；岗位原文、内容指纹和读取时间直接保存在 `JobPosting`。审批状态和最终文本直接保存在 `ResumeSuggestion`。
+
+`JobParseResult` 只缓存与用户无关的结构化 JD，可按 `content_hash + schema_version + parser_version + prompt_version + model` 复用。`JobAnalysis` 必须包含 `user_id`、`analysis_version` 和可选 `invalidated_at`，每次分析都使用当前画像和当前证据重新计算资格、匹配与分数，不允许仅凭岗位 `content_hash` 跨用户复用完整结果。
 
 第一版不创建：
 
@@ -190,7 +203,7 @@ ApprovalDecision 独立表
 ToolCallTrace 独立表
 ```
 
-`CandidateJob` 仍然保留，用于隔离外部岗位事实和用户侧状态，但不为它建设复杂分层。
+`CandidateJob` 仍然保留，用于隔离外部岗位事实和用户侧状态，但不为它建设复杂分层。真实来源发现创建 `DISCOVERED` CandidateJob；手动导入的 JobPosting 可以通过候选创建 API 幂等生成 `SAVED` CandidateJob。
 
 候选岗位状态：
 
@@ -223,6 +236,7 @@ PENDING → ACCEPTED / EDITED_AND_ACCEPTED / REJECTED
 RawJobDocument
 → JD Parser
 → Pydantic 校验
+→ JobParseResult
 → Eligibility Checker
 → Evidence Retriever
 → Evidence Matcher
@@ -240,12 +254,27 @@ class StructuredModelClient(Protocol):
 
 测试使用 Fake Client。Eligibility Checker 保持为纯函数，输出 `pass / fail / unknown`。
 
+M04 起采用以下结构化输出约束：
+
+- 模型只产生一套规范结果；用于页面展示、资格规则和评分的重复视图由确定性代码派生；
+- `JobRequirement` 是证据匹配和技能评分的规范输入；
+- 资格条件必须有明确字段、操作符和值，`unknown` 表示原文无法确认，而不是模型调用失败；
+- 每个关键字段和要求保存原文依据，至少包含 `field_path`、`source_text` 和可选的字符位置；
+- 缺失字段使用 `null`，不得使用空字符串、默认通过或模型猜测填充；
+- Pydantic 类型或语义校验失败时，整次解析失败，不保存半成品 `JobAnalysis`。
+
+`StructuredModelClient` 只负责结构化模型调用。Parser 负责提示词、Schema 和错误转换，Service 负责事务和 `AgentRun`。Fake Client 至少支持正常输出、字段缺失、额外字段、非法类型、超时和模型异常，使上层逻辑不依赖真实模型即可测试。
+
+`AgentRun` 的 `run_type` 至少支持 `jd_parse / evidence_match / resume_suggestion`。运行状态使用 `succeeded / failed`，输出校验结果独立使用 `passed / failed`；因此模型调用成功但输出被安全降级时，可以记录为运行成功、校验失败。模型或不可恢复的校验错误保存失败状态和必要诊断，但普通日志不写入完整 JD、简历原文或联系方式。
+
 Evidence Validator 必须保证：
 
-- `supported` 至少引用一个有效 `evidence_id`；
+- `supported / partial` 至少引用一个有效 `evidence_id`；
 - 证据属于当前用户；
-- `unsupported` 不表述为用户已掌握；
+- `unsupported` 的 `evidence_ids` 为空，且不表述为用户已掌握；
 - 项目、技能和数字能在证据中找到。
+
+无效 ID、跨用户引用或虚构事实不会直接进入用户结果。对应匹配安全降级为 `unsupported`，清空非法引用和解释，同时在 AgentRun 中记录 `validation_failed`，使产品结果安全而评测仍能统计模型错误。
 
 `MatchScoreCalculator` 使用确定性规则计算详情页分数：
 
@@ -258,11 +287,18 @@ Evidence Validator 必须保证：
 
 `supported / partial / unsupported` 分别按 `1 / 0.5 / 0` 计入覆盖率。硬性资格出现 `fail` 时标记为不推荐；出现 `unknown` 时保留分数但要求用户确认。评分结果必须和证据、风险项一起展示。
 
+资格汇总固定使用以下优先级：任一单项为 `fail` 时总体为 `fail`；没有 `fail` 但存在 `unknown` 时总体为 `unknown`；全部为 `pass` 时总体才是 `pass`。缺少用户信息或 JD 信息必须生成 `unknown` 和补充信息请求，不能自动推断为通过。
+
+要求先按规范化后的 `category + name` 去重。只有 JD 明确不存在某类要求时，该分组才标记为 `not_applicable`，其权重按原比例重分配给其他适用分组；字段缺失属于信息不足，不能当作不适用。所有软评分分组都不可用时，分数返回 `null` 并要求补充信息。保存的评分明细必须能够确定性复算总分。
+
+MVP 使用同步分析 API。`POST /api/jobs/{job_id}/analyze` 等待 Parser、资格、证据和评分全部完成后返回新结果；可安全处理的非法证据匹配降级为 `unsupported` 并作为风险保存，只有无法降级的模型或校验错误才终止分析。只有整条流水线成功才保存 JobAnalysis；失败只写 AgentRun 并返回统一错误，不保存 `pending` 或半成品结果。`GET /api/jobs/{job_id}/analysis` 只读取当前用户最新、成功且 `invalidated_at` 为空的结果。用户画像、证据、岗位文本或分析规则变化时，相关旧分析写入失效时间。
+
 ### 5.2 ApplicationService
 
 核心方法：
 
 ```text
+create_candidate
 save_candidate
 ignore_candidate
 prepare_application
@@ -282,6 +318,10 @@ decide_suggestion
 
 使用唯一约束防止重复创建申请，不引入分布式锁和复杂并发重试。
 
+`create_candidate` 接收当前用户和 `job_posting_id`。手动导入岗位幂等创建或返回 `SAVED` CandidateJob；发现流程使用同一唯一约束创建 `DISCOVERED` CandidateJob。
+
+材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
+
 ### 5.3 DiscoveryService
 
 ```text
@@ -290,6 +330,7 @@ decide_suggestion
 → 真实招聘来源 Adapter
 → 标准化和去重
 → 基础筛选
+→ DiscoveryRun
 → CandidateJob
 ```
 
@@ -301,7 +342,7 @@ class JobSourceAdapter(Protocol):
     async def fetch_job(self, source_job_id: str) -> RawJobDocument: ...
 ```
 
-必须完成 1 个真实来源。发现页只做基础筛选，打开详情后才执行完整分析。
+必须完成 1 个真实来源。每次用户手动触发都保存轻量 DiscoveryRun，包括来源、状态、发现/新增/重复数量、失败摘要和起止时间。发现页只做基础筛选，打开详情后才执行完整分析。
 
 ## 6. URL 读取与安全
 
@@ -330,12 +371,18 @@ Playwright 是动态页面的可选扩展，不属于核心 MVP。只有普通�
 PUT  /api/profile
 POST /api/evidence
 GET  /api/evidence
+GET  /api/evidence/{evidence_id}
+PATCH /api/evidence/{evidence_id}
+DELETE /api/evidence/{evidence_id}
 
 POST /api/jobs/import-text
+GET  /api/jobs/{job_id}
+
 POST /api/jobs/import-url
 POST /api/jobs/{job_id}/analyze
 GET  /api/jobs/{job_id}/analysis
 
+POST /api/candidates
 POST /api/candidates/{candidate_id}/save
 POST /api/candidates/{candidate_id}/ignore
 POST /api/candidates/{candidate_id}/prepare
@@ -351,7 +398,11 @@ GET  /api/candidates
 
 API 只负责请求校验、身份识别、调用 Service 和错误转换。
 
-M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取和修改必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。
+岗位分析 API 在核心 MVP 中同步执行，不返回后台 Job ID，也不要求前端轮询。`POST /api/candidates` 让手动岗位在 M10 完成前即可进入申请闭环。材料建议请求必须包含 SuggestionTargetInput，不能从不存在的 ResumeVersion 猜测原文。
+
+M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状，M04 会补齐唯一事实来源、字段原文依据和跨字段语义校验；字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
+
+M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取、修改和删除必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。硬删除证据后，同时删除引用它的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
 
 ## 8. 四个开发里程碑
 
@@ -401,20 +452,23 @@ M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `D
 
 ### D：评测与演示
 
-完成：30～50 条标注样本、字段级 Precision / Recall / Macro-F1、资格分类准确率、误判符合率、Evidence Precision、Evidence Coverage、Unsupported Claim Rate、AgentRun、失败案例、端到端测试和 UI 打磨。
+完成：30～50 条标注样本、字段级 Precision / Recall / Macro-F1、资格分类准确率、误判符合率、Evidence Precision、Evidence Coverage、Unsupported Claim Rate、AgentRun 汇总、失败案例、端到端测试和 UI 打磨。`AgentRun` 的最小持久化在 M04 首次接入模型时实现，M11 负责把运行轨迹纳入可重复评测。
 
-验收：评测可重复运行并记录模型、提示词和数据集版本；真实岗位发现到申请管理可以完整演示；unknown、无证据和读取失败场景可以正常处理。
+验收：最终运行前已冻结 Evaluation Manifest、指标口径和发布阈值；评测可重复运行并记录模型、提示词和数据集版本；原始模型输出和 Validator 后结果分别报告，用户可见 Unsupported Claim Rate 为 0；真实岗位发现到申请管理可以完整演示；unknown、无证据和读取失败场景可以正常处理。
 
 ## 9. 测试重点
 
-- Eligibility Checker 边界条件；
-- Evidence Matcher 输出校验；
-- 候选岗位和申请状态转换；
-- `prepare_application` 原子性和唯一约束；
-- 材料建议审批规则；
-- 岗位去重和 URL SSRF；
-- 真实来源 Adapter 的固定 HTML Fixture；
-- 核心演示链路端到端测试。
+| 范围 | 必测路径 |
+|---|---|
+| 文本导入 | 规范化、最短长度、纯空白、内容哈希、固定手动来源、404 |
+| JD Parser | 正常、缺失、额外字段、类型错误、语义非法、超时、模型异常、原文依据 |
+| Eligibility | 边界年份、学历层级、地点别名、日期边界、信息缺失、多条件汇总 |
+| Evidence | 无证据、跨用户证据、错误 ID、虚构技能或数字、安全降级、删除失效、重复要求、评分零分母 |
+| JobAnalysis | Fake 编排、岗位级解析缓存、用户级重新计算、内容/版本变化、失败不留半成品、同步 API 错误转换 |
+| 状态机 | 完整转换矩阵、非法转换、重复请求、跨用户访问、事务回滚 |
+| 材料审批 | 明确原文输入、接受、编辑后接受、拒绝、重复审批、无效/已删除证据、事件原子性 |
+| URL 和 Adapter | SSRF、DNS/重定向、超时、超大响应、恶意 HTML、固定 Fixture、去重 |
+| 端到端 | 手动 JD 完整闭环、真实来源发现闭环、unknown、读取失败、无证据 |
 
 Adapter Fixture 测试直接放在对应测试文件中，不建设独立 Contract 测试目录。
 
@@ -438,6 +492,21 @@ M11 评测、失败案例与演示
 
 GitHub Issue 可以继续拆小任务，但 README、TODO 和项目看板只展示这 11 个里程碑。
 
+关键依赖顺序：
+
+```text
+M04 Parser + AgentRun
+→ M05 Eligibility
+→ M06 Evidence + Score
+→ M07 JobAnalysis API/UI
+→ M08 Application State Machine
+→ M09 Suggestion Approval
+→ M10 Real-source Discovery
+→ M11 Evaluation + Demo
+```
+
+M04～M06 可以分别用纯 Schema、纯函数和 Fake 并行开发，但 M07 的完整分析编排必须等三者接口稳定。M09 复用 M04 的模型边界和 M06 的证据校验。M11 不再首次引入运行轨迹，只评测和汇总从 M04 开始产生的 `AgentRun`。
+
 ## 11. Definition of Done
 
 一个功能只有同时满足以下条件才算完成：
@@ -451,3 +520,19 @@ GitHub Issue 可以继续拆小任务，但 README、TODO 和项目看板只展�
 - 必要的 DomainEvent 或 AgentRun 已记录；
 - API 和最小页面可以完成交互；
 - 文档、TODO 和实现保持一致。
+
+里程碑完成不要求 PostgreSQL 可用。PostgreSQL 发布前验证使用独立检查表，不回写 M01～M11 的核心进度。
+
+## 12. PostgreSQL 发布前切换验证
+
+这部分不计入核心里程碑进度。当项目需要部署到 PostgreSQL、启用 JSONB/pgvector，或准备对外演示部署环境时执行：
+
+```text
+启动 pgvector/pgvector:pg16
+→ 对全新数据库执行 alembic upgrade head
+→ 运行后端测试和核心 API 冒烟测试
+→ 核对 JSON、时区、唯一约束和事务行为
+→ 记录镜像版本、迁移版本、验证日期和已知差异
+```
+
+如果 SQLite 与 PostgreSQL 行为不同，应优先通过 SQLAlchemy 类型、约束和显式业务规则消除差异。只有确实使用 PostgreSQL 专有能力时才增加方言分支，并为该分支增加回归测试。

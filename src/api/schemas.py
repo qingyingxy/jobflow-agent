@@ -46,3 +46,22 @@ class EvidenceRead(EvidenceCreate):
     user_id: str
     created_at: datetime
     updated_at: datetime
+
+
+class JobTextImportRequest(BaseModel):
+    source_url: str | None = Field(default=None, max_length=2048)
+    source_type: str = Field(default="manual_text", min_length=1, max_length=40)
+    company: str | None = Field(default=None, max_length=160)
+    title: str | None = Field(default=None, max_length=160)
+    raw_content: str = Field(min_length=20)
+
+
+class JobPostingRead(JobTextImportRequest):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    content_hash: str
+    retrieved_at: datetime
+    trace_id: str
+    created_at: datetime
+    updated_at: datetime

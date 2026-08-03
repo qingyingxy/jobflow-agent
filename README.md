@@ -296,11 +296,14 @@ unknown
 
 系统必须满足：
 
-1. 每个匹配结论保存 `evidence_ids`。
+1. `supported / partial` 至少保存一个当前用户的有效 `evidence_id`，`unsupported` 的 `evidence_ids` 必须为空。
 2. 不允许生成证据中不存在的项目或技能。
 3. 不允许擅自生成证据中不存在的数字。
 4. `unsupported` 的要求不能被描述为用户已经掌握。
 5. 用户可以查看每条结论的原始证据。
+6. 无效 ID、跨用户引用或虚构事实统一安全降级为 `unsupported`，清空非法解释，并在 `AgentRun` 中记录校验失败。
+
+用户编辑证据后，引用旧证据的完整分析不能继续作为最新结果展示。删除采用硬删除，同时删除引用该证据的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
 
 ### 5.5 Candidate and Application State Machine
 
@@ -340,6 +343,8 @@ CandidateJob → CONVERTED
 ```
 
 状态转换只能由领域服务执行。大模型可以提出状态建议，但不能直接修改数据库。
+
+真实来源发现会创建 `DISCOVERED` CandidateJob；用户手动粘贴或导入的 `JobPosting` 也可以通过 `POST /api/candidates` 幂等创建 `SAVED` CandidateJob，因此申请闭环不依赖岗位发现功能先完成。
 
 ### 5.6 Event and Trace Log
 
@@ -383,7 +388,7 @@ payload JSON
 created_at
 ```
 
-核心 MVP 只使用 `AgentRun`，保存模型、提示词版本、输入哈希、结构化输出、校验结果、耗时和错误。实现多步网页工具调用后，再按需要增加独立的工具调用记录。
+核心 MVP 只使用 `AgentRun`，保存 `user_id`、运行类型、目标实体、状态、模型、提示词版本、输入哈希、结构化输出、校验结果、起止时间、耗时和错误。运行状态使用 `succeeded / failed`，输出校验结果单独使用 `passed / failed`，因此模型调用成功但输出被安全降级时仍能准确记录。运行类型至少支持 `jd_parse`、`evidence_match` 和 `resume_suggestion`。实现多步网页工具调用后，再按需要增加独立的工具调用记录。
 
 ## 6. 人工确认机制
 
@@ -393,6 +398,7 @@ created_at
 
 ```text
 用户点击“准备申请”并创建 PREPARING 申请
+→ 用户选择要修改的文本类型并提供原文
 → Agent 生成修改建议
 → 展示原始文本
 → 展示建议文本
@@ -402,6 +408,8 @@ created_at
 ```
 
 用户没有接受之前，建议内容不能成为最终文本。
+
+核心 MVP 不创建完整 Resume 或 ResumeVersion。建议请求使用 `SuggestionTargetInput` 显式提供 `original_text`、`target_type` 和可选 `target_label`；`ResumeSuggestion` 关联当前用户、Application 和 JobAnalysis，保存目标、原文、建议文本、引用证据、审批状态及最终文本。
 
 创建申请本身必须来自用户明确操作。Agent 可以建议用户准备申请，但不能自行将候选岗位转换为申请记录。
 
@@ -442,6 +450,7 @@ created_at
 - `supported / partial / unsupported` 判断；
 - 匹配分数和风险项；
 - 简历修改建议；
+- 建议目标类型和用户提供的原文；
 - 修改前后 Diff；
 - 接受、编辑和拒绝操作；
 - 创建申请记录并保存材料建议的最终文本和审批状态。
@@ -493,7 +502,7 @@ flowchart LR
     APPLICATION --> EVENTS["Business Events"]
     ANALYSIS --> TRACE["Agent Trace"]
 
-    DISCOVERY --> DB["SQLite（本地） / PostgreSQL（部署）"]
+    DISCOVERY --> DB["SQLite（核心 MVP） / PostgreSQL（发布前验证与可选升级）"]
     ANALYSIS --> DB
     APPLICATION --> DB
 ```
@@ -543,6 +552,14 @@ flowchart LR
 
 `supported / partial / unsupported` 分别按 `1 / 0.5 / 0` 计入覆盖率。硬性资格出现 `fail` 时标记为不推荐；出现 `unknown` 时保留分数但要求用户确认。
 
+评分使用以下确定性边界：
+
+- 要求先按规范化后的 `category + name` 去重；
+- 只有 JD 明确不存在某类要求时，该分组才标记为 `not_applicable`；
+- `not_applicable` 分组的权重按原比例重分配给其他适用分组；
+- JD 字段缺失属于信息不足，不能当作 `not_applicable`；
+- 所有软评分分组都不可用时，分数返回 `null`，并展示补充信息提示。
+
 最终结果必须同时展示分数和证据，不能只显示一个百分比。
 
 ## 11. 岗位发现与同步范围
@@ -583,6 +600,7 @@ UserProfile
 EvidenceItem
 JobSource
 JobPosting
+JobParseResult
 CandidateJob
 JobAnalysis
 RequirementMatch
@@ -590,9 +608,10 @@ ResumeSuggestion
 Application
 DomainEvent
 AgentRun
+DiscoveryRun
 ```
 
-为了兼容 SQLite-first 开发，求职偏好作为 `UserProfile.search_preferences JSON` 保存；切换 PostgreSQL 后可以再升级为 JSONB。岗位原文、内容指纹和读取时间直接保存在 `JobPosting`；审批状态和用户最终文本直接保存在 `ResumeSuggestion`。
+核心 MVP 使用 SQLite-first，求职偏好作为 `UserProfile.search_preferences JSON` 保存；切换 PostgreSQL 后可以再升级为 JSONB。M05 使用 `SearchPreferences` Schema 明确地点、岗位类型、到岗日期、每周天数和实习时长的类型、范围与 `null` 语义，不能在资格函数中直接猜测任意 JSON。岗位原文、内容指纹和读取时间直接保存在 `JobPosting`；审批状态和用户最终文本直接保存在 `ResumeSuggestion`。
 
 关键关系：
 
@@ -600,10 +619,12 @@ AgentRun
 UserProfile
 ├── EvidenceItem
 ├── search_preferences JSON
+├── DiscoveryRun
 └── CandidateJob
-    └── JobPosting
-        └── JobAnalysis
-            └── RequirementMatch
+    ├── JobPosting
+    │   └── JobParseResult
+    └── JobAnalysis
+        └── RequirementMatch
 
 CandidateJob
 └── Application
@@ -613,7 +634,9 @@ CandidateJob
 
 `CandidateJob` 保留为轻量关联实体，用于隔离外部岗位事实和用户侧的收藏、忽略、转换状态，但不为它单独建设复杂 Repository 层。
 
-`DomainEvent` 通过 `entity_type + entity_id` 关联候选岗位或申请；`AgentRun` 使用 JSON 保存必要的执行轨迹，切换 PostgreSQL 后可升级为 JSONB，不参与业务状态计算。
+`JobParseResult` 是岗位级、与用户无关的解析缓存，只允许按 `content_hash + schema_version + parser_version + prompt_version + model` 复用。`JobAnalysis` 是用户级结果，必须包含 `user_id`、`analysis_version` 和可选 `invalidated_at`，并在每次分析时使用当前画像和当前证据重新计算资格、匹配与分数，不能跨用户复用。
+
+`DiscoveryRun` 保存一次用户手动发现的来源、状态、发现/新增/重复数量、失败摘要和起止时间。`DomainEvent` 通过 `entity_type + entity_id` 关联候选岗位或申请；`AgentRun` 从 M04 首次接入模型时开始保存必要执行轨迹，切换 PostgreSQL 后可升级为 JSONB，不参与业务状态计算，也不在普通日志中保存完整敏感输入。
 
 以下实体延后到确有需求时再增加：
 
@@ -658,7 +681,9 @@ Evidence Coverage
 Unsupported Claim Rate
 ```
 
-核心 MVP 准备 30～50 条人工标注样本，后续扩展到 50～100 条。不在简历中使用未经实际评测的指标。
+核心 MVP 准备 30～50 条人工标注样本，后续扩展到 50～100 条。数据集需要有版本、标注说明和固定格式，并区分开发样本与最终评测样本；正常、字段缺失、`unknown`、无证据、读取失败和非法模型输出均需预先规定最小样本分布。
+
+最终运行前冻结 Evaluation Manifest、指标口径和发布阈值，不能查看最终结果后再修改通过标准。原始模型输出和 Validator 后用户可见输出分别报告；用户可见 Unsupported Claim Rate 的发布要求为 0。评测结果同时记录模型、提示词、数据集版本、随机参数、运行时间和失败数，不在简历中使用未经实际运行的指标。
 
 ## 14. 技术栈
 
@@ -743,9 +768,11 @@ uv run uvicorn src.main:app --reload
 
 后续如果模型中使用 PostgreSQL 专有能力（例如 JSONB 或 pgvector），再为对应迁移增加 PostgreSQL 方言分支；业务服务和 SQLAlchemy Session 接口保持不变。
 
-### PostgreSQL 可选环境
+### PostgreSQL 发布前验证与可选升级
 
-需要验证 PostgreSQL 迁移、JSONB 或向量检索时，再启用 PostgreSQL。基础设施采用与 Memory-RAG 相同的轻量方案：使用 `pgvector/pgvector:pg16` 镜像、持久化卷和健康检查。当前 Compose 文件只负责数据库，API 和前端仍按本地开发方式启动。
+SQLite 是 M01～M11 的核心开发和验收数据库，因此没有 Docker Desktop 不影响核心进度。准备部署、需要验证 PostgreSQL 迁移，或开始使用 JSONB/向量检索时，再启用 PostgreSQL。该检查属于发布前验证，不计入 M01～M11 核心进度。
+
+基础设施采用与 Memory-RAG 相同的轻量方案：使用 `pgvector/pgvector:pg16` 镜像、持久化卷和健康检查。当前 Compose 文件只负责数据库，API 和前端仍按本地开发方式启动。
 
 不需要单独安装 PostgreSQL，但需要安装并运行 Docker Desktop：
 
@@ -765,7 +792,7 @@ API 在宿主机运行时通过 `localhost:5432` 连接数据库；以后如果 
 docker compose stop postgres
 ```
 
-如果暂时没有 Docker Desktop，可以继续运行离线迁移检查；真实迁移需要可连接的 PostgreSQL 服务。
+如果暂时没有 Docker Desktop，可以继续完成 SQLite 迁移、测试和全部核心功能。发布前应在全新 PostgreSQL 数据库上执行迁移，并复核 JSON、时区、唯一约束、事务和核心 API；验证结果记录镜像版本、迁移版本、日期及已知差异。
 
 ### M02 用户画像与经历证据 API
 
@@ -781,6 +808,57 @@ PATCH /api/evidence/{evidence_id}
 ```
 
 经历证据的查询、读取和修改都会同时使用 `user_id + evidence_id` 过滤，不能通过已知证据 ID 读取其他用户的数据。证据包含类型、标题、事实陈述、技能标签和来源；求职偏好保存在用户画像的 JSON 字段中。
+
+### M03 JD 导入与结构化 Schema
+
+M03 先支持用户粘贴岗位文本，不执行网页抓取和模型解析。导入时保存原始岗位文本、来源类型、读取时间、追踪 ID 和 SHA-256 内容指纹。
+
+```text
+POST /api/jobs/import-text
+GET  /api/jobs/{job_id}
+```
+
+`StructuredJobDescription` 是 M04 JD Parser 的基础输出，所有无法从岗位文本确认的字段都使用 `null`，不会用空字符串或模型猜测代替。M03 先完成可持久化的 Schema 基线，M04 再补齐模型输出所需的唯一事实来源、字段原文依据和跨字段语义校验。
+
+### M04 JD Parser 约定
+
+M04 使用可替换的 `StructuredModelClient`。Fake 和真实模型 Client 必须共享同一调用边界，Parser 之外的业务代码不能依赖某个模型供应商的响应格式。
+
+```text
+RawJobDocument
+→ 构造带版本的解析提示词
+→ StructuredModelClient
+→ Pydantic 类型与语义校验
+→ 字段原文依据校验
+→ 返回已校验结果并保存 AgentRun
+```
+
+结构化结果遵循以下规则：
+
+- `JobRequirement` 是证据匹配和技能评分的规范输入；重复的技能列表只能由确定性代码派生；
+- 资格字段和通用资格条件不能由模型分别生成两套矛盾事实；
+- 每个关键字段保存 `field_path`、原文片段和可选字符位置；
+- `unknown` 表示岗位原文无法确认，不表示模型调用失败；
+- 类型错误、非法操作符、缺少必要值或额外字段会使整次解析失败；
+- 模型超时、无响应或校验失败时不保存半成品分析，并向页面返回可重试错误。
+
+最小 `AgentRun` 在 M04 创建，记录用户、运行类型、目标实体、状态、模型、提示词版本、输入哈希、输出校验结果、起止时间、耗时和错误。M11 负责将这些运行记录与数据集版本组合成可重复评测，而不是到 M11 才首次加入运行轨迹。
+
+M04 不负责完整分析持久化；M07 在 Parser、Eligibility 和 Evidence 接口稳定后实现 `JobAnalysis`，统一保存解析、资格、证据匹配和评分结果。
+
+### M07 分析持久化与 API 约定
+
+MVP 采用同步分析接口，不引入后台队列和轮询任务：
+
+```text
+POST /api/jobs/{job_id}/analyze
+→ 复用或创建岗位级 JobParseResult
+→ 使用当前用户画像和证据重新计算完整分析
+→ 全部成功后保存用户级 JobAnalysis
+→ 返回新结果
+```
+
+`GET /api/jobs/{job_id}/analysis` 只返回当前用户最新且 `invalidated_at` 为空的成功结果。可安全处理的非法证据匹配降级为 `unsupported`，作为风险项保存；模型超时、结构化输出非法或无法安全降级的校验错误在 `AgentRun` 中记录失败并返回统一错误，不保存半成品 `JobAnalysis`。用户画像、证据、岗位文本或分析规则变化后，旧分析写入 `invalidated_at`，不得继续标记为最新。
 
 ## 15. 安全与数据边界
 
@@ -832,6 +910,8 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
+当前 M01～M03 已完成，核心进度为 3 / 11，下一步是 M04。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+
 ### 阶段 A：岗位分析闭环
 
 实现用户画像、经历证据、岗位文本导入、JD Parser、Eligibility Checker、Evidence Matcher 和分析结果页面。
@@ -875,7 +955,7 @@ jobflow-agent/
 
 ### 阶段 D：评测与演示
 
-实现 30～50 条人工标注样本、三组基础评测、AgentRun、失败案例、端到端测试和 UI 打磨。
+实现 30～50 条人工标注样本、三组基础评测、AgentRun 汇总、失败案例、端到端测试和 UI 打磨。最小 AgentRun 已在 M04 引入，本阶段负责数据集版本、指标计算、复现实验和结果整理。
 
 完成条件：
 
@@ -894,7 +974,7 @@ jobflow-agent/
 最终版本至少能够完整演示：
 
 ```text
-1. 用户录入自己的简历、项目经历和求职偏好
+1. 用户录入求职偏好，并把真实项目、实习和技能拆成经历证据
 2. Agent 从限定范围的公开招聘来源发现候选岗位
 3. 用户选择一个感兴趣的岗位
 4. 系统在允许的工具范围内读取岗位页面
@@ -902,7 +982,7 @@ jobflow-agent/
 6. 系统检查届别、地点和实习时长
 7. 系统引用真实经历解释岗位匹配情况
 8. 用户点击“准备申请”，系统创建 PREPARING 申请记录
-9. Agent 生成岗位定制的简历修改建议
+9. 用户选择建议目标并粘贴需要修改的简历片段，Agent 生成岗位定制建议
 10. 用户查看证据并逐条审批
 11. 系统保存审批状态和用户最终文本
 12. 用户在看板中将状态推进至投递和面试
