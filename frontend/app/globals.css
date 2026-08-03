@@ -1,0 +1,435 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #17211d;
+  --muted-ink: #66716a;
+  --paper: #f3f0e8;
+  --paper-deep: #e4e0d5;
+  --acid: #d9ee62;
+  --coral: #ff785e;
+  --line: rgba(23, 33, 29, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.45), transparent 42%),
+    var(--paper);
+  color: var(--ink);
+  font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button {
+  font: inherit;
+}
+
+.page-shell {
+  position: relative;
+  max-width: 1440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 28px 5vw 26px;
+}
+
+.ambient-glow {
+  position: absolute;
+  z-index: 0;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.ambient-glow-one {
+  top: 60px;
+  right: -180px;
+  background: var(--acid);
+}
+
+.ambient-glow-two {
+  bottom: 80px;
+  left: -280px;
+  background: rgba(255, 120, 94, 0.35);
+}
+
+.topbar,
+.hero-grid,
+.principles-grid,
+.footer-line {
+  position: relative;
+  z-index: 1;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.brand-lockup,
+.build-label,
+.connection-state,
+.hero-actions,
+.board-caption,
+.footer-line {
+  display: flex;
+  align-items: center;
+}
+
+.brand-lockup {
+  gap: 11px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  background: var(--ink);
+  color: var(--acid);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+}
+
+.brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.build-label,
+.eyebrow,
+.board-caption,
+.card-number,
+.footer-line,
+.board-footnote {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.build-label {
+  gap: 8px;
+  color: var(--muted-ink);
+}
+
+.status-dot,
+.state-pip {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  gap: clamp(48px, 9vw, 150px);
+  align-items: center;
+  padding: clamp(82px, 11vw, 150px) 0 108px;
+}
+
+.hero-copy {
+  animation: rise-in 700ms ease both;
+}
+
+.eyebrow {
+  margin: 0 0 24px;
+  color: var(--coral);
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 760px;
+  margin-bottom: 28px;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: clamp(48px, 7vw, 94px);
+  font-weight: 500;
+  letter-spacing: -0.075em;
+  line-height: 0.98;
+}
+
+h1 em {
+  display: block;
+  color: var(--coral);
+  font-style: normal;
+}
+
+.hero-description {
+  max-width: 520px;
+  color: var(--muted-ink);
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.hero-actions {
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 13px 18px 13px 21px;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-3px);
+  background: var(--coral);
+  color: var(--ink);
+}
+
+.primary-button span {
+  color: var(--acid);
+  font-size: 18px;
+  line-height: 0.5;
+}
+
+.connection-state {
+  gap: 8px;
+  color: var(--muted-ink);
+  font-size: 12px;
+}
+
+.state-online .state-pip {
+  background: #56a85d;
+  box-shadow: 0 0 0 5px rgba(86, 168, 93, 0.14);
+}
+
+.state-checking .state-pip {
+  background: var(--acid);
+  animation: pulse 900ms ease infinite;
+}
+
+.signal-board {
+  position: relative;
+  min-height: 420px;
+  padding: 26px 28px 24px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 18px 18px 0 rgba(23, 33, 29, 0.08);
+  animation: rise-in 700ms 120ms ease both;
+}
+
+.signal-board::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 76px;
+  height: 76px;
+  border-left: 1px solid rgba(217, 238, 98, 0.5);
+  border-bottom: 1px solid rgba(217, 238, 98, 0.5);
+  content: "";
+}
+
+.board-caption {
+  justify-content: space-between;
+  color: rgba(243, 240, 232, 0.54);
+}
+
+.board-line {
+  height: 1px;
+  margin: 23px 0 8px;
+  background: rgba(243, 240, 232, 0.18);
+}
+
+.signal-row {
+  display: grid;
+  grid-template-columns: 42px 1fr 20px;
+  gap: 12px;
+  align-items: start;
+  border-bottom: 1px solid rgba(243, 240, 232, 0.14);
+  padding: 24px 0 22px;
+  transition: padding 180ms ease, background 180ms ease;
+}
+
+.signal-row:hover {
+  padding-right: 7px;
+  padding-left: 7px;
+  background: rgba(217, 238, 98, 0.06);
+}
+
+.signal-row-featured {
+  color: var(--acid);
+}
+
+.signal-index {
+  color: rgba(243, 240, 232, 0.42);
+  font-family: Georgia, serif;
+  font-size: 13px;
+}
+
+.signal-row strong {
+  display: block;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.signal-row p {
+  margin: 5px 0 0;
+  color: rgba(243, 240, 232, 0.54);
+  font-size: 12px;
+}
+
+.signal-arrow {
+  color: var(--coral);
+  font-size: 18px;
+}
+
+.board-footnote {
+  margin-top: 28px;
+  color: rgba(243, 240, 232, 0.42);
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+  animation: rise-in 700ms 240ms ease both;
+}
+
+.principle-card {
+  min-height: 210px;
+  padding: 26px 25px 28px;
+  background: rgba(243, 240, 232, 0.82);
+}
+
+.principle-card-accent {
+  background: var(--acid);
+}
+
+.principle-card-dark {
+  background: var(--coral);
+}
+
+.card-number {
+  display: block;
+  margin-bottom: 48px;
+  color: rgba(23, 33, 29, 0.55);
+}
+
+.principle-card h2 {
+  margin-bottom: 10px;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 27px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+
+.principle-card p {
+  max-width: 280px;
+  margin-bottom: 0;
+  color: rgba(23, 33, 29, 0.65);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.footer-line {
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 20px;
+  color: rgba(23, 33, 29, 0.45);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 850px) {
+  .page-shell {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 62px;
+    padding-top: 75px;
+  }
+
+  .signal-board {
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 600px) {
+  .build-label {
+    font-size: 9px;
+  }
+
+  h1 {
+    font-size: clamp(45px, 15vw, 72px);
+  }
+
+  .principles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .principle-card {
+    min-height: 175px;
+  }
+
+  .card-number {
+    margin-bottom: 30px;
+  }
+
+  .footer-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+    line-height: 1.5;
+  }
+}
