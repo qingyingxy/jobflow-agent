@@ -11,12 +11,20 @@ from src.api.schemas import (
     CandidateStatusUpdate,
     DomainEventRead,
     JobSummary,
+    SuggestionCreateRequest,
+    SuggestionDecisionRequest,
+    SuggestionRead,
 )
+from src.config import get_settings
 from src.domain.application import (
     APPLICATION_TRANSITIONS,
     CANDIDATE_TRANSITIONS,
     ApplicationStatus,
     CandidateStatus,
+)
+from src.infrastructure.llm_client import (
+    ModelClientError,
+    create_structured_model_client,
 )
 from src.services.application_service import (
     ApplicationNotFoundError,
@@ -24,6 +32,13 @@ from src.services.application_service import (
     CandidateNotFoundError,
     InvalidTransitionError,
     JobPostingNotFoundError,
+)
+from src.services.suggestion_service import (
+    InvalidSuggestionDecisionError,
+    JobAnalysisNotFoundError,
+    SuggestionGenerationFailure,
+    SuggestionNotFoundError,
+    SuggestionService,
 )
 
 router = APIRouter(prefix="/api", tags=["applications"])
@@ -96,6 +111,25 @@ def _transition_error(error: InvalidTransitionError) -> HTTPException:
             "target": error.target,
             "allowed": error.allowed,
         },
+    )
+
+
+def _suggestion_response(suggestion) -> SuggestionRead:
+    return SuggestionRead(
+        id=suggestion.id,
+        user_id=suggestion.user_id,
+        application_id=suggestion.application_id,
+        job_analysis_id=suggestion.job_analysis_id,
+        target_type=suggestion.target_type,
+        target_label=suggestion.target_label,
+        original_text=suggestion.original_text,
+        suggestion_text=suggestion.suggestion_text,
+        evidence_ids=suggestion.evidence_ids,
+        status=suggestion.status,
+        final_text=suggestion.final_text,
+        agent_run_id=suggestion.agent_run_id,
+        created_at=suggestion.created_at,
+        updated_at=suggestion.updated_at,
     )
 
 
@@ -283,3 +317,139 @@ def list_application_events(
         )
         for event in events
     ]
+
+
+@router.post(
+    "/applications/{application_id}/suggestions",
+    response_model=SuggestionRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_suggestion(
+    application_id: str,
+    payload: SuggestionCreateRequest,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> SuggestionRead:
+    try:
+        settings = get_settings()
+        client = create_structured_model_client(settings)
+    except ModelClientError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": error.code, "message": str(error)},
+        ) from error
+
+    try:
+        suggestion = await SuggestionService(session, client).generate(
+            user_id=user_id,
+            application_id=application_id,
+            job_analysis_id=None,
+            target=payload,
+        )
+    except ApplicationNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "application_not_found", "message": "申请记录不存在"},
+        ) from error
+    except JobAnalysisNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "analysis_not_found",
+                "message": "当前用户没有可用的岗位分析结果",
+            },
+        ) from error
+    except SuggestionGenerationFailure as error:
+        response_status = (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+            if error.code in {"model_timeout", "model_unavailable", "model_error"}
+            else status.HTTP_422_UNPROCESSABLE_ENTITY
+        )
+        raise HTTPException(
+            status_code=response_status,
+            detail={
+                "code": error.code,
+                "message": str(error),
+                "agent_run_id": error.agent_run_id,
+                "details": error.details,
+            },
+        ) from error
+    return _suggestion_response(suggestion)
+
+
+@router.get(
+    "/applications/{application_id}/suggestions",
+    response_model=list[SuggestionRead],
+)
+def list_suggestions(
+    application_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> list[SuggestionRead]:
+    try:
+        suggestions = SuggestionService(session).list(
+            user_id=user_id,
+            application_id=application_id,
+        )
+    except ApplicationNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "application_not_found", "message": "申请记录不存在"},
+        ) from error
+    return [_suggestion_response(item) for item in suggestions]
+
+
+@router.get("/suggestions/{suggestion_id}", response_model=SuggestionRead)
+def read_suggestion(
+    suggestion_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> SuggestionRead:
+    try:
+        suggestion = SuggestionService(session).get(
+            user_id=user_id,
+            suggestion_id=suggestion_id,
+        )
+    except SuggestionNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "suggestion_not_found", "message": "材料建议不存在"},
+        ) from error
+    return _suggestion_response(suggestion)
+
+
+@router.post("/suggestions/{suggestion_id}/decide", response_model=SuggestionRead)
+def decide_suggestion(
+    suggestion_id: str,
+    payload: SuggestionDecisionRequest,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> SuggestionRead:
+    try:
+        suggestion = SuggestionService(session).decide(
+            user_id=user_id,
+            suggestion_id=suggestion_id,
+            decision=payload.decision,
+            final_text=payload.final_text,
+        )
+    except SuggestionNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "suggestion_not_found", "message": "材料建议不存在"},
+        ) from error
+    except InvalidSuggestionDecisionError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "suggestion_already_decided",
+                "message": str(error),
+                "status": error.status,
+                "decision": error.decision,
+            },
+        ) from error
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"code": "invalid_suggestion_decision", "message": str(error)},
+        ) from error
+    return _suggestion_response(suggestion)

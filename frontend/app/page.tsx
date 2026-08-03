@@ -102,6 +102,26 @@ type ApplicationEvent = {
   created_at: string;
 };
 
+type SuggestionStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+type SuggestionDecision = "accept" | "edit" | "reject";
+
+type ResumeSuggestion = {
+  id: string;
+  user_id: string;
+  application_id: string;
+  job_analysis_id: string;
+  target_type: string;
+  target_label: string | null;
+  original_text: string;
+  suggestion_text: string;
+  evidence_ids: string[];
+  status: SuggestionStatus;
+  final_text: string | null;
+  agent_run_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 type ApplicationItem = {
   id: string;
   candidate_job_id: string;
@@ -169,6 +189,14 @@ const applicationStatusLabel: Record<ApplicationStatus, string> = {
 const applicationEventLabel: Record<string, string> = {
   ApplicationCreated: "创建申请",
   ApplicationStatusChanged: "更新申请状态",
+  SuggestionCreated: "生成材料建议",
+  SuggestionDecisionRecorded: "记录材料决策",
+};
+
+const suggestionStatusLabel: Record<SuggestionStatus, string> = {
+  PENDING: "待审批",
+  ACCEPTED: "已采用",
+  REJECTED: "已拒绝",
 };
 
 const boardColumns: Array<{
@@ -410,7 +438,7 @@ export default function Home() {
         </nav>
         <div className="topbar-trail">
           <span className="topbar-path">{mode === "analysis" ? "岗位分析工作台" : "申请状态工作台"}</span>
-          <span className="build-pill"><span className="live-dot" />M08 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M09 / LOCAL</span>
         </div>
       </header>
 
@@ -519,7 +547,7 @@ export default function Home() {
 
       <footer className="workspace-footer">
         <span>JobFlow Agent / evidence-first job analysis</span>
-        <span>FastAPI · Next.js · SQLite · Fake model</span>
+        <span>FastAPI · Next.js · SQLite · evidence-first</span>
       </footer>
     </main>
   );
@@ -740,6 +768,7 @@ function ApplicationBoard({
             })}
           </div>
           <TimelinePanel application={selected} />
+          <SuggestionPanel application={selected} />
         </>
       ) : null}
     </section>
@@ -827,6 +856,218 @@ function TimelinePanel({ application }: { application: ApplicationItem | null })
   );
 }
 
+function SuggestionPanel({ application }: { application: ApplicationItem | null }) {
+  const applicationId = application?.id;
+  const [suggestions, setSuggestions] = useState<ResumeSuggestion[]>([]);
+  const [suggestionState, setSuggestionState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [targetType, setTargetType] = useState("project_bullet");
+  const [targetLabel, setTargetLabel] = useState("项目经历");
+  const [originalText, setOriginalText] = useState("");
+  const [editedText, setEditedText] = useState<Record<string, string>>({});
+  const [creating, setCreating] = useState(false);
+  const [workingId, setWorkingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function loadSuggestions() {
+      if (!applicationId) {
+        setSuggestions([]);
+        setSuggestionState("idle");
+        setMessage("");
+        return;
+      }
+      setSuggestionState("loading");
+      setMessage("");
+      try {
+        const response = await fetch(`${apiUrl}/api/applications/${applicationId}/suggestions`, {
+          headers: { "X-User-ID": userId },
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error(await readError(response));
+        const next = (await response.json()) as ResumeSuggestion[];
+        if (!active) return;
+        setSuggestions(next);
+        setEditedText(Object.fromEntries(next.map((item) => [item.id, item.suggestion_text])));
+        setSuggestionState("ready");
+      } catch (error) {
+        if (!active) return;
+        setSuggestionState("error");
+        setMessage(error instanceof Error ? error.message : "材料建议加载失败。");
+      }
+    }
+    void loadSuggestions();
+    return () => {
+      active = false;
+    };
+  }, [applicationId]);
+
+  async function createSuggestion() {
+    if (!applicationId || !originalText.trim()) {
+      setMessage("请先提供需要修改的原文。");
+      return;
+    }
+    setCreating(true);
+    setMessage("");
+    try {
+      const response = await fetch(`${apiUrl}/api/applications/${applicationId}/suggestions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify({
+          original_text: originalText,
+          target_type: targetType,
+          target_label: targetLabel || null,
+        }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const created = (await response.json()) as ResumeSuggestion;
+      setSuggestions((current) => [created, ...current]);
+      setEditedText((current) => ({ ...current, [created.id]: created.suggestion_text }));
+      setOriginalText("");
+      setSuggestionState("ready");
+      setMessage("建议已生成，仍需你确认后才能进入最终材料。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "材料建议生成失败。");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function decideSuggestion(suggestionId: string, decision: SuggestionDecision) {
+    setWorkingId(suggestionId);
+    setMessage("");
+    const body: Record<string, string> = { decision };
+    if (decision === "edit") {
+      body.final_text = editedText[suggestionId]?.trim() ?? "";
+    }
+    try {
+      const response = await fetch(`${apiUrl}/api/suggestions/${suggestionId}/decide`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const updated = (await response.json()) as ResumeSuggestion;
+      setSuggestions((current) => current.map((item) => item.id === updated.id ? updated : item));
+      setMessage(decision === "reject" ? "建议已拒绝，不会进入最终材料。" : "最终文本已保存到申请记录。 ");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "材料审批失败。");
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  return (
+    <section className="suggestion-panel">
+      <div className="suggestion-heading">
+        <div>
+          <div className="section-kicker"><span>03</span> 材料建议</div>
+          <h2>把证据写进 <em>可用文本。</em></h2>
+          <p>Agent 只能基于当前经历提出建议。原文、建议和最终文本分开保存，接受前不会影响你的材料。</p>
+        </div>
+        {application ? <span className="suggestion-context">{application.job.title ?? "未命名岗位"}</span> : null}
+      </div>
+
+      {message ? <div className="suggestion-message">{message}</div> : null}
+      {!application ? (
+        <p className="suggestion-empty">先选择一条申请，才能创建或审批材料建议。</p>
+      ) : (
+        <div className="suggestion-content">
+          <div className="suggestion-composer">
+            <div className="suggestion-composer-topline">
+              <span className="suggestion-index">REQUEST / 01</span>
+              <span>明确原文后再让 Agent 改写</span>
+            </div>
+            <div className="suggestion-form-pair">
+              <label>
+                <span>目标类型</span>
+                <select value={targetType} onChange={(event) => setTargetType(event.target.value)}>
+                  <option value="project_bullet">项目经历</option>
+                  <option value="summary">个人简介</option>
+                  <option value="skills">技能描述</option>
+                  <option value="cover_note">求职备注</option>
+                </select>
+              </label>
+              <label>
+                <span>目标标签（可选）</span>
+                <input value={targetLabel} onChange={(event) => setTargetLabel(event.target.value)} placeholder="例如：Memory-RAG" />
+              </label>
+            </div>
+            <label className="suggestion-original-input">
+              <span>需要修改的原文</span>
+              <textarea
+                value={originalText}
+                onChange={(event) => setOriginalText(event.target.value)}
+                placeholder="粘贴一条项目经历、个人简介或技能描述"
+                rows={4}
+              />
+            </label>
+            <div className="suggestion-composer-footer">
+              <small>JobAnalysis 会自动绑定到当前岗位的最新有效分析。</small>
+              <button className="suggestion-generate" onClick={createSuggestion} disabled={creating} type="button">
+                {creating ? "生成中…" : "生成材料建议 ↗"}
+              </button>
+            </div>
+          </div>
+
+          {suggestionState === "loading" && suggestions.length === 0 ? <div className="suggestion-empty">正在取回这条申请的材料记录…</div> : null}
+          {suggestionState === "error" ? <div className="suggestion-empty suggestion-error">{message || "材料建议暂时取不到。"}</div> : null}
+          {suggestionState !== "error" && suggestionState !== "loading" && suggestions.length === 0 ? (
+            <div className="suggestion-empty">还没有建议。提供一段原文，看看证据如何被写进岗位相关表达。</div>
+          ) : null}
+          {suggestions.length > 0 ? (
+            <div className="suggestion-list">
+              {suggestions.map((suggestion) => (
+                <article className={`suggestion-card suggestion-card-${suggestion.status.toLowerCase()}`} key={suggestion.id}>
+                  <div className="suggestion-card-topline">
+                    <div><span className="suggestion-index">{suggestion.target_label ?? suggestion.target_type}</span><span className="suggestion-run">RUN {suggestion.agent_run_id.slice(-8).toUpperCase()}</span></div>
+                    <span className={`suggestion-status suggestion-status-${suggestion.status.toLowerCase()}`}>{suggestionStatusLabel[suggestion.status]}</span>
+                  </div>
+                  <div className="suggestion-copy-grid">
+                    <div className="suggestion-copy">
+                      <span>原文</span>
+                      <p>{suggestion.original_text}</p>
+                    </div>
+                    <div className="suggestion-copy suggestion-copy-accent">
+                      <span>Agent 建议</span>
+                      <p>{suggestion.suggestion_text}</p>
+                    </div>
+                  </div>
+                  <div className="suggestion-evidence-line">
+                    <span>证据引用</span>
+                    <strong>{suggestion.evidence_ids.length} 条当前用户经历</strong>
+                  </div>
+                  {suggestion.status === "PENDING" ? (
+                    <div className="suggestion-review">
+                      <label>
+                        <span>编辑后文本 / 可选</span>
+                        <textarea
+                          value={editedText[suggestion.id] ?? suggestion.suggestion_text}
+                          onChange={(event) => setEditedText((current) => ({ ...current, [suggestion.id]: event.target.value }))}
+                          rows={3}
+                        />
+                      </label>
+                      <div className="suggestion-actions">
+                        <button className="suggestion-primary" disabled={workingId === suggestion.id} onClick={() => decideSuggestion(suggestion.id, "accept")} type="button">采用建议 ↗</button>
+                        <button className="suggestion-secondary" disabled={workingId === suggestion.id} onClick={() => decideSuggestion(suggestion.id, "edit")} type="button">保存编辑</button>
+                        <button className="suggestion-reject" disabled={workingId === suggestion.id} onClick={() => decideSuggestion(suggestion.id, "reject")} type="button">拒绝</button>
+                      </div>
+                    </div>
+                  ) : suggestion.status === "ACCEPTED" ? (
+                    <div className="suggestion-final"><span>FINAL TEXT</span><p>{suggestion.final_text}</p></div>
+                  ) : (
+                    <div className="suggestion-final suggestion-final-rejected"><span>NOT SAVED</span><p>用户拒绝了这条建议，未产生最终文本。</p></div>
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function eventDescription(event: ApplicationEvent): string {
   const fromStatus = event.payload.from_status;
   const toStatus = event.payload.to_status;
@@ -834,6 +1075,16 @@ function eventDescription(event: ApplicationEvent): string {
     const from = applicationStatusLabel[fromStatus as ApplicationStatus] ?? fromStatus;
     const to = applicationStatusLabel[toStatus as ApplicationStatus] ?? toStatus;
     return `${from} → ${to}`;
+  }
+  if (event.event_type === "SuggestionCreated") {
+    const count = event.payload.evidence_count;
+    return `引用 ${typeof count === "number" ? count : 0} 条经历证据，等待用户审批`;
+  }
+  if (event.event_type === "SuggestionDecisionRecorded") {
+    const decision = event.payload.decision;
+    const finalTextPresent = event.payload.final_text_present === true;
+    const decisionLabel = decision === "reject" ? "拒绝建议" : decision === "edit" ? "编辑后接受" : "接受建议";
+    return `${decisionLabel} · ${finalTextPresent ? "已保存最终文本" : "未保存最终文本"}`;
   }
   return "用户确认创建申请记录";
 }

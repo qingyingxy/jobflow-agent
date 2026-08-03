@@ -903,6 +903,12 @@ M08 已实现 `CandidateJob`、`Application` 和 `DomainEvent` 的 SQLite 持久
 
 申请状态可通过人工确认推进到 `SUBMITTED`、`ASSESSMENT`、`INTERVIEW`、`OFFER`、`REJECTED` 或 `WITHDRAWN`。所有读写都按当前用户归属过滤，非法转换返回结构化冲突错误。前端申请看板展示按状态分组的申请卡片、下一步动作、可用转换和申请事件时间线，Agent 不直接执行投递或修改状态。
 
+### M09 材料建议与审批
+
+M09 已实现 `SuggestionTargetInput`、`ResumeSuggestion` 和 `SuggestionService`。建议请求必须由用户提供明确的原文、目标类型和可选标签；系统自动绑定当前岗位最新有效的 `JobAnalysis`，模型只能从当前用户的经历证据中选择引用。建议生成会复用 M04 的 `StructuredModelClient` 和 `AgentRun`，Fake 与 OpenAI-compatible Client 使用同一个结构化输出契约。
+
+建议只以 `PENDING` 状态保存。用户可以直接接受、编辑后接受或拒绝；前两者分别保存模型建议文本或用户编辑后的 `final_text`，拒绝时 `final_text` 保持为空。审批状态和 `SuggestionDecisionRecorded` 事件在同一事务内保存，事件只记录决策元数据和最终文本哈希，不保存材料正文。岗位看板的材料建议区展示原文、Agent 建议、证据数量、Diff 编辑区和审批结果。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -931,6 +937,7 @@ jobflow-agent/
 │   │   ├── runs.py
 │   │   ├── analysis.py
 │   │   ├── application.py
+│   │   ├── suggestion.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
 │   │   └── matching.py
@@ -946,6 +953,8 @@ jobflow-agent/
 │   │   ├── evidence_match_service.py
 │   │   ├── jd_analysis_service.py
 │   │   ├── application_service.py
+│   │   ├── suggestion_generator.py
+│   │   ├── suggestion_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -964,7 +973,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M08 的核心实现已完成，核心进度为 8 / 11，下一步是 M09。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线和申请看板已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M09 的核心实现已完成，核心进度为 9 / 11，下一步是 M10。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议和人工审批已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

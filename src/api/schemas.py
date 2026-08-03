@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from src.domain.analysis import AnalysisRisk
 from src.domain.application import (
@@ -13,6 +13,11 @@ from src.domain.application import (
 from src.domain.eligibility import EligibilityResult, SearchPreferences
 from src.domain.job import StructuredJobDescription, normalize_job_text
 from src.domain.matching import MatchScore, RequirementMatch
+from src.domain.suggestion import (
+    SuggestionDecision,
+    SuggestionStatus,
+    SuggestionTargetInput,
+)
 
 
 class ProfileUpdate(BaseModel):
@@ -136,6 +141,50 @@ class ApplicationRead(BaseModel):
     available_transitions: list[ApplicationStatus]
     job: JobSummary
     events: list[DomainEventRead]
+    created_at: datetime
+    updated_at: datetime
+
+
+class SuggestionCreateRequest(SuggestionTargetInput):
+    """The latest valid analysis is resolved from the application."""
+
+
+class SuggestionDecisionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: SuggestionDecision
+    final_text: str | None = Field(default=None, max_length=12000)
+
+    @field_validator("final_text")
+    @classmethod
+    def normalize_final_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    @model_validator(mode="after")
+    def validate_decision_text(self) -> SuggestionDecisionRequest:
+        if self.decision is SuggestionDecision.EDIT and not self.final_text:
+            raise ValueError("编辑后接受必须提供 final_text")
+        if self.decision is not SuggestionDecision.EDIT and self.final_text is not None:
+            raise ValueError("accept 或 reject 决策不能携带 final_text")
+        return self
+
+
+class SuggestionRead(BaseModel):
+    id: str
+    user_id: str
+    application_id: str
+    job_analysis_id: str
+    target_type: str
+    target_label: str | None
+    original_text: str
+    suggestion_text: str
+    evidence_ids: list[str]
+    status: SuggestionStatus
+    final_text: str | None
+    agent_run_id: str
     created_at: datetime
     updated_at: datetime
 

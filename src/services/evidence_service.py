@@ -10,6 +10,7 @@ from src.services.jd_analysis_service import (
     delete_analyses_referencing_evidence,
     invalidate_analyses_for_user,
 )
+from src.services.suggestion_service import delete_suggestions_referencing_evidence
 
 
 class EvidenceService:
@@ -74,6 +75,11 @@ class EvidenceService:
         if item is None:
             return False
         delete_analyses_referencing_evidence(
+            self.session,
+            user_id=user_id,
+            evidence_id=evidence_id,
+        )
+        delete_suggestions_referencing_evidence(
             self.session,
             user_id=user_id,
             evidence_id=evidence_id,

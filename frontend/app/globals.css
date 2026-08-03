@@ -1443,6 +1443,350 @@ textarea::placeholder {
   line-height: 1.55;
 }
 
+.suggestion-panel {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  padding: 21px 22px 25px;
+  background: rgba(249, 247, 241, 0.72);
+}
+
+.suggestion-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 17px;
+}
+
+.suggestion-heading h2 {
+  margin: 8px 0 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: clamp(25px, 3vw, 35px);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+}
+
+.suggestion-heading h2 em {
+  color: var(--coral);
+  font-style: normal;
+}
+
+.suggestion-heading p {
+  max-width: 620px;
+  margin: 12px 0 0;
+  color: var(--muted-ink);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.suggestion-context {
+  flex: 0 0 auto;
+  border: 1px solid var(--ink);
+  padding: 7px 10px;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.suggestion-message {
+  margin-top: 16px;
+  border-left: 3px solid var(--acid);
+  padding: 10px 13px;
+  background: rgba(217, 238, 98, 0.22);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.suggestion-content {
+  display: grid;
+  margin-top: 18px;
+  gap: 18px;
+}
+
+.suggestion-composer {
+  border: 1px solid var(--line);
+  padding: 16px;
+  background: rgba(243, 240, 232, 0.72);
+}
+
+.suggestion-composer-topline,
+.suggestion-card-topline,
+.suggestion-composer-footer,
+.suggestion-evidence-line,
+.suggestion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.suggestion-composer-topline {
+  color: var(--muted-ink);
+  font-size: 9px;
+}
+
+.suggestion-index {
+  color: var(--coral);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.suggestion-form-pair {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.suggestion-composer label,
+.suggestion-review label {
+  display: grid;
+  gap: 7px;
+}
+
+.suggestion-composer label > span,
+.suggestion-review label > span,
+.suggestion-copy > span,
+.suggestion-final > span {
+  color: var(--muted-ink);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.suggestion-composer input,
+.suggestion-composer select,
+.suggestion-composer textarea,
+.suggestion-review textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 10px 11px;
+  background: rgba(255, 253, 247, 0.78);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.55;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.suggestion-composer input:focus,
+.suggestion-composer select:focus,
+.suggestion-composer textarea:focus,
+.suggestion-review textarea:focus {
+  border-color: var(--coral);
+  box-shadow: 3px 3px 0 rgba(255, 120, 94, 0.12);
+}
+
+.suggestion-original-input {
+  margin-top: 12px;
+}
+
+.suggestion-composer textarea,
+.suggestion-review textarea {
+  resize: vertical;
+}
+
+.suggestion-composer-footer {
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.suggestion-composer-footer small {
+  max-width: 440px;
+  color: var(--muted-ink);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.suggestion-generate,
+.suggestion-primary,
+.suggestion-secondary,
+.suggestion-reject {
+  border: 1px solid var(--ink);
+  padding: 10px 13px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.suggestion-generate:hover,
+.suggestion-primary:hover {
+  background: var(--coral);
+  border-color: var(--coral);
+}
+
+.suggestion-generate:disabled,
+.suggestion-primary:disabled,
+.suggestion-secondary:disabled,
+.suggestion-reject:disabled {
+  cursor: wait;
+  opacity: 0.45;
+}
+
+.suggestion-list {
+  display: grid;
+  gap: 14px;
+}
+
+.suggestion-card {
+  border: 1px solid var(--line);
+  padding: 16px;
+  background: var(--paper-soft);
+  box-shadow: 3px 3px 0 rgba(23, 33, 29, 0.04);
+}
+
+.suggestion-card-pending {
+  border-left: 3px solid var(--acid);
+}
+
+.suggestion-card-accepted {
+  border-left: 3px solid var(--blue);
+}
+
+.suggestion-card-rejected {
+  opacity: 0.68;
+}
+
+.suggestion-card-topline {
+  color: var(--muted-ink);
+  font-size: 9px;
+}
+
+.suggestion-card-topline > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.suggestion-run {
+  color: rgba(23, 33, 29, 0.42);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.suggestion-status {
+  border: 1px solid var(--line);
+  padding: 5px 8px;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.suggestion-status-pending {
+  border-color: rgba(23, 33, 29, 0.45);
+  background: var(--acid);
+}
+
+.suggestion-status-accepted {
+  border-color: rgba(141, 169, 255, 0.75);
+  background: rgba(141, 169, 255, 0.18);
+}
+
+.suggestion-status-rejected {
+  color: var(--muted-ink);
+}
+
+.suggestion-copy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 15px;
+  background: var(--line);
+}
+
+.suggestion-copy {
+  min-height: 116px;
+  padding: 13px;
+  background: rgba(243, 240, 232, 0.72);
+}
+
+.suggestion-copy-accent {
+  background: rgba(217, 238, 98, 0.16);
+}
+
+.suggestion-copy p,
+.suggestion-final p {
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.suggestion-evidence-line {
+  justify-content: flex-start;
+  margin-top: 12px;
+  color: var(--muted-ink);
+  font-size: 9px;
+}
+
+.suggestion-evidence-line strong {
+  color: var(--ink);
+}
+
+.suggestion-review {
+  display: grid;
+  margin-top: 15px;
+  gap: 11px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+}
+
+.suggestion-actions {
+  justify-content: flex-start;
+}
+
+.suggestion-secondary {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.suggestion-secondary:hover {
+  background: var(--acid);
+}
+
+.suggestion-reject {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted-ink);
+}
+
+.suggestion-reject:hover {
+  color: var(--coral);
+}
+
+.suggestion-final {
+  margin-top: 15px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 13px;
+}
+
+.suggestion-final p {
+  margin-top: 7px;
+}
+
+.suggestion-final-rejected p,
+.suggestion-error {
+  color: var(--muted-ink);
+}
+
+.suggestion-empty {
+  border: 1px dashed var(--line);
+  padding: 22px 16px;
+  color: var(--muted-ink);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -1541,6 +1885,15 @@ textarea::placeholder {
   .board-refresh {
     width: 100%;
   }
+
+  .suggestion-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .suggestion-context {
+    align-self: flex-start;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1630,6 +1983,28 @@ textarea::placeholder {
   .timeline-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .suggestion-panel {
+    padding: 18px 15px 22px;
+  }
+
+  .suggestion-form-pair,
+  .suggestion-copy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .suggestion-composer-footer,
+  .suggestion-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .suggestion-generate,
+  .suggestion-primary,
+  .suggestion-secondary,
+  .suggestion-reject {
+    width: 100%;
   }
 }
 

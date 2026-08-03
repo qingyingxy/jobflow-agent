@@ -117,6 +117,8 @@ class DemoModelClient:
             output = _demo_job_description(request)
         elif request.schema_name == "requirement_match":
             output = _demo_requirement_match(request)
+        elif request.schema_name == "resume_suggestion":
+            output = _demo_resume_suggestion(request)
         else:
             output = {}
         return StructuredModelResponse(
@@ -255,6 +257,43 @@ def _demo_requirement_match(request: StructuredModelRequest) -> dict[str, Any]:
         "evidence_ids": [evidence_id],
         "explanation": f"在 {title} 中找到相关经历：{claim}",
         "claims": [],
+    }
+
+
+def _demo_resume_suggestion(request: StructuredModelRequest) -> dict[str, Any]:
+    content = "\n".join(message.content for message in request.messages)
+    original_match = re.search(
+        r"<original_text>\s*(.*?)\s*</original_text>",
+        content,
+        re.DOTALL,
+    )
+    original = original_match.group(1).strip() if original_match else ""
+    evidence_match = re.search(
+        r"<candidate_evidence>\s*(.*?)\s*</candidate_evidence>",
+        content,
+        re.DOTALL,
+    )
+    try:
+        candidates = json.loads(evidence_match.group(1)) if evidence_match else []
+    except json.JSONDecodeError:
+        candidates = []
+    if not isinstance(candidates, list) or not candidates:
+        return {
+            "suggestion_text": original or "请补充一条可编辑的经历描述。",
+            "evidence_ids": [],
+            "claims": [],
+        }
+
+    candidate = candidates[0]
+    evidence_id = str(candidate.get("id", ""))
+    claim = str(candidate.get("claim", "")).strip()
+    suggestion_text = original
+    if claim and claim not in suggestion_text:
+        suggestion_text = f"{suggestion_text}；补充经历：{claim}"
+    return {
+        "suggestion_text": suggestion_text,
+        "evidence_ids": [evidence_id],
+        "claims": [claim] if claim else [],
     }
 
 

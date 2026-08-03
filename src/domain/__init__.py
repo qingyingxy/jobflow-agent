@@ -19,6 +19,13 @@ from .job import JobPosting
 from .matching import EvidenceRecord, MatchScore, RequirementMatch
 from .models import EvidenceItem, UserProfile
 from .runs import AgentRun, JobParseResult
+from .suggestion import (
+    ResumeSuggestion,
+    ResumeSuggestionModelOutput,
+    SuggestionDecision,
+    SuggestionStatus,
+    SuggestionTargetInput,
+)
 
 __all__ = [
     "ANALYSIS_VERSION",
@@ -42,6 +49,11 @@ __all__ = [
     "JobPosting",
     "MatchScore",
     "RequirementMatch",
+    "ResumeSuggestion",
+    "ResumeSuggestionModelOutput",
     "SearchPreferences",
+    "SuggestionDecision",
+    "SuggestionStatus",
+    "SuggestionTargetInput",
     "UserProfile",
 ]

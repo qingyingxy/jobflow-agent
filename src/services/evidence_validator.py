@@ -10,6 +10,7 @@ from src.domain.matching import (
     EvidenceRecord,
     RequirementMatch,
 )
+from src.domain.suggestion import ResumeSuggestionModelOutput
 from src.services.eligibility_checker import normalize_text
 
 _NUMBER_PATTERN = re.compile(r"\d+(?:\.\d+)?")
@@ -147,6 +148,64 @@ def validate_requirement_match(
         explanation=output.explanation.strip(),
         validation_status="passed",
     )
+
+
+def validate_suggestion_output(
+    *,
+    user_id: str,
+    original_text: str,
+    output: ResumeSuggestionModelOutput,
+    evidence: Sequence[EvidenceRecord],
+) -> list[str]:
+    """Return evidence-grounding issues without turning model text into final text."""
+
+    records_by_id: dict[str, list[EvidenceRecord]] = defaultdict(list)
+    for item in evidence:
+        records_by_id[item.id].append(item)
+
+    issues: list[str] = []
+    selected: list[EvidenceRecord] = []
+    for evidence_id in _deduplicate(output.evidence_ids):
+        records = records_by_id.get(evidence_id, [])
+        owned = [item for item in records if item.user_id == user_id]
+        if not owned:
+            issues.append(f"evidence_id 无效或不属于当前用户: {evidence_id}")
+            continue
+        if any(item.user_id != user_id for item in records):
+            issues.append(f"evidence_id 存在跨用户引用: {evidence_id}")
+        selected.append(owned[0])
+
+    if not selected:
+        issues.append("建议至少需要一个当前用户的有效 evidence_id")
+        return _deduplicate(issues)
+
+    evidence_text = _selected_text(selected)
+    allowed = normalize_text(f"{original_text} {evidence_text}")
+    evidence_only = normalize_text(evidence_text)
+    for claim in output.claims:
+        if normalize_text(claim) not in evidence_only:
+            issues.append("建议声明了当前证据中不存在的事实")
+            break
+
+    for number in _NUMBER_PATTERN.findall(output.suggestion_text):
+        if number not in allowed:
+            issues.append("建议文本包含原文和当前证据中不存在的数字")
+            break
+
+    for term in _LATIN_TERM_PATTERN.findall(output.suggestion_text):
+        if term.casefold() in _COMMON_LATIN_WORDS:
+            continue
+        if normalize_text(term) not in allowed:
+            issues.append("建议文本包含原文和当前证据中不存在的技能或项目名")
+            break
+
+    for phrase in _PROJECT_PHRASE_PATTERN.findall(output.suggestion_text):
+        normalized_phrase = normalize_text(phrase).removeprefix("用户的")
+        if normalized_phrase and normalized_phrase not in allowed:
+            issues.append("建议文本包含当前证据中不存在的项目或系统")
+            break
+
+    return _deduplicate(issues)
 
 
 class EvidenceValidator:

@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M08 核心实现已完成，下一步 M09
-> 核心实现进度：8 / 11
+> 当前阶段：M09 核心实现已完成，下一步 M10
+> 核心实现进度：9 / 11
 > 外部验收：M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
@@ -200,26 +200,26 @@
 
 ### M09 材料建议与审批
 
-- [ ] 定义 `SuggestionTargetInput`，由用户请求直接提供 `original_text`、`target_type` 和可选 `target_label`；MVP 不创建完整 Resume 实体
-- [ ] 实现 `ResumeSuggestion`，关联 `user_id`、`application_id`、`job_analysis_id`，保存目标信息、原文、建议、引用证据、状态和最终文本
-- [ ] 定义 Suggestion Generator 输入输出，并使用 Fake 跑通生成流程；生成接口必须接收明确的建议目标和原文
-- [ ] 接入真实模型生成建议，复用 M04 的模型配置、版本记录和失败处理
-- [ ] 建议必须引用有效 `evidence_ids`
-- [ ] 对建议中的项目、技能和数字执行 Evidence Validator
-- [ ] Agent 只能创建 `PENDING` 建议
-- [ ] 支持接受建议
-- [ ] 支持编辑后接受
-- [ ] 支持拒绝建议
-- [ ] 保存审批状态和 `final_text`
-- [ ] 明确三种决策的 `final_text` 规则：接受使用建议文本，编辑后接受使用用户文本，拒绝时为空
-- [ ] 前端展示原文、建议文本和 Diff
-- [ ] 未接受内容不能成为最终文本
-- [ ] 审批状态和 `DomainEvent` 在同一事务内保存
-- [ ] 拒绝重复审批、跨用户审批和对非 `PENDING` 建议再次决策
-- [ ] 删除被引用证据时，删除关联建议及其 `final_text`，事件只保留不含材料正文的审计元数据
-- [ ] 添加虚构证据、三种审批路径、非法状态、事务回滚和 Diff 展示测试
+- [x] 定义 `SuggestionTargetInput`，由用户请求直接提供 `original_text`、`target_type` 和可选 `target_label`；MVP 不创建完整 Resume 实体
+- [x] 实现 `ResumeSuggestion`，关联 `user_id`、`application_id`、`job_analysis_id`，保存目标信息、原文、建议、引用证据、状态和最终文本
+- [x] 定义 Suggestion Generator 输入输出，并使用 Fake 跑通生成流程；生成接口必须接收明确的建议目标和原文
+- [x] 接入真实模型生成建议，复用 M04 的模型配置、版本记录和失败处理
+- [x] 建议必须引用有效 `evidence_ids`
+- [x] 对建议中的项目、技能和数字执行 Evidence Validator
+- [x] Agent 只能创建 `PENDING` 建议
+- [x] 支持接受建议
+- [x] 支持编辑后接受
+- [x] 支持拒绝建议
+- [x] 保存审批状态和 `final_text`
+- [x] 明确三种决策的 `final_text` 规则：接受使用建议文本，编辑后接受使用用户文本，拒绝时为空
+- [x] 前端展示原文、建议文本和 Diff
+- [x] 未接受内容不能成为最终文本
+- [x] 审批状态和 `DomainEvent` 在同一事务内保存
+- [x] 拒绝重复审批、跨用户审批和对非 `PENDING` 建议再次决策
+- [x] 删除被引用证据时，删除关联建议及其 `final_text`，事件只保留不含材料正文的审计元数据
+- [x] 添加虚构证据、三种审批路径、非法状态、事务回滚和 Diff 展示测试
 
-验收：Agent 只能提出建议，只有用户决策才能产生最终文本；每条被接受的事实都可追溯到有效证据。
+验收：Agent 只能提出 `PENDING` 建议，只有用户决策才能产生最终文本；每条被接受的事实都可追溯到有效证据。当前已通过 Fake、模型失败、非法证据、三种审批路径、跨用户访问和删除联动测试。
 
 ## C：轻量岗位发现
 

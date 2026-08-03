@@ -422,7 +422,9 @@ list_events
 
 `create_candidate` 接收当前用户和 `job_posting_id`。手动导入岗位幂等创建或返回 `SAVED` CandidateJob；发现流程使用同一唯一约束创建 `DISCOVERED` CandidateJob。
 
-材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
+材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和当前岗位最新有效的 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
+
+M09 已实现 `SuggestionService`：生成阶段复用 M04 的 `StructuredModelClient` 和 `AgentRun`，结构化输出必须包含 `suggestion_text`、`evidence_ids` 和 `claims`；Evidence Validator 会校验引用归属、项目、技能和数字。生成失败或证据校验失败时只保存失败/校验失败的 AgentRun，不创建建议。审批阶段只允许 `PENDING` 建议进入 `accept / edit / reject` 三种决策，最终文本和 `SuggestionDecisionRecorded` DomainEvent 在同一事务内保存。事件只保存决策元数据、长度和哈希，不保存材料正文。
 
 ### 5.6 DiscoveryService
 
@@ -496,6 +498,8 @@ GET  /api/applications/{application_id}
 PATCH /api/applications/{application_id}/status
 GET  /api/applications/{application_id}/events
 POST /api/applications/{application_id}/suggestions
+GET  /api/applications/{application_id}/suggestions
+GET  /api/suggestions/{suggestion_id}
 POST /api/suggestions/{suggestion_id}/decide
 
 POST /api/discovery/runs
