@@ -10,6 +10,7 @@ htmlcov/
 # Local database and generated files
 *.db
 *.sqlite
+artifacts/
 
 # Next.js frontend
 frontend/node_modules/

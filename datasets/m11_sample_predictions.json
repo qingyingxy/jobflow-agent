@@ -1,0 +1,93 @@
+{
+  "prediction_version": "m11-sample-predictions-v1",
+  "predictions": [
+    {
+      "case_id": "m11-01",
+      "fields": {"job_type": "internship", "locations": ["北京"], "required_skills": ["RAG", "Python"]},
+      "eligibility": "unknown",
+      "matches": [
+        {"requirement_key": "required_skill:RAG", "support_level": "supported", "evidence_ids": ["ev-rag"]},
+        {"requirement_key": "required_skill:Python", "support_level": "supported", "evidence_ids": ["ev-python"]}
+      ]
+    },
+    {
+      "case_id": "m11-02",
+      "fields": {"job_type": "campus", "locations": ["上海"], "required_skills": ["Python", "SQL", "FastAPI"]},
+      "eligibility": "pass",
+      "matches": [
+        {"requirement_key": "required_skill:Python", "support_level": "supported", "evidence_ids": ["ev-python"]},
+        {"requirement_key": "required_skill:SQL", "support_level": "supported", "evidence_ids": ["ev-sql"]},
+        {"requirement_key": "required_skill:FastAPI", "support_level": "supported", "evidence_ids": ["ev-fastapi"]}
+      ]
+    },
+    {
+      "case_id": "m11-03",
+      "fields": {"job_type": null, "locations": null, "required_skills": ["Python"]},
+      "eligibility": "unknown",
+      "matches": [{"requirement_key": "required_skill:Python", "support_level": "supported", "evidence_ids": ["ev-python"]}]
+    },
+    {
+      "case_id": "m11-04",
+      "fields": {"job_type": "internship", "locations": ["杭州"], "required_skills": ["Python"]},
+      "eligibility": "unknown",
+      "matches": [{"requirement_key": "required_skill:Python", "support_level": "supported", "evidence_ids": ["ev-python"]}]
+    },
+    {
+      "case_id": "m11-05",
+      "fields": {"job_type": "campus", "locations": ["深圳"], "required_skills": ["机器学习"]},
+      "eligibility": "pass",
+      "matches": [{"requirement_key": "required_skill:机器学习", "support_level": "supported", "evidence_ids": ["ev-ml"]}]
+    },
+    {
+      "case_id": "m11-06",
+      "fields": {"job_type": null, "locations": ["南京"], "required_skills": ["GraphQL"]},
+      "eligibility": "unknown",
+      "matches": [{"requirement_key": "required_skill:GraphQL", "support_level": "supported", "evidence_ids": ["ev-ghost"]}]
+    },
+    {
+      "case_id": "m11-07",
+      "fields": {"job_type": "full_time", "locations": ["北京", "上海"], "required_skills": ["BM25", "Vector Search", "Reranker"]},
+      "eligibility": "pass",
+      "matches": [
+        {"requirement_key": "required_skill:BM25", "support_level": "supported", "evidence_ids": ["ev-bm25"]},
+        {"requirement_key": "required_skill:Vector Search", "support_level": "supported", "evidence_ids": ["ev-vector"]},
+        {"requirement_key": "required_skill:Reranker", "support_level": "supported", "evidence_ids": ["ev-reranker"]}
+      ]
+    },
+    {
+      "case_id": "m11-08",
+      "fields": {"job_type": "internship", "locations": ["广州"], "required_skills": []},
+      "eligibility": "unknown",
+      "matches": []
+    },
+    {
+      "case_id": "m11-09",
+      "fields": {"job_type": "internship", "locations": ["北京"], "required_skills": ["RAG"]},
+      "eligibility": "unknown",
+      "matches": [{"requirement_key": "required_skill:RAG", "support_level": "supported", "evidence_ids": ["ev-rag"]}]
+    },
+    {
+      "case_id": "m11-10",
+      "fields": {"job_type": null, "locations": null, "required_skills": null},
+      "eligibility": null,
+      "failure_code": "url_fetch_timeout",
+      "matches": []
+    },
+    {
+      "case_id": "m11-11",
+      "fields": {"job_type": "internship", "locations": ["北京"], "required_skills": ["Python", "FastAPI"]},
+      "eligibility": "unknown",
+      "failure_code": "invalid_structured_output",
+      "matches": []
+    },
+    {
+      "case_id": "m11-12",
+      "fields": {"job_type": "internship", "locations": ["深圳"], "required_skills": ["Vector Search", "Reranker"]},
+      "eligibility": "unknown",
+      "matches": [
+        {"requirement_key": "required_skill:Vector Search", "support_level": "supported", "evidence_ids": ["ev-vector"]},
+        {"requirement_key": "required_skill:Reranker", "support_level": "supported", "evidence_ids": ["ev-vector"]}
+      ]
+    }
+  ]
+}

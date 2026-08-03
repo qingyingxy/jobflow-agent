@@ -1,0 +1,333 @@
+{
+  "manifest_version": "m11-evaluation-v1",
+  "dataset_version": "m11-dev-2026-08-03-v1",
+  "split": "dev",
+  "purpose": "评测契约和指标开发集，不作为简历中的最终指标来源。",
+  "source_policy": "仅使用项目自有合成岗位文本和固定失败场景；最终评测集需要另行冻结并记录授权边界。",
+  "fields": ["job_type", "locations", "required_skills"],
+  "thresholds": {
+    "macro_f1": 0.85,
+    "eligibility_accuracy": 0.9,
+    "false_accept_rate": 0.0,
+    "evidence_precision": 0.95,
+    "evidence_coverage": 0.9,
+    "unsupported_claim_rate": 0.0,
+    "failure_accuracy": 0.9
+  },
+  "cases": [
+    {
+      "id": "m11-01",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据",
+        "notes": "正常实习岗位"
+      },
+      "input": {
+        "raw_content": "示例公司招聘 AI 应用开发实习生，负责 RAG 应用开发和评测，工作地点为北京。",
+        "scenario": "normal"
+      },
+      "candidate_evidence_ids": ["ev-rag", "ev-python"],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["北京"],
+          "required_skills": ["RAG", "Python"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:RAG": ["ev-rag"],
+          "required_skill:Python": ["ev-python"]
+        },
+        "tags": ["normal"]
+      }
+    },
+    {
+      "id": "m11-02",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "校园招聘后端开发工程师，要求 Python、SQL 和 FastAPI，工作地点上海。",
+        "scenario": "normal"
+      },
+      "candidate_evidence_ids": ["ev-python", "ev-sql", "ev-fastapi"],
+      "expected": {
+        "fields": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "required_skills": ["Python", "SQL", "FastAPI"]
+        },
+        "eligibility": "pass",
+        "evidence": {
+          "required_skill:Python": ["ev-python"],
+          "required_skill:SQL": ["ev-sql"],
+          "required_skill:FastAPI": ["ev-fastapi"]
+        },
+        "tags": ["normal"]
+      }
+    },
+    {
+      "id": "m11-03",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "基础架构团队招聘 Python 工程师，要求熟悉服务开发，岗位信息未说明工作地点。",
+        "scenario": "missing_field"
+      },
+      "candidate_evidence_ids": ["ev-python"],
+      "expected": {
+        "fields": {
+          "job_type": null,
+          "locations": null,
+          "required_skills": ["Python"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:Python": ["ev-python"]
+        },
+        "tags": ["missing_field", "unknown"]
+      }
+    },
+    {
+      "id": "m11-04",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "数据平台团队招聘数据工程实习生，要求 Python 和数据处理，地点杭州，实习时长待确认。",
+        "scenario": "unknown_qualification"
+      },
+      "candidate_evidence_ids": ["ev-python"],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["杭州"],
+          "required_skills": ["Python"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:Python": ["ev-python"]
+        },
+        "tags": ["unknown"]
+      }
+    },
+    {
+      "id": "m11-05",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "校招算法工程师面向 2024 届毕业生，工作地点深圳，要求掌握机器学习。",
+        "scenario": "hard_qualification_fail"
+      },
+      "candidate_evidence_ids": ["ev-ml"],
+      "expected": {
+        "fields": {
+          "job_type": "campus",
+          "locations": ["深圳"],
+          "required_skills": ["机器学习"]
+        },
+        "eligibility": "fail",
+        "evidence": {
+          "required_skill:机器学习": ["ev-ml"]
+        },
+        "tags": ["qualification_fail"]
+      }
+    },
+    {
+      "id": "m11-06",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "搜索团队招聘 RAG 工程师，要求掌握 GraphQL，工作地点南京。",
+        "scenario": "no_evidence"
+      },
+      "candidate_evidence_ids": [],
+      "expected": {
+        "fields": {
+          "job_type": null,
+          "locations": ["南京"],
+          "required_skills": ["GraphQL"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:GraphQL": []
+        },
+        "tags": ["no_evidence", "unsupported"]
+      }
+    },
+    {
+      "id": "m11-07",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "全职搜索算法工程师，要求 BM25、向量检索和 rerank，工作地点北京或上海。",
+        "scenario": "multi_location"
+      },
+      "candidate_evidence_ids": ["ev-bm25", "ev-vector", "ev-reranker"],
+      "expected": {
+        "fields": {
+          "job_type": "full_time",
+          "locations": ["北京", "上海"],
+          "required_skills": ["BM25", "Vector Search", "Reranker"]
+        },
+        "eligibility": "pass",
+        "evidence": {
+          "required_skill:BM25": ["ev-bm25"],
+          "required_skill:Vector Search": ["ev-vector"],
+          "required_skill:Reranker": ["ev-reranker"]
+        },
+        "tags": ["normal", "multi_value"]
+      }
+    },
+    {
+      "id": "m11-08",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "产品运营实习生，专业不限，工作地点广州，岗位未列出硬性技能。",
+        "scenario": "empty_requirement_group"
+      },
+      "candidate_evidence_ids": [],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["广州"],
+          "required_skills": []
+        },
+        "eligibility": "unknown",
+        "evidence": {},
+        "tags": ["missing_field", "no_evidence"]
+      }
+    },
+    {
+      "id": "m11-09",
+      "split": "dev",
+      "source": {
+        "kind": "fixture",
+        "reference": "tests/test_discovery.py::greenhouse_payload",
+        "authorization": "项目自有固定 Fixture，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "Greenhouse fixture 岗位，负责 RAG 应用开发和评测，工作地点北京。",
+        "scenario": "source_fixture"
+      },
+      "candidate_evidence_ids": ["ev-rag"],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["北京"],
+          "required_skills": ["RAG"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:RAG": ["ev-rag"]
+        },
+        "tags": ["source_fixture"]
+      }
+    },
+    {
+      "id": "m11-10",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有固定失败场景，无外部个人数据"
+      },
+      "input": {
+        "source_url": "https://public.example/jobs/timeout",
+        "scenario": "reader_failure"
+      },
+      "candidate_evidence_ids": [],
+      "expected": {
+        "fields": {
+          "job_type": null,
+          "locations": null,
+          "required_skills": null
+        },
+        "eligibility": null,
+        "failure_code": "url_fetch_timeout",
+        "tags": ["reader_failure"]
+      }
+    },
+    {
+      "id": "m11-11",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有固定失败场景，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "后端开发实习生，要求 Python 和 FastAPI，工作地点北京。",
+        "scenario": "invalid_model_output"
+      },
+      "candidate_evidence_ids": ["ev-python", "ev-fastapi"],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["北京"],
+          "required_skills": ["Python", "FastAPI"]
+        },
+        "eligibility": "unknown",
+        "evidence": {},
+        "failure_code": "invalid_structured_output",
+        "tags": ["invalid_model_output"]
+      }
+    },
+    {
+      "id": "m11-12",
+      "split": "dev",
+      "source": {
+        "kind": "synthetic",
+        "reference": "jobflow-internal",
+        "authorization": "项目自有合成文本，无外部个人数据"
+      },
+      "input": {
+        "raw_content": "AI 算法实习生，要求有向量检索和 rerank 项目经验，工作地点深圳。",
+        "scenario": "partial_evidence"
+      },
+      "candidate_evidence_ids": ["ev-vector"],
+      "expected": {
+        "fields": {
+          "job_type": "internship",
+          "locations": ["深圳"],
+          "required_skills": ["Vector Search", "Reranker"]
+        },
+        "eligibility": "unknown",
+        "evidence": {
+          "required_skill:Vector Search": ["ev-vector"],
+          "required_skill:Reranker": []
+        },
+        "tags": ["partial_evidence", "no_evidence"]
+      }
+    }
+  ]
+}

@@ -936,6 +936,16 @@ GET  /api/discovery/runs
 GET  /api/candidates?status=DISCOVERED
 ```
 
+### M11 评测基础设施（第一阶段）
+
+M11 先把评测做成独立、可版本化的模块，而不是把演示样例当成效果指标。当前已加入 `EvaluationManifest`、固定预测契约、字段/资格/证据指标、失败码准确率、Evidence Validator 后的用户可见结果，以及可重复的机器可读报告。开发集包含 12 个合成或 Fixture 案例，覆盖字段缺失、`unknown`、无证据、读取失败和非法模型输出；最终 30～50 条人工标注 `eval` 样本仍待补充。
+
+```text
+uv run python -m src.evaluation.run --manifest datasets/m11_evaluation_manifest.json --predictions datasets/m11_sample_predictions.json --output artifacts/evaluation/m11-dev-report.json --model sample-fixture --prompt-version m11-dev-v1
+```
+
+指标口径和后续最终评测步骤见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。当前开发预测夹具故意包含错误，只用于验收评测器能发现资格误接受和非法证据，不能作为模型效果或简历数据。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -988,11 +998,16 @@ jobflow-agent/
 │   │   ├── llm_client.py
 │   │   └── __init__.py
 │   ├── evaluation/
+│   │   ├── models.py
+│   │   ├── metrics.py
+│   │   └── run.py
 │   └── main.py
 ├── frontend/
 ├── tests/
 ├── datasets/
 ├── docs/
+│   ├── DEVELOPMENT_WORKFLOW.md
+│   └── EVALUATION.md
 └── README.md
 ```
 
@@ -1000,7 +1015,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M10 的核心实现已完成，核心进度为 10 / 11，下一步是 M11。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 来源适配和发现池已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M10 的核心实现已完成，M11 已进入第一阶段，核心进度仍为 10 / 11：评测契约、开发集、指标计算和可重复命令已经落地，人工标注最终集、AgentRun 汇总、端到端演示和截图仍待完成。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 来源适配和发现池已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 
