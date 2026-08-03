@@ -351,6 +351,8 @@ GET  /api/candidates
 
 API 只负责请求校验、身份识别、调用 Service 和错误转换。
 
+M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取和修改必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。
+
 ## 8. 四个开发里程碑
 
 ### A：岗位分析闭环

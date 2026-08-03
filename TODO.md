@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M01 已完成，下一步 M02
-> 核心实现进度：1 / 11
+> 当前阶段：M02 已完成，下一步 M03
+> 核心实现进度：2 / 11
 
 > 当前状态：已启用 SQLite-first 本地开发，并保留 Docker Compose 的 PostgreSQL + pgvector 升级路径。
 
@@ -49,15 +49,15 @@
 - [x] 编写本地启动说明
 - [x] 后端、前端、SQLite 迁移和测试均可运行
 
-### M02 用户画像与经历证据
+### M02 用户画像与经历证据（SQLite-first）
 
-- [ ] 实现 `UserProfile`
-- [ ] 使用兼容 SQLite 的 JSON 保存 `search_preferences`，切换 PostgreSQL 后再评估 JSONB
-- [ ] 实现 `EvidenceItem`
-- [ ] 实现用户画像 API
-- [ ] 实现证据新增、查询和编辑 API
-- [ ] 验证证据只能由所属用户访问
-- [ ] 添加 Profile 和 Evidence 测试
+- [x] 实现 `UserProfile`
+- [x] 使用兼容 SQLite 的 JSON 保存 `search_preferences`，切换 PostgreSQL 后再评估 JSONB
+- [x] 实现 `EvidenceItem`
+- [x] 实现用户画像 API
+- [x] 实现证据新增、查询和编辑 API
+- [x] 验证证据只能由所属用户访问
+- [x] 添加 Profile 和 Evidence 测试
 
 ### M03 JD 导入与结构化 Schema
 

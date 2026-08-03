@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     app_name: str = "JobFlow Agent"
     app_env: str = "development"
     database_url: str = "sqlite:///./data/jobflow.db"
+    default_user_id: str = "local-user"
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     log_level: str = "INFO"
     llm_api_key: str | None = None

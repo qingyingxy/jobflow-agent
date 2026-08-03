@@ -767,6 +767,21 @@ docker compose stop postgres
 
 如果暂时没有 Docker Desktop，可以继续运行离线迁移检查；真实迁移需要可连接的 PostgreSQL 服务。
 
+### M02 用户画像与经历证据 API
+
+当前 M02 使用 SQLite 保存用户画像和经历证据。API 通过 `X-User-ID` 识别本地用户；不传该请求头时使用 `.env` 中的 `DEFAULT_USER_ID`，默认值为 `local-user`。这只是开发阶段的身份占位，不等同于生产认证。
+
+```text
+GET   /api/profile
+PUT   /api/profile
+POST  /api/evidence
+GET   /api/evidence
+GET   /api/evidence/{evidence_id}
+PATCH /api/evidence/{evidence_id}
+```
+
+经历证据的查询、读取和修改都会同时使用 `user_id + evidence_id` 过滤，不能通过已知证据 ID 读取其他用户的数据。证据包含类型、标题、事实陈述、技能标签和来源；求职偏好保存在用户画像的 JSON 字段中。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：

@@ -7,6 +7,8 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.evidence import router as evidence_router
+from src.api.profiles import router as profile_router
 from src.config import get_settings
 from src.errors import register_exception_handlers
 from src.logging_config import configure_logging
@@ -16,6 +18,8 @@ configure_logging(settings.log_level)
 logger = logging.getLogger("jobflow.api")
 
 app = FastAPI(title=settings.app_name)
+app.include_router(profile_router)
+app.include_router(evidence_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
