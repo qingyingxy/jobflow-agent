@@ -390,7 +390,7 @@ GET /api/jobs/{job_id}/analysis
 → 只读当前用户最新且未失效结果
 ```
 
-前端 M07 工作台覆盖空状态、加载中、失败重试、内容变化、结构化 JD、资格检查、要求证据、评分和待补充信息。默认 Fake 模式使用确定性的本地演示 Client；真实模型复用 M04 的 `StructuredModelClient` 接口。
+前端 M07 工作台覆盖空状态、加载中、失败重试、内容变化、结构化 JD、资格检查、要求证据、评分和待补充信息；M08 在此基础上接入“准备申请”人工确认和申请看板。默认 Fake 模式使用确定性的本地演示 Client；真实模型复用 M04 的 `StructuredModelClient` 接口。
 
 ### 5.5 ApplicationService
 
@@ -398,11 +398,14 @@ GET /api/jobs/{job_id}/analysis
 
 ```text
 create_candidate
-save_candidate
-ignore_candidate
+list_candidates
+get_candidate
+transition_candidate
 prepare_application
+list_applications
+get_application
 transition_application
-decide_suggestion
+list_events
 ```
 
 `prepare_application` 使用一个普通数据库事务：
@@ -483,17 +486,19 @@ POST /api/jobs/{job_id}/analyze
 GET  /api/jobs/{job_id}/analysis
 
 POST /api/candidates
-POST /api/candidates/{candidate_id}/save
-POST /api/candidates/{candidate_id}/ignore
-POST /api/candidates/{candidate_id}/prepare
+GET  /api/candidates
+GET  /api/candidates/{candidate_id}
+PATCH /api/candidates/{candidate_id}/status
+POST /api/candidates/{candidate_id}/prepare-application
 
 GET  /api/applications
-POST /api/applications/{application_id}/transitions
+GET  /api/applications/{application_id}
+PATCH /api/applications/{application_id}/status
+GET  /api/applications/{application_id}/events
 POST /api/applications/{application_id}/suggestions
 POST /api/suggestions/{suggestion_id}/decide
 
 POST /api/discovery/runs
-GET  /api/candidates
 ```
 
 API 只负责请求校验、身份识别、调用 Service 和错误转换。

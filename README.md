@@ -897,6 +897,12 @@ POST /api/jobs/{job_id}/analyze
 
 M07 已实现 `JDAnalysisService` 和 SQLite `JobAnalysis` 迁移。岗位级解析缓存只按岗位原文指纹、Schema/Parser/Prompt 版本和模型复用；用户级分析每次使用当前画像与当前证据重新计算。默认 Fake 模式使用一个可重复的本地演示 Client，前端工作台可以载入明确标记的演示画像与 Memory-RAG 证据，完整展示结构化 JD、资格、要求证据、评分、风险和待补充信息；真实模型仍通过 M04 的同一 `StructuredModelClient` 接口接入。
 
+### M08 申请状态机与事件
+
+M08 已实现 `CandidateJob`、`Application` 和 `DomainEvent` 的 SQLite 持久化，以及显式的候选岗位和申请状态转换表。用户从岗位分析页点击“准备申请”后，系统在同一事务内将候选岗位转换为 `CONVERTED`、创建唯一的 `PREPARING` 申请并写入 `ApplicationCreated` 事件；重复请求只返回已有申请。
+
+申请状态可通过人工确认推进到 `SUBMITTED`、`ASSESSMENT`、`INTERVIEW`、`OFFER`、`REJECTED` 或 `WITHDRAWN`。所有读写都按当前用户归属过滤，非法转换返回结构化冲突错误。前端申请看板展示按状态分组的申请卡片、下一步动作、可用转换和申请事件时间线，Agent 不直接执行投递或修改状态。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -918,11 +924,13 @@ jobflow-agent/
 │   │   ├── profiles.py
 │   │   ├── evidence.py
 │   │   ├── jobs.py
+│   │   ├── applications.py
 │   │   └── schemas.py
 │   ├── domain/
 │   │   ├── models.py
 │   │   ├── runs.py
 │   │   ├── analysis.py
+│   │   ├── application.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
 │   │   └── matching.py
@@ -937,6 +945,7 @@ jobflow-agent/
 │   │   ├── evidence_validator.py
 │   │   ├── evidence_match_service.py
 │   │   ├── jd_analysis_service.py
+│   │   ├── application_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -955,7 +964,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M07 的核心实现已完成，核心进度为 7 / 11，下一步是 M08。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效和页面链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M08 的核心实现已完成，核心进度为 8 / 11，下一步是 M09。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线和申请看板已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

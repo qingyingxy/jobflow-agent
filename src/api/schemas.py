@@ -6,6 +6,10 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.domain.analysis import AnalysisRisk
+from src.domain.application import (
+    ApplicationStatus,
+    CandidateStatus,
+)
 from src.domain.eligibility import EligibilityResult, SearchPreferences
 from src.domain.job import StructuredJobDescription, normalize_job_text
 from src.domain.matching import MatchScore, RequirementMatch
@@ -78,6 +82,60 @@ class JobPostingRead(BaseModel):
     content_hash: str
     retrieved_at: datetime
     trace_id: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class JobSummary(BaseModel):
+    id: str
+    company: str | None
+    title: str | None
+    source_url: str | None
+
+
+class CandidateCreateRequest(BaseModel):
+    job_posting_id: str = Field(min_length=1, max_length=40)
+
+
+class CandidateStatusUpdate(BaseModel):
+    status: CandidateStatus
+
+
+class CandidateRead(BaseModel):
+    id: str
+    user_id: str
+    job_posting_id: str
+    status: CandidateStatus
+    available_transitions: list[CandidateStatus]
+    job: JobSummary
+    created_at: datetime
+    updated_at: datetime
+
+
+class DomainEventRead(BaseModel):
+    id: str
+    entity_type: str
+    entity_id: str
+    event_type: str
+    payload: dict[str, object]
+    created_at: datetime
+
+
+class ApplicationStatusUpdate(BaseModel):
+    status: ApplicationStatus
+    next_action: str | None = Field(default=None, max_length=240)
+
+
+class ApplicationRead(BaseModel):
+    id: str
+    candidate_job_id: str
+    job_posting_id: str
+    status: ApplicationStatus
+    candidate_status: CandidateStatus
+    next_action: str | None
+    available_transitions: list[ApplicationStatus]
+    job: JobSummary
+    events: list[DomainEventRead]
     created_at: datetime
     updated_at: datetime
 

@@ -1,4 +1,13 @@
 from .analysis import ANALYSIS_VERSION, AnalysisRisk, JobAnalysis
+from .application import (
+    APPLICATION_TRANSITIONS,
+    CANDIDATE_TRANSITIONS,
+    Application,
+    ApplicationStatus,
+    CandidateJob,
+    CandidateStatus,
+    DomainEvent,
+)
 from .eligibility import (
     CandidateProfileInput,
     EligibilityCheck,
@@ -13,9 +22,16 @@ from .runs import AgentRun, JobParseResult
 
 __all__ = [
     "ANALYSIS_VERSION",
+    "APPLICATION_TRANSITIONS",
+    "CANDIDATE_TRANSITIONS",
     "AgentRun",
     "AnalysisRisk",
+    "Application",
+    "ApplicationStatus",
+    "CandidateJob",
     "CandidateProfileInput",
+    "CandidateStatus",
+    "DomainEvent",
     "EligibilityCheck",
     "EligibilityInput",
     "EligibilityResult",

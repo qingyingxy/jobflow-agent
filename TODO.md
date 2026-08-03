@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M07 核心实现已完成，下一步 M08
-> 核心实现进度：7 / 11
+> 当前阶段：M08 核心实现已完成，下一步 M09
+> 核心实现进度：8 / 11
 > 外部验收：M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
@@ -178,25 +178,25 @@
 
 ### M08 申请状态机与事件
 
-- [ ] 实现轻量 `CandidateJob`
-- [ ] 为 `CandidateJob` 添加 `user_id + job_posting_id` 唯一约束和必要索引
-- [ ] 实现 `POST /api/candidates`，允许当前用户从手动导入的 `JobPosting` 创建或幂等获取 `SAVED` CandidateJob，不依赖 M10 发现流程
-- [ ] 将 Candidate 和 Application 状态定义为枚举，并实现显式转换表
-- [ ] 实现完整 Candidate 状态转换
-- [ ] 实现 `Application`
-- [ ] 实现 Application 状态转换
-- [ ] 实现 `prepare_application` 数据库事务
-- [ ] 使用 `candidate_job_id` 唯一约束防止重复申请
-- [ ] 实现 `DomainEvent`
-- [ ] 每次创建和状态转换在同一事务内写入事件
-- [ ] 所有读取和写入同时校验当前用户归属
-- [ ] 拒绝非法状态转换
-- [ ] 定义重复请求、事务回滚和数据库唯一约束冲突的响应
-- [ ] 实现 Candidate 和 Application API
-- [ ] 实现申请看板和事件时间线
-- [ ] 添加完整转换矩阵、非法转换、重复准备申请、跨用户访问和事务回滚测试
+- [x] 实现轻量 `CandidateJob`
+- [x] 为 `CandidateJob` 添加 `user_id + job_posting_id` 唯一约束和必要索引
+- [x] 实现 `POST /api/candidates`，允许当前用户从手动导入的 `JobPosting` 创建或幂等获取 `SAVED` CandidateJob，不依赖 M10 发现流程
+- [x] 将 Candidate 和 Application 状态定义为枚举，并实现显式转换表
+- [x] 实现完整 Candidate 状态转换
+- [x] 实现 `Application`
+- [x] 实现 Application 状态转换
+- [x] 实现 `prepare_application` 数据库事务
+- [x] 使用 `candidate_job_id` 唯一约束防止重复申请
+- [x] 实现 `DomainEvent`
+- [x] 每次创建和状态转换在同一事务内写入事件
+- [x] 所有读取和写入同时校验当前用户归属
+- [x] 拒绝非法状态转换
+- [x] 定义重复请求、事务回滚和数据库唯一约束冲突的响应
+- [x] 实现 Candidate 和 Application API
+- [x] 实现申请看板和事件时间线
+- [x] 添加完整转换矩阵、非法转换、重复准备申请、跨用户访问和事务回滚测试
 
-验收：一次“准备申请”只能产生一个 `PREPARING` Application 和一个对应事件；事务任一步失败时不得留下部分状态。
+验收：一次“准备申请”只能产生一个 `PREPARING` Application 和一个对应事件；事务任一步失败时不得留下部分状态。当前已通过完整测试和 SQLite 迁移检查。
 
 ### M09 材料建议与审批
 
