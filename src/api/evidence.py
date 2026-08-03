@@ -53,3 +53,14 @@ def update_evidence(
     if item is None:
         raise HTTPException(status_code=404, detail="经历证据不存在")
     return item
+
+
+@router.delete("/evidence/{evidence_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_evidence(
+    evidence_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> None:
+    deleted = EvidenceService(session).delete(user_id, evidence_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="经历证据不存在")

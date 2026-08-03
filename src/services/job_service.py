@@ -5,6 +5,7 @@ import hashlib
 from sqlalchemy.orm import Session
 
 from src.domain.job import JobPosting, RawJobDocument, generate_job_id
+from src.services.jd_analysis_service import invalidate_analyses_for_job
 
 
 class JobImportService:
@@ -44,3 +45,6 @@ class JobImportService:
 
     def get(self, job_id: str) -> JobPosting | None:
         return self.session.get(JobPosting, job_id)
+
+    def invalidate_analyses(self, job_id: str) -> int:
+        return invalidate_analyses_for_job(self.session, job_id=job_id)

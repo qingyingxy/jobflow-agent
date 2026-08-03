@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M06 核心实现已完成，下一步 M07
-> 核心实现进度：6 / 11
+> 当前阶段：M07 核心实现已完成，下一步 M08
+> 核心实现进度：7 / 11
 > 外部验收：M04 还需要配置真实模型，用 3 条真实中文 JD 做手动解析验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
@@ -152,25 +152,25 @@
 ### M07 岗位分析页面
 
 - [x] 实现岗位级 `JobParseResult` 模型和迁移，保存 `job_posting_id`、`content_hash`、Schema/Parser/Prompt 版本、模型和结构化 JD
-- [ ] 让 M04 创建的 `JobParseResult` 按 `content_hash + schema_version + parser_version + prompt_version + model` 复用，不包含任何用户画像、证据或评分结果
-- [ ] 实现用户级 `JobAnalysis` 模型和迁移，保存 `user_id`、`job_posting_id`、`parse_result_id`、`analysis_version`、资格结果、匹配结果、分数、风险、`created_at` 和可选 `invalidated_at`
-- [ ] 实现 `JDAnalysisService` 编排 Parser、Eligibility、Retriever、Matcher、Validator 和 Score Calculator
-- [ ] 每次分析都使用当前用户画像和当前证据重新计算资格、匹配与分数，不跨用户复用完整 `JobAnalysis`
-- [ ] 用户画像、证据、岗位文本或分析规则变化后设置旧分析的 `invalidated_at`；最新结果查询排除已失效记录并允许重新分析
-- [ ] 实现 `DELETE /api/evidence/{evidence_id}`；硬删除证据以及引用它的 RequirementMatch 和 JobAnalysis，M09 再扩展到材料建议
-- [ ] 实现同步岗位分析 API；MVP 不引入后台队列和轮询任务
-- [ ] `POST /api/jobs/{job_id}/analyze` 等待完整分析后返回新结果，`GET /api/jobs/{job_id}/analysis` 读取当前用户最新的成功结果
-- [ ] 只在整条流水线成功后保存 `JobAnalysis`；可安全降级的非法匹配以 `unsupported + risk` 继续，无法降级的模型或校验错误写入 `AgentRun` 并返回统一错误
-- [ ] API 返回不存在、分析失败、模型不可用和校验失败等统一错误
-- [ ] 展示结构化 JD
-- [ ] 展示资格检查结果
-- [ ] 展示每条要求的证据引用
-- [ ] 展示匹配分数、风险项和缺失项
-- [ ] 展示 `unknown` 的补充信息请求
-- [ ] 页面覆盖加载、空结果、失败、重试和内容已变化状态
-- [ ] 准备 10～20 条初始测试样本
-- [ ] 添加分析 Service 集成测试和 API 测试
-- [ ] 完成手动 JD 分析演示
+- [x] 让 M04 创建的 `JobParseResult` 按 `content_hash + schema_version + parser_version + prompt_version + model` 复用，不包含任何用户画像、证据或评分结果
+- [x] 实现用户级 `JobAnalysis` 模型和迁移，保存 `user_id`、`job_posting_id`、`parse_result_id`、`analysis_version`、资格结果、匹配结果、分数、风险、`created_at` 和可选 `invalidated_at`
+- [x] 实现 `JDAnalysisService` 编排 Parser、Eligibility、Retriever、Matcher、Validator 和 Score Calculator
+- [x] 每次分析都使用当前用户画像和当前证据重新计算资格、匹配与分数，不跨用户复用完整 `JobAnalysis`
+- [x] 用户画像、证据、岗位文本或分析规则变化后设置旧分析的 `invalidated_at`；最新结果查询排除已失效记录并允许重新分析
+- [x] 实现 `DELETE /api/evidence/{evidence_id}`；硬删除证据以及引用它的 RequirementMatch 和 JobAnalysis，M09 再扩展到材料建议
+- [x] 实现同步岗位分析 API；MVP 不引入后台队列和轮询任务
+- [x] `POST /api/jobs/{job_id}/analyze` 等待完整分析后返回新结果，`GET /api/jobs/{job_id}/analysis` 读取当前用户最新的成功结果
+- [x] 只在整条流水线成功后保存 `JobAnalysis`；可安全降级的非法匹配以 `unsupported + risk` 继续，无法降级的模型或校验错误写入 `AgentRun` 并返回统一错误
+- [x] API 返回不存在、分析失败、模型不可用和校验失败等统一错误
+- [x] 展示结构化 JD
+- [x] 展示资格检查结果
+- [x] 展示每条要求的证据引用
+- [x] 展示匹配分数、风险项和缺失项
+- [x] 展示 `unknown` 的补充信息请求
+- [x] 页面覆盖加载、空结果、失败、重试和内容已变化状态
+- [x] 准备 10～20 条初始测试样本
+- [x] 添加分析 Service 集成测试和 API 测试
+- [x] 完成手动 JD 分析演示（Fake 模式）
 
 验收：粘贴一条真实 JD 后，页面可以完整展示结构化字段、资格、证据引用、分数和风险；Fake 模式可重复演示，真实模型失败时不会展示半成品。
 

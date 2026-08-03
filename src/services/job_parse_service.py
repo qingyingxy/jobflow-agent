@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.domain.job import JobPosting, RawJobDocument
@@ -57,6 +58,21 @@ class JobParseService:
         if posting is None:
             raise JobNotFoundError(job_id)
 
+        cached = self.session.scalar(
+            select(JobParseResult)
+            .where(
+                JobParseResult.job_posting_id == posting.id,
+                JobParseResult.content_hash == posting.content_hash,
+                JobParseResult.schema_version == self.parser.schema_version,
+                JobParseResult.parser_version == self.parser.parser_version,
+                JobParseResult.prompt_version == self.parser.prompt_version,
+                JobParseResult.model == self.parser.model_name,
+            )
+            .order_by(JobParseResult.created_at.desc())
+        )
+        if cached is not None:
+            return self._cache_hit(cached, user_id=user_id, job_id=job_id)
+
         started_at = datetime.now(UTC)
         started_clock = perf_counter()
         agent_run = AgentRun(
@@ -96,6 +112,41 @@ class JobParseService:
             ) from error
 
         parse_result = self._save_success(agent_run, posting, parsed, started_clock)
+        self.session.commit()
+        self.session.refresh(agent_run)
+        self.session.refresh(parse_result)
+        return JobParseExecution(parse_result=parse_result, agent_run=agent_run)
+
+    def _cache_hit(
+        self,
+        parse_result: JobParseResult,
+        *,
+        user_id: str,
+        job_id: str,
+    ) -> JobParseExecution:
+        now = datetime.now(UTC)
+        agent_run = AgentRun(
+            id=generate_agent_run_id(),
+            user_id=user_id,
+            run_type=RUN_TYPE_JD_PARSE,
+            target_type="job_posting",
+            target_id=job_id,
+            status=RUN_STATUS_SUCCEEDED,
+            model=parse_result.model,
+            prompt_version=parse_result.prompt_version,
+            input_hash=parse_result.content_hash,
+            output=parse_result.structured_jd,
+            validation_status=VALIDATION_PASSED,
+            validation_result={
+                "status": VALIDATION_PASSED,
+                "cache_hit": True,
+                "parse_result_id": parse_result.id,
+            },
+            started_at=now,
+            finished_at=now,
+            duration_ms=0,
+        )
+        self.session.add(agent_run)
         self.session.commit()
         self.session.refresh(agent_run)
         self.session.refresh(parse_result)

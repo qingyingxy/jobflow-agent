@@ -5,8 +5,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.domain.eligibility import SearchPreferences
+from src.domain.analysis import AnalysisRisk
+from src.domain.eligibility import EligibilityResult, SearchPreferences
 from src.domain.job import StructuredJobDescription, normalize_job_text
+from src.domain.matching import MatchScore, RequirementMatch
 
 
 class ProfileUpdate(BaseModel):
@@ -89,3 +91,19 @@ class JobParseResponse(BaseModel):
     parser_version: str
     prompt_version: str
     structured_jd: StructuredJobDescription
+
+
+class JobAnalysisResponse(BaseModel):
+    analysis_id: str
+    job: JobPostingRead
+    parse_result_id: str
+    analysis_version: str
+    agent_run_ids: list[str]
+    structured_jd: StructuredJobDescription
+    eligibility: EligibilityResult
+    matches: list[RequirementMatch]
+    score: MatchScore
+    risks: list[AnalysisRisk]
+    missing_information: list[str]
+    created_at: datetime
+    invalidated_at: datetime | None

@@ -6,6 +6,10 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from src.domain.models import EvidenceItem, generate_evidence_id
+from src.services.jd_analysis_service import (
+    delete_analyses_referencing_evidence,
+    invalidate_analyses_for_user,
+)
 
 
 class EvidenceService:
@@ -15,6 +19,7 @@ class EvidenceService:
     def create(self, user_id: str, values: dict[str, object]) -> EvidenceItem:
         item = EvidenceItem(id=generate_evidence_id(), user_id=user_id, **values)
         self.session.add(item)
+        invalidate_analyses_for_user(self.session, user_id)
         self.session.commit()
         self.session.refresh(item)
         return item
@@ -58,7 +63,21 @@ class EvidenceService:
                 continue
             setattr(item, field, value)
         item.updated_at = datetime.now(UTC)
+        invalidate_analyses_for_user(self.session, user_id)
 
         self.session.commit()
         self.session.refresh(item)
         return item
+
+    def delete(self, user_id: str, evidence_id: str) -> bool:
+        item = self.get(user_id, evidence_id)
+        if item is None:
+            return False
+        delete_analyses_referencing_evidence(
+            self.session,
+            user_id=user_id,
+            evidence_id=evidence_id,
+        )
+        self.session.delete(item)
+        self.session.commit()
+        return True

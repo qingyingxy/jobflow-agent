@@ -63,6 +63,10 @@ class JDParser:
     def model_name(self) -> str:
         return self.client.model_name
 
+    @property
+    def schema_version(self) -> str:
+        return SCHEMA_VERSION
+
     def build_request(self, document: RawJobDocument) -> StructuredModelRequest:
         system_prompt = (
             "你是 JobFlow Agent 的岗位信息结构化解析器。"

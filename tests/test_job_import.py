@@ -102,4 +102,5 @@ async def test_parse_endpoint_persists_a_job_result_in_fake_mode() -> None:
     assert body["job_id"] == job_id
     assert body["parse_result_id"].startswith("parse_")
     assert body["agent_run_id"].startswith("run_")
-    assert body["structured_jd"]["field_evidence"] == []
+    assert body["structured_jd"]["company"] == "示例公司"
+    assert body["structured_jd"]["required_skills"] == ["RAG"]

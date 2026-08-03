@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from src.domain.models import UserProfile
+from src.services.jd_analysis_service import invalidate_analyses_for_user
 
 
 class ProfileService:
@@ -24,6 +25,7 @@ class ProfileService:
         for field, value in changes.items():
             setattr(profile, field, value)
         profile.updated_at = datetime.now(UTC)
+        invalidate_analyses_for_user(self.session, user_id)
 
         self.session.commit()
         self.session.refresh(profile)

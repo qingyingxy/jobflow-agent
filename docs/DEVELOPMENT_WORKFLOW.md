@@ -139,6 +139,7 @@ jobflow-agent/
 │   ├── domain/
 │   │   ├── models.py
 │   │   ├── runs.py
+│   │   ├── analysis.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
 │   │   └── matching.py
@@ -152,6 +153,7 @@ jobflow-agent/
 │   │   ├── evidence_matcher.py
 │   │   ├── evidence_validator.py
 │   │   ├── evidence_match_service.py
+│   │   ├── jd_analysis_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -358,7 +360,39 @@ Evidence Validator 必须保证：
 
 MVP 使用同步分析 API。`POST /api/jobs/{job_id}/analyze` 等待 Parser、资格、证据和评分全部完成后返回新结果；可安全处理的非法证据匹配降级为 `unsupported` 并作为风险保存，只有无法降级的模型或校验错误才终止分析。只有整条流水线成功才保存 JobAnalysis；失败只写 AgentRun 并返回统一错误，不保存 `pending` 或半成品结果。`GET /api/jobs/{job_id}/analysis` 只读取当前用户最新、成功且 `invalidated_at` 为空的结果。用户画像、证据、岗位文本或分析规则变化时，相关旧分析写入失效时间。
 
-### 5.4 ApplicationService
+### 5.4 JDAnalysisService
+
+M07 使用同步编排服务完成一次用户级岗位分析：
+
+```text
+JobPosting
+→ JobParseService（按岗位原文和版本复用 JobParseResult）
+→ EligibilityChecker（当前用户画像 + SearchPreferences）
+→ EvidenceMatchService（当前用户证据 + EvidenceValidator）
+→ MatchScoreCalculator
+→ 保存 JobAnalysis
+```
+
+`JobParseResult` 是岗位级缓存，不包含用户画像、证据或评分；`JobAnalysis` 是用户级结果，保存 `eligibility`、`matches`、`score`、`risks`、`input_hash` 和 `invalidated_at`。每次重新分析都会重新读取当前用户画像和证据，成功后才使该用户该岗位的旧结果失效并写入新结果；模型失败时只保留 `AgentRun`，不写入半成品 `JobAnalysis`。
+
+画像或证据通过 Service 更新时，当前用户的分析统一写入 `invalidated_at`。删除证据时先硬删除引用该证据的用户级分析，再删除证据本身；岗位原文指纹变化时，最新分析接口返回可重试的 `analysis_content_changed` 错误。MVP 不创建独立 `RequirementMatch` 表，匹配明细作为经过 Schema 校验的 JSON 保存在 `JobAnalysis.matches`，M09 再扩展材料建议引用。
+
+API 提供：
+
+```text
+POST /api/jobs/{job_id}/analyze
+→ 复用或创建 JobParseResult
+→ 运行当前用户的完整分析
+→ 保存成功的 JobAnalysis
+→ 返回结构化 JD、资格、证据、分数和风险
+
+GET /api/jobs/{job_id}/analysis
+→ 只读当前用户最新且未失效结果
+```
+
+前端 M07 工作台覆盖空状态、加载中、失败重试、内容变化、结构化 JD、资格检查、要求证据、评分和待补充信息。默认 Fake 模式使用确定性的本地演示 Client；真实模型复用 M04 的 `StructuredModelClient` 接口。
+
+### 5.5 ApplicationService
 
 核心方法：
 
@@ -387,7 +421,7 @@ decide_suggestion
 
 材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
 
-### 5.5 DiscoveryService
+### 5.6 DiscoveryService
 
 ```text
 求职偏好

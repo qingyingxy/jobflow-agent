@@ -1,0 +1,52 @@
+[
+  {
+    "id": "m07-01",
+    "raw_content": "示例公司招聘 AI 应用开发实习生，负责 RAG 应用开发和评测。工作地点为北京。",
+    "expected": {"job_type": "internship", "locations": ["北京"], "required_skills": ["RAG"]}
+  },
+  {
+    "id": "m07-02",
+    "raw_content": "某科技公司招聘 Python 后端开发实习生，要求熟悉 FastAPI，工作地点上海。",
+    "expected": {"job_type": "internship", "locations": ["上海"], "required_skills": ["Python", "FastAPI"]}
+  },
+  {
+    "id": "m07-03",
+    "raw_content": "数据平台团队招聘全职数据工程师，要求掌握 Python 和 BM25，地点杭州。",
+    "expected": {"job_type": "full_time", "locations": ["杭州"], "required_skills": ["Python", "BM25"]}
+  },
+  {
+    "id": "m07-04",
+    "raw_content": "AI 算法团队招聘算法实习生，参与向量检索和 rerank 相关系统开发，地点深圳。",
+    "expected": {"job_type": "internship", "locations": ["深圳"], "required_skills": ["Vector Search", "Reranker"]}
+  },
+  {
+    "id": "m07-05",
+    "raw_content": "校园招聘 AI 工程师，要求计算机相关专业，熟悉 Python 与 RAG，工作地点北京。",
+    "expected": {"job_type": "campus", "locations": ["北京"], "required_skills": ["RAG", "Python"]}
+  },
+  {
+    "id": "m07-06",
+    "raw_content": "某互联网公司招聘兼职后端开发，要求使用 FastAPI 构建接口，工作地点成都。",
+    "expected": {"job_type": "part_time", "locations": ["成都"], "required_skills": ["FastAPI"]}
+  },
+  {
+    "id": "m07-07",
+    "raw_content": "搜索团队招聘 RAG 工程师，要求有 BM25、向量检索和 rerank 项目经验，地点南京。",
+    "expected": {"locations": ["南京"], "required_skills": ["RAG", "BM25", "Vector Search", "Reranker"]}
+  },
+  {
+    "id": "m07-08",
+    "raw_content": "示例公司招聘产品实习生，学历本科及以上，专业不限，工作地点广州。",
+    "expected": {"job_type": "internship", "locations": ["广州"]}
+  },
+  {
+    "id": "m07-09",
+    "raw_content": "基础架构团队招聘 Python 工程师，岗位信息未说明工作地点和学历要求。",
+    "expected": {"required_skills": ["Python"], "locations": null}
+  },
+  {
+    "id": "m07-10",
+    "raw_content": "欢迎应届生申请 AI 应用开发岗位，熟悉 RAG 或 Python 者优先，具体地点面议。",
+    "expected": {"required_skills": ["RAG", "Python"], "locations": null}
+  }
+]
