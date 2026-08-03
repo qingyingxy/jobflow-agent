@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M05 核心实现已完成，下一步 M06
-> 核心实现进度：5 / 11
+> 当前阶段：M06 核心实现已完成，下一步 M07
+> 核心实现进度：6 / 11
 > 外部验收：M04 还需要配置真实模型，用 3 条真实中文 JD 做手动解析验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
@@ -127,25 +127,25 @@
 
 ### M06 证据召回、匹配与确定性评分
 
-- [ ] 明确 `JobRequirement` 是匹配与评分的规范输入，派生技能列表不得形成第二套事实
-- [ ] 实现关键词和技能标签召回
-- [ ] 限制召回范围为当前用户证据，并定义大小写、别名、重复技能和空查询处理
-- [ ] 实现 `RequirementMatch`
-- [ ] 支持 `supported / partial / unsupported`
-- [ ] 使用 Fake Model Client 跑通语义匹配，真实模型复用 M04 的 Client 边界
-- [ ] 验证 `evidence_ids` 存在且属于当前用户
-- [ ] 禁止生成证据中不存在的项目、技能和数字
-- [ ] 实现 Evidence Validator
-- [ ] 将无效 ID、跨用户引用或虚构事实的匹配安全降级为 `unsupported`，清空 `evidence_ids` 和非法解释，并在 `AgentRun` 中记录 `validation_failed`
-- [ ] 规定合法 `unsupported` 的 `evidence_ids` 必须为空；`supported / partial` 必须至少引用一个有效证据
-- [ ] 实现 `MatchScoreCalculator`
-- [ ] 使用 `1 / 0.5 / 0` 计算 supported / partial / unsupported
-- [ ] 实现 60% 必备技能、20% 加分技能、20% 偏好权重
-- [ ] 实现硬性资格 `fail` 门控和 `unknown` 提醒
-- [ ] 对要求按规范化后的 `category + name` 去重，再计算各分组分母
-- [ ] 仅在 JD 明确不存在某类要求时将该分组标记为 `not_applicable`，并在其他适用分组间按原比例重分配权重
-- [ ] JD 信息缺失不能当作 `not_applicable`；所有软评分分组都不可用时分数返回 `null` 并提示信息不足
-- [ ] 添加无证据、跨用户证据、错误引用、虚构数字、重复要求和评分边界测试
+- [x] 明确 `JobRequirement` 是匹配与评分的规范输入，派生技能列表不得形成第二套事实
+- [x] 实现关键词和技能标签召回
+- [x] 限制召回范围为当前用户证据，并定义大小写、别名、重复技能和空查询处理
+- [x] 实现 `RequirementMatch`
+- [x] 支持 `supported / partial / unsupported`
+- [x] 使用 Fake Model Client 跑通语义匹配，真实模型复用 M04 的 Client 边界
+- [x] 验证 `evidence_ids` 存在且属于当前用户
+- [x] 禁止生成证据中不存在的项目、技能和数字
+- [x] 实现 Evidence Validator
+- [x] 将无效 ID、跨用户引用或虚构事实的匹配安全降级为 `unsupported`，清空 `evidence_ids` 和非法解释，并在 `AgentRun` 中记录 `validation_failed`
+- [x] 规定合法 `unsupported` 的 `evidence_ids` 必须为空；`supported / partial` 必须至少引用一个有效证据
+- [x] 实现 `MatchScoreCalculator`
+- [x] 使用 `1 / 0.5 / 0` 计算 supported / partial / unsupported
+- [x] 实现 60% 必备技能、20% 加分技能、20% 偏好权重
+- [x] 实现硬性资格 `fail` 门控和 `unknown` 提醒
+- [x] 对要求按规范化后的 `category + name` 去重，再计算各分组分母
+- [x] 仅在 JD 明确不存在某类要求时将该分组标记为 `not_applicable`，并在其他适用分组间按原比例重分配权重
+- [x] JD 信息缺失不能当作 `not_applicable`；所有软评分分组都不可用时分数返回 `null` 并提示信息不足
+- [x] 添加无证据、跨用户证据、错误引用、虚构数字、重复要求和评分边界测试
 
 验收：每个 `supported / partial` 结论都有当前用户的有效证据，用户可见结果不包含非法引用；分数可由保存的明细确定性复算。
 

@@ -862,6 +862,23 @@ CandidateProfileInput + SearchPreferences + StructuredJobDescription
 
 `SearchPreferences` 明确以下字段的类型和范围：`preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days(1～7)` 和 `internship_duration_months(>=0)`。`null` 表示信息未提供，相关规则返回 `unknown`；空列表表示明确没有该类限制。M02 旧字段 `target_roles` 和 `locations` 暂时保留兼容，但资格检查只使用规范字段。
 
+### M06 证据匹配与确定性评分
+
+M06 将岗位要求和用户经历拆成可独立测试的四个边界：
+
+```text
+JobRequirement
+→ EvidenceRetriever
+→ EvidenceMatcher
+→ EvidenceValidator
+→ RequirementMatch
+→ MatchScoreCalculator
+```
+
+召回只使用当前用户的经历证据，支持大小写、空白和少量明确技能别名，结果按稳定规则排序。模型只能从召回候选中选择 `evidence_ids`；`supported / partial` 至少需要一个有效证据，`unsupported` 必须为空引用。无效 ID、跨用户引用或证据中不存在的项目、技能、数字会被安全降级为 `unsupported`，清空引用和解释，并在 `AgentRun` 中记录校验失败。
+
+评分按规范化后的 `category + name` 去重，使用 `supported / partial / unsupported = 1 / 0.5 / 0`，原始权重为必备技能 60%、加分技能 20%、地点和岗位偏好 20%。只有 JD 明确没有某类要求时才标记 `not_applicable` 并重新分配权重；JD 信息缺失返回信息不足而不是假设不适用。硬性资格失败时标记不推荐，资格未知时保留可计算分数并要求用户确认。
+
 ### M07 分析持久化与 API 约定
 
 MVP 采用同步分析接口，不引入后台队列和轮询任务：
@@ -893,33 +910,36 @@ POST /api/jobs/{job_id}/analyze
 jobflow-agent/
 ├── src/
 │   ├── api/
+│   │   ├── dependencies.py
 │   │   ├── profiles.py
+│   │   ├── evidence.py
 │   │   ├── jobs.py
-│   │   ├── applications.py
-│   │   └── suggestions.py
+│   │   └── schemas.py
 │   ├── domain/
-│   │   ├── profile.py
+│   │   ├── models.py
+│   │   ├── runs.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
-│   │   ├── analysis.py
-│   │   ├── application.py
-│   │   └── suggestion.py
+│   │   └── matching.py
 │   ├── services/
-│   │   ├── jd_analysis.py
+│   │   ├── profile_service.py
+│   │   ├── evidence_service.py
+│   │   ├── jd_parser.py
+│   │   ├── job_parse_service.py
 │   │   ├── eligibility_checker.py
-│   │   ├── evidence_matching.py
-│   │   ├── application_service.py
-│   │   └── discovery_service.py
+│   │   ├── evidence_retriever.py
+│   │   ├── evidence_matcher.py
+│   │   ├── evidence_validator.py
+│   │   ├── evidence_match_service.py
+│   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
 │   │   ├── llm_client.py
-│   │   ├── job_reader.py
-│   │   └── job_sources/
+│   │   └── __init__.py
 │   ├── evaluation/
 │   └── main.py
 ├── frontend/
 ├── tests/
-├── datasets/
 ├── docs/
 └── README.md
 ```
@@ -928,7 +948,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M05 的核心实现已完成，核心进度为 5 / 11，下一步是 M06。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析接口、资格规则和运行记录链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M06 的核心实现已完成，核心进度为 6 / 11，下一步是 M07。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析接口、资格规则、证据匹配、评分和运行记录链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

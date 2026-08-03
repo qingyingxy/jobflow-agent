@@ -131,40 +131,45 @@ jobflow-agent/
 ├── .python-version
 ├── src/
 │   ├── api/
+│   │   ├── dependencies.py
 │   │   ├── profiles.py
+│   │   ├── evidence.py
 │   │   ├── jobs.py
-│   │   ├── applications.py
-│   │   └── suggestions.py
+│   │   └── schemas.py
 │   ├── domain/
-│   │   ├── profile.py
+│   │   ├── models.py
+│   │   ├── runs.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
-│   │   ├── analysis.py
-│   │   ├── application.py
-│   │   └── suggestion.py
+│   │   └── matching.py
 │   ├── services/
-│   │   ├── jd_analysis.py
+│   │   ├── profile_service.py
+│   │   ├── evidence_service.py
+│   │   ├── jd_parser.py
+│   │   ├── job_parse_service.py
 │   │   ├── eligibility_checker.py
-│   │   ├── evidence_matching.py
-│   │   ├── application_service.py
-│   │   └── discovery_service.py
+│   │   ├── evidence_retriever.py
+│   │   ├── evidence_matcher.py
+│   │   ├── evidence_validator.py
+│   │   ├── evidence_match_service.py
+│   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
 │   │   ├── llm_client.py
-│   │   ├── job_reader.py
-│   │   └── job_sources/
+│   │   └── __init__.py
 │   ├── evaluation/
 │   ├── config.py
 │   └── main.py
 ├── frontend/
 ├── tests/
 │   ├── fixtures/
-│   ├── test_analysis.py
 │   ├── test_eligibility.py
 │   ├── test_evidence_matching.py
-│   ├── test_application.py
-│   ├── test_job_reader.py
-│   └── test_api.py
+│   ├── test_jd_parser.py
+│   ├── test_job_import.py
+│   ├── test_job_parse.py
+│   ├── test_profile_evidence.py
+│   └── test_health.py
 ├── migrations/
 ├── datasets/
 └── docs/
@@ -308,6 +313,25 @@ CandidateProfileInput + SearchPreferences + StructuredJobDescription
 
 每个 `EligibilityCheck` 保存规则名、字段、`pass / fail / unknown`、原因、JD 原文依据和待补充信息。规则对学历层级、专业族、地点别名、日期和数值使用确定性规范化；无法安全规范化时返回 `unknown`，不交给评分逻辑猜测。总体结果固定按 `fail > unknown > pass` 汇总。
 
+### 5.3 EvidenceMatcher 与 MatchScoreCalculator
+
+M06 的匹配链路保持四个可替换边界：
+
+```text
+JobRequirement
+→ EvidenceRetriever（当前用户的关键词/技能别名召回）
+→ EvidenceMatcher（Fake 或真实 StructuredModelClient）
+→ EvidenceValidator（ID、归属、事实和数字校验）
+→ RequirementMatch
+→ MatchScoreCalculator
+```
+
+`JobRequirement` 是唯一规范输入，`required_skills` 和 `preferred_skills` 不参与第二次事实生成。召回只接收当前用户的 `EvidenceRecord`，使用大小写、空白、显式技能别名和稳定 ID 排序；没有候选证据时直接返回合法的 `unsupported`。
+
+模型只能选择候选证据 ID、匹配等级和解释。`supported / partial` 必须引用至少一个当前用户证据，`unsupported` 必须使用空引用；无效 ID、跨用户 ID、证据中不存在的事实或数字会被安全降级为 `unsupported`，清空引用和解释，并将 `AgentRun.validation_status` 记录为 `failed`。模型调用失败则记录失败运行并返回可重试错误。
+
+评分先按规范化后的 `category + name` 去重，再按 `1 / 0.5 / 0` 计算必备技能、加分技能和地点/岗位偏好三组。原始权重为 `60% / 20% / 20%`；只有 JD 明确没有某组要求时才标记 `not_applicable` 并重分配权重，JD 缺失属于 `insufficient_data`。硬性资格 `fail` 门控为 `not_recommended`，`unknown` 保留可计算分数但标记 `needs_confirmation`。
+
 Evidence Validator 必须保证：
 
 - `supported / partial` 至少引用一个有效 `evidence_id`；
@@ -334,7 +358,7 @@ Evidence Validator 必须保证：
 
 MVP 使用同步分析 API。`POST /api/jobs/{job_id}/analyze` 等待 Parser、资格、证据和评分全部完成后返回新结果；可安全处理的非法证据匹配降级为 `unsupported` 并作为风险保存，只有无法降级的模型或校验错误才终止分析。只有整条流水线成功才保存 JobAnalysis；失败只写 AgentRun 并返回统一错误，不保存 `pending` 或半成品结果。`GET /api/jobs/{job_id}/analysis` 只读取当前用户最新、成功且 `invalidated_at` 为空的结果。用户画像、证据、岗位文本或分析规则变化时，相关旧分析写入失效时间。
 
-### 5.3 ApplicationService
+### 5.4 ApplicationService
 
 核心方法：
 
@@ -363,7 +387,7 @@ decide_suggestion
 
 材料建议不依赖完整 Resume 实体。`SuggestionTargetInput` 由用户请求提供 `original_text`、`target_type` 和可选 `target_label`；Suggestion Generator 只对这段明确文本提出建议。ResumeSuggestion 关联当前用户、Application 和 JobAnalysis，Agent 只能创建 `PENDING`，最终文本只能由用户接受或编辑后接受产生。
 
-### 5.4 DiscoveryService
+### 5.5 DiscoveryService
 
 ```text
 求职偏好
