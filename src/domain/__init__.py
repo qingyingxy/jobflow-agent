@@ -8,6 +8,7 @@ from .application import (
     CandidateStatus,
     DomainEvent,
 )
+from .discovery import DiscoveryRun, DiscoveryRunStatus
 from .eligibility import (
     CandidateProfileInput,
     EligibilityCheck,
@@ -38,6 +39,8 @@ __all__ = [
     "CandidateJob",
     "CandidateProfileInput",
     "CandidateStatus",
+    "DiscoveryRun",
+    "DiscoveryRunStatus",
     "DomainEvent",
     "EligibilityCheck",
     "EligibilityInput",

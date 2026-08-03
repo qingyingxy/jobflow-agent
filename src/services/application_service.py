@@ -77,7 +77,13 @@ class ApplicationService:
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def create_candidate(self, *, user_id: str, job_posting_id: str) -> CandidateView:
+    def create_candidate(
+        self,
+        *,
+        user_id: str,
+        job_posting_id: str,
+        initial_status: CandidateStatus = CandidateStatus.SAVED,
+    ) -> CandidateView:
         posting = self.session.get(JobPosting, job_posting_id)
         if posting is None:
             raise JobPostingNotFoundError(job_posting_id)
@@ -97,7 +103,7 @@ class ApplicationService:
             id=generate_candidate_id(),
             user_id=user_id,
             job_posting_id=job_posting_id,
-            status=CandidateStatus.SAVED.value,
+            status=initial_status.value,
         )
         self.session.add(candidate)
         try:
@@ -105,12 +111,16 @@ class ApplicationService:
                 user_id=user_id,
                 entity_type="candidate",
                 entity_id=candidate.id,
-                event_type="CandidateSaved",
+                event_type=(
+                    "CandidateDiscovered"
+                    if initial_status is CandidateStatus.DISCOVERED
+                    else "CandidateSaved"
+                ),
                 payload={
                     "job_posting_id": posting.id,
                     "company": posting.company,
                     "title": posting.title,
-                    "status": CandidateStatus.SAVED.value,
+                    "status": initial_status.value,
                 },
             )
             self._commit()
@@ -120,13 +130,21 @@ class ApplicationService:
         self.session.refresh(candidate)
         return CandidateView(candidate=candidate, posting=posting)
 
-    def list_candidates(self, *, user_id: str) -> list[CandidateView]:
-        rows = self.session.execute(
+    def list_candidates(
+        self,
+        *,
+        user_id: str,
+        status: CandidateStatus | None = None,
+    ) -> list[CandidateView]:
+        statement = (
             select(CandidateJob, JobPosting)
             .join(JobPosting, JobPosting.id == CandidateJob.job_posting_id)
             .where(CandidateJob.user_id == user_id)
             .order_by(CandidateJob.updated_at.desc(), CandidateJob.id.desc())
-        ).all()
+        )
+        if status is not None:
+            statement = statement.where(CandidateJob.status == status.value)
+        rows = self.session.execute(statement).all()
         return [
             CandidateView(candidate=candidate, posting=posting)
             for candidate, posting in rows

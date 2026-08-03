@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -20,6 +21,12 @@ class JobImportService:
         source_type: str,
         company: str | None,
         title: str | None,
+        source_id: str | None = None,
+        source_job_id: str | None = None,
+        locations: list[str] | None = None,
+        job_type: str | None = None,
+        published_at: datetime | None = None,
+        last_seen_at: datetime | None = None,
     ) -> JobPosting:
         document = RawJobDocument(
             source_url=source_url,
@@ -31,8 +38,14 @@ class JobImportService:
             id=generate_job_id(),
             source_url=document.source_url,
             source_type=document.source_type,
+            source_id=source_id,
+            source_job_id=source_job_id,
             company=company,
             title=title,
+            locations=locations or [],
+            job_type=job_type,
+            published_at=published_at,
+            last_seen_at=last_seen_at or datetime.now(UTC),
             raw_content=document.raw_content,
             content_hash=content_hash,
             retrieved_at=document.retrieved_at,

@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 import src.domain.analysis
 import src.domain.application
+import src.domain.discovery
 import src.domain.models
 import src.domain.runs
 import src.domain.suggestion  # noqa: F401

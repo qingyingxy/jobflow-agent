@@ -7,7 +7,7 @@
 
 ## 1. 项目简介
 
-JobFlow Agent 根据用户的求职意向，从限定范围内的公开招聘来源发现岗位，也支持用户直接导入岗位链接或 JD 文本。系统自动解析中文 JD，检查校招资格，将岗位要求与用户真实经历进行匹配，并在用户确认后创建可追踪的申请记录。
+JobFlow Agent 在限定范围内的公开招聘来源中发现岗位，也支持用户直接导入岗位链接或 JD 文本。系统自动解析中文 JD，检查校招资格，将岗位要求与用户真实经历进行匹配，并在用户确认后创建可追踪的申请记录。
 
 项目核心原则：
 
@@ -346,7 +346,24 @@ CandidateJob → CONVERTED
 
 真实来源发现会创建 `DISCOVERED` CandidateJob；用户手动粘贴或导入的 `JobPosting` 也可以通过 `POST /api/candidates` 幂等创建 `SAVED` CandidateJob，因此申请闭环不依赖岗位发现功能先完成。
 
-### 5.6 Event and Trace Log
+### 5.6 M10 岗位发现与来源同步
+
+M10 已完成轻量岗位发现闭环。用户在岗位发现页输入一个公开招聘入口，系统先校验 URL 安全边界，再按来源适配器读取岗位列表、标准化字段并写入发现池。首个真实来源使用 Greenhouse 的公开 Job Board API（见 [官方文档](https://developers.greenhouse.io/job-board.html)），只读获取岗位列表，不需要投递权限；通用岗位链接则通过安全 HTTP Reader 和 Generic HTML Parser 导入。
+
+```text
+用户输入公开招聘入口
+→ URL / DNS / 重定向安全检查
+→ Greenhouse Adapter 或 Generic HTML Reader
+→ 公司、标题、地点、类型、正文标准化
+→ source_id + source_job_id / URL / 内容指纹去重
+→ DiscoveryRun
+→ JobPosting + DISCOVERED CandidateJob
+→ 用户保存、忽略或进入岗位分析
+```
+
+发现流程不会自动运行完整 JD 分析，也不会创建 `Application`。重复同步只更新 `last_seen_at` 和来源字段；岗位正文变化时，旧分析会失效并要求重新分析。读取失败会保存失败运行和摘要，受限 URL 在发出实际请求前被拦截。
+
+### 5.7 Event and Trace Log
 
 业务事件和 Agent 执行轨迹分开保存。业务事件用于用户可见的时间线，Agent Trace 用于调试、评测和复现。
 
@@ -429,16 +446,17 @@ created_at
 
 展示：
 
-- 当前求职意向和筛选条件；
+- 用户输入的公开招聘来源入口；
+- 最近一次同步的新增、重复和失败数量；
+- 岗位发现候选池；
 - 岗位来源和最近更新时间；
 - 岗位基本信息；
 - 来源链接；
-- 推荐原因；
-- 地点、届别、岗位类型等基础筛选结果；
-- 信息缺失或来源异常等初步风险；
-- 收藏、忽略和查看详情操作。
+- 地点和招聘类型等基础字段；
+- 保存、忽略和进入岗位分析操作；
+- 最近的 DiscoveryRun 来源轨迹。
 
-用户也可以从本页面直接输入岗位链接或粘贴 JD，跳过岗位发现，进入岗位分析流程。
+岗位发现页只负责收集和整理来源事实。用户点击“进入分析”后，才进入完整 JD 解析、资格检查和证据匹配流程。
 
 ### 7.2 岗位分析与申请准备页
 
@@ -580,16 +598,14 @@ flowchart LR
 - 增加 Embedding 召回和 Playwright 动态页面回退。
 - 增加第 2 个招聘来源。
 
-推荐连接器：
+当前适配器：
 
 ```text
-MokaAdapter
+GreenhouseAdapter
 GenericHtmlAdapter
-BrowserFallbackAdapter
-ManualTextAdapter
 ```
 
-这里的招聘来源优先指已配置的公司官方招聘入口，不要求为每家公司单独编写完整爬虫。除非通用连接器无法适配，否则不实现公司级专用爬虫。扩展目标不作为核心 MVP 的完成条件。
+M10 通过用户输入的 Greenhouse board URL 选择具体招聘入口，不在 MVP 中自动探索整个互联网。Playwright、定时同步和更多 ATS 适配器仍是后续扩展，不作为核心 MVP 的完成条件。
 
 ## 12. 数据模型
 
@@ -909,6 +925,17 @@ M09 已实现 `SuggestionTargetInput`、`ResumeSuggestion` 和 `SuggestionServic
 
 建议只以 `PENDING` 状态保存。用户可以直接接受、编辑后接受或拒绝；前两者分别保存模型建议文本或用户编辑后的 `final_text`，拒绝时 `final_text` 保持为空。审批状态和 `SuggestionDecisionRecorded` 事件在同一事务内保存，事件只记录决策元数据和最终文本哈希，不保存材料正文。岗位看板的材料建议区展示原文、Agent 建议、证据数量、Diff 编辑区和审批结果。
 
+### M10 岗位发现池与来源安全
+
+M10 已完成 `SafeHTTPReader`、Generic HTML / JSON-LD 提取、`JobSourceAdapter`、`GreenhouseAdapter`、`DiscoveryRun` 和岗位发现页。发现同步是用户手动触发的只读流程：系统限制协议、端口、凭据、DNS 解析结果、重定向、响应大小、超时和重试次数；页面正文中的脚本、样式、隐藏元素不会进入岗位原文。发现结果使用来源岗位 ID、规范 URL 和内容指纹按优先级去重，首次发现创建 `DISCOVERED` 候选，重复运行不会创建重复 `JobPosting` 或 `Application`。
+
+```text
+POST /api/jobs/import-url
+POST /api/discovery/runs
+GET  /api/discovery/runs
+GET  /api/candidates?status=DISCOVERED
+```
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -973,7 +1000,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M09 的核心实现已完成，核心进度为 9 / 11，下一步是 M10。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议和人工审批已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M10 的核心实现已完成，核心进度为 10 / 11，下一步是 M11。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 来源适配和发现池已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

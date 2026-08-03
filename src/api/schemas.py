@@ -75,14 +75,31 @@ class JobTextImportRequest(BaseModel):
         return normalize_job_text(value)
 
 
+class JobURLImportRequest(BaseModel):
+    source_url: str = Field(min_length=1, max_length=2048)
+    company: str | None = Field(default=None, max_length=160)
+    title: str | None = Field(default=None, max_length=160)
+
+
+class DiscoveryRunCreateRequest(BaseModel):
+    source_url: str = Field(min_length=1, max_length=2048)
+    company: str | None = Field(default=None, max_length=160)
+
+
 class JobPostingRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
     source_url: str | None
     source_type: str
+    source_id: str | None = None
+    source_job_id: str | None = None
     company: str | None
     title: str | None
+    locations: list[str] = Field(default_factory=list)
+    job_type: str | None = None
+    published_at: datetime | None = None
+    last_seen_at: datetime | None = None
     raw_content: str
     content_hash: str
     retrieved_at: datetime
@@ -96,6 +113,11 @@ class JobSummary(BaseModel):
     company: str | None
     title: str | None
     source_url: str | None
+    source_id: str | None = None
+    locations: list[str] = Field(default_factory=list)
+    job_type: str | None = None
+    published_at: datetime | None = None
+    last_seen_at: datetime | None = None
 
 
 class CandidateCreateRequest(BaseModel):
@@ -115,6 +137,23 @@ class CandidateRead(BaseModel):
     job: JobSummary
     created_at: datetime
     updated_at: datetime
+
+
+class DiscoveryRunRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    user_id: str
+    source: str
+    source_url: str
+    status: str
+    discovered_count: int
+    new_count: int
+    duplicate_count: int
+    failure_summary: str | None
+    started_at: datetime
+    finished_at: datetime | None
+    created_at: datetime
 
 
 class DomainEventRead(BaseModel):

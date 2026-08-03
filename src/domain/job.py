@@ -5,7 +5,7 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from sqlalchemy import DateTime, String, Text, func
+from sqlalchemy import JSON, DateTime, Index, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
@@ -28,6 +28,14 @@ def normalize_job_text(value: str) -> str:
 
 class JobPosting(Base):
     __tablename__ = "job_postings"
+    __table_args__ = (
+        Index(
+            "uq_job_postings_source_job",
+            "source_id",
+            "source_job_id",
+            unique=True,
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     source_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
@@ -37,8 +45,29 @@ class JobPosting(Base):
         default="manual_text",
         server_default="manual_text",
     )
+    source_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    source_job_id: Mapped[str | None] = mapped_column(
+        String(120),
+        nullable=True,
+        index=True,
+    )
     company: Mapped[str | None] = mapped_column(String(160), nullable=True)
     title: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    locations: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
+        server_default=text("'[]'"),
+    )
+    job_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    last_seen_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     raw_content: Mapped[str] = mapped_column(Text, nullable=False)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     retrieved_at: Mapped[datetime] = mapped_column(

@@ -135,12 +135,15 @@ jobflow-agent/
 │   │   ├── profiles.py
 │   │   ├── evidence.py
 │   │   ├── jobs.py
+│   │   ├── discovery.py
+│   │   ├── applications.py
 │   │   └── schemas.py
 │   ├── domain/
 │   │   ├── models.py
 │   │   ├── runs.py
 │   │   ├── analysis.py
 │   │   ├── job.py
+│   │   ├── discovery.py
 │   │   ├── eligibility.py
 │   │   └── matching.py
 │   ├── services/
@@ -154,6 +157,10 @@ jobflow-agent/
 │   │   ├── evidence_validator.py
 │   │   ├── evidence_match_service.py
 │   │   ├── jd_analysis_service.py
+│   │   ├── job_service.py
+│   │   ├── url_reader.py
+│   │   ├── discovery_sources.py
+│   │   ├── discovery_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -187,7 +194,7 @@ jobflow-agent/
 | `EvidenceItem` | 真实经历证据 | type、title、claim、skills、source |
 | `RawJobDocument` | 岗位原始文档 Schema | source_url、source_type、raw_content、retrieved_at、trace_id |
 | `JobSource` | 招聘来源配置 | name、adapter_type、entry_url、enabled |
-| `JobPosting` | 外部岗位事实 | company、title、raw_content、content_hash、source_url、retrieved_at |
+| `JobPosting` | 外部岗位事实 | company、title、raw_content、content_hash、source_url、source_id、source_job_id、locations、job_type、published_at、last_seen_at |
 | `JobParseResult` | 与用户无关的岗位解析缓存 | job_posting_id、content_hash、schema_version、parser_version、prompt_version、model、structured_jd |
 | `CandidateJob` | 用户与岗位关系 | user_id、job_posting_id、status |
 | `JobAnalysis` | 当前用户的资格与匹配分析 | user_id、job_posting_id、parse_result_id、analysis_version、eligibility、matches、score、risks、created_at、invalidated_at |
@@ -196,7 +203,7 @@ jobflow-agent/
 | `ResumeSuggestion` | 建议和审批结果 | user_id、application_id、job_analysis_id、target_type、original_text、suggested_text、evidence_ids、status、final_text |
 | `DomainEvent` | 用户可见时间线 | entity_type、entity_id、event_type、payload |
 | `AgentRun` | 从 M04 开始保存的必要技术轨迹 | user_id、run_type、target、status、model、prompt_version、input_hash、output、validation_result、started_at、finished_at、error |
-| `DiscoveryRun` | 用户手动发现运行 | user_id、source、status、found_count、created_count、duplicate_count、failure_summary、started_at、finished_at |
+| `DiscoveryRun` | 用户手动发现运行 | user_id、source、status、discovered_count、new_count、duplicate_count、failure_summary、started_at、finished_at |
 
 求职偏好直接保存在 `UserProfile.search_preferences`，但写入和读取必须经过 `SearchPreferences` Schema。参与资格判断的字段至少包括 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days` 和 `internship_duration_months`，并明确类型、范围和 `null` 语义；其他纯展示偏好仍可保留在 JSON 中。`RawJobDocument` 是导入和后续解析之间传递的 Schema，不单独建表；岗位原文、内容指纹和读取时间直接保存在 `JobPosting`。审批状态和最终文本直接保存在 `ResumeSuggestion`。
 
@@ -426,27 +433,28 @@ list_events
 
 M09 已实现 `SuggestionService`：生成阶段复用 M04 的 `StructuredModelClient` 和 `AgentRun`，结构化输出必须包含 `suggestion_text`、`evidence_ids` 和 `claims`；Evidence Validator 会校验引用归属、项目、技能和数字。生成失败或证据校验失败时只保存失败/校验失败的 AgentRun，不创建建议。审批阶段只允许 `PENDING` 建议进入 `accept / edit / reject` 三种决策，最终文本和 `SuggestionDecisionRecorded` DomainEvent 在同一事务内保存。事件只保存决策元数据、长度和哈希，不保存材料正文。
 
-### 5.6 DiscoveryService
+### 5.6 DiscoveryService（M10 已完成）
 
 ```text
-求职偏好
-→ 结构化检索条件
+用户输入公开来源入口
+→ URL / DNS / 重定向安全检查
 → 真实招聘来源 Adapter
 → 标准化和去重
-→ 基础筛选
 → DiscoveryRun
-→ CandidateJob
+→ JobPosting + DISCOVERED CandidateJob
 ```
 
 Adapter 接口：
 
 ```python
 class JobSourceAdapter(Protocol):
+    source_id: str
+    source_url: str
     async def list_jobs(self) -> list[JobStub]: ...
-    async def fetch_job(self, source_job_id: str) -> RawJobDocument: ...
+    async def fetch_job(self, source_job_id: str) -> JobStub: ...
 ```
 
-必须完成 1 个真实来源。每次用户手动触发都保存轻量 DiscoveryRun，包括来源、状态、发现/新增/重复数量、失败摘要和起止时间。发现页只做基础筛选，打开详情后才执行完整分析。
+M10 已完成 Greenhouse 公开 Job Board API Adapter、Generic HTML Reader、SQLite `DiscoveryRun` 迁移、岗位来源字段和复合去重索引。每次用户手动触发都保存来源、状态、发现/新增/重复数量、失败摘要和起止时间；发现页只做保存、忽略和进入分析，打开详情后才执行完整分析。
 
 ## 6. URL 读取与安全
 
@@ -467,7 +475,7 @@ Playwright 是动态页面的可选扩展，不属于核心 MVP。只有普通�
 - 限制重定向、响应大小、超时和重试；
 - 将网页内容视为不可信数据；
 - 清理脚本、隐藏元素和无关文本；
-- 普通日志不保存完整简历和联系方式。
+- 普通日志不保存完整简历和联系方式；网页正文只作为不可信岗位数据处理。
 
 ## 7. API 范围
 
@@ -488,7 +496,7 @@ POST /api/jobs/{job_id}/analyze
 GET  /api/jobs/{job_id}/analysis
 
 POST /api/candidates
-GET  /api/candidates
+GET  /api/candidates?status=DISCOVERED
 GET  /api/candidates/{candidate_id}
 PATCH /api/candidates/{candidate_id}/status
 POST /api/candidates/{candidate_id}/prepare-application
@@ -503,6 +511,7 @@ GET  /api/suggestions/{suggestion_id}
 POST /api/suggestions/{suggestion_id}/decide
 
 POST /api/discovery/runs
+GET  /api/discovery/runs
 ```
 
 API 只负责请求校验、身份识别、调用 Service 和错误转换。

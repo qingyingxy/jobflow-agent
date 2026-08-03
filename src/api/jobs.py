@@ -6,6 +6,7 @@ from src.api.schemas import (
     JobParseResponse,
     JobPostingRead,
     JobTextImportRequest,
+    JobURLImportRequest,
 )
 from src.config import get_settings
 from src.domain.analysis import AnalysisRisk
@@ -29,8 +30,32 @@ from src.services.job_parse_service import (
     JobParseService,
 )
 from src.services.job_service import JobImportService
+from src.services.url_reader import (
+    SafeHTTPReader,
+    URLFetchTimeout,
+    URLReaderError,
+    URLSafetyError,
+    parse_html_document,
+)
 
 router = APIRouter(prefix="/api", tags=["jobs"])
+
+
+def create_http_reader() -> SafeHTTPReader:
+    return SafeHTTPReader()
+
+
+def _url_reader_error(error: URLReaderError) -> HTTPException:
+    if isinstance(error, URLSafetyError):
+        response_status = status.HTTP_422_UNPROCESSABLE_ENTITY
+    elif isinstance(error, URLFetchTimeout):
+        response_status = status.HTTP_504_GATEWAY_TIMEOUT
+    else:
+        response_status = status.HTTP_502_BAD_GATEWAY
+    return HTTPException(
+        status_code=response_status,
+        detail={"code": error.code, "message": str(error)},
+    )
 
 
 def _analysis_response(
@@ -74,6 +99,38 @@ def import_job_text(
         source_type=payload.source_type,
         company=payload.company,
         title=payload.title,
+    )
+
+
+@router.post(
+    "/jobs/import-url",
+    response_model=JobPostingRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def import_job_url(
+    payload: JobURLImportRequest,
+    session: DatabaseSession,
+) -> JobPostingRead:
+    try:
+        fetched = await create_http_reader().fetch(payload.source_url)
+    except URLReaderError as error:
+        raise _url_reader_error(error) from error
+
+    document = parse_html_document(fetched.body.decode("utf-8", errors="replace"))
+    if len(document.text) < 20:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "code": "job_content_too_short",
+                "message": "页面中没有提取到足够的岗位正文",
+            },
+        )
+    return JobImportService(session).import_text(
+        raw_content=document.text,
+        source_url=fetched.final_url,
+        source_type="generic_html",
+        company=payload.company or document.company,
+        title=payload.title or document.title,
     )
 
 

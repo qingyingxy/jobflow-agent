@@ -50,6 +50,11 @@ def _job_summary(posting) -> JobSummary:
         company=posting.company,
         title=posting.title,
         source_url=posting.source_url,
+        source_id=posting.source_id,
+        locations=posting.locations or [],
+        job_type=posting.job_type,
+        published_at=posting.published_at,
+        last_seen_at=posting.last_seen_at,
     )
 
 
@@ -156,10 +161,14 @@ def create_candidate(
 def list_candidates(
     user_id: CurrentUserId,
     session: DatabaseSession,
+    status: CandidateStatus | None = None,
 ) -> list[CandidateRead]:
     return [
         _candidate_response(view)
-        for view in ApplicationService(session).list_candidates(user_id=user_id)
+        for view in ApplicationService(session).list_candidates(
+            user_id=user_id,
+            status=status,
+        )
     ]
 
 

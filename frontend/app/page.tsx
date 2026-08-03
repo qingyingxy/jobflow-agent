@@ -83,7 +83,8 @@ type AnalysisResponse = {
   missing_information: string[];
 };
 
-type WorkspaceMode = "analysis" | "board";
+type WorkspaceMode = "discover" | "analysis" | "board";
+type CandidateStatus = "DISCOVERED" | "SAVED" | "IGNORED" | "CONVERTED";
 type ApplicationStatus =
   | "PREPARING"
   | "SUBMITTED"
@@ -135,6 +136,11 @@ type ApplicationItem = {
     company: string | null;
     title: string | null;
     source_url: string | null;
+    source_id?: string | null;
+    locations?: string[];
+    job_type?: string | null;
+    published_at?: string | null;
+    last_seen_at?: string | null;
   };
   events: ApplicationEvent[];
   created_at: string;
@@ -142,6 +148,42 @@ type ApplicationItem = {
 };
 
 type BoardState = "idle" | "loading" | "ready" | "error";
+type DiscoveryState = "idle" | "loading" | "ready" | "error";
+
+type CandidateItem = {
+  id: string;
+  user_id: string;
+  job_posting_id: string;
+  status: CandidateStatus;
+  available_transitions: CandidateStatus[];
+  job: {
+    id: string;
+    company: string | null;
+    title: string | null;
+    source_url: string | null;
+    source_id?: string | null;
+    locations?: string[];
+    job_type?: string | null;
+    published_at?: string | null;
+    last_seen_at?: string | null;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+type DiscoveryRunItem = {
+  id: string;
+  source: string;
+  source_url: string;
+  status: "RUNNING" | "SUCCEEDED" | "PARTIAL" | "FAILED";
+  discovered_count: number;
+  new_count: number;
+  duplicate_count: number;
+  failure_summary: string | null;
+  started_at: string;
+  finished_at: string | null;
+  created_at: string;
+};
 
 const eligibilityLabel: Record<AnalysisResponse["eligibility"]["eligible"], string> = {
   pass: "资格通过",
@@ -193,6 +235,28 @@ const applicationEventLabel: Record<string, string> = {
   SuggestionDecisionRecorded: "记录材料决策",
 };
 
+const candidateStatusLabel: Record<CandidateStatus, string> = {
+  DISCOVERED: "刚发现",
+  SAVED: "已保存",
+  IGNORED: "已忽略",
+  CONVERTED: "已进入申请",
+};
+
+const discoveryRunStatusLabel: Record<DiscoveryRunItem["status"], string> = {
+  RUNNING: "同步中",
+  SUCCEEDED: "已完成",
+  PARTIAL: "部分完成",
+  FAILED: "失败",
+};
+
+const jobTypeShortLabel: Record<string, string> = {
+  campus: "校招",
+  internship: "实习",
+  full_time: "全职",
+  part_time: "兼职",
+  unknown: "类型待确认",
+};
+
 const suggestionStatusLabel: Record<SuggestionStatus, string> = {
   PENDING: "待审批",
   ACCEPTED: "已采用",
@@ -242,6 +306,13 @@ export default function Home() {
   const [boardMessage, setBoardMessage] = useState("");
   const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
   const [preparingApplication, setPreparingApplication] = useState(false);
+  const [candidates, setCandidates] = useState<CandidateItem[]>([]);
+  const [discoveryRuns, setDiscoveryRuns] = useState<DiscoveryRunItem[]>([]);
+  const [discoveryState, setDiscoveryState] = useState<DiscoveryState>("idle");
+  const [discoveryMessage, setDiscoveryMessage] = useState("");
+  const [discoverySourceUrl, setDiscoverySourceUrl] = useState("");
+  const [discoveryCompany, setDiscoveryCompany] = useState("");
+  const [updatingCandidateId, setUpdatingCandidateId] = useState<string | null>(null);
 
   async function loadApplications() {
     setBoardState("loading");
@@ -262,7 +333,101 @@ export default function Home() {
 
   useEffect(() => {
     if (mode === "board") void loadApplications();
+    if (mode === "discover") void loadDiscoveryData();
   }, [mode]);
+
+  async function loadDiscoveryData() {
+    setDiscoveryState("loading");
+    try {
+      const [candidateResponse, runResponse] = await Promise.all([
+        fetch(`${apiUrl}/api/candidates`, {
+          headers: { "X-User-ID": userId },
+          cache: "no-store",
+        }),
+        fetch(`${apiUrl}/api/discovery/runs`, {
+          headers: { "X-User-ID": userId },
+          cache: "no-store",
+        }),
+      ]);
+      if (!candidateResponse.ok) throw new Error(await readError(candidateResponse));
+      if (!runResponse.ok) throw new Error(await readError(runResponse));
+      setCandidates((await candidateResponse.json()) as CandidateItem[]);
+      setDiscoveryRuns((await runResponse.json()) as DiscoveryRunItem[]);
+      setDiscoveryState("ready");
+    } catch (error) {
+      setDiscoveryState("error");
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位发现池加载失败。");
+    }
+  }
+
+  async function runDiscovery() {
+    if (!discoverySourceUrl.trim()) {
+      setDiscoveryState("error");
+      setDiscoveryMessage("请先输入一个招聘来源入口，例如 Greenhouse board URL。");
+      return;
+    }
+    setDiscoveryState("loading");
+    setDiscoveryMessage("正在读取公开岗位并进行去重…");
+    try {
+      const response = await fetch(`${apiUrl}/api/discovery/runs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify({
+          source_url: discoverySourceUrl.trim(),
+          company: discoveryCompany.trim() || null,
+        }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const run = (await response.json()) as DiscoveryRunItem;
+      await loadDiscoveryData();
+      setDiscoveryMessage(
+        `同步完成：发现 ${run.discovered_count} 条，新增 ${run.new_count} 条，重复 ${run.duplicate_count} 条。`,
+      );
+    } catch (error) {
+      setDiscoveryState("error");
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位来源同步失败。");
+    }
+  }
+
+  async function updateCandidate(candidateId: string, status: CandidateStatus) {
+    setUpdatingCandidateId(candidateId);
+    setDiscoveryMessage("");
+    try {
+      const response = await fetch(`${apiUrl}/api/candidates/${candidateId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const updated = (await response.json()) as CandidateItem;
+      setCandidates((current) => current.map((item) => item.id === updated.id ? updated : item));
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "候选岗位状态更新失败。");
+    } finally {
+      setUpdatingCandidateId(null);
+    }
+  }
+
+  async function openCandidate(jobId: string) {
+    try {
+      const response = await fetch(`${apiUrl}/api/jobs/${jobId}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(await readError(response));
+      const posting = (await response.json()) as {
+        raw_content: string;
+        company: string | null;
+        title: string | null;
+      };
+      setRawContent(posting.raw_content);
+      setCompany(posting.company ?? "");
+      setTitle(posting.title ?? "");
+      setAnalysis(null);
+      setState("empty");
+      setErrorMessage("");
+      setMode("analysis");
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位详情加载失败。");
+    }
+  }
 
   async function runAnalysis() {
     if (rawContent.trim().length < 20) {
@@ -422,6 +587,13 @@ export default function Home() {
         </div>
         <nav className="workspace-nav" aria-label="工作区导航">
           <button
+            className={mode === "discover" ? "workspace-nav-active" : ""}
+            onClick={() => setMode("discover")}
+            type="button"
+          >
+            岗位发现 <span>{candidates.filter((item) => item.status === "DISCOVERED").length.toString().padStart(2, "0")}</span>
+          </button>
+          <button
             className={mode === "analysis" ? "workspace-nav-active" : ""}
             onClick={() => setMode("analysis")}
             type="button"
@@ -437,19 +609,25 @@ export default function Home() {
           </button>
         </nav>
         <div className="topbar-trail">
-          <span className="topbar-path">{mode === "analysis" ? "岗位分析工作台" : "申请状态工作台"}</span>
-          <span className="build-pill"><span className="live-dot" />M09 / LOCAL</span>
+          <span className="topbar-path">{mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}</span>
+          <span className="build-pill"><span className="live-dot" />M10 / LOCAL</span>
         </div>
       </header>
 
       <section className="workspace-intro">
         <div>
-          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "analysis" ? "02" : "03"}</p>
+          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "discover" ? "01" : mode === "analysis" ? "02" : "03"}</p>
           {mode === "analysis" ? (
             <h1>
               先看清岗位，
               <em>再决定</em>
               要不要申请。
+            </h1>
+          ) : mode === "discover" ? (
+            <h1>
+              先把机会浮出来，
+              <em>再决定</em>
+              往哪走。
             </h1>
           ) : (
             <h1>
@@ -460,7 +638,9 @@ export default function Home() {
           )}
         </div>
         <p className="intro-note">
-          {mode === "analysis"
+          {mode === "discover"
+            ? "只从你指定的公开招聘入口读取岗位，先做标准化和去重，再把未经判断的机会交给你。"
+            : mode === "analysis"
             ? "把一条非结构化 JD 拆成资格、要求和证据。Agent 负责整理与解释，最终决定权留在你手里。"
             : "把用户确认过的岗位放进申请流程。每一次状态变化都留下时间线，不自动投递，也不替你做决定。"}
         </p>
@@ -534,7 +714,23 @@ export default function Home() {
             />
           ) : null}
         </section>
-      </section> : (
+      </section> : mode === "discover" ? (
+        <DiscoveryWorkspace
+          candidates={candidates}
+          runs={discoveryRuns}
+          state={discoveryState}
+          message={discoveryMessage}
+          sourceUrl={discoverySourceUrl}
+          company={discoveryCompany}
+          updatingCandidateId={updatingCandidateId}
+          onSourceUrlChange={setDiscoverySourceUrl}
+          onCompanyChange={setDiscoveryCompany}
+          onRun={runDiscovery}
+          onRefresh={loadDiscoveryData}
+          onOpen={openCandidate}
+          onUpdate={updateCandidate}
+        />
+      ) : (
         <ApplicationBoard
           applications={applications}
           state={boardState}
@@ -587,6 +783,210 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       <p>{message}</p>
       <button className="retry-button" onClick={onRetry} type="button">重新分析 <span aria-hidden="true">↗</span></button>
     </div>
+  );
+}
+
+function DiscoveryWorkspace({
+  candidates,
+  runs,
+  state,
+  message,
+  sourceUrl,
+  company,
+  updatingCandidateId,
+  onSourceUrlChange,
+  onCompanyChange,
+  onRun,
+  onRefresh,
+  onOpen,
+  onUpdate,
+}: {
+  candidates: CandidateItem[];
+  runs: DiscoveryRunItem[];
+  state: DiscoveryState;
+  message: string;
+  sourceUrl: string;
+  company: string;
+  updatingCandidateId: string | null;
+  onSourceUrlChange: (value: string) => void;
+  onCompanyChange: (value: string) => void;
+  onRun: () => void;
+  onRefresh: () => void;
+  onOpen: (jobId: string) => void;
+  onUpdate: (candidateId: string, status: CandidateStatus) => void;
+}) {
+  const pool = candidates.filter((item) => item.status !== "CONVERTED");
+  return (
+    <section className="discovery-shell">
+      <div className="discovery-control-panel">
+        <div className="discovery-control-heading">
+          <div>
+            <div className="section-kicker"><span>01</span> 同步公开来源</div>
+            <h2>让岗位先进入 <em>候选池。</em></h2>
+            <p>输入一个已知的公开招聘入口。M10 先支持 Greenhouse board，后续再按同一适配器边界扩展来源。</p>
+          </div>
+          <span className="discovery-safety-mark">READ ONLY / HUMAN GATE</span>
+        </div>
+        <div className="discovery-form">
+          <label>
+            <span>招聘来源入口</span>
+            <input
+              value={sourceUrl}
+              onChange={(event) => onSourceUrlChange(event.target.value)}
+              placeholder="https://boards.greenhouse.io/{board_token}"
+            />
+          </label>
+          <label>
+            <span>公司名称（可选）</span>
+            <input
+              value={company}
+              onChange={(event) => onCompanyChange(event.target.value)}
+              placeholder="例如：目标公司"
+            />
+          </label>
+          <button className="discovery-sync-button" onClick={onRun} disabled={state === "loading"} type="button">
+            <span>{state === "loading" ? "同步中…" : "开始发现"}</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <div className="discovery-principle">
+          <span className="principle-mark">◎</span>
+          <p><strong>Source facts first</strong><br />只保存公开来源返回的岗位事实；不会自动分析、投递或替你收藏。</p>
+        </div>
+      </div>
+
+      {message ? <div className="discovery-message">{message}</div> : null}
+
+      <div className="discovery-pool-heading">
+        <div>
+          <div className="section-kicker"><span>02</span> 岗位候选池</div>
+          <h2>先看见，<em>再判断。</em></h2>
+          <p>发现结果只代表来源事实。进入分析后，Agent 才会结合你的画像和经历证据给出判断。</p>
+        </div>
+        <button className="board-refresh" onClick={onRefresh} disabled={state === "loading"} type="button">
+          {state === "loading" ? "读取中…" : "刷新候选池 ↻"}
+        </button>
+      </div>
+
+      {state === "error" ? (
+        <div className="discovery-empty discovery-error">
+          <span className="empty-index">DISCOVERY / ERROR</span>
+          <h3>这次来源同步没有完成。</h3>
+          <p>{message || "请确认来源入口可公开访问，或检查后端服务是否正在运行。"}</p>
+          <button className="retry-button" onClick={onRefresh} type="button">重试 ↗</button>
+        </div>
+      ) : null}
+      {state === "loading" && pool.length === 0 ? (
+        <div className="discovery-empty">
+          <span className="empty-index">DISCOVERY / SYNC</span>
+          <div className="board-loader" />
+          <h3>正在整理公开岗位。</h3>
+          <p>读取来源、标准化字段、计算去重指纹，然后才会进入候选池。</p>
+        </div>
+      ) : null}
+      {state !== "error" && state !== "loading" && pool.length === 0 ? (
+        <div className="discovery-empty">
+          <span className="empty-index">DISCOVERY / 00</span>
+          <div className="empty-glyph">＋</div>
+          <h3>候选池还是空的。</h3>
+          <p>输入一个公开招聘入口开始同步。岗位进入这里后，你可以先保存、忽略，或者送入岗位分析。</p>
+        </div>
+      ) : null}
+      {pool.length > 0 ? (
+        <div className="discovery-pool">
+          {pool.map((candidate) => (
+            <DiscoveryCard
+              key={candidate.id}
+              candidate={candidate}
+              updating={updatingCandidateId === candidate.id}
+              onOpen={() => onOpen(candidate.job.id)}
+              onUpdate={(status) => onUpdate(candidate.id, status)}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      <DiscoveryRunHistory runs={runs} />
+    </section>
+  );
+}
+
+function DiscoveryCard({
+  candidate,
+  updating,
+  onOpen,
+  onUpdate,
+}: {
+  candidate: CandidateItem;
+  updating: boolean;
+  onOpen: () => void;
+  onUpdate: (status: CandidateStatus) => void;
+}) {
+  const locations = candidate.job.locations ?? [];
+  const canSave = candidate.available_transitions.includes("SAVED");
+  const canIgnore = candidate.available_transitions.includes("IGNORED");
+  const sourceLabel = candidate.job.source_id?.replace("greenhouse:", "GREENHOUSE / ") ?? "MANUAL IMPORT";
+  return (
+    <article className={`discovery-card discovery-card-${candidate.status.toLowerCase()}`}>
+      <div className="discovery-card-topline">
+        <span>{sourceLabel}</span>
+        <span className="discovery-status">{candidateStatusLabel[candidate.status]}</span>
+      </div>
+      <div className="discovery-card-body">
+        <div>
+          <p className="discovery-company">{candidate.job.company ?? "未识别公司"}</p>
+          <h3>{candidate.job.title ?? "未识别岗位"}</h3>
+          <p className="discovery-meta">
+            {locations.length > 0 ? locations.join(" · ") : "地点待确认"}
+            <span> / </span>
+            {candidate.job.job_type ? jobTypeShortLabel[candidate.job.job_type] ?? candidate.job.job_type : "类型待确认"}
+          </p>
+        </div>
+        <div className="discovery-date">
+          <span>LAST SEEN</span>
+          <strong>{formatDate(candidate.job.last_seen_at ?? candidate.updated_at)}</strong>
+        </div>
+      </div>
+      <div className="discovery-card-footer">
+        <button className="discovery-open" onClick={onOpen} type="button">进入分析 ↗</button>
+        <div className="discovery-secondary-actions">
+          {canSave ? (
+            <button onClick={() => onUpdate("SAVED")} disabled={updating} type="button">保存</button>
+          ) : null}
+          {canIgnore ? (
+            <button onClick={() => onUpdate("IGNORED")} disabled={updating} type="button">忽略</button>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function DiscoveryRunHistory({ runs }: { runs: DiscoveryRunItem[] }) {
+  return (
+    <section className="discovery-history">
+      <div className="discovery-history-heading">
+        <div>
+          <div className="section-kicker"><span>03</span> 同步记录</div>
+          <h2>每次读取，都留下 <em>来源轨迹。</em></h2>
+        </div>
+        <span>{runs.length.toString().padStart(2, "0")} RUNS</span>
+      </div>
+      {runs.length === 0 ? (
+        <p className="discovery-history-empty">还没有同步记录。第一次手动触发后，这里会记录来源、数量和失败摘要。</p>
+      ) : (
+        <div className="discovery-history-list">
+          {runs.slice(0, 5).map((run) => (
+            <div className="discovery-history-row" key={run.id}>
+              <span className="discovery-history-source">{run.source}</span>
+              <strong>{discoveryRunStatusLabel[run.status]}</strong>
+              <span>发现 {run.discovered_count} / 新增 {run.new_count} / 重复 {run.duplicate_count}</span>
+              <time>{formatDate(run.created_at)}</time>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

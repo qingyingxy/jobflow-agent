@@ -1092,6 +1092,437 @@ textarea::placeholder {
   font-size: 9px;
 }
 
+.discovery-shell {
+  position: relative;
+  z-index: 1;
+  animation: rise-in 650ms 120ms ease both;
+}
+
+.discovery-control-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  padding: 23px 25px 20px;
+  background: rgba(23, 33, 29, 0.98);
+  color: var(--paper);
+  box-shadow: 13px 13px 0 rgba(23, 33, 29, 0.08);
+}
+
+.discovery-control-panel::after {
+  position: absolute;
+  right: -35px;
+  bottom: -45px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgba(217, 238, 98, 0.38);
+  border-radius: 50%;
+  content: "";
+}
+
+.discovery-control-heading,
+.discovery-pool-heading,
+.discovery-history-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.discovery-control-heading {
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid rgba(243, 240, 232, 0.16);
+  padding-bottom: 18px;
+}
+
+.discovery-control-panel .section-kicker {
+  color: rgba(243, 240, 232, 0.52);
+}
+
+.discovery-control-panel h2,
+.discovery-pool-heading h2,
+.discovery-history-heading h2 {
+  margin: 9px 0 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: clamp(28px, 4vw, 47px);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+
+.discovery-control-panel h2 em,
+.discovery-pool-heading h2 em,
+.discovery-history-heading h2 em {
+  color: var(--coral);
+  font-style: normal;
+}
+
+.discovery-control-panel p,
+.discovery-pool-heading p {
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: rgba(243, 240, 232, 0.52);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.discovery-safety-mark {
+  flex: 0 0 auto;
+  border: 1px solid rgba(217, 238, 98, 0.48);
+  padding: 7px 9px;
+  color: var(--acid);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.discovery-form {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(160px, 0.55fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 19px;
+}
+
+.discovery-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.discovery-form label > span {
+  color: rgba(243, 240, 232, 0.5);
+  font-size: 10px;
+}
+
+.discovery-form input {
+  border-color: rgba(243, 240, 232, 0.22);
+  background: rgba(243, 240, 232, 0.075);
+}
+
+.discovery-sync-button {
+  display: flex;
+  min-width: 130px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid var(--acid);
+  padding: 12px 14px;
+  background: var(--acid);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.discovery-sync-button:hover {
+  background: #edf69c;
+}
+
+.discovery-sync-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.discovery-sync-button span:last-child {
+  color: var(--coral);
+  font-size: 18px;
+}
+
+.discovery-principle {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-top: 1px solid rgba(243, 240, 232, 0.15);
+  margin-top: 19px;
+  padding-top: 15px;
+}
+
+.discovery-principle .principle-mark {
+  color: var(--acid);
+}
+
+.discovery-principle p {
+  margin: 0;
+  color: rgba(243, 240, 232, 0.42);
+  font-size: 10px;
+}
+
+.discovery-principle strong {
+  color: rgba(243, 240, 232, 0.82);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.discovery-message {
+  margin-top: 17px;
+  border-left: 3px solid var(--acid);
+  padding: 10px 13px;
+  background: rgba(217, 238, 98, 0.22);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.discovery-pool-heading {
+  margin-top: 48px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 22px;
+}
+
+.discovery-pool-heading p {
+  color: var(--muted-ink);
+}
+
+.discovery-pool-heading .board-refresh {
+  margin-bottom: 1px;
+}
+
+.discovery-pool {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 23px;
+}
+
+.discovery-card {
+  display: flex;
+  min-height: 236px;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  background: rgba(249, 247, 241, 0.78);
+  box-shadow: 4px 4px 0 rgba(23, 33, 29, 0.04);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.discovery-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ink);
+  box-shadow: 7px 7px 0 rgba(23, 33, 29, 0.08);
+}
+
+.discovery-card-discovered {
+  border-top: 3px solid var(--acid);
+}
+
+.discovery-card-saved {
+  border-top: 3px solid var(--blue);
+}
+
+.discovery-card-ignored {
+  border-top: 3px solid rgba(23, 33, 29, 0.3);
+  opacity: 0.72;
+}
+
+.discovery-card-topline,
+.discovery-card-footer,
+.discovery-card-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 13px;
+}
+
+.discovery-card-topline {
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 12px 13px;
+  color: var(--muted-ink);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.discovery-status {
+  border: 1px solid var(--line);
+  padding: 4px 6px;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.discovery-card-body {
+  flex: 1;
+  align-items: flex-start;
+  padding: 19px 14px 16px;
+}
+
+.discovery-company {
+  margin: 0 0 8px;
+  color: var(--coral);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.discovery-card h3 {
+  max-width: 270px;
+  margin: 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+}
+
+.discovery-meta {
+  margin: 12px 0 0;
+  color: var(--muted-ink);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.discovery-date {
+  min-width: 67px;
+  border-left: 1px solid var(--line);
+  padding-left: 10px;
+  text-align: right;
+}
+
+.discovery-date span {
+  display: block;
+  color: var(--muted-ink);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.discovery-date strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.discovery-card-footer {
+  align-items: center;
+  border-top: 1px solid var(--line-soft);
+  padding: 10px 13px;
+}
+
+.discovery-open {
+  border: 1px solid var(--ink);
+  padding: 8px 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.discovery-open:hover {
+  background: var(--coral);
+  color: var(--ink);
+}
+
+.discovery-secondary-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.discovery-secondary-actions button {
+  border: 0;
+  padding: 5px 0;
+  background: transparent;
+  color: var(--muted-ink);
+  font-size: 10px;
+}
+
+.discovery-secondary-actions button:hover {
+  color: var(--coral);
+}
+
+.discovery-secondary-actions button:disabled {
+  cursor: wait;
+  opacity: 0.45;
+}
+
+.discovery-empty {
+  min-height: 310px;
+  margin-top: 23px;
+  border: 1px solid var(--line);
+  padding: 46px clamp(18px, 7vw, 100px);
+  background: rgba(249, 247, 241, 0.72);
+}
+
+.discovery-empty h3 {
+  margin: 19px 0 9px;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+}
+
+.discovery-empty p {
+  max-width: 520px;
+  margin: 0 0 20px;
+  color: var(--muted-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.discovery-error {
+  border-color: rgba(255, 120, 94, 0.55);
+}
+
+.discovery-history {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+
+.discovery-history-heading h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+.discovery-history-heading > span {
+  color: var(--muted-ink);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.discovery-history-list {
+  margin-top: 17px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.discovery-history-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 75px minmax(190px, 1fr) 125px;
+  gap: 13px;
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 11px 0;
+  color: var(--muted-ink);
+  font-size: 10px;
+}
+
+.discovery-history-source {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discovery-history-row strong {
+  color: #3c8b42;
+  font-size: 9px;
+}
+
+.discovery-history-row time {
+  text-align: right;
+}
+
+.discovery-history-empty {
+  margin: 16px 0 0;
+  color: var(--muted-ink);
+  font-size: 11px;
+}
+
 .board-shell {
   position: relative;
   z-index: 1;
@@ -1827,6 +2258,10 @@ textarea::placeholder {
   .jd-facts {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .discovery-pool {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 790px) {
@@ -1886,6 +2321,30 @@ textarea::placeholder {
     width: 100%;
   }
 
+  .discovery-control-heading,
+  .discovery-pool-heading,
+  .discovery-history-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .discovery-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .discovery-sync-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .discovery-pool {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-pool-heading .board-refresh {
+    width: auto;
+  }
+
   .suggestion-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -1928,6 +2387,47 @@ textarea::placeholder {
   .intake-panel,
   .result-panel {
     padding: 19px;
+  }
+
+  .discovery-control-panel {
+    padding: 19px;
+  }
+
+  .discovery-form {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-sync-button {
+    grid-column: auto;
+  }
+
+  .discovery-pool-heading .board-refresh {
+    width: 100%;
+  }
+
+  .discovery-card-body {
+    flex-direction: column;
+  }
+
+  .discovery-date {
+    width: 100%;
+    border-top: 1px solid var(--line-soft);
+    border-left: 0;
+    padding-top: 10px;
+    padding-left: 0;
+    text-align: left;
+  }
+
+  .discovery-history-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .discovery-history-row span:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .discovery-history-row time {
+    text-align: right;
   }
 
   .result-heading {
