@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     default_user_id: str = "local-user"
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     log_level: str = "INFO"
+    structured_model_provider: str = "fake"
+    llm_base_url: str | None = None
+    llm_timeout_seconds: float = 30.0
+    prompt_version: str = "jd-parser-prompt-v1"
+    parser_version: str = "jd-parser-v1"
     llm_api_key: str | None = None
     llm_model: str = "gpt-4.1-mini"
 

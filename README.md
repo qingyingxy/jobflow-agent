@@ -818,7 +818,7 @@ POST /api/jobs/import-text
 GET  /api/jobs/{job_id}
 ```
 
-`StructuredJobDescription` 是 M04 JD Parser 的基础输出，所有无法从岗位文本确认的字段都使用 `null`，不会用空字符串或模型猜测代替。M03 先完成可持久化的 Schema 基线，M04 再补齐模型输出所需的唯一事实来源、字段原文依据和跨字段语义校验。
+`StructuredJobDescription` 是 M04 JD Parser 的基础输出，所有无法从岗位文本确认的字段都使用 `null`，不会用空字符串或模型猜测代替。M03 先完成可持久化的 Schema 基线，M04 已补齐模型输出所需的唯一事实来源、字段原文依据和跨字段语义校验。
 
 ### M04 JD Parser 约定
 
@@ -830,19 +830,20 @@ RawJobDocument
 → StructuredModelClient
 → Pydantic 类型与语义校验
 → 字段原文依据校验
-→ 返回已校验结果并保存 AgentRun
+→ 保存岗位级 JobParseResult 和 AgentRun
 ```
 
 结构化结果遵循以下规则：
 
 - `JobRequirement` 是证据匹配和技能评分的规范输入；重复的技能列表只能由确定性代码派生；
+- `required_skills` 和 `preferred_skills` 必须与 `requirements` 保持确定性关系，不能形成第二套岗位事实；
 - 资格字段和通用资格条件不能由模型分别生成两套矛盾事实；
-- 每个关键字段保存 `field_path`、原文片段和可选字符位置；
+- 每个关键字段保存 `field_path`、原文片段和可选字符位置，Parser 还会检查原文片段确实来自岗位文本；
 - `unknown` 表示岗位原文无法确认，不表示模型调用失败；
 - 类型错误、非法操作符、缺少必要值或额外字段会使整次解析失败；
 - 模型超时、无响应或校验失败时不保存半成品分析，并向页面返回可重试错误。
 
-最小 `AgentRun` 在 M04 创建，记录用户、运行类型、目标实体、状态、模型、提示词版本、输入哈希、输出校验结果、起止时间、耗时和错误。M11 负责将这些运行记录与数据集版本组合成可重复评测，而不是到 M11 才首次加入运行轨迹。
+M04 提供同步解析接口 `POST /api/jobs/{job_id}/parse`。默认使用 Fake Client，便于本地重复演示；设置 `STRUCTURED_MODEL_PROVIDER=openai_compatible` 后，可通过 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 和 `LLM_TIMEOUT_SECONDS` 接入 OpenAI-compatible 结构化模型。`JobParseResult` 保存与用户无关的岗位级解析缓存，`AgentRun` 记录用户、运行类型、目标实体、状态、模型、提示词版本、输入哈希、输出校验结果、起止时间、耗时和错误。M11 负责将这些运行记录与数据集版本组合成可重复评测，而不是到 M11 才首次加入运行轨迹。
 
 M04 不负责完整分析持久化；M07 在 Parser、Eligibility 和 Evidence 接口稳定后实现 `JobAnalysis`，统一保存解析、资格、证据匹配和评分结果。
 
@@ -910,7 +911,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M01～M03 已完成，核心进度为 3 / 11，下一步是 M04。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M04 的核心实现已完成，核心进度为 4 / 11，下一步是 M05。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析接口和运行记录链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

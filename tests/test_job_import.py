@@ -51,3 +51,55 @@ def test_structured_jd_schema_keeps_missing_fields_as_null() -> None:
 def test_structured_jd_schema_rejects_unknown_fields() -> None:
     with pytest.raises(ValidationError):
         StructuredJobDescription(unexpected_field="不应该出现")
+
+
+@pytest.mark.asyncio
+async def test_job_text_import_rejects_short_text_after_normalization() -> None:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/jobs/import-text",
+            json={"raw_content": "\n\r\n  太短  \n"},
+        )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+@pytest.mark.asyncio
+async def test_manual_import_rejects_non_manual_source_type() -> None:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/jobs/import-text",
+            json={
+                "source_type": "company_adapter",
+                "raw_content": "这是一个长度足够的岗位文本，用于测试来源边界。",
+            },
+        )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_parse_endpoint_persists_a_job_result_in_fake_mode() -> None:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        import_response = await client.post(
+            "/api/jobs/import-text",
+            json={
+                "company": "示例公司",
+                "title": "AI 应用开发实习生",
+                "raw_content": "示例公司招聘 AI 应用开发实习生，熟悉 RAG。",
+            },
+        )
+        job_id = import_response.json()["id"]
+        parse_response = await client.post(f"/api/jobs/{job_id}/parse")
+
+    assert import_response.status_code == 201
+    assert parse_response.status_code == 200
+    body = parse_response.json()
+    assert body["job_id"] == job_id
+    assert body["parse_result_id"].startswith("parse_")
+    assert body["agent_run_id"].startswith("run_")
+    assert body["structured_jd"]["field_evidence"] == []

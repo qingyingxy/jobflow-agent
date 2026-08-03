@@ -1,7 +1,8 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M03 已完成，下一步 M04
-> 核心实现进度：3 / 11
+> 当前阶段：M04 核心实现已完成，下一步 M05
+> 核心实现进度：4 / 11
+> 外部验收：M04 还需要配置真实模型，用 3 条真实中文 JD 做手动解析验收；Fake、错误处理和持久化链路已完成。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M11 核心进度。
 
@@ -76,33 +77,33 @@
 
 #### M04-A 导入边界加固
 
-- [ ] 收紧文本导入边界：规范化后不足 20 字符返回 422，而不是 500
-- [ ] 固定手动导入的 `source_type=manual_text`，真实来源仅由 Adapter 写入
+- [x] 收紧文本导入边界：规范化后不足 20 字符返回 422，而不是 500
+- [x] 固定手动导入的 `source_type=manual_text`，真实来源仅由 Adapter 写入
 
 #### M04-B 结构化输出契约
 
-- [ ] 明确结构化 JD 的唯一事实来源，避免技能列表、要求列表和资格条件互相矛盾
-- [ ] 定义字段原文依据 Schema，至少包含 `field_path`、`source_text` 和可选文本位置
-- [ ] 为资格条件增加跨字段校验，例如非 `unknown` 操作符必须有合法值
+- [x] 明确结构化 JD 的唯一事实来源，避免技能列表、要求列表和资格条件互相矛盾
+- [x] 定义字段原文依据 Schema，至少包含 `field_path`、`source_text` 和可选文本位置
+- [x] 为资格条件增加跨字段校验，例如非 `unknown` 操作符必须有合法值
 
 #### M04-C Model Client 与 Parser
 
-- [ ] 定义异步 `StructuredModelClient` 协议和统一请求/响应类型
-- [ ] 实现可配置的 Fake Model Client，支持正常、缺失字段、非法字段、非法类型和模型异常
-- [ ] 实现 JD Parser：构造提示词、调用 Client、执行 Pydantic 校验并返回结构化结果
-- [ ] 定义模型超时、无响应和校验失败的错误类型；失败时不得保存半成品分析
+- [x] 定义异步 `StructuredModelClient` 协议和统一请求/响应类型
+- [x] 实现可配置的 Fake Model Client，支持正常、缺失字段、非法字段、非法类型和模型异常
+- [x] 实现 JD Parser：构造提示词、调用 Client、执行 Pydantic 校验并返回结构化结果
+- [x] 定义模型超时、无响应和校验失败的错误类型；失败时不得保存半成品分析
 
 #### M04-D 运行记录与真实模型
 
-- [ ] 实现最小 `AgentRun`，记录 `user_id`、`run_type`、目标实体、状态、模型、提示词版本、输入哈希、结构化输出、校验结果、起止时间、耗时和错误
-- [ ] 区分运行状态 `succeeded / failed` 与输出校验结果 `passed / failed`，避免“模型调用成功但输出被安全降级”被误记为运行失败
-- [ ] 支持 `jd_parse / evidence_match / resume_suggestion` 三种 `run_type`，后续模型能力复用同一记录结构
-- [ ] 接入一个真实结构化模型，并通过配置选择 Fake 或真实 Client
-- [ ] 记录实际使用的模型名和提示词版本，不记录完整敏感输入到普通日志
+- [x] 实现最小 `AgentRun`，记录 `user_id`、`run_type`、目标实体、状态、模型、提示词版本、输入哈希、结构化输出、校验结果、起止时间、耗时和错误
+- [x] 区分运行状态 `succeeded / failed` 与输出校验结果 `passed / failed`，避免“模型调用成功但输出被安全降级”被误记为运行失败
+- [x] 支持 `jd_parse / evidence_match / resume_suggestion` 三种 `run_type`，后续模型能力复用同一记录结构
+- [x] 接入一个 OpenAI-compatible 结构化模型，并通过配置选择 Fake 或真实 Client
+- [x] 记录实际使用的模型名和提示词版本，不记录完整敏感输入到普通日志
 
 #### M04-E 测试与验收
 
-- [ ] 添加正常、缺失、额外字段、类型错误、语义非法、超时和模型异常测试
+- [x] 添加正常、缺失、额外字段、类型错误、语义非法、超时和模型异常测试
 - [ ] 使用至少 3 条真实中文 JD 完成手动解析验收
 
 验收：Fake 和真实 Client 使用同一 Parser；合法输出经过校验并写入 `AgentRun`，业务级 `JobAnalysis` 留到 M07 保存；非法输出可解释地失败；同一字段不存在两套互相冲突的模型结果。
@@ -150,8 +151,8 @@
 
 ### M07 岗位分析页面
 
-- [ ] 实现岗位级 `JobParseResult` 模型和迁移，保存 `job_posting_id`、`content_hash`、Schema/Parser/Prompt 版本、模型和结构化 JD
-- [ ] `JobParseResult` 只按 `content_hash + schema_version + parser_version + prompt_version + model` 复用，不包含任何用户画像、证据或评分结果
+- [x] 实现岗位级 `JobParseResult` 模型和迁移，保存 `job_posting_id`、`content_hash`、Schema/Parser/Prompt 版本、模型和结构化 JD
+- [ ] 让 M04 创建的 `JobParseResult` 按 `content_hash + schema_version + parser_version + prompt_version + model` 复用，不包含任何用户画像、证据或评分结果
 - [ ] 实现用户级 `JobAnalysis` 模型和迁移，保存 `user_id`、`job_posting_id`、`parse_result_id`、`analysis_version`、资格结果、匹配结果、分数、风险、`created_at` 和可选 `invalidated_at`
 - [ ] 实现 `JDAnalysisService` 编排 Parser、Eligibility、Retriever、Matcher、Validator 和 Score Calculator
 - [ ] 每次分析都使用当前用户画像和当前证据重新计算资格、匹配与分数，不跨用户复用完整 `JobAnalysis`

@@ -53,7 +53,7 @@ Python 环境统一使用 `uv` 管理。依赖声明写入 `pyproject.toml`，�
 uv python install 3.12
 uv init --python 3.12
 uv python pin 3.12
-uv add fastapi "uvicorn[standard]" pydantic-settings sqlalchemy alembic psycopg[binary]
+uv add fastapi "uvicorn[standard]" pydantic-settings sqlalchemy alembic psycopg[binary] httpx
 uv add --dev pytest pytest-asyncio ruff
 uv sync
 uv run pytest
@@ -248,7 +248,7 @@ RawJobDocument
 
 ```python
 class StructuredModelClient(Protocol):
-    async def generate(self, *, schema, messages):
+    async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
         ...
 ```
 
@@ -258,14 +258,28 @@ M04 起采用以下结构化输出约束：
 
 - 模型只产生一套规范结果；用于页面展示、资格规则和评分的重复视图由确定性代码派生；
 - `JobRequirement` 是证据匹配和技能评分的规范输入；
+- `required_skills` 和 `preferred_skills` 只能与 `requirements` 保持确定性派生关系，不能形成第二套技能事实；
 - 资格条件必须有明确字段、操作符和值，`unknown` 表示原文无法确认，而不是模型调用失败；
-- 每个关键字段和要求保存原文依据，至少包含 `field_path`、`source_text` 和可选的字符位置；
+- 每个关键字段和要求保存原文依据，至少包含 `field_path`、`source_text` 和可选的字符位置；Parser 还会检查依据片段确实出现在岗位原文中；
 - 缺失字段使用 `null`，不得使用空字符串、默认通过或模型猜测填充；
 - Pydantic 类型或语义校验失败时，整次解析失败，不保存半成品 `JobAnalysis`。
 
-`StructuredModelClient` 只负责结构化模型调用。Parser 负责提示词、Schema 和错误转换，Service 负责事务和 `AgentRun`。Fake Client 至少支持正常输出、字段缺失、额外字段、非法类型、超时和模型异常，使上层逻辑不依赖真实模型即可测试。
+`StructuredModelClient` 只负责结构化模型调用。Parser 负责提示词、Schema 和错误转换，Service 负责事务、`JobParseResult` 和 `AgentRun`。Fake Client 至少支持正常输出、字段缺失、额外字段、非法类型、超时和模型异常，使上层逻辑不依赖真实模型即可测试。
 
 `AgentRun` 的 `run_type` 至少支持 `jd_parse / evidence_match / resume_suggestion`。运行状态使用 `succeeded / failed`，输出校验结果独立使用 `passed / failed`；因此模型调用成功但输出被安全降级时，可以记录为运行成功、校验失败。模型或不可恢复的校验错误保存失败状态和必要诊断，但普通日志不写入完整 JD、简历原文或联系方式。
+
+M04 当前提供同步解析接口：
+
+```text
+POST /api/jobs/{job_id}/parse
+→ 创建 jd_parse AgentRun
+→ 调用 Fake 或 OpenAI-compatible StructuredModelClient
+→ 校验结构化 JD 和字段原文依据
+→ 成功时保存 JobParseResult 与 AgentRun
+→ 失败时只更新失败 AgentRun，不保存半成品 JobParseResult
+```
+
+默认 `STRUCTURED_MODEL_PROVIDER=fake`，本地开发无需模型密钥。真实模型使用 `STRUCTURED_MODEL_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 和 `LLM_TIMEOUT_SECONDS` 配置；Parser 不依赖供应商特有的响应格式。
 
 Evidence Validator 必须保证：
 
@@ -377,6 +391,7 @@ DELETE /api/evidence/{evidence_id}
 
 POST /api/jobs/import-text
 GET  /api/jobs/{job_id}
+POST /api/jobs/{job_id}/parse
 
 POST /api/jobs/import-url
 POST /api/jobs/{job_id}/analyze
@@ -400,7 +415,7 @@ API 只负责请求校验、身份识别、调用 Service 和错误转换。
 
 岗位分析 API 在核心 MVP 中同步执行，不返回后台 Job ID，也不要求前端轮询。`POST /api/candidates` 让手动岗位在 M10 完成前即可进入申请闭环。材料建议请求必须包含 SuggestionTargetInput，不能从不存在的 ResumeVersion 猜测原文。
 
-M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状，M04 会补齐唯一事实来源、字段原文依据和跨字段语义校验；字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
+M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状；M04 已补齐唯一事实来源、字段原文依据、跨字段语义校验、可替换 Model Client、`JobParseResult`、`AgentRun` 和解析接口。字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
 
 M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取、修改和删除必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。硬删除证据后，同时删除引用它的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
 

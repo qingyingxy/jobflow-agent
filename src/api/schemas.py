@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from src.domain.job import StructuredJobDescription, normalize_job_text
 
 
 class ProfileUpdate(BaseModel):
@@ -50,18 +52,39 @@ class EvidenceRead(EvidenceCreate):
 
 class JobTextImportRequest(BaseModel):
     source_url: str | None = Field(default=None, max_length=2048)
-    source_type: str = Field(default="manual_text", min_length=1, max_length=40)
+    source_type: Literal["manual_text"] = "manual_text"
     company: str | None = Field(default=None, max_length=160)
     title: str | None = Field(default=None, max_length=160)
     raw_content: str = Field(min_length=20)
 
+    @field_validator("raw_content")
+    @classmethod
+    def normalize_content(cls, value: str) -> str:
+        return normalize_job_text(value)
 
-class JobPostingRead(JobTextImportRequest):
+
+class JobPostingRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
+    source_url: str | None
+    source_type: str
+    company: str | None
+    title: str | None
+    raw_content: str
     content_hash: str
     retrieved_at: datetime
     trace_id: str
     created_at: datetime
     updated_at: datetime
+
+
+class JobParseResponse(BaseModel):
+    job_id: str
+    parse_result_id: str
+    agent_run_id: str
+    model: str
+    schema_version: str
+    parser_version: str
+    prompt_version: str
+    structured_jd: StructuredJobDescription
