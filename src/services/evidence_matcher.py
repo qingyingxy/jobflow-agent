@@ -39,7 +39,7 @@ class EvidenceMatcher:
         self,
         client: StructuredModelClient,
         *,
-        prompt_version: str = "evidence-match-prompt-v1",
+        prompt_version: str = "evidence-match-prompt-v2",
         recall_limit: int = 8,
     ) -> None:
         self.client = client
@@ -73,6 +73,11 @@ class EvidenceMatcher:
             ensure_ascii=False,
             sort_keys=True,
         )
+        schema_json = json.dumps(
+            EvidenceMatchModelOutput.model_json_schema(),
+            ensure_ascii=False,
+            indent=2,
+        )
         return StructuredModelRequest(
             schema_name="requirement_match",
             json_schema=EvidenceMatchModelOutput.model_json_schema(),
@@ -86,7 +91,10 @@ class EvidenceMatcher:
                         "supported 或 partial 必须至少引用一个证据；"
                         "没有充分依据时返回 unsupported 和空 evidence_ids。"
                         "claims 只能填写候选证据中的原文事实片段。"
-                        "严格输出 JSON，不要输出额外字段。"
+                        "claims 必须逐字复制候选证据中的连续片段，不得改写或补充数字。"
+                        "严格输出 JSON，不要输出额外字段。\n"
+                        "输出必须满足以下 JSON Schema：\n"
+                        f"{schema_json}"
                     ),
                 },
                 {

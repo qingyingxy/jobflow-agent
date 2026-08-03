@@ -288,7 +288,7 @@ POST /api/jobs/{job_id}/parse
 → 失败时只更新失败 AgentRun，不保存半成品 JobParseResult
 ```
 
-默认 `STRUCTURED_MODEL_PROVIDER=fake`，本地开发无需模型密钥。真实模型使用 `STRUCTURED_MODEL_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 和 `LLM_TIMEOUT_SECONDS` 配置；Parser 不依赖供应商特有的响应格式。
+默认 `STRUCTURED_MODEL_PROVIDER=fake`，本地开发无需模型密钥。真实模型使用 `STRUCTURED_MODEL_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`、`LLM_RESPONSE_FORMAT` 和 `LLM_TIMEOUT_SECONDS` 配置。`LLM_RESPONSE_FORMAT=auto` 会为 DeepSeek 选择 JSON Object 模式，其他兼容服务默认使用 JSON Schema 模式；Parser 仍通过统一 Client 接口工作，并在响应后执行相同的 Pydantic 和原文证据校验。
 
 ### 5.2 EligibilityChecker
 

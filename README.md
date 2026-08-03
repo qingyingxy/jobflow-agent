@@ -843,9 +843,11 @@ RawJobDocument
 - 类型错误、非法操作符、缺少必要值或额外字段会使整次解析失败；
 - 模型超时、无响应或校验失败时不保存半成品分析，并向页面返回可重试错误。
 
-M04 提供同步解析接口 `POST /api/jobs/{job_id}/parse`。默认使用 Fake Client，便于本地重复演示；设置 `STRUCTURED_MODEL_PROVIDER=openai_compatible` 后，可通过 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 和 `LLM_TIMEOUT_SECONDS` 接入 OpenAI-compatible 结构化模型。`JobParseResult` 保存与用户无关的岗位级解析缓存，`AgentRun` 记录用户、运行类型、目标实体、状态、模型、提示词版本、输入哈希、输出校验结果、起止时间、耗时和错误。M11 负责将这些运行记录与数据集版本组合成可重复评测，而不是到 M11 才首次加入运行轨迹。
+M04 提供同步解析接口 `POST /api/jobs/{job_id}/parse`。默认使用 Fake Client，便于本地重复演示；设置 `STRUCTURED_MODEL_PROVIDER=openai_compatible` 后，可通过 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`、`LLM_RESPONSE_FORMAT` 和 `LLM_TIMEOUT_SECONDS` 接入 OpenAI-compatible 结构化模型。`LLM_RESPONSE_FORMAT=auto` 会为 DeepSeek 选择 `json_object`，其他兼容服务默认使用 `json_schema`；无论供应商响应格式如何，最终都必须经过 Pydantic 和原文证据校验。`JobParseResult` 保存与用户无关的岗位级解析缓存，`AgentRun` 记录用户、运行类型、目标实体、状态、模型、提示词版本、输入哈希、输出校验结果、起止时间、耗时和错误。M11 负责将这些运行记录与数据集版本组合成可重复评测，而不是到 M11 才首次加入运行轨迹。
 
 M04 不负责完整分析持久化；M07 在 Parser、Eligibility 和 Evidence 接口稳定后实现 `JobAnalysis`，统一保存解析、资格、证据匹配和评分结果。
+
+M04 的真实模型验收已完成：使用 DeepSeek `deepseek-v4-flash` 对 AI/RAG 实习、校招后端和搜索算法三类中文 JD 运行了完整解析与分析链路。验收记录见 [`docs/REAL_MODEL_ACCEPTANCE.md`](docs/REAL_MODEL_ACCEPTANCE.md)。
 
 ### M05 资格规则
 
@@ -953,7 +955,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M07 的核心实现已完成，核心进度为 7 / 11，下一步是 M08。M04 仍待配置真实模型后用 3 条真实中文 JD 完成手动验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效和页面链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+当前 M07 的核心实现已完成，核心进度为 7 / 11，下一步是 M08。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效和页面链路已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
 
 ### 阶段 A：岗位分析闭环
 

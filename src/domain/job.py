@@ -220,9 +220,19 @@ def validate_field_evidence(
     )
     for field_name in top_level_fields:
         value = getattr(structured, field_name)
-        if value is not None and not any(
+        direct_evidence = any(
             path == field_name or path.startswith(f"{field_name}[") for path in paths
-        ):
+        )
+        nested_evidence = (
+            field_name == "requirements"
+            and bool(value)
+            and all(item.evidence for item in value)
+        ) or (
+            field_name == "qualification_conditions"
+            and bool(value)
+            and all(item.evidence for item in value)
+        )
+        if value is not None and not (direct_evidence or nested_evidence):
             raise ValueError(f"字段 {field_name} 缺少原文依据")
 
     for requirement in structured.requirements or []:

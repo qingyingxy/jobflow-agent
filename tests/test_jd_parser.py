@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
 import httpx
 import pytest
 
+from src.config import Settings
 from src.domain.job import RawJobDocument
 from src.infrastructure.llm_client import (
     FakeModelClient,
@@ -12,6 +14,7 @@ from src.infrastructure.llm_client import (
     ModelTimeoutError,
     OpenAICompatibleModelClient,
     StructuredModelRequest,
+    create_structured_model_client,
 )
 from src.services.jd_parser import JDParser, JDParserError
 
@@ -67,7 +70,7 @@ async def test_parser_returns_valid_structured_result_and_request() -> None:
     assert result.structured_jd.required_skills == ["RAG"]
     assert result.input_hash
     assert client.last_request is not None
-    assert client.last_request.prompt_version == "jd-parser-prompt-v1"
+    assert client.last_request.prompt_version == "jd-parser-prompt-v2"
     assert "岗位文本" in client.last_request.messages[1].content
 
 
@@ -149,6 +152,62 @@ async def test_parser_translates_unexpected_model_exception() -> None:
 
 
 @pytest.mark.asyncio
+async def test_parser_prefers_campus_for_explicit_campus_recruiting() -> None:
+    text = "示例公司招聘 2027 届后端开发工程师，校招全职，工作地点上海。"
+    output = {
+        "company": "示例公司",
+        "title": "后端开发工程师",
+        "job_type": "full_time",
+        "recruitment_batch": "校招",
+        "locations": ["上海"],
+        "field_evidence": [
+            {"field_path": "company", "source_text": "示例公司"},
+            {"field_path": "title", "source_text": "后端开发工程师"},
+            {"field_path": "job_type", "source_text": "校招全职"},
+            {"field_path": "recruitment_batch", "source_text": "校招"},
+            {"field_path": "locations", "source_text": "上海"},
+        ],
+    }
+
+    result = await JDParser(FakeModelClient(output=output)).parse(
+        RawJobDocument(raw_content=text)
+    )
+
+    assert result.structured_jd.job_type == "campus"
+
+
+@pytest.mark.asyncio
+async def test_parser_accepts_nested_qualification_evidence() -> None:
+    text = "示例公司招聘后端开发工程师，要求 2027 届毕业生，工作地点上海。"
+    output = {
+        "title": "后端开发工程师",
+        "qualification_conditions": [
+            {
+                "field": "graduation_year",
+                "operator": "in",
+                "value": [2027],
+                "source_text": "2027 届毕业生",
+                "evidence": [
+                    {
+                        "field_path": "qualification_conditions[0]",
+                        "source_text": "2027 届毕业生",
+                    }
+                ],
+            }
+        ],
+        "field_evidence": [
+            {"field_path": "title", "source_text": "后端开发工程师"},
+        ],
+    }
+
+    result = await JDParser(FakeModelClient(output=output)).parse(
+        RawJobDocument(raw_content=text)
+    )
+
+    assert result.structured_jd.qualification_conditions is not None
+
+
+@pytest.mark.asyncio
 async def test_openai_compatible_client_parses_json_response() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/v1/chat/completions"
@@ -178,6 +237,54 @@ async def test_openai_compatible_client_parses_json_response() -> None:
 
     assert response.output == {"field_evidence": []}
     assert response.response_id == "resp_1"
+
+
+@pytest.mark.asyncio
+async def test_openai_compatible_client_supports_json_object_mode() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        payload = json.loads(request.content)
+        assert payload["response_format"] == {"type": "json_object"}
+        return httpx.Response(
+            200,
+            json={
+                "model": "deepseek-v4-flash",
+                "choices": [
+                    {"message": {"content": "```json\n{\"field_evidence\": []}\n```"}}
+                ],
+            },
+        )
+
+    client = OpenAICompatibleModelClient(
+        base_url="https://api.deepseek.com",
+        api_key="test-key",
+        model="deepseek-v4-flash",
+        response_format="json_object",
+        transport=httpx.MockTransport(handler),
+    )
+    request = StructuredModelRequest(
+        schema_name="job_description",
+        json_schema={"type": "object"},
+        messages=[{"role": "user", "content": "parse"}],
+        prompt_version="test-v2",
+    )
+
+    response = await client.generate(request)
+
+    assert response.output == {"field_evidence": []}
+
+
+def test_factory_auto_selects_json_object_for_deepseek() -> None:
+    settings = Settings(
+        structured_model_provider="openai_compatible",
+        llm_base_url="https://api.deepseek.com",
+        llm_api_key="test-key",
+        llm_model="deepseek-v4-flash",
+    )
+
+    client = create_structured_model_client(settings)
+
+    assert isinstance(client, OpenAICompatibleModelClient)
+    assert client._response_format == "json_object"
 
 
 @pytest.mark.asyncio

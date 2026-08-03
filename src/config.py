@@ -14,8 +14,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     structured_model_provider: str = "fake"
     llm_base_url: str | None = None
+    llm_response_format: str = "auto"
     llm_timeout_seconds: float = 30.0
-    prompt_version: str = "jd-parser-prompt-v1"
+    prompt_version: str = "jd-parser-prompt-v2"
     parser_version: str = "jd-parser-v1"
     llm_api_key: str | None = None
     llm_model: str = "gpt-4.1-mini"

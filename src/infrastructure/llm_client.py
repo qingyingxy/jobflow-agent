@@ -4,6 +4,7 @@ import copy
 import json
 import re
 from typing import Any, Literal, Protocol
+from urllib.parse import urlparse
 
 import httpx
 from pydantic import BaseModel, ConfigDict
@@ -268,6 +269,7 @@ class OpenAICompatibleModelClient:
         base_url: str,
         api_key: str | None,
         model: str,
+        response_format: Literal["json_schema", "json_object"] = "json_schema",
         timeout_seconds: float = 30.0,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
@@ -278,6 +280,7 @@ class OpenAICompatibleModelClient:
         )
         self._api_key = api_key
         self._model = model
+        self._response_format = response_format
         self._timeout_seconds = timeout_seconds
         self._transport = transport
 
@@ -286,18 +289,22 @@ class OpenAICompatibleModelClient:
         return self._model
 
     async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
-        payload = {
-            "model": self.model_name,
-            "messages": [message.model_dump() for message in request.messages],
-            "temperature": 0,
-            "response_format": {
+        if self._response_format == "json_object":
+            response_format: dict[str, Any] = {"type": "json_object"}
+        else:
+            response_format = {
                 "type": "json_schema",
                 "json_schema": {
                     "name": request.schema_name,
                     "strict": True,
                     "schema": request.json_schema,
                 },
-            },
+            }
+        payload = {
+            "model": self.model_name,
+            "messages": [message.model_dump() for message in request.messages],
+            "temperature": 0,
+            "response_format": response_format,
         }
         headers = {"Content-Type": "application/json"}
         if self._api_key:
@@ -322,7 +329,10 @@ class OpenAICompatibleModelClient:
         if response.status_code >= 400:
             raise ModelResponseError(
                 "结构化模型服务返回错误",
-                {"status_code": response.status_code},
+                {
+                    "status_code": response.status_code,
+                    "response_format": self._response_format,
+                },
             )
 
         try:
@@ -340,10 +350,7 @@ class OpenAICompatibleModelClient:
         if not isinstance(content, str):
             raise ModelResponseError("结构化模型 content 不是文本")
 
-        try:
-            output = json.loads(content)
-        except json.JSONDecodeError as error:
-            raise ModelResponseError("结构化模型没有返回合法 JSON") from error
+        output = self._decode_json_object(content)
         if not isinstance(output, dict):
             raise ModelResponseError("结构化模型 JSON 顶层必须是对象")
 
@@ -355,6 +362,27 @@ class OpenAICompatibleModelClient:
             response_id=response_id if isinstance(response_id, str) else None,
         )
 
+    @staticmethod
+    def _decode_json_object(content: str) -> dict[str, Any]:
+        normalized = content.strip()
+        if normalized.startswith("```") and normalized.endswith("```"):
+            lines = normalized.splitlines()
+            normalized = "\n".join(lines[1:-1]).strip()
+        try:
+            output = json.loads(normalized)
+        except json.JSONDecodeError:
+            start = normalized.find("{")
+            end = normalized.rfind("}")
+            if start < 0 or end <= start:
+                raise ModelResponseError("结构化模型没有返回合法 JSON") from None
+            try:
+                output = json.loads(normalized[start : end + 1])
+            except json.JSONDecodeError as error:
+                raise ModelResponseError("结构化模型没有返回合法 JSON") from error
+        if not isinstance(output, dict):
+            raise ModelResponseError("结构化模型 JSON 顶层必须是对象")
+        return output
+
 
 def create_structured_model_client(settings: Settings) -> StructuredModelClient:
     provider = settings.structured_model_provider.strip().lower()
@@ -363,10 +391,23 @@ def create_structured_model_client(settings: Settings) -> StructuredModelClient:
     if provider in {"openai", "openai_compatible"}:
         if not settings.llm_base_url:
             raise ModelClientError("STRUCTURED_MODEL_PROVIDER 需要配置 LLM_BASE_URL")
+        response_format = settings.llm_response_format.strip().lower()
+        if response_format == "auto":
+            hostname = urlparse(settings.llm_base_url).hostname or ""
+            response_format = (
+                "json_object"
+                if hostname == "api.deepseek.com" or hostname.endswith(".deepseek.com")
+                else "json_schema"
+            )
+        if response_format not in {"json_schema", "json_object"}:
+            raise ModelClientError(
+                "LLM_RESPONSE_FORMAT 只能是 json_schema、json_object 或 auto"
+            )
         return OpenAICompatibleModelClient(
             base_url=settings.llm_base_url,
             api_key=settings.llm_api_key,
             model=settings.llm_model,
+            response_format=response_format,
             timeout_seconds=settings.llm_timeout_seconds,
         )
     raise ModelClientError(f"不支持的结构化模型提供方: {provider}")
