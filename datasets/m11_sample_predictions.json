@@ -77,7 +77,7 @@
       "case_id": "m11-11",
       "fields": {"job_type": "internship", "locations": ["北京"], "required_skills": ["Python", "FastAPI"]},
       "eligibility": "unknown",
-      "failure_code": "invalid_structured_output",
+      "failure_code": "structured_output_invalid",
       "matches": []
     },
     {

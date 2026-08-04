@@ -112,6 +112,12 @@ class PredictionFile(BaseModel):
 
     prediction_version: str = Field(min_length=1, max_length=80)
     predictions: list[PredictionRecord] = Field(default_factory=list)
+    model: str | None = Field(default=None, max_length=160)
+    prompt_version: str | None = Field(default=None, max_length=80)
+    generator_version: str | None = Field(default=None, max_length=80)
+    generated_at: str | None = None
+    generation_duration_ms: float | None = Field(default=None, ge=0)
+    prediction_failure_count: int | None = Field(default=None, ge=0)
 
     @field_validator("predictions")
     @classmethod

@@ -1,0 +1,14 @@
+{
+  "profile": {
+    "graduation_year": 2027,
+    "degree": "硕士",
+    "major": "计算机科学"
+  },
+  "search_preferences": {
+    "preferred_locations": ["北京", "上海", "杭州", "深圳"],
+    "job_types": ["internship", "campus"],
+    "earliest_start_date": null,
+    "weekly_days": null,
+    "internship_duration_months": null
+  }
+}

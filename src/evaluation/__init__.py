@@ -1,5 +1,6 @@
 """Versioned, deterministic evaluation helpers for the JobFlow MVP."""
 
+from src.evaluation.agent_runs import summarize_agent_runs
 from src.evaluation.metrics import EvaluationReport, evaluate_manifest
 from src.evaluation.models import (
     EvaluationCase,
@@ -15,4 +16,5 @@ __all__ = [
     "PredictionFile",
     "PredictionRecord",
     "evaluate_manifest",
+    "summarize_agent_runs",
 ]

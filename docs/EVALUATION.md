@@ -1,6 +1,6 @@
 # M11 评测与失败案例
 
-M11 的评测先分为两个层次：第一阶段建立可重复的评测契约和开发集；第二阶段再补充人工标注的最终评测集、AgentRun 汇总和完整演示。当前仓库只把开发集结果用于验证评测代码，不把它当作模型效果或简历指标。
+M11 的评测先分为两个层次：自动化阶段建立可重复的评测契约、prediction 生成、AgentRun 汇总和开发集；人工阶段再补充最终标注集、真实模型验收和完整演示。当前仓库只把开发集结果用于验证评测代码，不把它当作模型效果或简历指标。
 
 ## 1. 数据文件
 
@@ -11,6 +11,10 @@ M11 的评测先分为两个层次：第一阶段建立可重复的评测契约�
 | `src/evaluation/models.py` | manifest 和 prediction 的 Pydantic 契约 |
 | `src/evaluation/metrics.py` | Validator 边界、指标计算和阈值判断 |
 | `src/evaluation/run.py` | 可重复运行的命令行入口 |
+| `src/evaluation/agent_runs.py` | 从已有 AgentRun 表生成不含正文的汇总 |
+| `src/evaluation/predict.py` | 复用现有 Parser、Eligibility 和 Evidence Matcher 生成 prediction |
+| `datasets/m11_evaluation_evidence.template.json` | 合成开发集的证据上下文模板 |
+| `datasets/m11_evaluation_profile.template.json` | 合成开发集的用户画像和偏好模板 |
 
 当前 dev manifest 有 12 个合成或固定 Fixture 案例，覆盖正常、字段缺失、`unknown`、无证据、多值字段、读取失败和非法模型输出。最终评测仍需补充 30～50 条人工标注样本，并将 `split` 冻结为 `eval`；在此之前不更新 README 的效果指标。
 
@@ -40,7 +44,20 @@ uv run python -m src.evaluation.run `
 
 命令会校验输入 JSON，输出阈值结果和机器可读报告。`artifacts/` 是本地生成目录，不提交到版本库。固定预测夹具故意包含一个资格误接受和非法证据引用，因此报告出现未通过阈值是预期的；它证明评测器和 Validator 能发现问题，不代表真实模型验收失败。
 
-## 4. 后续最终评测流程
+## 4. 生成真实模型 prediction
+
+`predict.py` 不写入岗位、申请或用户数据库。它读取 manifest 中的岗位原文，复用产品正在使用的 Parser、Eligibility Checker 和 Evidence Matcher，然后只输出 prediction JSON。先复制两个合成模板作为本地上下文文件；最终评测时需要你用自己的真实经历证据和搜索偏好替换它们，这两个本地文件已加入 `.gitignore`。
+
+```text
+Copy-Item datasets/m11_evaluation_evidence.template.json datasets/m11_evaluation_evidence.json
+Copy-Item datasets/m11_evaluation_profile.template.json datasets/m11_evaluation_profile.json
+uv run python -m src.evaluation.predict --manifest datasets/m11_evaluation_manifest.json --evidence datasets/m11_evaluation_evidence.json --profile datasets/m11_evaluation_profile.json --output artifacts/evaluation/m11-dev-generated-predictions.json --user-id evaluation-user
+uv run python -m src.evaluation.run --manifest datasets/m11_evaluation_manifest.json --predictions artifacts/evaluation/m11-dev-generated-predictions.json --output artifacts/evaluation/m11-dev-generated-report.json --model deepseek-v4-flash --prompt-version jd-parser-prompt-v2 --database-url sqlite:///./data/jobflow.db --user-id local-user
+```
+
+如果岗位原文或经历证据包含个人隐私，不能直接提交到 Git。真实评测前必须由你确认来源授权、证据内容和是否允许作为项目材料；模型生成 prediction 可以自动完成，正确标签仍需要人工审核。
+
+## 5. 后续最终评测流程
 
 1. 补充人工标注岗位，并为每条样本记录原文来源、授权边界、标注说明和失败场景。
 2. 保持 dev manifest 和阈值不变，另建 `split=eval` 的最终 manifest；冻结后再运行模型。

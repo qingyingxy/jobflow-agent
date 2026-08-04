@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
+from src.domain.runs import AgentRun
+from src.evaluation.agent_runs import summarize_agent_runs
 from src.evaluation.metrics import evaluate_manifest, validate_prediction
 from src.evaluation.models import (
     EvaluationCase,
@@ -170,4 +173,74 @@ def test_sample_evaluation_keeps_fixture_failures_visible() -> None:
     assert report["validated"]["failure_accuracy"] == 1.0
     assert report["validated"]["false_accept_rate"] == 1.0
     assert report["validated"]["unsupported_claim_rate"] > 0
+    assert report["thresholds"]["false_accept_rate"]["passed"] is False
     assert report["thresholds"]["unsupported_claim_rate"]["passed"] is False
+
+
+def test_agent_run_summary_is_scoped_and_does_not_expose_payloads(db_session) -> None:
+    started_at = datetime.now(UTC)
+    db_session.add_all(
+        [
+            AgentRun(
+                id="run_eval_success",
+                user_id="user-a",
+                run_type="jd_parse",
+                target_type="job_posting",
+                target_id="job-1",
+                status="succeeded",
+                model="fake-model",
+                prompt_version="prompt-v1",
+                input_hash="a" * 64,
+                output={"sensitive": "not included in summary"},
+                validation_status="passed",
+                validation_result={"status": "passed"},
+                started_at=started_at,
+                finished_at=started_at,
+                duration_ms=12.5,
+            ),
+            AgentRun(
+                id="run_eval_failure",
+                user_id="user-a",
+                run_type="evidence_match",
+                target_type="job_requirement",
+                target_id="job-1:0",
+                status="failed",
+                model="fake-model",
+                prompt_version="prompt-v1",
+                input_hash="b" * 64,
+                validation_status="failed",
+                validation_result={"status": "failed", "code": "model_timeout"},
+                started_at=started_at,
+                finished_at=started_at,
+                duration_ms=25.0,
+            ),
+            AgentRun(
+                id="run_other_user",
+                user_id="user-b",
+                run_type="jd_parse",
+                target_type="job_posting",
+                target_id="job-2",
+                status="succeeded",
+                model="other-model",
+                prompt_version="prompt-v2",
+                input_hash="c" * 64,
+                validation_status="passed",
+                validation_result={"status": "passed"},
+                started_at=started_at,
+                finished_at=started_at,
+                duration_ms=5.0,
+            ),
+        ]
+    )
+    db_session.commit()
+
+    summary = summarize_agent_runs(db_session, user_id="user-a")
+
+    assert summary["count"] == 2
+    assert summary["succeeded_count"] == 1
+    assert summary["failed_count"] == 1
+    assert summary["validation_failed_count"] == 1
+    assert summary["run_types"] == {"evidence_match": 1, "jd_parse": 1}
+    assert summary["failure_codes"] == {"model_timeout": 1}
+    assert summary["duration_ms"]["average"] == 18.75
+    assert "output" not in summary

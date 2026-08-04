@@ -255,7 +255,7 @@ def _demo_requirement_match(request: StructuredModelRequest) -> dict[str, Any]:
     return {
         "support_level": "supported",
         "evidence_ids": [evidence_id],
-        "explanation": f"在 {title} 中找到相关经历：{claim}",
+        "explanation": f"证据支持该岗位要求：{claim or title}",
         "claims": [],
     }
 

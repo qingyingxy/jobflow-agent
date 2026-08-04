@@ -298,7 +298,7 @@
         },
         "eligibility": "unknown",
         "evidence": {},
-        "failure_code": "invalid_structured_output",
+        "failure_code": "structured_output_invalid",
         "tags": ["invalid_model_output"]
       }
     },

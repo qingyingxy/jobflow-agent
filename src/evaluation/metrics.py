@@ -93,6 +93,9 @@ def evaluate_manifest(
         "split": manifest.split,
         "case_count": len(cases_by_id),
         "prediction_count": len(predictions),
+        "prediction_failure_count": sum(
+            prediction.failure_code is not None for prediction in predictions
+        ),
         "missing_prediction_count": len(missing_ids),
         "missing_case_ids": missing_ids,
         "extra_prediction_case_ids": extra_ids,
@@ -322,9 +325,13 @@ def _threshold_results(
                 "passed": False,
             }
             continue
+        lower_is_better = {
+            "false_accept_rate",
+            "unsupported_claim_rate",
+        }
         passed = (
             actual <= threshold
-            if metric_name == "unsupported_claim_rate"
+            if metric_name in lower_is_better
             else actual >= threshold
         )
         results[metric_name] = {

@@ -11,6 +11,8 @@ htmlcov/
 *.db
 *.sqlite
 artifacts/
+datasets/m11_evaluation_evidence.json
+datasets/m11_evaluation_profile.json
 
 # Next.js frontend
 frontend/node_modules/

@@ -1,0 +1,68 @@
+{
+  "evidence": [
+    {
+      "id": "ev-rag",
+      "user_id": "evaluation-user",
+      "title": "RAG 项目",
+      "claim": "在项目中实现 RAG 应用和检索评测。",
+      "skills": ["RAG"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-python",
+      "user_id": "evaluation-user",
+      "title": "Python 后端项目",
+      "claim": "使用 Python 开发后端服务。",
+      "skills": ["Python"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-sql",
+      "user_id": "evaluation-user",
+      "title": "SQL 数据处理项目",
+      "claim": "使用 SQL 完成数据查询和处理。",
+      "skills": ["SQL"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-fastapi",
+      "user_id": "evaluation-user",
+      "title": "FastAPI 服务",
+      "claim": "使用 FastAPI 实现 HTTP 服务。",
+      "skills": ["FastAPI"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-ml",
+      "user_id": "evaluation-user",
+      "title": "机器学习项目",
+      "claim": "完成机器学习模型实验和评估。",
+      "skills": ["机器学习"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-bm25",
+      "user_id": "evaluation-user",
+      "title": "BM25 检索项目",
+      "claim": "实现 BM25 关键词检索。",
+      "skills": ["BM25"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-vector",
+      "user_id": "evaluation-user",
+      "title": "向量检索项目",
+      "claim": "实现向量检索和召回评测。",
+      "skills": ["Vector Search"],
+      "source": "synthetic_fixture"
+    },
+    {
+      "id": "ev-reranker",
+      "user_id": "evaluation-user",
+      "title": "Reranker 项目",
+      "claim": "实现 rerank 模块优化检索结果。",
+      "skills": ["Reranker"],
+      "source": "synthetic_fixture"
+    }
+  ]
+}

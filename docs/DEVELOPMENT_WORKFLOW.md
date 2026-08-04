@@ -167,9 +167,11 @@ jobflow-agent/
 │   │   ├── llm_client.py
 │   │   └── __init__.py
 │   ├── evaluation/
+│   │   ├── agent_runs.py
 │   │   ├── models.py
 │   │   ├── metrics.py
-│   │   └── run.py
+│   │   ├── run.py
+│   │   └── predict.py
 │   ├── config.py
 │   └── main.py
 ├── frontend/
@@ -182,6 +184,8 @@ jobflow-agent/
 │   ├── test_job_parse.py
 │   ├── test_profile_evidence.py
 │   ├── test_evaluation.py
+│   ├── test_evaluation_predict.py
+│   ├── test_end_to_end.py
 │   └── test_health.py
 ├── migrations/
 ├── datasets/
@@ -578,7 +582,7 @@ M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `D
 
 验收：最终运行前已冻结 Evaluation Manifest、指标口径和发布阈值；评测可重复运行并记录模型、提示词和数据集版本；原始模型输出和 Validator 后结果分别报告，用户可见 Unsupported Claim Rate 为 0；真实岗位发现到申请管理可以完整演示；unknown、无证据和读取失败场景可以正常处理。
 
-当前第一阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、证据边界 Validator、字段/资格/证据/失败码指标和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，`docs/EVALUATION.md` 记录空值、分母、阈值和最终评测规则。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果。下一步是补充人工标注 `eval` 集、汇总 M04 起的 `AgentRun`，再做两条端到端演示。
+当前自动化阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、真实/Fixture prediction 生成、证据边界 Validator、字段/资格/证据/失败码指标、AgentRun 汇总和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，`docs/EVALUATION.md` 记录空值、分母、阈值、运行元数据和最终评测规则。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果。下一步只剩补充人工标注 `eval` 集、用真实模型跑结果，再做真实岗位演示和截图。
 
 ## 9. 测试重点
 
