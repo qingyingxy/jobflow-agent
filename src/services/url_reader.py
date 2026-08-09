@@ -4,7 +4,7 @@ import ipaddress
 import json
 import re
 import socket
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from html import unescape
@@ -51,11 +51,28 @@ def _default_resolver(host: str, port: int) -> list[Any]:
     return socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
 
 
+def _normalize_allowed_host(value: str) -> str:
+    host = value.strip().lower().rstrip(".")
+    return host.removeprefix("*.")
+
+
 class URLSafetyChecker:
     """Validate outbound URLs before any network request is made."""
 
-    def __init__(self, resolver: Resolver | None = None) -> None:
+    def __init__(
+        self,
+        resolver: Resolver | None = None,
+        *,
+        proxy_url: str | None = None,
+        proxy_allowed_hosts: Iterable[str] | None = None,
+        proxy_allow_unlisted_hosts: bool = False,
+    ) -> None:
         self.resolver = resolver or _default_resolver
+        self.proxy_url = proxy_url.strip() if proxy_url and proxy_url.strip() else None
+        self.proxy_allowed_hosts = frozenset(
+            _normalize_allowed_host(host) for host in (proxy_allowed_hosts or [])
+        )
+        self.proxy_allow_unlisted_hosts = proxy_allow_unlisted_hosts
 
     async def validate(self, url: str) -> str:
         try:
@@ -81,16 +98,17 @@ class URLSafetyChecker:
 
         host = parsed.hostname.rstrip(".").lower()
         self._reject_host_name(host)
-        resolved_ips = self._resolve(host, port or expected_port)
-        if not resolved_ips:
-            raise URLSafetyError("URL 主机无法解析")
-        for resolved_ip in resolved_ips:
-            try:
-                address = ipaddress.ip_address(resolved_ip)
-            except ValueError as error:
-                raise URLSafetyError("URL 主机解析结果无效") from error
-            if not address.is_global:
-                raise URLSafetyError("出于安全原因，禁止访问内网或保留地址")
+        if not self._is_proxy_allowed_host(host, scheme=scheme):
+            resolved_ips = self._resolve(host, port or expected_port)
+            if not resolved_ips:
+                raise URLSafetyError("URL 主机无法解析")
+            for resolved_ip in resolved_ips:
+                try:
+                    address = ipaddress.ip_address(resolved_ip)
+                except ValueError as error:
+                    raise URLSafetyError("URL 主机解析结果无效") from error
+                if not address.is_global:
+                    raise URLSafetyError("出于安全原因，禁止访问内网或保留地址")
 
         normalized_netloc = host
         if port is not None:
@@ -99,6 +117,16 @@ class URLSafetyChecker:
         return urlunsplit(
             (scheme, normalized_netloc, normalized_path, parsed.query, "")
         )
+
+    def _is_proxy_allowed_host(self, host: str, *, scheme: str) -> bool:
+        if not self.proxy_url:
+            return False
+        if any(
+            host == allowed or host.endswith(f".{allowed}")
+            for allowed in self.proxy_allowed_hosts
+        ):
+            return True
+        return self.proxy_allow_unlisted_hosts and scheme == "https" and "." in host
 
     def _reject_host_name(self, host: str) -> None:
         if host in {"localhost", "localhost.localdomain"}:
@@ -153,8 +181,16 @@ class SafeHTTPReader:
         max_bytes: int = 1_500_000,
         max_redirects: int = 3,
         max_retries: int = 1,
+        proxy: str | None = None,
+        proxy_allowed_hosts: Iterable[str] | None = None,
+        proxy_allow_unlisted_hosts: bool = False,
     ) -> None:
-        self.safety_checker = safety_checker or URLSafetyChecker()
+        self.proxy = proxy.strip() if proxy and proxy.strip() else None
+        self.safety_checker = safety_checker or URLSafetyChecker(
+            proxy_url=self.proxy,
+            proxy_allowed_hosts=proxy_allowed_hosts,
+            proxy_allow_unlisted_hosts=proxy_allow_unlisted_hosts,
+        )
         self.transport = transport
         self.timeout_seconds = timeout_seconds
         self.max_bytes = max_bytes
@@ -166,11 +202,15 @@ class SafeHTTPReader:
         current_url = requested_url
         redirect_count = 0
 
-        async with httpx.AsyncClient(
-            transport=self.transport,
-            follow_redirects=False,
-            timeout=self.timeout_seconds,
-        ) as client:
+        client_options: dict[str, object] = {
+            "transport": self.transport,
+            "follow_redirects": False,
+            "timeout": self.timeout_seconds,
+        }
+        if self.proxy:
+            client_options["proxy"] = self.proxy
+
+        async with httpx.AsyncClient(**client_options) as client:  # type: ignore[arg-type]
             while True:
                 response = await self._request_with_retry(client, current_url)
                 if response.status_code in {301, 302, 303, 307, 308}:
@@ -197,20 +237,70 @@ class SafeHTTPReader:
 
     async def fetch_json(self, url: str) -> tuple[FetchedResponse, Any]:
         response = await self.fetch(url)
+        return response, self._decode_json(response)
+
+    async def post_json(
+        self,
+        url: str,
+        payload: object,
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> tuple[FetchedResponse, Any]:
+        """POST JSON to one validated public URL without following redirects."""
+
+        requested_url = await self.safety_checker.validate(url)
+        client_options: dict[str, object] = {
+            "transport": self.transport,
+            "follow_redirects": False,
+            "timeout": self.timeout_seconds,
+        }
+        if self.proxy:
+            client_options["proxy"] = self.proxy
+
+        async with httpx.AsyncClient(**client_options) as client:  # type: ignore[arg-type]
+            response = await self._request_with_retry(
+                client,
+                requested_url,
+                method="POST",
+                json_payload=payload,
+                headers=headers,
+            )
+            if response.status_code in {301, 302, 303, 307, 308}:
+                raise URLFetchError("JSON POST 来源不允许重定向")
+            fetched = FetchedResponse(
+                requested_url=requested_url,
+                final_url=requested_url,
+                status_code=response.status_code,
+                content_type=response.headers.get("content-type"),
+                body=await self._read_body(response),
+            )
+        return fetched, self._decode_json(fetched)
+
+    @staticmethod
+    def _decode_json(response: FetchedResponse) -> Any:
         try:
             payload = json.loads(response.body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise ResponseDecodeError("来源返回的内容不是有效 JSON") from error
-        return response, payload
+        return payload
 
     async def _request_with_retry(
         self,
         client: httpx.AsyncClient,
         url: str,
+        *,
+        method: str = "GET",
+        json_payload: object | None = None,
+        headers: dict[str, str] | None = None,
     ) -> httpx.Response:
         for attempt in range(self.max_retries + 1):
             try:
-                response = await client.get(url)
+                request_options: dict[str, object] = {}
+                if json_payload is not None:
+                    request_options["json"] = json_payload
+                if headers:
+                    request_options["headers"] = headers
+                response = await client.request(method, url, **request_options)  # type: ignore[arg-type]
             except httpx.TimeoutException as error:
                 if attempt >= self.max_retries:
                     raise URLFetchTimeout("读取来源超时") from error
@@ -263,6 +353,88 @@ class ParsedHTMLDocument:
     job_type: str | None
     published_at: datetime | None
     json_ld: list[dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class HTMLLink:
+    """A visible link discovered on an official recruiting page."""
+
+    url: str
+    text: str
+
+
+class _HTMLLinkParser(HTMLParser):
+    _ignored_tags: ClassVar[set[str]] = {"script", "style", "noscript", "template"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list[tuple[str, str]] = []
+        self._anchor_href: str | None = None
+        self._anchor_parts: list[str] = []
+        self._ignored_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized_tag = tag.lower()
+        if normalized_tag in self._ignored_tags:
+            self._ignored_depth += 1
+            return
+        if normalized_tag != "a" or self._ignored_depth > 0:
+            return
+        attributes = {key.lower(): value or "" for key, value in attrs}
+        href = attributes.get("href", "").strip()
+        if href:
+            self._anchor_href = href
+            self._anchor_parts = []
+
+    def handle_endtag(self, tag: str) -> None:
+        normalized_tag = tag.lower()
+        if normalized_tag in self._ignored_tags:
+            self._ignored_depth = max(0, self._ignored_depth - 1)
+            return
+        if normalized_tag == "a" and self._anchor_href is not None:
+            text = re.sub(r"\s+", " ", " ".join(self._anchor_parts)).strip()
+            self.links.append((self._anchor_href, text))
+            self._anchor_href = None
+            self._anchor_parts = []
+
+    def handle_data(self, data: str) -> None:
+        if self._anchor_href is not None and self._ignored_depth == 0:
+            self._anchor_parts.append(data)
+
+
+def extract_html_links(raw_html: str, *, base_url: str) -> list[HTMLLink]:
+    """Extract normalized visible links without executing page JavaScript."""
+
+    parser = _HTMLLinkParser()
+    parser.feed(raw_html)
+    parser.close()
+
+    links: list[HTMLLink] = []
+    seen: set[str] = set()
+    for href, text in parser.links:
+        if href.startswith(("#", "javascript:", "mailto:", "tel:", "data:")):
+            continue
+        absolute = urljoin(base_url, href)
+        try:
+            parsed = urlsplit(absolute)
+        except ValueError:
+            continue
+        if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
+            continue
+        normalized = urlunsplit(
+            (
+                parsed.scheme.lower(),
+                parsed.netloc.lower(),
+                parsed.path or "/",
+                parsed.query,
+                "",
+            )
+        )
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        links.append(HTMLLink(url=normalized, text=text))
+    return links
 
 
 class _HTMLTextParser(HTMLParser):

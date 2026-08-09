@@ -86,6 +86,42 @@ class DiscoveryRunCreateRequest(BaseModel):
     company: str | None = Field(default=None, max_length=160)
 
 
+class DiscoverySearchRequest(BaseModel):
+    query: str = Field(min_length=2, max_length=500)
+    company_ids: list[str] | None = Field(default=None, min_length=1, max_length=40)
+
+    @field_validator("query")
+    @classmethod
+    def normalize_query(cls, value: str) -> str:
+        normalized = " ".join(value.split()).strip()
+        if len(normalized) < 2:
+            raise ValueError("搜索目标至少需要两个字符")
+        return normalized
+
+    @field_validator("company_ids")
+    @classmethod
+    def normalize_company_ids(cls, value: list[str] | None) -> list[str] | None:
+        if value is None:
+            return None
+        normalized: list[str] = []
+        for source_id in value:
+            clean_id = source_id.strip()
+            if not clean_id or len(clean_id) > 50:
+                raise ValueError("公司来源 ID 无效")
+            if clean_id not in normalized:
+                normalized.append(clean_id)
+        if not normalized:
+            raise ValueError("至少选择一家目标公司")
+        return normalized
+
+
+class DiscoverySourceRead(BaseModel):
+    id: str
+    company: str
+    priority: str
+    search_mode: Literal["dedicated_adapter", "official_page"]
+
+
 class JobPostingRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -128,6 +164,13 @@ class CandidateStatusUpdate(BaseModel):
     status: CandidateStatus
 
 
+class CandidateAnalysisSummary(BaseModel):
+    status: Literal["ready"] = "ready"
+    score: float | None = None
+    recommendation: str | None = None
+    eligibility: Literal["pass", "fail", "unknown"] | None = None
+
+
 class CandidateRead(BaseModel):
     id: str
     user_id: str
@@ -135,8 +178,27 @@ class CandidateRead(BaseModel):
     status: CandidateStatus
     available_transitions: list[CandidateStatus]
     job: JobSummary
+    analysis: CandidateAnalysisSummary | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class DiscoveryAgentTraceStep(BaseModel):
+    phase: str
+    tool: str
+    outcome: str
+    observation: str
+    decision: str
+    source_id: str | None = None
+    company: str | None = None
+    url: str | None = None
+
+
+class DiscoveryResultMatchRead(BaseModel):
+    job_posting_id: str
+    match_tier: Literal["strict", "expanded"]
+    mismatch_reasons: list[str] = Field(default_factory=list)
+    mismatch_labels: list[str] = Field(default_factory=list)
 
 
 class DiscoveryRunRead(BaseModel):
@@ -146,10 +208,18 @@ class DiscoveryRunRead(BaseModel):
     user_id: str
     source: str
     source_url: str
+    search_query: str | None = None
+    max_results: int = 20
     status: str
     discovered_count: int
     new_count: int
     duplicate_count: int
+    analysis_target_count: int = 0
+    analysis_completed_count: int = 0
+    analysis_failure_count: int = 0
+    analysis_status: str = "NOT_REQUESTED"
+    agent_trace: list[DiscoveryAgentTraceStep] = Field(default_factory=list)
+    result_matches: list[DiscoveryResultMatchRead] = Field(default_factory=list)
     failure_summary: str | None
     started_at: datetime
     finished_at: datetime | None

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Response, status
+from sqlalchemy import select
 
 from src.api.dependencies import CurrentUserId, DatabaseSession
 from src.api.schemas import (
     ApplicationRead,
     ApplicationStatusUpdate,
+    CandidateAnalysisSummary,
     CandidateCreateRequest,
     CandidateRead,
     CandidateStatusUpdate,
@@ -16,6 +18,7 @@ from src.api.schemas import (
     SuggestionRead,
 )
 from src.config import get_settings
+from src.domain.analysis import JobAnalysis
 from src.domain.application import (
     APPLICATION_TRANSITIONS,
     CANDIDATE_TRANSITIONS,
@@ -58,7 +61,33 @@ def _job_summary(posting) -> JobSummary:
     )
 
 
-def _candidate_response(view) -> CandidateRead:
+def _candidate_analysis(
+    session,
+    *,
+    user_id: str,
+    job_id: str,
+) -> CandidateAnalysisSummary | None:
+    analysis = session.scalar(
+        select(JobAnalysis)
+        .where(
+            JobAnalysis.user_id == user_id,
+            JobAnalysis.job_posting_id == job_id,
+            JobAnalysis.invalidated_at.is_(None),
+        )
+        .order_by(JobAnalysis.created_at.desc(), JobAnalysis.id.desc())
+    )
+    if analysis is None:
+        return None
+    score = analysis.score or {}
+    eligibility = analysis.eligibility or {}
+    return CandidateAnalysisSummary(
+        score=score.get("score"),
+        recommendation=score.get("recommendation"),
+        eligibility=eligibility.get("eligible"),
+    )
+
+
+def _candidate_response(view, *, session, user_id: str) -> CandidateRead:
     status_value = CandidateStatus(view.candidate.status)
     return CandidateRead(
         id=view.candidate.id,
@@ -70,6 +99,11 @@ def _candidate_response(view) -> CandidateRead:
             key=lambda item: item.value,
         ),
         job=_job_summary(view.posting),
+        analysis=_candidate_analysis(
+            session,
+            user_id=user_id,
+            job_id=view.posting.id,
+        ),
         created_at=view.candidate.created_at,
         updated_at=view.candidate.updated_at,
     )
@@ -154,7 +188,7 @@ def create_candidate(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"code": "job_not_found", "message": "岗位不存在"},
         ) from error
-    return _candidate_response(view)
+    return _candidate_response(view, session=session, user_id=user_id)
 
 
 @router.get("/candidates", response_model=list[CandidateRead])
@@ -164,7 +198,7 @@ def list_candidates(
     status: CandidateStatus | None = None,
 ) -> list[CandidateRead]:
     return [
-        _candidate_response(view)
+        _candidate_response(view, session=session, user_id=user_id)
         for view in ApplicationService(session).list_candidates(
             user_id=user_id,
             status=status,
@@ -188,7 +222,7 @@ def read_candidate(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"code": "candidate_not_found", "message": "候选岗位不存在"},
         ) from error
-    return _candidate_response(view)
+    return _candidate_response(view, session=session, user_id=user_id)
 
 
 @router.patch("/candidates/{candidate_id}/status", response_model=CandidateRead)
@@ -211,7 +245,7 @@ def transition_candidate(
         ) from error
     except InvalidTransitionError as error:
         raise _transition_error(error) from error
-    return _candidate_response(view)
+    return _candidate_response(view, session=session, user_id=user_id)
 
 
 @router.post(

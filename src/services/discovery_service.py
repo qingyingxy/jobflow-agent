@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
-from datetime import UTC, datetime
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit, urlunsplit
 
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from src.config import get_settings
 from src.domain.application import CandidateStatus
 from src.domain.discovery import (
     DiscoveryRun,
@@ -16,6 +17,7 @@ from src.domain.discovery import (
 )
 from src.domain.job import JobPosting
 from src.services.application_service import ApplicationService
+from src.services.discovery_matching import classify_discovery_job
 from src.services.discovery_sources import JobSourceAdapter, JobStub
 from src.services.jd_analysis_service import invalidate_analyses_for_job
 from src.services.job_service import JobImportService
@@ -40,6 +42,8 @@ class DiscoveryFailure(RuntimeError):
 @dataclass(frozen=True)
 class DiscoveryRunResult:
     run: DiscoveryRun
+    job_posting_ids: list[str] = field(default_factory=list)
+    analysis_job_posting_ids: list[str] = field(default_factory=list)
 
 
 class DiscoveryService:
@@ -47,25 +51,60 @@ class DiscoveryService:
         self,
         session: Session,
         adapter: JobSourceAdapter | None = None,
+        *,
+        run_timeout_seconds: int | None = None,
     ) -> None:
         self.session = session
         self.adapter = adapter
+        configured_timeout = (
+            run_timeout_seconds
+            if run_timeout_seconds is not None
+            else get_settings().discovery_run_timeout_seconds
+        )
+        self.run_timeout_seconds = max(60, configured_timeout)
         self.user_id = ""
+        self.processed_job_ids: list[str] = []
+        self.analysis_job_ids: list[str] = []
 
-    async def run(self, *, user_id: str) -> DiscoveryRunResult:
+    def create_run(
+        self,
+        *,
+        user_id: str,
+        search_query: str | None = None,
+        max_results: int = 20,
+    ) -> DiscoveryRun:
         if self.adapter is None:
             raise RuntimeError("发现运行缺少来源适配器")
-        self.user_id = user_id
         run = DiscoveryRun(
             id=generate_discovery_run_id(),
             user_id=user_id,
             source=self.adapter.source_id,
             source_url=self.adapter.source_url,
+            search_query=search_query,
+            max_results=max_results,
             status=DiscoveryRunStatus.RUNNING.value,
+            agent_trace=[self._plan_trace()],
+            result_matches=[],
             started_at=datetime.now(UTC),
         )
         self.session.add(run)
         self.session.commit()
+        self.session.refresh(run)
+        return run
+
+    async def run(
+        self,
+        *,
+        user_id: str,
+        run: DiscoveryRun | None = None,
+    ) -> DiscoveryRunResult:
+        if self.adapter is None:
+            raise RuntimeError("发现运行缺少来源适配器")
+        self.user_id = user_id
+        self.processed_job_ids = []
+        self.analysis_job_ids = []
+        if run is None:
+            run = self.create_run(user_id=user_id)
 
         try:
             stubs = await self.adapter.list_jobs()
@@ -75,11 +114,17 @@ class DiscoveryService:
             raise self._failure(run.id, error) from error
 
         failures: list[str] = []
+        result_matches: list[dict[str, object]] = []
         new_count = 0
         duplicate_count = 0
         for index, stub in enumerate(stubs, start=1):
             try:
-                created = self._upsert_stub(stub)
+                created, job_id = self._upsert_stub(stub)
+                self.processed_job_ids.append(job_id)
+                match = classify_discovery_job(stub, query=run.search_query)
+                result_matches.append(match.as_dict(job_posting_id=job_id))
+                if match.match_tier == "strict":
+                    self.analysis_job_ids.append(job_id)
                 if created:
                     new_count += 1
                 else:
@@ -94,18 +139,62 @@ class DiscoveryService:
         run.discovered_count = len(stubs)
         run.new_count = new_count
         run.duplicate_count = duplicate_count
-        run.failure_summary = "\n".join(failures)[:4000] or None
-        run.status = (
-            DiscoveryRunStatus.PARTIAL.value
-            if failures
-            else DiscoveryRunStatus.SUCCEEDED.value
+        run.result_matches = result_matches
+        source_failures = [str(item) for item in getattr(self.adapter, "failures", [])]
+        all_failures = [*source_failures, *failures]
+        run.failure_summary = "\n".join(all_failures)[:4000] or None
+        adapter_trace = [
+            step.as_dict() if hasattr(step, "as_dict") else dict(step)
+            for step in getattr(self.adapter, "trace_steps", [])
+        ]
+        result_trace = self._result_trace(
+            discovered_count=len(stubs),
+            strict_count=len(self.analysis_job_ids),
+            expanded_count=len(result_matches) - len(self.analysis_job_ids),
+            failure_count=len(all_failures),
         )
-        run.finished_at = datetime.now(UTC)
+        run.agent_trace = [
+            *(run.agent_trace or [self._plan_trace()]),
+            *adapter_trace[:40],
+            result_trace,
+        ]
+        if not stubs:
+            run.agent_trace = [
+                *run.agent_trace,
+                {
+                    "phase": "human_gate",
+                    "tool": "manual_jd_input",
+                    "outcome": "recommended",
+                    "observation": "本次没有获得可验证的具体岗位。",
+                    "decision": "请用户粘贴具体 JD，继续进入证据分析闭环。",
+                    "source_id": None,
+                    "company": None,
+                    "url": None,
+                },
+            ]
+        should_analyze = bool(getattr(self.adapter, "auto_analyze_top", False))
+        run.analysis_target_count = min(5, len(self.analysis_job_ids)) if should_analyze else 0
+        run.analysis_status = "PENDING" if run.analysis_target_count else "NOT_REQUESTED"
+        if run.analysis_target_count:
+            run.status = DiscoveryRunStatus.RUNNING.value
+            run.finished_at = None
+        else:
+            run.status = (
+                DiscoveryRunStatus.PARTIAL.value
+                if all_failures
+                else DiscoveryRunStatus.SUCCEEDED.value
+            )
+            run.finished_at = datetime.now(UTC)
         self.session.commit()
         self.session.refresh(run)
-        return DiscoveryRunResult(run=run)
+        return DiscoveryRunResult(
+            run=run,
+            job_posting_ids=list(self.processed_job_ids),
+            analysis_job_posting_ids=list(self.analysis_job_ids),
+        )
 
     def list_runs(self, *, user_id: str) -> list[DiscoveryRun]:
+        self.recover_stale_runs(user_id=user_id)
         return list(
             self.session.scalars(
                 select(DiscoveryRun)
@@ -114,7 +203,58 @@ class DiscoveryService:
             ).all()
         )
 
-    def _upsert_stub(self, stub: JobStub) -> bool:
+    def get_run(self, *, user_id: str, run_id: str) -> DiscoveryRun | None:
+        self.recover_stale_runs(user_id=user_id)
+        return self.session.scalar(
+            select(DiscoveryRun).where(
+                DiscoveryRun.id == run_id,
+                DiscoveryRun.user_id == user_id,
+            )
+        )
+
+    def recover_stale_runs(self, *, user_id: str) -> int:
+        cutoff = datetime.now(UTC) - timedelta(seconds=self.run_timeout_seconds)
+        runs = list(
+            self.session.scalars(
+                select(DiscoveryRun).where(
+                    DiscoveryRun.user_id == user_id,
+                    DiscoveryRun.status == DiscoveryRunStatus.RUNNING.value,
+                    DiscoveryRun.started_at < cutoff,
+                )
+            ).all()
+        )
+        if not runs:
+            return 0
+
+        finished_at = datetime.now(UTC)
+        for run in runs:
+            detail = (
+                f"运行超时：超过 {self.run_timeout_seconds} 秒未完成，"
+                "已自动结束；可以重新发起搜索。"
+            )
+            run.status = DiscoveryRunStatus.FAILED.value
+            run.analysis_status = "FAILED"
+            run.failure_summary = "\n".join(
+                item for item in (run.failure_summary, detail) if item
+            )[:4000]
+            run.agent_trace = [
+                *(run.agent_trace or []),
+                {
+                    "phase": "stop",
+                    "tool": "stale_run_recovery",
+                    "outcome": "failed",
+                    "observation": detail,
+                    "decision": "终止失联运行，保留已写入的岗位事实并允许用户重试。",
+                    "source_id": None,
+                    "company": None,
+                    "url": None,
+                },
+            ][-60:]
+            run.finished_at = finished_at
+        self.session.commit()
+        return len(runs)
+
+    def _upsert_stub(self, stub: JobStub) -> tuple[bool, str]:
         normalized_url = _normalize_url(stub.detail_url)
         raw_content = stub.raw_content.replace("\r\n", "\n").replace("\r", "\n").strip()
         if len(raw_content) < 20:
@@ -155,7 +295,7 @@ class DiscoveryService:
                 job_posting_id=posting.id,
                 initial_status=CandidateStatus.DISCOVERED,
             )
-            return True
+            return True, posting.id
 
         content_changed = posting.content_hash != content_hash
         posting.source_url = normalized_url
@@ -174,7 +314,7 @@ class DiscoveryService:
             posting.retrieved_at = datetime.now(UTC)
             invalidate_analyses_for_job(self.session, job_id=posting.id)
         self.session.commit()
-        return False
+        return False, posting.id
 
     def _failure(self, run_id: str, error: Exception) -> DiscoveryFailure:
         if isinstance(error, URLReaderError):
@@ -193,9 +333,72 @@ class DiscoveryService:
         if run is None:
             return
         run.status = DiscoveryRunStatus.FAILED.value
+        run.analysis_status = "FAILED"
         run.failure_summary = str(error)[:4000]
+        run.agent_trace = [
+            *(run.agent_trace or [self._plan_trace()]),
+            {
+                "phase": "stop",
+                "tool": "discovery_orchestrator",
+                "outcome": "failed",
+                "observation": str(error)[:500],
+                "decision": "停止运行并向用户报告可操作的失败原因。",
+                "source_id": None,
+                "company": None,
+                "url": None,
+            },
+        ]
         run.finished_at = datetime.now(UTC)
         self.session.commit()
+
+    def _plan_trace(self) -> dict[str, object]:
+        if self.adapter is None:
+            source_count = 0
+        else:
+            sources = getattr(self.adapter, "sources", None)
+            source_count = len(sources) if isinstance(sources, list) else 1
+        return {
+            "phase": "plan",
+            "tool": "discovery_orchestrator",
+            "outcome": "selected",
+            "observation": f"已登记 {source_count} 个本次允许访问的公开来源。",
+            "decision": (
+                "按结构化数据、静态页面、专用 Adapter、人工粘贴 JD 的"
+                "有界顺序执行。"
+            ),
+            "source_id": None,
+            "company": None,
+            "url": None,
+        }
+
+    @staticmethod
+    def _result_trace(
+        *,
+        discovered_count: int,
+        strict_count: int,
+        expanded_count: int,
+        failure_count: int,
+    ) -> dict[str, object]:
+        return {
+            "phase": "observe",
+            "tool": "candidate_validator",
+            "outcome": "succeeded" if discovered_count else "empty",
+            "observation": (
+                f"获得 {discovered_count} 条可验证岗位；"
+                f"严格匹配 {strict_count} 条，拓展候选 {expanded_count} 条；"
+                f"{failure_count} 个来源需要回退或适配。"
+            ),
+            "decision": (
+                "只分析严格匹配中排序靠前的最多 5 条岗位。"
+                if strict_count
+                else "拓展候选不自动分析，等待用户手动确认。"
+                if expanded_count
+                else "不生成虚假候选岗位，转入人工 JD 入口。"
+            ),
+            "source_id": None,
+            "company": None,
+            "url": None,
+        }
 
     def _item_failure(self, index: int, stub: JobStub, error: Exception) -> str:
         identifier = stub.source_job_id or stub.detail_url

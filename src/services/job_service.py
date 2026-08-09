@@ -32,6 +32,12 @@ class JobImportService:
             source_url=source_url,
             source_type=source_type,
             raw_content=raw_content,
+            source_metadata={
+                "company": company,
+                "title": title,
+                "job_type": job_type,
+                "locations": locations or [],
+            },
         )
         content_hash = hashlib.sha256(document.raw_content.encode("utf-8")).hexdigest()
         posting = JobPosting(

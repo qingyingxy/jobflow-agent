@@ -1,0 +1,1 @@
+"""Static project data files."""
