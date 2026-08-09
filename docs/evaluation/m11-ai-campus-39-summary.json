@@ -1,0 +1,65 @@
+{
+  "report_version": "m11-ai-campus-39-public-summary-v1",
+  "dataset": {
+    "version": "m11-ai-campus-2026-08-05-final-v1-strict",
+    "split": "eval",
+    "case_count": 39,
+    "scope": "public Chinese AI campus job descriptions",
+    "label_policy": "rule-generated labels with manual overrides; review-required cases and metadata-only fields excluded",
+    "limitation": "independent full manual review is still required before treating this as a public benchmark"
+  },
+  "generation": {
+    "date": "2026-08-09",
+    "provider": "openai_compatible",
+    "model": "deepseek-v4-flash",
+    "temperature": 0.0
+  },
+  "results": {
+    "core": {
+      "generator_version": "evaluation-predict-core-only-v1",
+      "prompt_version": "jd-core-parser-prompt-v1",
+      "successful_prediction_count": 39,
+      "success_rate": 1.0,
+      "failure_codes": {},
+      "timeout_count": 0,
+      "timeout_rate": 0.0,
+      "generation_duration_ms": 324715.78,
+      "macro_f1": 0.9890260631001372,
+      "field_f1": {
+        "job_type": 1.0,
+        "locations": 1.0,
+        "required_skills": 0.9670781893004115
+      },
+      "field_value_false_discovery_rate": 0.0453257790368272
+    },
+    "staged": {
+      "generator_version": "evaluation-predict-staged-only-v1",
+      "prompt_version": "jd-staged-parser-prompt-v1",
+      "successful_prediction_count": 39,
+      "success_rate": 1.0,
+      "failure_codes": {},
+      "timeout_count": 0,
+      "timeout_rate": 0.0,
+      "generation_duration_ms": 852029.41,
+      "macro_f1": 0.9896907216494846,
+      "field_f1": {
+        "job_type": 1.0,
+        "locations": 1.0,
+        "required_skills": 0.9690721649484536
+      },
+      "field_value_false_discovery_rate": 0.0426136363636364
+    }
+  },
+  "user_visible_unsupported_claim_rate": {
+    "status": "not_applicable",
+    "metric_output": 0.0,
+    "supported_claim_count": 0,
+    "unsupported_claim_count": 0,
+    "reason": "parser-only evaluation does not generate evidence-backed supported or partial claims"
+  },
+  "artifacts": {
+    "raw_predictions": "local-only: artifacts/evaluation/",
+    "checkpoints": "local-only: artifacts/evaluation/",
+    "public_summary": "docs/evaluation/m11-ai-campus-39-summary.json"
+  }
+}

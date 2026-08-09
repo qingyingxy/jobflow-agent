@@ -2,7 +2,7 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：MVP 规划阶段
+> 当前状态：本地作品集版已完成；M11 的 39 条真实岗位 Parser 评测与 Playwright 演示已落地
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -29,7 +29,7 @@ Agent 负责读取、分析和提出建议
 
 本项目主要展示四项能力：
 
-1. Agent 能处理非结构化岗位页面，并在受控工具范围内提出读取和回退策略。
+1. Agent 以 Plan → Act → Observe 的受控流程选择岗位读取工具，并记录观察、回退和停止原因。
 2. 岗位匹配和材料修改基于用户真实经历证据。
 3. Agent 提出的材料修改需要经过用户确认。
 4. 申请过程由状态机和事件日志管理，而不是一次对话结束。
@@ -47,12 +47,20 @@ Agent 负责读取、分析和提出建议
 → 跟踪申请状态
 ```
 
+## 2.1 演示
+
+![岗位发现严格匹配与拓展候选演示](docs/assets/jobflow-discovery-demo.gif)
+
+[查看静态截图](docs/assets/jobflow-discovery-demo.png)。演示使用确定性 API fixture，不依赖招聘官网的实时可用性；真实来源 Adapter 和页面行为分别由后端集成测试与 Playwright E2E 覆盖。
+
 ## 3. 项目边界
 
 ### 第一版实现
 
 - 用户画像、求职意向和筛选条件；
-- 从 1 个真实公开招聘来源发现岗位，第 2 个来源作为可选扩展；
+- 从已登记的 40 家公司官方招聘入口尝试即时发现公开岗位；
+- 每次搜索最多保存 20 条岗位，仅自动分析严格匹配中排序靠前的 5 条；
+- 不做每日定时同步，搜索由用户即时触发；
 - 岗位链接和岗位文本直接导入；
 - 岗位来源和页面读取工具选择；
 - 中文 JD 结构化解析；
@@ -87,8 +95,10 @@ Agent 负责读取、分析和提出建议
 
 ```text
 用户填写个人信息和求职偏好
-→ Agent 从限定范围的招聘来源发现岗位
-→ 系统标准化、去重并完成基础筛选
+→ 用户用自然语言描述想找的岗位，并多选目标公司范围
+→ Agent 只在选定公司的官网中即时发现最多 20 条岗位
+→ 系统标准化、去重，将结果分为严格匹配和拓展候选
+→ 仅严格匹配中的前 5 条自动进入完整分析
 → 展示候选岗位和推荐原因
 → 用户选择感兴趣的岗位
 → 系统判断来源和页面类型
@@ -109,9 +119,19 @@ Agent 负责读取、分析和提出建议
 
 项目控制在六个主要模块。
 
-### 5.1 Job Discovery & Ingestion Router
+### 5.1 Discovery Agent & Ingestion Tools
 
-负责根据用户求职意向发现候选岗位，并读取用户选中的岗位信息。该模块是一个顶层边界，内部由意图解析、来源注册、来源适配、岗位标准化、去重和详情读取组成。
+负责根据用户求职意向规划岗位读取路径，并读取用户选中的岗位信息。Agent Orchestrator 只在允许的官方来源和受控工具之间决策；固定解析器、来源 Adapter、URL Reader、岗位标准化与去重都是它调用的确定性工具，而不是 Agent 本身。
+
+每次运行持久化 `agent_trace`，至少记录：
+
+```text
+plan：本次允许访问哪些来源，采用什么有界工具顺序
+act：选择结构化数据、静态页面或专用 Adapter
+observe：工具返回了岗位事实、空结果还是失败原因
+fallback：为什么切换工具或请求用户粘贴 JD
+stop：为什么生成候选岗位或拒绝把页面当作岗位
+```
 
 输入：
 
@@ -127,12 +147,13 @@ Agent 负责读取、分析和提出建议
 
 ```text
 自然语言求职目标
-→ Search Intent Parser
-→ Source Registry
-→ Source Adapter 获取岗位列表
+→ 公司官方来源注册表
+→ Official Company Adapter 获取官网岗位列表
 → Job Normalizer
-→ 确定性筛选和去重
-→ 输出候选岗位
+→ 确定性筛选和去重，最多保留 20 条
+→ 按公司、地点、招聘类型和岗位方向划分严格匹配 / 拓展候选
+→ 仅把严格匹配中的前 5 条送入完整分析流水线
+→ 输出候选岗位和分析进度
 ```
 
 岗位详情读取回退顺序：
@@ -144,6 +165,8 @@ Agent 负责读取、分析和提出建议
 → 请求用户粘贴文本
 ```
 
+招聘首页、指南、流程页或无法验证的动态页面不会作为候选岗位保存。没有专用 Adapter 时，Agent 明确停止自动发现并建议用户粘贴具体 JD，不允许模型补造岗位事实。
+
 Playwright 浏览器读取作为动态页面的可选扩展，不属于核心 MVP 的完成条件。
 
 岗位发现阶段还需要完成：
@@ -154,7 +177,7 @@ Playwright 浏览器读取作为动态页面的可选扩展，不属于核心 MV
 - 按确定性条件进行筛选和去重；
 - 为候选岗位生成可解释的粗粒度推荐原因。
 
-发现阶段只提取公司、岗位名称、地点、招聘类型、发布时间等基础字段，不对所有候选岗位执行完整的资格检查和 Evidence Matcher。用户打开岗位详情后，才运行完整分析流水线。
+发现阶段先提取公司、岗位名称、地点、招聘类型、发布时间等基础字段，通过确定性门控记录严格匹配或拓展候选，并只对严格匹配中排序靠前的 5 条执行完整的资格检查和 Evidence Matcher。拓展候选保留真实字段和放宽原因，用户可以手动运行完整分析。
 
 候选岗位统一为轻量结构：
 
@@ -348,20 +371,26 @@ CandidateJob → CONVERTED
 
 ### 5.6 M10 岗位发现与来源同步
 
-M10 已完成轻量岗位发现闭环。用户在岗位发现页输入一个公开招聘入口，系统先校验 URL 安全边界，再按来源适配器读取岗位列表、标准化字段并写入发现池。首个真实来源使用 Greenhouse 的公开 Job Board API（见 [官方文档](https://developers.greenhouse.io/job-board.html)），只读获取岗位列表，不需要投递权限；通用岗位链接则通过安全 HTTP Reader 和 Generic HTML Parser 导入。
+M10 已完成官方官网即时搜索闭环。用户在岗位发现页输入自然语言目标并多选公司范围，系统只访问所选公司在项目内登记的官方招聘入口，优先调用字节跳动、腾讯专用公开职位 Adapter，再回退到受控的官网页面读取。每次最多整理 20 条岗位，按公司、地点、招聘类型和岗位方向划分为严格匹配和拓展候选，仅严格匹配中的前 5 条在后台自动分析。搜索是用户即时触发的一次性任务，不做每日定时同步；每次运行保存查询目标、结果分层、分析完成数、失败摘要和 Agent 轨迹。
 
 ```text
-用户输入公开招聘入口
+用户输入自然语言求职目标
+→ 用户多选公司范围
+→ 官方公司来源注册表按 company_ids 建立访问白名单
 → URL / DNS / 重定向安全检查
-→ Greenhouse Adapter 或 Generic HTML Reader
+→ 专用来源 Adapter / Official Company Adapter 读取公开职位接口或官网详情页
 → 公司、标题、地点、类型、正文标准化
+→ 最多保留 20 条并按目标相关性排序
 → source_id + source_job_id / URL / 内容指纹去重
 → DiscoveryRun
 → JobPosting + DISCOVERED CandidateJob
-→ 用户保存、忽略或进入岗位分析
+→ Query Match Gate 划分严格匹配 / 拓展候选
+→ 严格匹配前 5 条自动进入 JD Parser / Eligibility / Evidence Matcher
+→ 拓展候选保留放宽原因，等待用户手动分析
+→ 用户保存、忽略、查看分析或进入申请准备
 ```
 
-发现流程不会自动运行完整 JD 分析，也不会创建 `Application`。重复同步只更新 `last_seen_at` 和来源字段；岗位正文变化时，旧分析会失效并要求重新分析。读取失败会保存失败运行和摘要，受限 URL 在发出实际请求前被拦截。
+发现流程不会自动创建 `Application`。即时搜索只对严格匹配中排序靠前的 5 条运行完整 JD 分析；拓展候选即使来自官方接口，也不会被描述成满足原始条件。字节跳动和腾讯来源通过公开职位接口返回可验证的职位 ID、标题、地点、职责和要求；地点、招聘类型或岗位方向不满足时，系统保留真实字段并记录“地点不匹配”“非校招”等原因。重复同步只更新 `last_seen_at` 和来源字段；岗位正文变化时，旧分析会失效并要求重新分析。读取失败会保存失败运行和摘要，超过运行时限的后台任务会被自动结束并允许重试；受限 URL 在发出实际请求前被拦截。所有来源均为 0 条时，页面进入人工接管，允许用户粘贴具体 JD 继续完整分析。原有 `POST /api/discovery/runs` Greenhouse 入口继续保留，作为指定来源的高级路径。
 
 ### 5.7 Event and Trace Log
 
@@ -446,17 +475,19 @@ created_at
 
 展示：
 
-- 用户输入的公开招聘来源入口；
-- 最近一次同步的新增、重复和失败数量；
+- 用户用自然语言描述想找的岗位；
+- 官方公司来源范围和只读安全说明；
+- 最近一次即时搜索的发现、去重和自动分析进度；
 - 岗位发现候选池；
 - 岗位来源和最近更新时间；
 - 岗位基本信息；
 - 来源链接；
 - 地点和招聘类型等基础字段；
 - 保存、忽略和进入岗位分析操作；
-- 最近的 DiscoveryRun 来源轨迹。
+- 最近的 DiscoveryRun 搜索轨迹；
+- 指定 Greenhouse 来源的高级入口。
 
-岗位发现页只负责收集和整理来源事实。用户点击“进入分析”后，才进入完整 JD 解析、资格检查和证据匹配流程。
+岗位发现页只自动分析严格匹配中排序靠前的 5 条；用户点击“进入分析”后，可以查看或重新运行任意岗位的完整 JD 解析、资格检查和证据匹配流程。
 
 ### 7.2 岗位分析与申请准备页
 
@@ -510,6 +541,9 @@ flowchart LR
     SOURCES --> HTTP["HTTP / HTML"]
     SOURCES -. Optional .-> BROWSER["Playwright Fallback"]
     SOURCES --> MANUAL["Manual Import"]
+    DISCOVERY --> GATE["Deterministic Query Match Gate"]
+    GATE -->|"Strict: top 5"| ANALYSIS
+    GATE -->|"Expanded: manual"| HUMAN["Human Review"]
 
     ANALYSIS --> PARSER["JD Parser"]
     ANALYSIS --> ELIGIBILITY["Eligibility Checker"]
@@ -584,8 +618,11 @@ flowchart LR
 
 核心 MVP：
 
-- 支持用户填写求职意向和筛选条件；
-- 支持从 1 个真实公开招聘来源发现岗位；
+- 支持用户用自然语言填写求职意向；
+- 支持从 40 家已登记公司官方招聘入口尝试即时发现公开岗位；
+- 每次搜索最多保留 20 条，并持久化严格匹配 / 拓展候选及放宽原因；
+- 仅严格匹配中的前 5 条自动分析，拓展候选默认等待用户手动确认；
+- 支持搜索进度、来源失败隔离和运行轨迹；
 - 支持岗位链接和文本直接导入；
 - 实现手动文本和通用 HTML 两种读取方式；
 - 支持基础字段标准化、筛选和内容指纹去重。
@@ -596,16 +633,18 @@ flowchart LR
 - 收集并解析 100～300 条真实岗位；
 - 支持简单定时同步和岗位变化检测；
 - 增加 Embedding 召回和 Playwright 动态页面回退。
-- 增加第 2 个招聘来源。
 
 当前适配器：
 
 ```text
+OfficialCompanyRegistryAdapter
+ByteDanceAdapter
+TencentAdapter
 GreenhouseAdapter
 GenericHtmlAdapter
 ```
 
-M10 通过用户输入的 Greenhouse board URL 选择具体招聘入口，不在 MVP 中自动探索整个互联网。Playwright、定时同步和更多 ATS 适配器仍是后续扩展，不作为核心 MVP 的完成条件。
+M10 通过项目内的公司来源注册表限定官方招聘入口，不调用第三方搜索服务，也不承诺搜索整个互联网。`ByteDanceAdapter` 和 `TencentAdapter` 分别调用两家公司公开职位接口，并对岗位 ID、招聘类型和字段证据做确定性校验；通用读取器只接受 JSON-LD `JobPosting` 或具备具体职位路径和职责/要求信号的页面，并排除招聘指南、流程、FAQ、活动、职位列表等非岗位页。依赖 JavaScript 且未提供可直接读取岗位数据的官网会记录“需要专用 Adapter”，不会把页面外壳保存成岗位。搜索只在用户点击后即时执行，不做每日定时同步；动态页面浏览器回退、定时同步和更多 ATS 适配器仍是后续扩展，不作为核心 MVP 的完成条件。Greenhouse board URL 仍可通过高级入口直接同步。
 
 ## 12. 数据模型
 
@@ -697,9 +736,18 @@ Evidence Coverage
 Unsupported Claim Rate
 ```
 
-核心 MVP 准备 30～50 条人工标注样本，后续扩展到 50～100 条。数据集需要有版本、标注说明和固定格式，并区分开发样本与最终评测样本；正常、字段缺失、`unknown`、无证据、读取失败和非法模型输出均需预先规定最小样本分布。
+核心 MVP 已建立 12 条合成开发 Fixture 和 39 条公开岗位严格评测子集；后者采用规则标签与人工覆盖，并排除待复核或正文不可见字段。数据集具有版本、标注说明和固定格式，并区分开发样本与 `eval` 样本；正常、字段缺失、`unknown`、无证据、读取失败和非法模型输出均预先规定最小样本分布。若用于论文式公开比较，还需独立人工复核并报告标注一致性。
 
 最终运行前冻结 Evaluation Manifest、指标口径和发布阈值，不能查看最终结果后再修改通过标准。原始模型输出和 Validator 后用户可见输出分别报告；用户可见 Unsupported Claim Rate 的发布要求为 0。评测结果同时记录模型、提示词、数据集版本、随机参数、运行时间和失败数，不在简历中使用未经实际运行的指标。
+
+2026-08-09 使用 `deepseek-v4-flash` 对同一份 39 条严格子集完成真实运行：
+
+| Parser | 成功率 | Macro-F1 | 超时率 |
+|---|---:|---:|---:|
+| Core | 100% (39/39) | 0.9890 | 0% (0/39) |
+| Staged（Core + Detail + 本地组装） | 100% (39/39) | 0.9897 | 0% (0/39) |
+
+这是 parser-only 字段评测，`supported_claim_count=0`，因此不能把报告中的 `Unsupported Claim Rate=0` 解读为完整证据匹配链“0% 幻觉”。公开精简报告见 [`docs/evaluation/m11-ai-campus-39-summary.json`](docs/evaluation/m11-ai-campus-39-summary.json)。
 
 ## 14. 技术栈
 
@@ -732,7 +780,7 @@ Unsupported Claim Rate
 
 - 平台定时任务或独立同步命令，作为扩展能力
 - Pytest
-- Playwright Test，仅在实现浏览器兜底后启用
+- Playwright Test，用于可重复的关键用户流程验收和演示素材生成
 - 结构化日志
 
 核心 MVP 不强制使用 LangGraph、Temporal、Redis 或独立向量数据库。如果工具选择和人工中断流程后续变复杂，再评估引入 LangGraph；如果需要跨月等待、外部事件唤醒和复杂故障恢复，再评估 Temporal。
@@ -743,10 +791,10 @@ Python 环境统一使用 `uv` 管理，提交 `pyproject.toml` 和 `uv.lock`，
 
 ```text
 uv sync
-uv run uvicorn src.main:app --reload
+uv run alembic upgrade head
+uv run uvicorn src.main:app --reload --host 127.0.0.1 --port 18001
 uv run pytest
 uv run ruff check src tests migrations
-uv run alembic upgrade head
 ```
 
 本地前端开发：
@@ -758,7 +806,7 @@ npm install
 npm run dev
 ```
 
-前端默认运行在 `http://localhost:3000`，后端默认运行在 `http://localhost:8000`。首页的“检查后端连接”按钮会调用 `/health`，用于确认两部分已经连通。生产构建和 TypeScript 检查：
+前端默认运行在 `http://localhost:3000`，后端统一运行在 `http://127.0.0.1:18001`。如果端口被占用，一键启动脚本会在启动前直接报告冲突，不会留下不可见的半启动进程。生产构建和 TypeScript 检查：
 
 ```powershell
 npm run typecheck
@@ -771,6 +819,33 @@ npm run build
 Set-Location ..
 ```
 
+Windows 下也可以从仓库根目录一键完成依赖同步、数据库迁移并启动前后端：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-dev.ps1
+```
+
+打开 `http://localhost:3000`。脚本会在前台运行 Next.js，并在退出时停止由它启动的后端；后端日志写入系统临时目录。
+
+需要改端口时显式传入参数，前端 API 地址会随之更新：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-dev.ps1 `
+  -BackendPort 18002 -FrontendPort 3001
+```
+
+可重复的浏览器验收与作品集素材生成：
+
+```powershell
+Set-Location frontend
+npx playwright install chromium
+npm run test:e2e
+Set-Location ..
+powershell -ExecutionPolicy Bypass -File scripts/capture-demo.ps1
+```
+
+普通 E2E 不请求真实招聘网站，也不会改写演示素材；`capture-demo.ps1` 才会更新 `docs/assets/` 下的 PNG 和 GIF。
+
 ### SQLite-first 本地开发
 
 默认配置使用 SQLite，适合先完成用户画像、岗位分析、资格判断、证据匹配和申请状态机，不需要安装数据库服务。数据库文件会自动创建在 `./data/jobflow.db`，并被 Git 忽略。
@@ -779,7 +854,7 @@ Set-Location ..
 Copy-Item .env.example .env
 uv sync
 uv run alembic upgrade head
-uv run uvicorn src.main:app --reload
+uv run uvicorn src.main:app --reload --host 127.0.0.1 --port 18001
 ```
 
 后续如果模型中使用 PostgreSQL 专有能力（例如 JSONB 或 pgvector），再为对应迁移增加 PostgreSQL 方言分支；业务服务和 SQLAlchemy Session 接口保持不变。
@@ -812,7 +887,7 @@ docker compose stop postgres
 
 ### M02 用户画像与经历证据 API
 
-当前 M02 使用 SQLite 保存用户画像和经历证据。API 通过 `X-User-ID` 识别本地用户；不传该请求头时使用 `.env` 中的 `DEFAULT_USER_ID`，默认值为 `local-user`。这只是开发阶段的身份占位，不等同于生产认证。
+当前 M02 使用 SQLite 保存用户画像和经历证据。API 通过 `X-User-ID` 识别本地用户；不传该请求头时使用 `.env` 中的 `DEFAULT_USER_ID`，默认值为 `local-user`。这只是开发阶段的身份占位，不等同于生产认证。公开部署前必须由可信反向代理或身份提供方完成认证，并剥离客户端自行传入的身份头；本地作品集阶段不伪装成已实现多用户认证。
 
 ```text
 GET   /api/profile
@@ -927,24 +1002,28 @@ M09 已实现 `SuggestionTargetInput`、`ResumeSuggestion` 和 `SuggestionServic
 
 ### M10 岗位发现池与来源安全
 
-M10 已完成 `SafeHTTPReader`、Generic HTML / JSON-LD 提取、`JobSourceAdapter`、`GreenhouseAdapter`、`DiscoveryRun` 和岗位发现页。发现同步是用户手动触发的只读流程：系统限制协议、端口、凭据、DNS 解析结果、重定向、响应大小、超时和重试次数；页面正文中的脚本、样式、隐藏元素不会进入岗位原文。发现结果使用来源岗位 ID、规范 URL 和内容指纹按优先级去重，首次发现创建 `DISCOVERED` 候选，重复运行不会创建重复 `JobPosting` 或 `Application`。
+M10 已完成 `SafeHTTPReader`、Generic HTML / JSON-LD 提取、`JobSourceAdapter`、`OfficialCompanyRegistryAdapter`、`GreenhouseAdapter`、字节跳动 / 腾讯专用 Adapter、40 家官方来源注册表、`DiscoveryRun` 和岗位发现页。发现搜索是用户手动触发的只读流程：系统限制协议、端口、凭据、DNS 解析结果、重定向、响应大小、超时和重试次数；页面正文中的脚本、样式、隐藏元素不会进入岗位原文。通用规则会拒绝招聘指南、投递流程、FAQ、活动和列表页；动态页面无法静态取得具体岗位时会记录来源失败并提示需要专用 Adapter。每次搜索最多保存 20 条岗位，持久化严格匹配 / 拓展候选及原因，并只自动分析严格匹配前 5 条；结果使用来源岗位 ID、规范 URL 和内容指纹按优先级去重，首次发现创建 `DISCOVERED` 候选，重复运行不会创建重复 `JobPosting` 或 `Application`。
+
+如果本机使用 Mihomo/Clash 的 Fake-IP DNS，设置 `URL_FETCH_PROXY=http://127.0.0.1:7890` 后，读取器会通过显式本地代理访问官网。`URL_FETCH_PROXY_ALLOW_UNLISTED_HOSTS` 默认关闭；本地开发需要跟随官网跳转到飞书招聘、热招网等外部招聘域名时可以显式设为 `true`。该模式仍拒绝本机/内网字面量 IP、异常端口、带凭据 URL，并限制协议和重定向次数；生产环境应优先使用 `redir-host` 或维护明确的外部来源白名单。
 
 ```text
 POST /api/jobs/import-url
 POST /api/discovery/runs
+POST /api/discovery/search
 GET  /api/discovery/runs
+GET  /api/discovery/runs/{run_id}
 GET  /api/candidates?status=DISCOVERED
 ```
 
-### M11 评测基础设施（自动化阶段）
+### M11 评测与可重复演示
 
-M11 先把评测做成独立、可版本化的模块，而不是把演示样例当成效果指标。当前已加入 `EvaluationManifest`、真实/Fixture prediction 生成入口、字段/资格/证据指标、失败码准确率、Evidence Validator 后的用户可见结果、AgentRun 汇总和可重复的机器可读报告。开发集包含 12 个合成或 Fixture 案例，覆盖字段缺失、`unknown`、无证据、读取失败和非法模型输出；最终 30～50 条人工标注 `eval` 样本仍待补充。
+M11 把评测做成独立、可版本化的模块，而不是把演示样例当成效果指标。当前已加入 `EvaluationManifest`、真实/Fixture prediction 生成入口、字段/资格/证据指标、失败码准确率、Evidence Validator 后的用户可见结果、AgentRun 汇总和可重复的机器可读报告。真实产品分析使用 `StagedJDParser`：先用 `CoreJDParser` 抽取核心字段，再用 `DetailJDParser` 抽取详情，最后由本地规则生成完整 `StructuredJobDescription`。除 12 条合成开发 Fixture 外，仓库已完成 39 条经严格筛选的公开中文 AI 校招岗位评测，并用 Playwright fixture 固化严格 / 拓展结果的关键用户流程。
 
 ```text
 uv run python -m src.evaluation.run --manifest datasets/m11_evaluation_manifest.json --predictions datasets/m11_sample_predictions.json --output artifacts/evaluation/m11-dev-report.json --model sample-fixture --prompt-version m11-dev-v1
 ```
 
-真实 prediction 生成所需的岗位、经历证据和搜索偏好模板，以及指标口径和后续最终评测步骤见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。当前开发预测夹具故意包含错误，只用于验收评测器能发现资格误接受和非法证据，不能作为模型效果或简历数据。
+真实 prediction 生成命令、指标口径和 39 条结果见 [`docs/EVALUATION.md`](docs/EVALUATION.md) 与 [`docs/evaluation/m11-ai-campus-39-summary.json`](docs/evaluation/m11-ai-campus-39-summary.json)。开发预测夹具故意包含错误，只用于验收评测器能发现资格误接受和非法证据，不能作为模型效果或简历数据。
 
 ## 15. 安全与数据边界
 
@@ -953,6 +1032,7 @@ uv run python -m src.evaluation.run --manifest datasets/m11_evaluation_manifest.
 - 将岗位网页视为不可信内容，网页文本不能覆盖系统指令；
 - 限制可访问 URL、协议和目标地址，阻止访问内网和本机资源；
 - 为 HTTP 和浏览器工具设置超时、响应大小和重试上限；
+- 读取发现任务时自动把超过 `DISCOVERY_RUN_TIMEOUT_SECONDS` 的遗留 `RUNNING` 任务标记为失败、写入恢复轨迹，并允许用户重试；
 - 清理脚本、隐藏元素和与岗位无关的页面内容；
 - 普通日志不保存完整简历、联系方式和其他敏感信息；
 - 用户删除材料时，同步删除关联证据、建议和最终文本。
@@ -981,7 +1061,10 @@ jobflow-agent/
 │   ├── services/
 │   │   ├── profile_service.py
 │   │   ├── evidence_service.py
+│   │   ├── core_jd_parser.py
+│   │   ├── detail_jd_parser.py
 │   │   ├── jd_parser.py
+│   │   ├── staged_jd_parser.py
 │   │   ├── job_parse_service.py
 │   │   ├── eligibility_checker.py
 │   │   ├── evidence_retriever.py
@@ -1020,7 +1103,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-当前 M10 的核心实现已完成，M11 已进入自动化阶段，核心进度仍为 10 / 11：评测契约、开发集、真实 prediction 入口、指标计算、AgentRun 汇总、两条后端端到端回归链路和可重复命令已经落地，人工标注最终集、真实演示和截图仍待完成。M04 已使用 DeepSeek `deepseek-v4-flash` 完成 3 条不同类型中文 JD 的真实端到端验收；Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 来源适配和发现池已经可重复测试。这个进度以 SQLite 核心 MVP 为准；PostgreSQL 切换验证使用独立的发布前检查表，不回退或阻塞核心里程碑。
+M01～M11 的本地作品集闭环已经完成：39 条真实岗位 Parser 评测、Playwright E2E 与演示素材、字节跳动 / 腾讯专用 Adapter、超时发现任务恢复、评测契约、AgentRun 汇总和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 与官方公司注册表已经可重复测试。这个结论限定于 SQLite 单机作品集场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1052,7 +1135,7 @@ jobflow-agent/
 
 ### 阶段 C：轻量岗位发现
 
-实现岗位链接读取、URL 安全检查、1 个真实招聘来源 Adapter、岗位标准化和去重、用户手动触发发现以及岗位发现页。第 2 个招聘来源和定时同步为可选扩展。
+实现岗位链接读取、URL 安全检查、40 家官方招聘入口注册、字节跳动 / 腾讯专用 Adapter、官网岗位聚合、岗位标准化和去重、严格 / 拓展分层、严格匹配前 5 条自动分析以及岗位发现页。定时同步和 Playwright 动态页面回退为可选扩展。
 
 完成条件：
 
@@ -1075,7 +1158,7 @@ jobflow-agent/
 → unknown、读取失败和无证据场景可以正常展示
 ```
 
-第 2 个来源、5～10 个来源规模、100～300 条岗位、岗位快照、变化检测和复杂 Playwright 回退属于核心 MVP 完成后的扩展目标。
+更多来源、100～300 条岗位、岗位快照、变化检测和复杂 Playwright 动态页面回退属于核心 MVP 完成后的扩展目标；第 2 个大厂专用来源已由 `TencentAdapter` 完成。
 
 在当前阶段达到完成条件之前，不进入下一阶段。
 

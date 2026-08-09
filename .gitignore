@@ -19,3 +19,8 @@ frontend/node_modules/
 frontend/.next/
 frontend/.env.local
 frontend/tsconfig.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
+
+# Personal resume data drafts
+data/local_resume_profile_draft.json

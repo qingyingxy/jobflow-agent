@@ -305,6 +305,25 @@ POST /api/jobs/{job_id}/parse
 
 默认 `STRUCTURED_MODEL_PROVIDER=fake`，本地开发无需模型密钥。真实模型使用 `STRUCTURED_MODEL_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`、`LLM_RESPONSE_FORMAT` 和 `LLM_TIMEOUT_SECONDS` 配置。`LLM_RESPONSE_FORMAT=auto` 会为 DeepSeek 选择 JSON Object 模式，其他兼容服务默认使用 JSON Schema 模式；Parser 仍通过统一 Client 接口工作，并在响应后执行相同的 Pydantic 和原文证据校验。
 
+发现阶段和详情阶段使用两档解析深度，避免让所有岗位都承担完整 JD 输出的模型成本：
+
+```text
+发现池 / M11 字段评测
+→ CoreJDParser
+→ job_type + locations + required_skills
+→ 本地技能规范化与原文证据定位
+→ 排序、资格初筛或交给用户
+
+用户打开详情 / 完整分析
+→ StagedJDParser
+→ CoreJDParser + DetailJDParser
+→ 本地证据定位与结构组装
+→ StructuredJobDescription
+→ Eligibility + Evidence Matcher + Score
+```
+
+`CoreJDParser` 和 `DetailJDParser` 不是两套岗位事实。`StagedJDParser` 会把两次小模型输出和本地原文证据组装成原有的 `StructuredJobDescription`；详情页、资格判断、证据匹配和评分仍然只读取这一套最终结构。旧 `JDParser` 保留用于兼容测试和对照实验，真实 API 默认使用 `StagedJDParser`。
+
 ### 5.2 EligibilityChecker
 
 M05 将资格判断与技能匹配分开。`SearchPreferences` 是用户偏好的唯一输入 Schema，至少包含：
@@ -444,12 +463,16 @@ M09 已实现 `SuggestionService`：生成阶段复用 M04 的 `StructuredModelC
 ### 5.6 DiscoveryService（M10 已完成）
 
 ```text
-用户输入公开来源入口
+用户输入自然语言求职目标
+→ 用户多选目标公司
+→ 官方公司来源注册表按 company_ids 过滤（共登记 40 家）
 → URL / DNS / 重定向安全检查
-→ 真实招聘来源 Adapter
-→ 标准化和去重
+→ ByteDanceAdapter / TencentAdapter / OfficialCompanyRegistryAdapter 读取公开接口或官网详情链接
+→ 标准化、目标相关性排序和去重（最多 20 条）
 → DiscoveryRun
 → JobPosting + DISCOVERED CandidateJob
+→ 持久化严格匹配 / 拓展候选及放宽原因
+→ 后台只自动分析严格匹配中排序靠前的 5 条
 ```
 
 Adapter 接口：
@@ -462,7 +485,9 @@ class JobSourceAdapter(Protocol):
     async def fetch_job(self, source_job_id: str) -> JobStub: ...
 ```
 
-M10 已完成 Greenhouse 公开 Job Board API Adapter、Generic HTML Reader、SQLite `DiscoveryRun` 迁移、岗位来源字段和复合去重索引。每次用户手动触发都保存来源、状态、发现/新增/重复数量、失败摘要和起止时间；发现页只做保存、忽略和进入分析，打开详情后才执行完整分析。
+M10 已完成 Greenhouse 公开 Job Board API Adapter、ByteDance / Tencent 公开职位接口 Adapter、Official Company Registry（40 家官方入口）、Generic HTML Reader、SQLite `DiscoveryRun` 迁移、岗位来源字段和复合去重索引。固定解析器和 Adapter 作为 Discovery Agent 的受控工具；每次用户即时触发都保存搜索目标、来源、状态、发现/新增/重复数量、严格匹配 / 拓展候选、分析进度，以及 `plan / act / observe / fallback / human_gate / stop` 决策轨迹。系统只自动分析严格匹配前 5 条，拓展候选保留地点、招聘类型或方向的放宽原因。官网聚合任务使用 FastAPI `BackgroundTasks` 执行一次，不做定时同步；超时运行会自动结束并允许重试，前端轮询 `GET /api/discovery/runs/{run_id}` 展示进度和工具回退原因。指定 Greenhouse URL 仍保留为高级入口。
+
+本地网络使用 Mihomo/Clash Fake-IP 时，`SafeHTTPReader` 支持通过 `URL_FETCH_PROXY` 显式使用 HTTP 代理；`URL_FETCH_PROXY_ALLOW_UNLISTED_HOSTS` 仅在本地代理能够负责公网 DNS、且需要跟随官方页面跳转到外部 ATS 时开启。默认仍按解析到的公网 IP 校验，不能通过放宽校验来访问内网地址。
 
 ## 6. URL 读取与安全
 
@@ -520,6 +545,8 @@ POST /api/suggestions/{suggestion_id}/decide
 
 POST /api/discovery/runs
 GET  /api/discovery/runs
+POST /api/discovery/search
+GET  /api/discovery/runs/{run_id}
 ```
 
 API 只负责请求校验、身份识别、调用 Service 和错误转换。
@@ -562,7 +589,7 @@ M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `D
 
 ### C：轻量岗位发现
 
-完成：岗位 URL 读取、SSRF 防护、1 个真实来源 Adapter、用户手动触发发现、岗位标准化和去重、岗位发现页。
+完成：岗位 URL 读取、SSRF 防护、40 家公司官方入口注册、字节跳动 / 腾讯专用 Adapter、官方官网岗位聚合、用户即时触发发现、最多 20 条岗位去重、严格 / 拓展分层、严格匹配前 5 条自动分析、岗位发现页和进度查询。
 
 验收：
 
@@ -574,7 +601,7 @@ M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `D
 → 选择岗位后运行完整分析
 ```
 
-第 2 个来源、定时同步和 Playwright 为可选项。
+Greenhouse 指定来源、定时同步和 Playwright 为可选项；当前搜索不调用第三方搜索服务。
 
 ### D：评测与演示
 
@@ -582,7 +609,7 @@ M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `D
 
 验收：最终运行前已冻结 Evaluation Manifest、指标口径和发布阈值；评测可重复运行并记录模型、提示词和数据集版本；原始模型输出和 Validator 后结果分别报告，用户可见 Unsupported Claim Rate 为 0；真实岗位发现到申请管理可以完整演示；unknown、无证据和读取失败场景可以正常处理。
 
-当前自动化阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、真实/Fixture prediction 生成、证据边界 Validator、字段/资格/证据/失败码指标、AgentRun 汇总和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，`docs/EVALUATION.md` 记录空值、分母、阈值、运行元数据和最终评测规则。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果。下一步只剩补充人工标注 `eval` 集、用真实模型跑结果，再做真实岗位演示和截图。
+当前本地作品集阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、真实/Fixture prediction 生成、证据边界 Validator、字段/资格/证据/失败码指标、AgentRun 汇总和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，另有 39 条公开岗位严格 `eval` 子集完成 Core / Staged 真实模型运行。`docs/EVALUATION.md` 记录空值、分母、运行元数据、实际指标和适用范围，Playwright E2E 可重复生成 PNG / GIF。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果；对外作为正式基准发布前仍需独立人工复核标签。
 
 ## 9. 测试重点
 
