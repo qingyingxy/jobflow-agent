@@ -107,12 +107,45 @@ def test_field_metrics_use_set_precision_recall_and_null_semantics() -> None:
     report = evaluate_manifest(manifest, [prediction])
     fields = report["validated"]["fields"]
 
+    assert fields["job_type"]["exact_match_accuracy"] == 1.0
     assert fields["job_type"]["precision"] == 1.0
     assert fields["job_type"]["recall"] == 1.0
+    assert fields["locations"]["exact_match_accuracy"] == 0.0
     assert fields["locations"]["precision"] == 0.5
     assert fields["locations"]["recall"] == 1.0
+    assert fields["required_skills"]["exact_match_accuracy"] == 0.0
     assert fields["required_skills"]["precision"] is None
     assert fields["required_skills"]["recall"] == 0.0
+    assert report["successful_prediction_count"] == 1
+    assert report["success_rate"] == 1.0
+    assert report["timeout_count"] == 0
+    assert report["timeout_rate"] == 0.0
+    assert report["validated"]["supported_claim_count"] == 0
+
+
+def test_report_exposes_failure_codes_and_timeout_rate() -> None:
+    cases = [make_case(case_id="case-success"), make_case(case_id="case-timeout")]
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["job_type"],
+        cases=cases,
+    )
+    predictions = [
+        PredictionRecord(case_id="case-success"),
+        PredictionRecord(case_id="case-timeout", failure_code="model_timeout"),
+    ]
+
+    report = evaluate_manifest(manifest, predictions)
+
+    assert report["successful_prediction_count"] == 1
+    assert report["success_rate"] == 0.5
+    assert report["failure_codes"] == {"model_timeout": 1}
+    assert report["timeout_count"] == 1
+    assert report["timeout_rate"] == 0.5
 
 
 def test_report_separates_raw_output_from_validated_output() -> None:

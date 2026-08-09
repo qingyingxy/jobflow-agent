@@ -13,6 +13,7 @@ from src.evaluation.models import (
 )
 from src.evaluation.predict import generate_predictions
 from src.infrastructure.llm_client import FakeModelClient
+from src.services.core_jd_parser import CoreJDParser
 from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_parser import JDParser
 
@@ -142,3 +143,62 @@ async def test_generate_predictions_reports_missing_raw_input_without_guessing()
     assert prediction.failure_code == "input_not_available"
     assert prediction.fields == {}
     assert prediction.matches == []
+
+
+@pytest.mark.asyncio
+async def test_generate_predictions_parser_only_skips_user_context() -> None:
+    prediction_file = await generate_predictions(
+        make_manifest(),
+        parser=JDParser(FakeModelClient(output=valid_jd_output())),
+        matcher=EvidenceMatcher(
+            FakeModelClient(
+                error=AssertionError("parser-only evaluation must not call matcher")
+            )
+        ),
+        evidence=[],
+        parser_only=True,
+    )
+
+    prediction = prediction_file.predictions[0]
+    assert prediction.fields == {
+        "job_type": "internship",
+        "locations": ["北京"],
+        "required_skills": ["RAG"],
+    }
+    assert prediction.eligibility is None
+    assert prediction.matches == []
+
+
+@pytest.mark.asyncio
+async def test_generate_predictions_supports_core_parser_mode() -> None:
+    prediction_file = await generate_predictions(
+        make_manifest(),
+        parser=CoreJDParser(
+            FakeModelClient(
+                output={
+                    "job_type": "internship",
+                    "locations": ["北京"],
+                    "required_skills": ["RAG"],
+                }
+            ),
+            validation_retries=0,
+        ),
+        matcher=EvidenceMatcher(
+            FakeModelClient(
+                error=AssertionError("core parser mode must not call matcher")
+            )
+        ),
+        evidence=[],
+        parser_only=True,
+        parser_mode="core",
+    )
+
+    prediction = prediction_file.predictions[0]
+    assert prediction.fields == {
+        "job_type": "internship",
+        "locations": ["北京"],
+        "required_skills": ["RAG"],
+    }
+    assert prediction.eligibility is None
+    assert prediction.matches == []
+    assert prediction.failure_code is None

@@ -17,19 +17,21 @@ from src.infrastructure.llm_client import (
     ModelClientError,
     create_structured_model_client,
 )
+from src.services.company_registry import enabled_company_source_hosts
+from src.services.discovery_sources import GreenhouseAdapter
 from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_analysis_service import (
     AnalysisContentChangedError,
     JDAnalysisFailure,
     JDAnalysisService,
 )
-from src.services.jd_parser import JDParser
 from src.services.job_parse_service import (
     JDParseFailure,
     JobNotFoundError,
     JobParseService,
 )
 from src.services.job_service import JobImportService
+from src.services.staged_jd_parser import StagedJDParser
 from src.services.url_reader import (
     SafeHTTPReader,
     URLFetchTimeout,
@@ -42,7 +44,15 @@ router = APIRouter(prefix="/api", tags=["jobs"])
 
 
 def create_http_reader() -> SafeHTTPReader:
-    return SafeHTTPReader()
+    settings = get_settings()
+    allowed_hosts = enabled_company_source_hosts()
+    allowed_hosts.update(GreenhouseAdapter.supported_hosts)
+    allowed_hosts.add(GreenhouseAdapter.api_host)
+    return SafeHTTPReader(
+        proxy=settings.url_fetch_proxy,
+        proxy_allowed_hosts=allowed_hosts,
+        proxy_allow_unlisted_hosts=settings.url_fetch_proxy_allow_unlisted_hosts,
+    )
 
 
 def _url_reader_error(error: URLReaderError) -> HTTPException:
@@ -160,10 +170,13 @@ async def parse_job(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = JDParser(
+    parser = StagedJDParser(
         client,
-        prompt_version=settings.prompt_version,
-        parser_version=settings.parser_version,
+        prompt_version=settings.staged_prompt_version,
+        parser_version=settings.staged_parser_version,
+        core_prompt_version=settings.core_prompt_version,
+        detail_prompt_version=settings.detail_prompt_version,
+        validation_retries=settings.parser_validation_retries,
     )
     try:
         execution = await JobParseService(session, parser).parse(
@@ -214,10 +227,13 @@ async def analyze_job(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = JDParser(
+    parser = StagedJDParser(
         client,
-        prompt_version=settings.prompt_version,
-        parser_version=settings.parser_version,
+        prompt_version=settings.staged_prompt_version,
+        parser_version=settings.staged_parser_version,
+        core_prompt_version=settings.core_prompt_version,
+        detail_prompt_version=settings.detail_prompt_version,
+        validation_retries=settings.parser_validation_retries,
     )
     matcher = EvidenceMatcher(client)
     try:

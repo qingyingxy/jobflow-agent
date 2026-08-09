@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import json
 import re
@@ -115,6 +116,10 @@ class DemoModelClient:
         self.last_request = request
         if request.schema_name == "job_description":
             output = _demo_job_description(request)
+        elif request.schema_name == "core_job_fields":
+            output = _demo_core_job_fields(request)
+        elif request.schema_name == "detail_job_fields":
+            output = _demo_detail_job_fields(request)
         elif request.schema_name == "requirement_match":
             output = _demo_requirement_match(request)
         elif request.schema_name == "resume_suggestion":
@@ -233,6 +238,37 @@ def _demo_job_description(request: StructuredModelRequest) -> dict[str, Any]:
     return output
 
 
+def _demo_core_job_fields(request: StructuredModelRequest) -> dict[str, Any]:
+    output = _demo_job_description(request)
+    return {
+        field_name: output.get(field_name)
+        for field_name in ("job_type", "locations", "required_skills")
+    }
+
+
+def _demo_detail_job_fields(request: StructuredModelRequest) -> dict[str, Any]:
+    output = _demo_job_description(request)
+    return {
+        field_name: output.get(field_name)
+        for field_name in (
+            "company",
+            "title",
+            "graduation_years",
+            "recruitment_batch",
+            "education_requirements",
+            "major_requirements",
+            "preferred_skills",
+            "internship_duration_months",
+            "weekly_days",
+            "earliest_start_date",
+            "deadline",
+            "application_url",
+            "qualification_conditions",
+            "requirements",
+        )
+    }
+
+
 def _demo_requirement_match(request: StructuredModelRequest) -> dict[str, Any]:
     content = request.messages[-1].content
     evidence_marker = "候选证据："
@@ -309,7 +345,9 @@ class OpenAICompatibleModelClient:
         api_key: str | None,
         model: str,
         response_format: Literal["json_schema", "json_object"] = "json_schema",
-        timeout_seconds: float = 30.0,
+        timeout_seconds: float = 120.0,
+        max_retries: int = 2,
+        retry_backoff_seconds: float = 1.5,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._endpoint = (
@@ -321,6 +359,8 @@ class OpenAICompatibleModelClient:
         self._model = model
         self._response_format = response_format
         self._timeout_seconds = timeout_seconds
+        self._max_retries = max(0, max_retries)
+        self._retry_backoff_seconds = max(0.0, retry_backoff_seconds)
         self._transport = transport
 
     @property
@@ -328,6 +368,24 @@ class OpenAICompatibleModelClient:
         return self._model
 
     async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
+        last_error: ModelClientError | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                return await self._generate_once(request)
+            except ModelClientError as error:
+                last_error = error
+                if attempt >= self._max_retries or not self._is_retryable(error):
+                    raise
+                delay = self._retry_backoff_seconds * (2**attempt)
+                if delay:
+                    await asyncio.sleep(delay)
+        assert last_error is not None
+        raise last_error
+
+    async def _generate_once(
+        self,
+        request: StructuredModelRequest,
+    ) -> StructuredModelResponse:
         if self._response_format == "json_object":
             response_format: dict[str, Any] = {"type": "json_object"}
         else:
@@ -402,6 +460,17 @@ class OpenAICompatibleModelClient:
         )
 
     @staticmethod
+    def _is_retryable(error: ModelClientError) -> bool:
+        if isinstance(error, (ModelTimeoutError, ModelUnavailableError)):
+            return True
+        if isinstance(error, ModelResponseError):
+            status_code = error.details.get("status_code")
+            return status_code == 429 or (
+                isinstance(status_code, int) and status_code >= 500
+            )
+        return False
+
+    @staticmethod
     def _decode_json_object(content: str) -> dict[str, Any]:
         normalized = content.strip()
         if normalized.startswith("```") and normalized.endswith("```"):
@@ -448,5 +517,7 @@ def create_structured_model_client(settings: Settings) -> StructuredModelClient:
             model=settings.llm_model,
             response_format=response_format,
             timeout_seconds=settings.llm_timeout_seconds,
+            max_retries=settings.llm_max_retries,
+            retry_backoff_seconds=settings.llm_retry_backoff_seconds,
         )
     raise ModelClientError(f"不支持的结构化模型提供方: {provider}")

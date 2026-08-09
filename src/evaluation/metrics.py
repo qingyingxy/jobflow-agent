@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from collections import Counter
 from typing import Any
 
 from src.evaluation.models import (
@@ -56,6 +57,7 @@ def validate_prediction(
         eligibility=prediction.eligibility,
         matches=validated_matches,
         failure_code=prediction.failure_code,
+        failure_details=prediction.failure_details,
     )
 
 
@@ -87,6 +89,20 @@ def evaluate_manifest(
         validated_predictions,
         manifest.fields,
     )
+    scoped_predictions = [
+        prediction
+        for prediction in predictions
+        if prediction.case_id in cases_by_id
+    ]
+    failure_codes = Counter(
+        prediction.failure_code
+        for prediction in scoped_predictions
+        if prediction.failure_code is not None
+    )
+    successful_prediction_count = sum(
+        prediction.failure_code is None for prediction in scoped_predictions
+    )
+    timeout_count = failure_codes.get("model_timeout", 0)
     report: EvaluationReport = {
         "manifest_version": manifest.manifest_version,
         "dataset_version": manifest.dataset_version,
@@ -96,6 +112,11 @@ def evaluate_manifest(
         "prediction_failure_count": sum(
             prediction.failure_code is not None for prediction in predictions
         ),
+        "successful_prediction_count": successful_prediction_count,
+        "success_rate": _ratio(successful_prediction_count, len(cases_by_id)),
+        "failure_codes": dict(sorted(failure_codes.items())),
+        "timeout_count": timeout_count,
+        "timeout_rate": _ratio(timeout_count, len(cases_by_id)),
         "missing_prediction_count": len(missing_ids),
         "missing_case_ids": missing_ids,
         "extra_prediction_case_ids": extra_ids,
@@ -128,6 +149,10 @@ def _metric_bundle(
         for result in field_metrics.values()
         if result["f1"] is not None
     ]
+    supported_claim_count, unsupported_claim_count = _unsupported_claim_counts(
+        cases_by_id,
+        predictions_by_id,
+    )
     return {
         "fields": field_metrics,
         "macro_f1": _safe_average(macro_values),
@@ -142,6 +167,8 @@ def _metric_bundle(
             cases_by_id,
             predictions_by_id,
         ),
+        "supported_claim_count": supported_claim_count,
+        "unsupported_claim_count": unsupported_claim_count,
         "failure_accuracy": _failure_accuracy(cases_by_id, predictions_by_id),
     }
 
@@ -155,12 +182,17 @@ def _field_metric(
     false_positive = 0
     false_negative = 0
     labeled_cases = 0
+    exact_match_cases = 0
     for case_id, case in cases_by_id.items():
         if field_name not in case.expected.fields:
             continue
         labeled_cases += 1
-        expected = _value_set(case.expected.fields[field_name])
-        predicted = _value_set(predictions_by_id[case_id].fields.get(field_name))
+        expected = _value_set(case.expected.fields[field_name], field_name=field_name)
+        predicted = _value_set(
+            predictions_by_id[case_id].fields.get(field_name),
+            field_name=field_name,
+        )
+        exact_match_cases += expected == predicted
         true_positive += len(expected & predicted)
         false_positive += len(predicted - expected)
         false_negative += len(expected - predicted)
@@ -170,6 +202,7 @@ def _field_metric(
     f1 = _f1(precision, recall)
     return {
         "labeled_case_count": labeled_cases,
+        "exact_match_accuracy": _ratio(exact_match_cases, labeled_cases),
         "tp": true_positive,
         "fp": false_positive,
         "fn": false_negative,
@@ -272,6 +305,17 @@ def _unsupported_claim_rate(
     cases_by_id: dict[str, EvaluationCase],
     predictions_by_id: dict[str, PredictionRecord],
 ) -> float:
+    claims, unsupported_claims = _unsupported_claim_counts(
+        cases_by_id,
+        predictions_by_id,
+    )
+    return unsupported_claims / claims if claims else 0.0
+
+
+def _unsupported_claim_counts(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> tuple[int, int]:
     claims = 0
     unsupported_claims = 0
     for case_id, case in cases_by_id.items():
@@ -282,7 +326,7 @@ def _unsupported_claim_rate(
             expected_ids = set(case.expected.evidence.get(match.requirement_key, []))
             if not expected_ids or not expected_ids.intersection(match.evidence_ids):
                 unsupported_claims += 1
-    return unsupported_claims / claims if claims else 0.0
+    return claims, unsupported_claims
 
 
 def _validator_summary(
@@ -342,18 +386,21 @@ def _threshold_results(
     return results
 
 
-def _value_set(value: Any) -> set[str]:
+def _value_set(value: Any, *, field_name: str | None = None) -> set[str]:
     if value is None:
         return set()
     if isinstance(value, list):
-        return {_canonical(item) for item in value}
-    return {_canonical(value)}
+        return {_canonical(item, field_name=field_name) for item in value}
+    return {_canonical(value, field_name=field_name)}
 
 
-def _canonical(value: Any) -> str:
+def _canonical(value: Any, *, field_name: str | None = None) -> str:
     if isinstance(value, str):
         normalized = unicodedata.normalize("NFKC", value).strip().casefold()
-        return re.sub(r"\s+", " ", normalized)
+        normalized = re.sub(r"\s+", " ", normalized)
+        if field_name == "locations" and normalized.endswith("市"):
+            normalized = normalized[:-1]
+        return normalized
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 

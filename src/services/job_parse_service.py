@@ -21,6 +21,7 @@ from src.domain.runs import (
     generate_parse_result_id,
 )
 from src.services.jd_parser import JDParser, JDParserError, ParsedJobDescription
+from src.services.staged_jd_parser import StagedJDParser
 
 
 class JobNotFoundError(LookupError):
@@ -49,7 +50,7 @@ class JobParseExecution:
 
 
 class JobParseService:
-    def __init__(self, session: Session, parser: JDParser) -> None:
+    def __init__(self, session: Session, parser: JDParser | StagedJDParser) -> None:
         self.session = session
         self.parser = parser
 
@@ -95,6 +96,12 @@ class JobParseService:
             source_url=posting.source_url,
             source_type=posting.source_type,
             raw_content=posting.raw_content,
+            source_metadata={
+                "company": posting.company,
+                "title": posting.title,
+                "job_type": posting.job_type,
+                "locations": posting.locations or [],
+            },
             retrieved_at=posting.retrieved_at,
             trace_id=posting.trace_id,
         )

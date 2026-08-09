@@ -96,6 +96,7 @@ class RawJobDocument(BaseModel):
     source_url: str | None = Field(default=None, max_length=2048)
     source_type: str = Field(default="manual_text", min_length=1, max_length=40)
     raw_content: str = Field(min_length=20)
+    source_metadata: dict[str, Any] = Field(default_factory=dict)
     retrieved_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     trace_id: str = Field(default_factory=generate_trace_id, max_length=64)
 
@@ -110,6 +111,7 @@ class FieldEvidence(BaseModel):
 
     field_path: str = Field(min_length=1, max_length=160)
     source_text: str = Field(min_length=1)
+    source_kind: Literal["body", "metadata"] = "body"
     start_char: int | None = Field(default=None, ge=0)
     end_char: int | None = Field(default=None, ge=0)
 
@@ -278,11 +280,15 @@ def validate_field_evidence(
         for condition in structured.qualification_conditions or []:
             all_evidence.extend(condition.evidence or [])
         for evidence in all_evidence:
-            if evidence.source_text not in source_content:
+            if evidence.source_kind == "body" and evidence.source_text not in source_content:
                 raise ValueError(
                     f"字段 {evidence.field_path} 的原文依据不在岗位文本中"
                 )
-            if evidence.end_char is not None and evidence.end_char > len(source_content):
+            if (
+                evidence.source_kind == "body"
+                and evidence.end_char is not None
+                and evidence.end_char > len(source_content)
+            ):
                 raise ValueError(
                     f"字段 {evidence.field_path} 的原文位置超出岗位文本范围"
                 )

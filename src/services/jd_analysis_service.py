@@ -38,6 +38,7 @@ from src.services.job_parse_service import (
     JobParseService,
 )
 from src.services.match_score import calculate_match_score
+from src.services.staged_jd_parser import StagedJDParser
 
 
 class JDAnalysisFailure(RuntimeError):
@@ -137,7 +138,7 @@ class JDAnalysisService:
         self,
         session: Session,
         *,
-        parser: JDParser | None = None,
+        parser: JDParser | StagedJDParser | None = None,
         matcher: EvidenceMatcher | None = None,
     ) -> None:
         self.session = session

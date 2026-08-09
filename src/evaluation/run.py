@@ -23,15 +23,56 @@ def main() -> int:
     arguments = _parse_args()
     manifest = _load_manifest(Path(arguments.manifest))
     prediction_file = _load_predictions(Path(arguments.predictions))
+    evaluation_manifest = manifest
+    evaluation_predictions = prediction_file.predictions
+    evaluation_scope = {
+        "mode": "all_predictions",
+        "source_case_count": len(
+            [case for case in manifest.cases if case.split == manifest.split]
+        ),
+        "excluded_failure_count": 0,
+    }
+    if arguments.successful_only:
+        successful_ids = {
+            prediction.case_id
+            for prediction in prediction_file.predictions
+            if prediction.failure_code is None
+        }
+        evaluation_cases = [
+            case
+            for case in manifest.cases
+            if case.split == manifest.split and case.id in successful_ids
+        ]
+        if not evaluation_cases:
+            raise SystemExit("--successful-only 没有可评测的成功预测")
+        evaluation_manifest = manifest.model_copy(update={"cases": evaluation_cases})
+        evaluation_predictions = [
+            prediction
+            for prediction in prediction_file.predictions
+            if prediction.failure_code is None and prediction.case_id in successful_ids
+        ]
+        evaluation_scope = {
+            "mode": "successful_predictions_only",
+            "source_case_count": len(
+                [case for case in manifest.cases if case.split == manifest.split]
+            ),
+            "evaluated_case_count": len(evaluation_cases),
+            "excluded_failure_count": 0,
+        }
+        evaluation_scope["excluded_failure_count"] = (
+            evaluation_scope["source_case_count"]
+            - evaluation_scope["evaluated_case_count"]
+        )
     model = arguments.model or prediction_file.model
     prompt_version = arguments.prompt_version or prediction_file.prompt_version
     report = evaluate_manifest(
-        manifest,
-        prediction_file.predictions,
+        evaluation_manifest,
+        evaluation_predictions,
         model=model,
         prompt_version=prompt_version,
         validator_version=arguments.validator_version,
     )
+    report["evaluation_scope"] = evaluation_scope
     report["prediction_version"] = prediction_file.prediction_version
     report["prediction_generation"] = {
         "model": prediction_file.model,
@@ -90,6 +131,11 @@ def _parse_args() -> argparse.Namespace:
         "--seed",
         type=int,
         help="Optional generation seed recorded in run metadata",
+    )
+    parser.add_argument(
+        "--successful-only",
+        action="store_true",
+        help="只统计没有 failure_code 的成功预测，补充排除模型调用失败影响的指标",
     )
     return parser.parse_args()
 

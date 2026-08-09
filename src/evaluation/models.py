@@ -38,6 +38,9 @@ class ExpectedLabels(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     fields: dict[str, Any] = Field(default_factory=dict)
+    # Exact technical mentions kept for traceability; not part of the main
+    # metric unless explicitly added to EvaluationManifest.fields.
+    skill_mentions: list[str] = Field(default_factory=list)
     eligibility: EligibilityStatus | None = None
     evidence: dict[str, list[str]] = Field(default_factory=dict)
     failure_code: str | None = Field(default=None, max_length=80)
@@ -105,6 +108,7 @@ class PredictionRecord(BaseModel):
     eligibility: EligibilityStatus | None = None
     matches: list[PredictionMatch] = Field(default_factory=list)
     failure_code: str | None = Field(default=None, max_length=80)
+    failure_details: dict[str, Any] = Field(default_factory=dict)
 
 
 class PredictionFile(BaseModel):

@@ -14,11 +14,28 @@ from src.infrastructure.llm_client import (
     ModelTimeoutError,
     OpenAICompatibleModelClient,
     StructuredModelRequest,
+    StructuredModelResponse,
     create_structured_model_client,
 )
 from src.services.jd_parser import JDParser, JDParserError
 
 JOB_TEXT = "示例公司招聘 AI 应用开发实习生，熟悉 RAG，工作地点为北京。"
+
+
+class SequenceModelClient:
+    model_name = "sequence-model"
+
+    def __init__(self, outputs: list[dict[str, object]]) -> None:
+        self.outputs = outputs
+        self.requests: list[StructuredModelRequest] = []
+
+    async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
+        self.requests.append(request)
+        return StructuredModelResponse(
+            output=self.outputs.pop(0),
+            model=self.model_name,
+            provider="test",
+        )
 
 
 def document() -> RawJobDocument:
@@ -70,8 +87,68 @@ async def test_parser_returns_valid_structured_result_and_request() -> None:
     assert result.structured_jd.required_skills == ["RAG"]
     assert result.input_hash
     assert client.last_request is not None
-    assert client.last_request.prompt_version == "jd-parser-prompt-v2"
+    assert client.last_request.prompt_version == "jd-parser-prompt-v4"
+    assert "输出对象字段契约" in client.last_request.messages[0].content
     assert "岗位文本" in client.last_request.messages[1].content
+
+
+@pytest.mark.asyncio
+async def test_parser_normalizes_grouped_skill_requirements() -> None:
+    text = "示例公司招聘 Agent 实习生，要求熟悉 RAG、Agent、Prompt Engineering。"
+    output = {
+        "title": "Agent 实习生",
+        "required_skills": ["RAG、Agent、Prompt Engineering"],
+        "requirements": [
+            {
+                "category": "required_skill",
+                "name": "RAG、Agent、Prompt Engineering",
+                "description": "要求熟悉 RAG、Agent、Prompt Engineering",
+                "mandatory": True,
+                "evidence": [
+                    {
+                        "field_path": "requirements[0]",
+                        "source_text": "要求熟悉 RAG、Agent、Prompt Engineering",
+                    }
+                ],
+            }
+        ],
+        "field_evidence": [
+            {"field_path": "title", "source_text": "Agent 实习生"},
+            {
+                "field_path": "required_skills",
+                "source_text": "要求熟悉 RAG、Agent、Prompt Engineering",
+            },
+        ],
+    }
+
+    result = await JDParser(FakeModelClient(output=output)).parse(
+        RawJobDocument(raw_content=text)
+    )
+
+    assert result.structured_jd.required_skills == [
+        "RAG",
+        "Agent",
+        "Prompt Engineering",
+    ]
+    assert [
+        requirement.name for requirement in result.structured_jd.requirements or []
+    ] == ["RAG", "Agent", "Prompt Engineering"]
+
+
+@pytest.mark.asyncio
+async def test_parser_retries_after_structured_validation_failure() -> None:
+    client = SequenceModelClient(
+        [
+            {"title": "示例岗位", "field_evidence": []},
+            valid_output(),
+        ]
+    )
+
+    result = await JDParser(client).parse(document())
+
+    assert result.structured_jd.required_skills == ["RAG"]
+    assert len(client.requests) == 2
+    assert "上一轮 JSON 已返回" in client.requests[1].messages[-1].content
 
 
 @pytest.mark.asyncio
@@ -271,6 +348,44 @@ async def test_openai_compatible_client_supports_json_object_mode() -> None:
     response = await client.generate(request)
 
     assert response.output == {"field_evidence": []}
+
+
+@pytest.mark.asyncio
+async def test_openai_compatible_client_retries_transient_http_failures() -> None:
+    attempts = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            return httpx.Response(503, json={"error": "temporarily unavailable"})
+        return httpx.Response(
+            200,
+            json={
+                "model": "test-model",
+                "choices": [{"message": {"content": '{"field_evidence": []}'}}],
+            },
+        )
+
+    client = OpenAICompatibleModelClient(
+        base_url="https://model.example/v1",
+        api_key="test-key",
+        model="test-model",
+        max_retries=2,
+        retry_backoff_seconds=0,
+        transport=httpx.MockTransport(handler),
+    )
+    request = StructuredModelRequest(
+        schema_name="job_description",
+        json_schema={"type": "object"},
+        messages=[{"role": "user", "content": "parse"}],
+        prompt_version="test-v1",
+    )
+
+    response = await client.generate(request)
+
+    assert response.output == {"field_evidence": []}
+    assert attempts == 3
 
 
 def test_factory_auto_selects_json_object_for_deepseek() -> None:
