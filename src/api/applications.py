@@ -35,6 +35,7 @@ from src.services.application_service import (
     CandidateNotFoundError,
     InvalidTransitionError,
     JobPostingNotFoundError,
+    SubmissionReceiptRequiredError,
 )
 from src.services.suggestion_service import (
     InvalidSuggestionDecisionError,
@@ -118,6 +119,11 @@ def _candidate_response(view, *, session, user_id: str) -> CandidateRead:
 
 def _application_response(view) -> ApplicationRead:
     status_value = ApplicationStatus(view.application.status)
+    available_transitions = APPLICATION_TRANSITIONS[status_value]
+    if status_value is ApplicationStatus.PREPARING:
+        available_transitions = available_transitions - {
+            ApplicationStatus.SUBMITTED
+        }
     return ApplicationRead(
         id=view.application.id,
         candidate_job_id=view.application.candidate_job_id,
@@ -126,7 +132,7 @@ def _application_response(view) -> ApplicationRead:
         candidate_status=CandidateStatus(view.candidate.status),
         next_action=view.application.next_action,
         available_transitions=sorted(
-            APPLICATION_TRANSITIONS[status_value],
+            available_transitions,
             key=lambda item: item.value,
         ),
         job=_job_summary(view.posting),
@@ -331,6 +337,14 @@ def transition_application(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"code": "application_not_found", "message": "申请记录不存在"},
+        ) from error
+    except SubmissionReceiptRequiredError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "submission_receipt_required",
+                "message": str(error),
+            },
         ) from error
     except InvalidTransitionError as error:
         raise _transition_error(error) from error

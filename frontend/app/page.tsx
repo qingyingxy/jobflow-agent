@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AttemptWorkspace from "./attempt-workspace";
 import MaterialsWorkspace from "./materials-workspace";
 import PacketWorkspace from "./packet-workspace";
 
@@ -85,7 +86,7 @@ type AnalysisResponse = {
   missing_information: string[];
 };
 
-type WorkspaceMode = "profile" | "materials" | "packets" | "discover" | "analysis" | "board";
+type WorkspaceMode = "profile" | "materials" | "packets" | "attempts" | "discover" | "analysis" | "board";
 type CandidateStatus = "DISCOVERED" | "SAVED" | "IGNORED" | "CONVERTED";
 type ApplicationStatus =
   | "PREPARING"
@@ -380,8 +381,25 @@ const applicationStatusLabel: Record<ApplicationStatus, string> = {
 const applicationEventLabel: Record<string, string> = {
   ApplicationCreated: "创建申请",
   ApplicationStatusChanged: "更新申请状态",
+  ApplicationAttemptCreated: "创建投递尝试",
+  ApplicationAttemptStatusChanged: "更新投递执行",
+  ApplicationBlockerOpened: "记录投递阻塞",
+  ApplicationBlockerResolved: "解决投递阻塞",
+  SubmissionReceiptRecorded: "保存提交凭证",
+  ApplicationSubmissionVerified: "确认真实投递",
   SuggestionCreated: "生成材料建议",
   SuggestionDecisionRecorded: "记录材料决策",
+};
+
+const attemptStatusLabel: Record<string, string> = {
+  CREATED: "待打开",
+  FORM_IN_PROGRESS: "填写中",
+  NEEDS_USER: "需要用户处理",
+  BLOCKED: "已阻塞",
+  READY_TO_SUBMIT: "待确认提交",
+  SUBMITTED: "已验证投递",
+  FAILED: "本次失败",
+  ABANDONED: "已结束",
 };
 
 const candidateStatusLabel: Record<CandidateStatus, string> = {
@@ -1091,6 +1109,13 @@ export default function Home() {
             投递审核 <span>M15</span>
           </button>
           <button
+            className={mode === "attempts" ? "workspace-nav-active" : ""}
+            onClick={() => setMode("attempts")}
+            type="button"
+          >
+            投递执行 <span>M16</span>
+          </button>
+          <button
             className={mode === "discover" ? "workspace-nav-active" : ""}
             onClick={() => setMode("discover")}
             type="button"
@@ -1114,15 +1139,15 @@ export default function Home() {
         </nav>
         <div className="topbar-trail">
           <span className="topbar-path">
-            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
+            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "attempts" ? "人工投递执行台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
           </span>
-          <span className="build-pill"><span className="live-dot" />M15 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M16 / LOCAL</span>
         </div>
       </header>
 
       <section className="workspace-intro">
         <div>
-          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "discover" ? "03" : mode === "analysis" ? "04" : "05"}</p>
+          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "attempts" ? "03" : mode === "discover" ? "04" : mode === "analysis" ? "05" : "06"}</p>
           {mode === "profile" ? (
             <h1>
               先把经历写清楚，
@@ -1137,6 +1162,11 @@ export default function Home() {
             <h1>
               先冻结每项材料，
               <em>再批准版本。</em>
+            </h1>
+          ) : mode === "attempts" ? (
+            <h1>
+              只有真实凭证，
+              <em>才算完成投递。</em>
             </h1>
           ) : mode === "analysis" ? (
             <h1>
@@ -1165,6 +1195,8 @@ export default function Home() {
             ? "把联系方式、工作资格、简历版本和确认答案放进独立私密边界。缺失与拒绝保存会被明确保留，不会被 Agent 猜测。"
             : mode === "packets"
             ? "逐项核对岗位快照、简历版本、经历证据和敏感答案。批准只绑定一个不可原地修改的冻结修订。"
+            : mode === "attempts"
+            ? "打开官网、填写表单、记录阻塞和保存成功凭证。申请只会在凭证通过校验后进入已投递。"
             : mode === "discover"
             ? "从登记的公司官方招聘入口即时读取岗位，最多保存 20 条，只自动分析严格匹配中的前 5 条。"
             : mode === "analysis"
@@ -1179,6 +1211,8 @@ export default function Home() {
         <MaterialsWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "packets" ? (
         <PacketWorkspace apiUrl={apiUrl} userId={userId} />
+      ) : mode === "attempts" ? (
+        <AttemptWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "analysis" ? <section className="analysis-layout">
         <aside className="intake-panel">
           <div className="section-kicker"><span>01</span> {manualHandoffLeadId ? "人工接管线索" : "导入岗位"}</div>
@@ -3006,6 +3040,29 @@ function eventDescription(event: ApplicationEvent): string {
     const finalTextPresent = event.payload.final_text_present === true;
     const decisionLabel = decision === "reject" ? "拒绝建议" : decision === "edit" ? "编辑后接受" : "接受建议";
     return `${decisionLabel} · ${finalTextPresent ? "已保存最终文本" : "未保存最终文本"}`;
+  }
+  if (event.event_type === "ApplicationAttemptCreated") {
+    return `已绑定投递包版本 ${String(event.payload.packet_revision_id ?? "").slice(-8).toUpperCase()}，尚未打开表单`;
+  }
+  if (event.event_type === "ApplicationAttemptStatusChanged") {
+    const from = String(event.payload.from_status ?? "");
+    const to = String(event.payload.to_status ?? "");
+    return `${attemptStatusLabel[from] ?? from} → ${attemptStatusLabel[to] ?? to}`;
+  }
+  if (event.event_type === "ApplicationBlockerOpened") {
+    const category = String(event.payload.category ?? "other");
+    return `暂停填写并记录 ${category} 阻塞，等待解决后继续`;
+  }
+  if (event.event_type === "ApplicationBlockerResolved") {
+    const remaining = Number(event.payload.remaining_open_blockers ?? 0);
+    return `阻塞已解决 · 仍有 ${remaining} 项待处理`;
+  }
+  if (event.event_type === "SubmissionReceiptRecorded") {
+    const codes = Array.isArray(event.payload.validation_codes) ? event.payload.validation_codes : [];
+    return `凭证已冻结 · ${codes.length} 类成功证据通过校验，申请状态尚未改变`;
+  }
+  if (event.event_type === "ApplicationSubmissionVerified") {
+    return "投递包、执行记录与真实凭证已关联，申请进入已投递";
   }
   return "用户确认创建申请记录";
 }

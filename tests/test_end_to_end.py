@@ -112,14 +112,13 @@ async def test_manual_jd_to_approved_application_timeline(monkeypatch) -> None:
     assert decided.status_code == 200
     assert decided.json()["status"] == "ACCEPTED"
     assert decided.json()["final_text"]
-    assert submitted.status_code == 200
-    assert submitted.json()["status"] == "SUBMITTED"
+    assert submitted.status_code == 409
+    assert submitted.json()["error"]["code"] == "submission_receipt_required"
     assert events.status_code == 200
     assert [item["event_type"] for item in events.json()] == [
         "ApplicationCreated",
         "SuggestionCreated",
         "SuggestionDecisionRecorded",
-        "ApplicationStatusChanged",
     ], events.json()
 
 

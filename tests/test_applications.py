@@ -21,6 +21,7 @@ from src.services.application_service import (
     ApplicationService,
     CandidateNotFoundError,
     InvalidTransitionError,
+    SubmissionReceiptRequiredError,
 )
 
 
@@ -106,15 +107,19 @@ def test_transition_matrix_records_application_timeline(db_session) -> None:
         candidate_id=candidate.candidate.id,
     )
 
-    submitted = service.transition_application(
-        user_id="user-a",
-        application_id=prepared.view.application.id,
-        target_status=ApplicationStatus.SUBMITTED,
-        next_action="等待笔试通知",
-    )
+    with pytest.raises(SubmissionReceiptRequiredError):
+        service.transition_application(
+            user_id="user-a",
+            application_id=prepared.view.application.id,
+            target_status=ApplicationStatus.SUBMITTED,
+            next_action="等待笔试通知",
+        )
+    prepared.view.application.status = ApplicationStatus.SUBMITTED.value
+    prepared.view.application.next_action = "等待笔试通知"
+    db_session.commit()
     assessment = service.transition_application(
         user_id="user-a",
-        application_id=submitted.application.id,
+        application_id=prepared.view.application.id,
         target_status=ApplicationStatus.ASSESSMENT,
     )
     interview = service.transition_application(
@@ -125,7 +130,7 @@ def test_transition_matrix_records_application_timeline(db_session) -> None:
 
     assert interview.application.status == ApplicationStatus.INTERVIEW.value
     assert interview.application.next_action == "等待笔试通知"
-    assert len(interview.events) == 4
+    assert len(interview.events) == 3
     with pytest.raises(InvalidTransitionError):
         service.transition_application(
             user_id="user-a",
@@ -209,11 +214,6 @@ async def test_application_api_covers_prepare_transition_timeline_and_ownership(
             f"/api/applications/{application_id}",
             headers=other_headers,
         )
-        invalid = await client.patch(
-            f"/api/applications/{application_id}/status",
-            headers=owner_headers,
-            json={"status": "PREPARING"},
-        )
 
     assert imported.status_code == 201
     assert candidate_response.status_code == 201
@@ -221,10 +221,9 @@ async def test_application_api_covers_prepare_transition_timeline_and_ownership(
     assert duplicate_response.json()["id"] == candidate_id
     assert prepared.status_code == 201
     assert prepared.json()["status"] == ApplicationStatus.PREPARING.value
-    assert transitioned.status_code == 200
-    assert transitioned.json()["status"] == ApplicationStatus.SUBMITTED.value
-    assert len(events.json()) == 2
+    assert "SUBMITTED" not in prepared.json()["available_transitions"]
+    assert transitioned.status_code == 409
+    assert transitioned.json()["error"]["code"] == "submission_receipt_required"
+    assert len(events.json()) == 1
     assert len(board.json()) == 1
     assert forbidden.status_code == 404
-    assert invalid.status_code == 409
-    assert invalid.json()["error"]["code"] == "invalid_transition"

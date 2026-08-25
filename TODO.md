@@ -403,16 +403,16 @@
 
 ### M16 投递尝试、阻塞与提交凭证
 
-- [ ] 定义 `ApplicationAttempt`、`ApplicationBlocker` 和 `SubmissionReceipt`
-- [ ] 定义 `CREATED / FORM_IN_PROGRESS / NEEDS_USER / BLOCKED / READY_TO_SUBMIT / SUBMITTED / FAILED / ABANDONED` 状态
-- [ ] Attempt 必须绑定具体岗位、官方申请 URL 和已批准的 PacketRevision
-- [ ] 第一版支持用户手动打开官网和提交，系统负责检查清单、阻塞记录和凭证保存
-- [ ] Blocker 保存类别、观察、停止原因、可否重试、下一步策略和用户动作
-- [ ] Receipt 支持确认文本、确认 URL、申请编号和脱敏截图元数据
-- [ ] 只有 Attempt 成功且存在有效 Receipt，才能在同一事务内将现有 Application 推进至 `SUBMITTED`
-- [ ] 重复请求、刷新、失败重试和并发提交不得创建重复 Application 或 Receipt
-- [ ] 实现投递执行检查页、阻塞队列和提交凭证页面
-- [ ] 添加伪成功、无凭证提交、重复提交、跨用户访问和事务回滚测试
+- [x] 定义 `ApplicationAttempt`、`ApplicationBlocker` 和 `SubmissionReceipt`
+- [x] 定义 `CREATED / FORM_IN_PROGRESS / NEEDS_USER / BLOCKED / READY_TO_SUBMIT / SUBMITTED / FAILED / ABANDONED` 状态
+- [x] Attempt 必须绑定具体岗位、官方申请 URL 和已批准的 PacketRevision
+- [x] 第一版支持用户手动打开官网和提交，系统负责检查清单、阻塞记录和凭证保存
+- [x] Blocker 保存类别、观察、停止原因、可否重试、下一步策略和用户动作
+- [x] Receipt 支持确认文本、确认 URL、申请编号和脱敏截图元数据
+- [x] 只有 Attempt 成功且存在有效 Receipt，才能在同一事务内将现有 Application 推进至 `SUBMITTED`
+- [x] 重复请求、刷新、失败重试和并发提交不得创建重复 Application 或 Receipt
+- [x] 实现投递执行检查页、阻塞队列和提交凭证页面
+- [x] 添加伪成功、无凭证提交、重复提交、跨用户访问和事务回滚测试
 
 验收：保存岗位、准备申请和打开表单都不等于提交；任何 `SUBMITTED` Application 都能追溯到已批准投递包、投递尝试和真实凭证。
 

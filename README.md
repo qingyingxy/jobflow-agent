@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M15 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密候选人档案、材料库和可审核冻结投递包均已落地。
-> 下一阶段：从 M15 开始建设可审核、可冻结和可追溯的 `ApplicationPacket`。
+> 当前状态：M01～M16 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密材料、冻结投递包、人工投递尝试和真实提交凭证均已落地。
+> 下一阶段：M17 跟进中心，补齐测评、面试、截止日期、日历和待办。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -45,6 +45,8 @@ Agent 负责读取、分析和提出建议
 → 引用真实经历解释匹配情况
 → 用户确认准备申请并创建申请记录
 → 用户审批材料修改建议
+→ 批准冻结投递包
+→ 用户在官网手动提交并保存真实凭证
 → 跟踪申请状态
 ```
 
@@ -76,6 +78,8 @@ Agent 负责读取、分析和提出建议
 - 与公开分析画像隔离的候选人私密档案；
 - 带文件哈希、用户归属和默认版本的简历材料库；
 - 必须由用户明确确认的可复用答案库；
+- 不可原地修改、必须由用户批准的冻结投递包；
+- 人工官网投递、阻塞队列、执行检查和真实提交凭证；
 - 可复现的评测脚本。
 
 ### 第一版不实现
@@ -119,7 +123,12 @@ Agent 负责读取、分析和提出建议
 → 用户逐条接受、修改或拒绝
 → 保存用户最终文本和审批结果
 → 用户确认私密申请事实、简历版本和可复用答案
-→ 用户在看板中更新申请状态
+→ 用户批准内容冻结的投递包版本
+→ 系统创建绑定岗位、官方 URL 和冻结版本的投递尝试
+→ 用户打开官网、填写表单并记录阻塞
+→ 用户真实提交后保存确认文本、编号或脱敏截图元数据
+→ 系统校验凭证并在同一事务内确认已投递
+→ 用户在看板中跟踪后续状态
 ```
 
 ## 5. 核心模块
@@ -366,6 +375,8 @@ APPLICATION_TRANSITIONS = {
 }
 ```
 
+`PREPARING → SUBMITTED` 虽然是领域状态图中的合法边，但通用状态 API 不允许直接执行。它只能由 M16 的投递确认事务完成，并且必须同时找到当前用户的已批准 `PacketRevision`、成功 `ApplicationAttempt` 和有效 `SubmissionReceipt`。保存岗位、创建申请、批准材料、打开表单或只记录凭证都不等于已经投递。
+
 用户点击“准备申请”时，领域服务在同一事务中完成：
 
 ```text
@@ -448,7 +459,7 @@ created_at
 
 ## 6. 人工确认机制
 
-第一版最重要的人工确认场景是创建申请、采用简历修改建议和推进申请状态。
+第一版最重要的人工确认场景是创建申请、采用简历修改建议、批准冻结投递包，以及凭真实提交凭证确认投递。
 
 交互流程：
 
@@ -465,7 +476,7 @@ created_at
 
 用户没有接受之前，建议内容不能成为最终文本。
 
-核心 MVP 不创建完整 Resume 或 ResumeVersion。建议请求使用 `SuggestionTargetInput` 显式提供 `original_text`、`target_type` 和可选 `target_label`；`ResumeSuggestion` 关联当前用户、Application 和 JobAnalysis，保存目标、原文、建议文本、引用证据、审批状态及最终文本。
+材料建议请求使用 `SuggestionTargetInput` 显式提供 `original_text`、`target_type` 和可选 `target_label`；`ResumeSuggestion` 关联当前用户、Application 和 JobAnalysis，保存目标、原文、建议文本、引用证据、审批状态及最终文本。真实投递使用 M14 的 `ResumeAsset / ResumeVersion`，并把文件哈希和版本身份冻结进 M15 投递包。
 
 创建申请本身必须来自用户明确操作。Agent 可以建议用户准备申请，但不能自行将候选岗位转换为申请记录。
 
@@ -1213,7 +1224,42 @@ POST   /api/application-packets/{packet_id}/revisions
 
 前端“投递审核”工作区提供申请索引、修订历史、JD 快照、简历版本差异身份、证据来源、表单答案、开放题、风险和阻塞登记。批准按钮只在当前修订无阻塞且来源未变化时可用，桌面和移动端都覆盖生成、审核和批准流程。
 
-`APPROVED` 只表示材料修订已经由用户批准，不表示真实招聘网站已经收到申请，也不会把现有 `Application` 推进到 `SUBMITTED`。真实表单执行、阻塞记录和提交凭证属于 M16。
+`APPROVED` 只表示材料修订已经由用户批准，不表示真实招聘网站已经收到申请，也不会把现有 `Application` 推进到 `SUBMITTED`。
+
+### M16 投递尝试、阻塞与提交凭证
+
+M16 已完成。每个投递尝试固定绑定当前用户、`Application`、`JobPosting`、官方申请 URL 和当前已批准的 `PacketRevision`：
+
+```text
+ApplicationAttempt
+├── CREATED → FORM_IN_PROGRESS
+├── NEEDS_USER / BLOCKED → FORM_IN_PROGRESS
+├── FORM_IN_PROGRESS → READY_TO_SUBMIT
+└── READY_TO_SUBMIT + valid SubmissionReceipt → SUBMITTED
+
+ApplicationBlocker
+└── category / observation / stop reason / retryable / next strategy / required user action
+
+SubmissionReceipt
+└── confirmation text / confirmation URL / application number / redacted screenshot metadata / receipt hash
+```
+
+通用申请状态接口会拒绝 `PREPARING → SUBMITTED`。用户必须先打开官网并记录 `FORM_IN_PROGRESS`，解决所有开放阻塞，完成执行检查，再从真实成功页保存凭证。仅确认 URL 不足以构成凭证；确认文本必须包含明确成功语义，或提供申请编号、符合约束的脱敏截图元数据，并由用户明确确认。保存凭证后申请仍保持 `PREPARING`，最终确认接口才会在一个事务中条件更新 Attempt 和 Application。
+
+M16 API：
+
+```text
+POST  /api/packet-revisions/{revision_id}/attempts
+GET   /api/application-attempts
+GET   /api/application-attempts/{attempt_id}
+PATCH /api/application-attempts/{attempt_id}/status
+POST  /api/application-attempts/{attempt_id}/blockers
+POST  /api/application-attempts/{attempt_id}/blockers/{blocker_id}/resolve
+POST  /api/application-attempts/{attempt_id}/receipt
+POST  /api/application-attempts/{attempt_id}/finalize
+```
+
+数据库使用 Attempt 创建幂等键、申请与投递包版本唯一约束、每个 Attempt 一份 Receipt 以及每个 Application 一份 Receipt，配合条件状态更新防止刷新、重试或并发确认生成重复记录。`DomainEvent` 只保存 Attempt、Blocker、Receipt 和 PacketRevision 的 ID、状态及校验类型，不写确认文本、申请编号或截图信息。前端“投递执行”工作区提供执行清单、官方地址、阻塞队列、凭证录入和最终确认，桌面与移动端均有 Playwright 覆盖。
 
 当前用户隔离仍建立在本地开发用 `X-User-ID` 上，不等同于生产认证。公开多用户部署前必须由可信身份层生成用户身份并移除客户端伪造请求头的能力。
 
@@ -1241,7 +1287,9 @@ jobflow-agent/
 │   │   ├── evidence.py
 │   │   ├── jobs.py
 │   │   ├── applications.py
+│   │   ├── application_attempts.py
 │   │   ├── application_packets.py
+│   │   ├── attempt_schemas.py
 │   │   ├── materials.py
 │   │   ├── materials_schemas.py
 │   │   ├── packet_schemas.py
@@ -1251,6 +1299,7 @@ jobflow-agent/
 │   │   ├── runs.py
 │   │   ├── analysis.py
 │   │   ├── application.py
+│   │   ├── application_attempt.py
 │   │   ├── application_packet.py
 │   │   ├── suggestion.py
 │   │   ├── job.py
@@ -1272,6 +1321,7 @@ jobflow-agent/
 │   │   ├── evidence_match_service.py
 │   │   ├── jd_analysis_service.py
 │   │   ├── application_service.py
+│   │   ├── application_attempt_service.py
 │   │   ├── suggestion_generator.py
 │   │   ├── suggestion_service.py
 │   │   ├── candidate_material_service.py
@@ -1304,7 +1354,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M15 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库和冻结投递包均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M16 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试和真实凭证均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1329,8 +1379,9 @@ M01～M15 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 �
 保存一个候选岗位
 → 用户点击准备申请
 → 原子创建 PREPARING 申请
-→ 手动推进至 SUBMITTED 和 INTERVIEW
-→ 审批岗位定制建议
+→ 审批岗位定制建议和冻结投递包
+→ 在官网手动提交并保存有效 Receipt
+→ 事务确认 SUBMITTED 后继续推进 INTERVIEW
 → 展示完整业务时间线
 ```
 
@@ -1379,8 +1430,12 @@ M01～M15 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 �
 9. 用户选择建议目标并粘贴需要修改的简历片段，Agent 生成岗位定制建议
 10. 用户查看证据并逐条审批
 11. 系统保存审批状态和用户最终文本
-12. 用户在看板中将状态推进至投递和面试
-13. 系统展示完整事件时间线
+12. 用户批准一个内容与来源均冻结的投递包版本
+13. 用户在官网手动填写，系统记录阻塞和执行检查
+14. 用户真实提交后保存成功页确认信息
+15. 系统验证 Receipt 并事务性确认 SUBMITTED
+16. 用户在看板中继续跟踪测评和面试
+17. 系统展示完整事件时间线
 ```
 
 如果用户已经找到岗位，也可以通过岗位链接或粘贴 JD 直接进入第 4 步。
@@ -1398,6 +1453,7 @@ Agent 能处理非结构化 JD
 候选岗位和正式申请使用独立状态
 材料修改由用户最终确认
 申请状态由确定性状态机管理
+任何 SUBMITTED 都能追溯到批准版本、投递尝试和有效凭证
 业务事件和 Agent Trace 能够分别追踪
 核心效果能够通过评测复现
 ```
@@ -1457,7 +1513,7 @@ flowchart LR
 | M13 | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
 | M14（已完成） | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
 | M15（已完成） | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
-| M16 | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
+| M16（已完成） | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
 | M17 | 跟进中心 | 测评、面试、截止日期、日历和待办 |
 | M18 | 有限浏览器辅助 | Greenhouse / Lever 等 ATS Adapter |
 | M19 | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |

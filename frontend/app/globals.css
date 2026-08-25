@@ -6050,6 +6050,735 @@ textarea::placeholder {
   }
 }
 
+.attempt-workspace {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 48px;
+}
+
+.attempt-loading,
+.attempt-empty {
+  min-height: 360px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 64px 0;
+  color: var(--muted-ink);
+}
+
+.attempt-command-bar {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(300px, 1.3fr) 42px;
+  align-items: center;
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0;
+}
+
+.attempt-command-bar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.attempt-command-bar span,
+.attempt-detail-header > div > span,
+.attempt-official-row > div > span,
+.attempt-launch-proof > span,
+.attempt-receipt-proof > div > span {
+  color: var(--muted-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+.attempt-command-bar strong {
+  font-size: 14px;
+}
+
+.attempt-command-bar p {
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.attempt-command-bar button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-size: 20px;
+}
+
+.attempt-message {
+  border-bottom: 1px solid var(--line);
+  background: rgba(217, 238, 98, 0.28);
+  padding: 12px 16px;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.attempt-empty span {
+  color: var(--coral);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+}
+
+.attempt-empty h2 {
+  margin: 12px 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.attempt-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.attempt-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.76fr) minmax(0, 2.24fr);
+  min-height: 680px;
+  border-bottom: 1px solid var(--line);
+}
+
+.attempt-queue {
+  border-right: 1px solid var(--line);
+  padding: 24px 20px 24px 0;
+}
+
+.attempt-queue > header,
+.attempt-checklist > header,
+.attempt-blockers > header,
+.attempt-receipt > header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.attempt-queue > header > span,
+.attempt-checklist > header > span,
+.attempt-blockers > header > span,
+.attempt-receipt > header > span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  place-items: center;
+  background: var(--ink);
+  color: var(--paper-soft);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+}
+
+.attempt-queue > header strong,
+.attempt-checklist > header strong,
+.attempt-blockers > header strong,
+.attempt-receipt > header strong {
+  font-size: 14px;
+}
+
+.attempt-checklist > header p,
+.attempt-blockers > header p,
+.attempt-receipt > header p {
+  margin: 3px 0 0;
+  color: var(--muted-ink);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.attempt-queue-item {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: transparent;
+  padding: 15px 8px;
+  color: var(--ink);
+  text-align: left;
+}
+
+.attempt-queue-item:last-child {
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.attempt-queue-item:hover,
+.attempt-queue-item-active {
+  background: var(--paper-soft);
+}
+
+.attempt-queue-item-active {
+  box-shadow: inset 3px 0 0 var(--coral);
+}
+
+.attempt-queue-index {
+  color: var(--muted-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+}
+
+.attempt-queue-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.attempt-queue-copy small {
+  overflow: hidden;
+  color: var(--muted-ink);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attempt-queue-copy strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attempt-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper-soft);
+  padding: 4px 7px;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.attempt-status-needs_user,
+.attempt-status-blocked,
+.attempt-status-failed {
+  border-color: rgba(255, 120, 94, 0.55);
+  background: rgba(255, 120, 94, 0.15);
+}
+
+.attempt-status-ready_to_submit,
+.attempt-status-form_in_progress {
+  border-color: rgba(77, 112, 166, 0.38);
+  background: rgba(141, 169, 255, 0.17);
+}
+
+.attempt-status-submitted {
+  border-color: rgba(80, 125, 82, 0.38);
+  background: rgba(217, 238, 98, 0.28);
+}
+
+.attempt-status-large {
+  min-height: 30px;
+  padding: 7px 10px;
+  font-size: 10px;
+}
+
+.attempt-detail {
+  min-width: 0;
+  padding: 24px 0 36px 28px;
+}
+
+.attempt-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 22px;
+}
+
+.attempt-detail-header h2 {
+  margin: 7px 0 4px;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.attempt-detail-header p {
+  margin: 0;
+  color: var(--muted-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+}
+
+.attempt-launch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 36px;
+  padding: 48px 0;
+}
+
+.attempt-launch-proof {
+  border-left: 3px solid var(--acid);
+  padding-left: 18px;
+}
+
+.attempt-launch-proof strong {
+  display: block;
+  margin: 8px 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.attempt-launch-proof p {
+  max-width: 620px;
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.attempt-launch > button,
+.attempt-official-row button,
+.attempt-ready-button,
+.attempt-blocker-form > button,
+.attempt-receipt-form > button,
+.attempt-receipt-proof > button {
+  min-height: 42px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ink);
+  padding: 10px 15px;
+  color: var(--paper-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.attempt-launch > button span {
+  margin-left: 12px;
+}
+
+.attempt-official-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0;
+}
+
+.attempt-official-row > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.attempt-official-row > div a {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attempt-open-link {
+  border-bottom: 1px solid var(--ink);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.attempt-checklist,
+.attempt-blockers,
+.attempt-receipt {
+  border-bottom: 1px solid var(--line);
+  padding: 26px 0;
+}
+
+.attempt-check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.attempt-check {
+  display: grid;
+  min-height: 92px;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-content: center;
+  gap: 4px 9px;
+  background: var(--paper-soft);
+  padding: 14px;
+}
+
+.attempt-check > span {
+  grid-row: 1 / span 2;
+  color: var(--muted-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+}
+
+.attempt-check > strong {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.attempt-check > small {
+  color: var(--muted-ink);
+  font-size: 9px;
+}
+
+.attempt-check-complete {
+  background: rgba(217, 238, 98, 0.22);
+}
+
+.attempt-check-complete > span {
+  color: #537129;
+  font-size: 15px;
+}
+
+.attempt-ready-button {
+  margin-top: 16px;
+  background: var(--blue);
+  color: var(--ink);
+}
+
+.attempt-blocker-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.attempt-blocker {
+  border: 1px solid rgba(255, 120, 94, 0.4);
+  border-radius: 4px;
+  background: rgba(255, 120, 94, 0.08);
+  padding: 15px;
+}
+
+.attempt-blocker-resolved {
+  border-color: var(--line);
+  background: rgba(217, 238, 98, 0.13);
+}
+
+.attempt-blocker-topline {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--muted-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+}
+
+.attempt-blocker > strong {
+  display: block;
+  font-size: 12px;
+}
+
+.attempt-blocker > p {
+  margin: 5px 0 12px;
+  color: var(--muted-ink);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.attempt-blocker > div:not(.attempt-blocker-topline) {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 8px;
+  border-top: 1px solid var(--line-soft);
+  padding: 7px 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.attempt-blocker > div > span {
+  color: var(--muted-ink);
+}
+
+.attempt-blocker > button {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper-soft);
+  padding: 7px 10px;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.attempt-no-blocker {
+  border: 1px dashed var(--line);
+  margin: 0 0 16px;
+  padding: 18px;
+  color: var(--muted-ink);
+  font-size: 11px;
+}
+
+.attempt-blocker-form,
+.attempt-receipt-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.28);
+  padding: 18px 0 0;
+}
+
+.attempt-blocker-form label,
+.attempt-receipt-form label,
+.attempt-screenshot-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted-ink);
+  font-size: 10px;
+}
+
+.attempt-blocker-form input,
+.attempt-blocker-form select,
+.attempt-receipt-form input,
+.attempt-receipt-form select,
+.attempt-receipt-form textarea,
+.attempt-screenshot-fields input,
+.attempt-screenshot-fields select {
+  width: 100%;
+  min-height: 39px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper-soft);
+  padding: 9px 10px;
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.attempt-receipt-form textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.attempt-wide-field {
+  grid-column: 1 / -1;
+}
+
+.attempt-checkbox,
+.attempt-confirmation {
+  display: flex !important;
+  align-items: center;
+  align-self: end;
+  grid-template-columns: none !important;
+  gap: 8px !important;
+  min-height: 42px;
+}
+
+.attempt-checkbox input,
+.attempt-confirmation input,
+.attempt-screenshot-fields summary input {
+  width: 16px;
+  min-height: 16px;
+  accent-color: var(--ink);
+}
+
+.attempt-blocker-form > button,
+.attempt-receipt-form > button {
+  align-self: end;
+}
+
+.attempt-screenshot-fields {
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  padding: 12px;
+}
+
+.attempt-screenshot-fields summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.attempt-screenshot-fields > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.attempt-confirmation {
+  grid-column: 1 / -1;
+  border-left: 3px solid var(--coral);
+  background: rgba(255, 120, 94, 0.08);
+  padding: 10px 12px;
+  color: var(--ink) !important;
+  line-height: 1.45;
+}
+
+.attempt-receipt-form > button {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+.attempt-receipt-proof {
+  border: 1px solid rgba(80, 125, 82, 0.35);
+  border-left: 4px solid var(--acid);
+  border-radius: 4px;
+  background: rgba(217, 238, 98, 0.13);
+  padding: 18px;
+}
+
+.attempt-receipt-proof > div > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.attempt-receipt-proof > p {
+  margin: 15px 0;
+  font-family: "Iowan Old Style", Baskerville, Georgia, "Noto Serif SC", serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.attempt-receipt-proof dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 16px;
+  background: var(--line);
+}
+
+.attempt-receipt-proof dl > div {
+  min-width: 0;
+  background: var(--paper-soft);
+  padding: 10px;
+}
+
+.attempt-receipt-proof dt {
+  color: var(--muted-ink);
+  font-size: 9px;
+}
+
+.attempt-receipt-proof dd {
+  overflow: hidden;
+  margin: 5px 0 0;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attempt-finalized {
+  display: inline-flex;
+  border: 1px solid rgba(80, 125, 82, 0.35);
+  padding: 9px 12px;
+  color: #3f613f;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .attempt-layout {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+
+  .attempt-check-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 790px) {
+  .attempt-command-bar {
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+
+  .attempt-command-bar > p {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .attempt-layout {
+    display: block;
+  }
+
+  .attempt-queue {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+  }
+
+  .attempt-detail {
+    padding: 24px 0 36px;
+  }
+
+  .attempt-blocker-list,
+  .attempt-blocker-form,
+  .attempt-receipt-form {
+    grid-template-columns: 1fr;
+  }
+
+  .attempt-wide-field,
+  .attempt-confirmation,
+  .attempt-receipt-form > button,
+  .attempt-screenshot-fields {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .attempt-detail-header,
+  .attempt-launch,
+  .attempt-official-row {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .attempt-detail-header {
+    flex-direction: column;
+  }
+
+  .attempt-launch > button,
+  .attempt-official-row button,
+  .attempt-open-link,
+  .attempt-ready-button,
+  .attempt-blocker-form > button,
+  .attempt-receipt-form > button,
+  .attempt-receipt-proof > button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .attempt-check-grid,
+  .attempt-receipt-proof dl,
+  .attempt-screenshot-fields > div {
+    grid-template-columns: 1fr;
+  }
+
+  .attempt-check {
+    min-height: 76px;
+  }
+
+  .attempt-receipt-proof > p {
+    font-size: 16px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

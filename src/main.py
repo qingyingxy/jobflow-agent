@@ -7,6 +7,7 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.application_attempts import router as application_attempts_router
 from src.api.application_packets import router as application_packets_router
 from src.api.applications import router as applications_router
 from src.api.discovery import router as discovery_router
@@ -27,6 +28,7 @@ app.include_router(profile_router)
 app.include_router(evidence_router)
 app.include_router(applications_router)
 app.include_router(application_packets_router)
+app.include_router(application_attempts_router)
 app.include_router(discovery_router)
 app.include_router(jobs_router)
 app.include_router(materials_router)

@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 import src.domain.analysis
 import src.domain.application
+import src.domain.application_attempt
 import src.domain.application_packet
 import src.domain.discovery
 import src.domain.materials

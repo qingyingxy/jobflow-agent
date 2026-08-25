@@ -35,6 +35,10 @@ class ApplicationNotFoundError(LookupError):
     pass
 
 
+class SubmissionReceiptRequiredError(RuntimeError):
+    pass
+
+
 class InvalidTransitionError(RuntimeError):
     def __init__(
         self,
@@ -330,6 +334,13 @@ class ApplicationService:
             application_id=application_id,
         )
         current_status = ApplicationStatus(view.application.status)
+        if (
+            current_status is ApplicationStatus.PREPARING
+            and target_status is ApplicationStatus.SUBMITTED
+        ):
+            raise SubmissionReceiptRequiredError(
+                "必须通过投递尝试和有效提交凭证确认真实投递"
+            )
         allowed = APPLICATION_TRANSITIONS[current_status]
         if target_status not in allowed:
             raise InvalidTransitionError(
