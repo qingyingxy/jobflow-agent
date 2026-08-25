@@ -33,17 +33,14 @@ LangGraph / Temporal / Redis
 
 ### 2.1 轻量模块化单体
 
-系统由 Next.js、FastAPI 和数据库组成。SQLite 是 M01～M11 核心 MVP 的开发和验收数据库；PostgreSQL + pgvector 是发布前切换验证以及 JSONB、向量检索等可选能力的升级路径，不计入核心里程碑进度。后端保持一个部署单元，通过 `api / domain / services / infrastructure` 保持边界，不为每个小实体分别创建 Repository、Schema 和 Service 文件。
-
-PostgreSQL 基础设施复用 Memory-RAG 的方案：使用 `pgvector/pgvector:pg16` Docker 镜像、固定数据库用户和数据库名、持久化卷以及 `pg_isready` 健康检查。JobFlow 的数据库访问仍使用 SQLAlchemy，表结构变更仍使用 Alembic；这里只复用数据库运行方式，不复用 Memory-RAG 的手写 SQL 存储层。没有 Docker 或 PostgreSQL 环境时，开发者仍可完整推进核心 MVP；切换验证集中放在发布前检查中完成。
+系统由 Next.js、FastAPI 和 SQLite 组成。SQLite 是唯一业务数据库和发布验收数据库；后端保持一个部署单元，通过 `api / domain / services / infrastructure` 保持边界，不为每个小实体分别创建 Repository、Schema 和 Service 文件。
 
 数据库范围：
 
-| 场景 | 数据库 | 是否阻塞 M01～M11 | 必须验证的内容 |
+| 场景 | 数据库 | 是否阻塞发布 | 必须验证的内容 |
 |---|---|---:|---|
 | 本地开发、测试和核心演示 | SQLite | 是 | 迁移、规则、事务、API 和端到端链路 |
-| 发布前切换验证 | PostgreSQL 16 | 否 | 全新迁移、核心测试、JSON/时间/约束兼容性 |
-| 可选向量召回 | PostgreSQL + pgvector | 否 | 扩展迁移、向量索引和召回回归测试 |
+| 本地发布 | SQLite | 是 | 外键、WAL、忙等待、备份和恢复 |
 
 Python 环境统一使用 `uv` 管理。依赖声明写入 `pyproject.toml`，锁文件使用 `uv.lock`，不维护单独的 `requirements.txt`。所有 Python 命令通过 `uv run` 执行。
 
@@ -53,7 +50,7 @@ Python 环境统一使用 `uv` 管理。依赖声明写入 `pyproject.toml`，�
 uv python install 3.12
 uv init --python 3.12
 uv python pin 3.12
-uv add fastapi "uvicorn[standard]" pydantic-settings sqlalchemy alembic psycopg[binary] httpx
+uv add fastapi "uvicorn[standard]" pydantic-settings sqlalchemy alembic httpx
 uv add --dev pytest pytest-asyncio ruff
 uv sync
 uv run pytest
@@ -81,15 +78,7 @@ Copy-Item .env.example .env
 uv run alembic upgrade head
 ```
 
-数据库文件默认位于 `./data/jobflow.db`。到发布前检查或确实需要 PostgreSQL 专有能力时，再执行切换验证：
-
-```text
-docker compose up -d postgres
-$env:DATABASE_URL = 'postgresql+psycopg://jobflow:jobflow@localhost:5432/jobflow?connect_timeout=3'
-uv run alembic upgrade head
-```
-
-宿主机运行 API 时使用 `localhost`；API 和数据库位于同一个 Compose 网络时使用服务名 `postgres`。当前 `docker-compose.yml` 只启动数据库，API 和前端暂时分别通过 `uv run` 与 Node.js 脚本启动。
+数据库文件默认位于 `./data/jobflow.db`。运行时统一启用外键约束、WAL 日志和 5 秒忙等待；非 SQLite `DATABASE_URL` 会在启动时直接拒绝。
 
 ### 2.2 权限边界
 
@@ -198,7 +187,7 @@ jobflow-agent/
 
 | 实体 | 作用 | MVP 关键字段 |
 |---|---|---|
-| `UserProfile` | 用户信息和偏好 | graduation_year、degree、search_preferences JSON（PostgreSQL 可升级为 JSONB） |
+| `UserProfile` | 用户信息和偏好 | graduation_year、degree、search_preferences JSON |
 | `EvidenceItem` | 真实经历证据 | type、title、claim、skills、source |
 | `RawJobDocument` | 岗位原始文档 Schema | source_url、source_type、raw_content、retrieved_at、trace_id |
 | `JobSource` | 招聘来源配置 | name、adapter_type、entry_url、enabled |
@@ -555,7 +544,7 @@ API 只负责请求校验、身份识别、调用 Service 和错误转换。
 
 M03 的文本导入只保存事实，不负责调用模型解析。手动文本入口的来源类型固定为 `manual_text`；真实招聘来源只能由 M10 Adapter 写入。`StructuredJobDescription` 是 M04 JD Parser 的基础输出形状；M04 已补齐唯一事实来源、字段原文依据、跨字段语义校验、可替换 Model Client、`JobParseResult`、`AgentRun` 和解析接口。M05 的 `EligibilityInput` 只接受经过 `SearchPreferences` 校验的用户偏好，不直接读取任意 JSON 字段。字段缺失统一保留为 `null`，不在导入阶段填充猜测值。
 
-M02 的本地身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`。这不是生产认证实现，只是为了在尚未接入登录系统时保留用户归属边界。`EvidenceService` 的所有读取、修改和删除必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。硬删除证据后，同时删除引用它的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
+M02 的 `AUTH_MODE=local` 身份通过可选的 `X-User-ID` 请求头传入，缺省使用 `DEFAULT_USER_ID`，且只能用于开发测试。生产部署使用 `AUTH_MODE=oidc` 验证 Bearer JWT，或使用不可绕过的 `trusted_header` 身份网关；staging/production 禁止 local 模式。`EvidenceService` 的所有读取、修改和删除必须同时过滤 `user_id` 与 `evidence_id`，不能先按 ID 查询再在接口层判断归属。硬删除证据后，同时删除引用它的 RequirementMatch、JobAnalysis、ResumeSuggestion 和 `final_text`；DomainEvent 只保留不含材料正文的审计元数据。
 
 ## 8. 四个开发里程碑
 
@@ -676,18 +665,18 @@ M04～M06 可以分别用纯 Schema、纯函数和 Fake 并行开发，但 M07 �
 - API 和最小页面可以完成交互；
 - 文档、TODO 和实现保持一致。
 
-里程碑完成不要求 PostgreSQL 可用。PostgreSQL 发布前验证使用独立检查表，不回写 M01～M11 的核心进度。
+里程碑以 SQLite 从空库迁移、后端测试、前端构建和端到端 Fixture 为统一完成标准。
 
-## 12. PostgreSQL 发布前切换验证
+## 12. SQLite 发布验证
 
-这部分不计入核心里程碑进度。当项目需要部署到 PostgreSQL、启用 JSONB/pgvector，或准备对外演示部署环境时执行：
+发布检查固定执行：
 
 ```text
-启动 pgvector/pgvector:pg16
-→ 对全新数据库执行 alembic upgrade head
-→ 运行后端测试和核心 API 冒烟测试
-→ 核对 JSON、时区、唯一约束和事务行为
-→ 记录镜像版本、迁移版本、验证日期和已知差异
+从空 SQLite 文件执行 alembic upgrade head
+→ 验证 foreign_keys、journal_mode=WAL 和 busy_timeout
+→ 运行全量 pytest 与 Ruff
+→ 运行前端类型检查和生产构建
+→ 运行 Playwright 本地端到端测试
 ```
 
-如果 SQLite 与 PostgreSQL 行为不同，应优先通过 SQLAlchemy 类型、约束和显式业务规则消除差异。只有确实使用 PostgreSQL 专有能力时才增加方言分支，并为该分支增加回归测试。
+单机应用只运行一个后端实例。数据库文件与 `PRIVATE_STORAGE_DIR` 必须一起备份；恢复时也必须作为同一快照恢复，避免数据库中的文件哈希和磁盘材料不一致。

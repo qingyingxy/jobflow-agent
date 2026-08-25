@@ -180,3 +180,9 @@ uv run python -m src.evaluation.application_operations `
 ```
 
 运行指标从 Application 创建时间到 Attempt `ready_at` 计算，人工干预拆分为 Blocker 和敏感字段确认次数。这个口径仍不等同于从首次看到岗位到投递完成的完整用户旅程，公开报告时必须保留该限制。
+
+## 10. SQLite 发布门禁
+
+`.github/workflows/ci.yml` 使用空 SQLite 文件执行 `alembic upgrade head`，随后运行全量 pytest、Ruff、前端类型检查、生产构建和 Playwright 桌面/移动端回归。数据库单元测试同时验证默认 URL、非 SQLite URL 拒绝，以及外键、WAL 和忙等待设置。
+
+该门禁验证的是单机 SQLite 发布范围，不代表公网多租户、高并发写入或跨进程任务恢复已经完成。

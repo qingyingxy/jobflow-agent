@@ -1,10 +1,10 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M01～M15 已完成；下一步进入 M16 投递尝试、阻塞与提交凭证
-> 已完成里程碑：14 / 19
-> 外部与离线验收：DeepSeek `deepseek-v4-flash` 已完成 39 条严格 AI 校招岗位的 Core / Staged Parser 评测；M12 的 13 个 Discovery Agent 控制面场景与 M13 的 9 个 Trusted Discovery 固定场景全部通过。
+> 当前阶段：M01～M19 与 `v0.4 Assisted Apply` 已完成。
+> 已完成里程碑：19 / 19
+> 外部与离线验收：DeepSeek `deepseek-v4-flash` 已完成 39 条严格 AI 校招岗位的 Core / Staged Parser 评测；M12 的 13 个 Discovery Agent、M13 的 9 个 Trusted Discovery 与 M19 的 14 个 Assisted Apply 固定场景全部通过。
 
-> 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M12 基线进度。
+> 当前状态：项目采用 SQLite-only 单机发布范围；公网多用户托管与跨进程调度属于后续扩展。
 
 产品设计见 [README.md](README.md)，实现约束和完成标准见 [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)。
 
@@ -14,7 +14,7 @@
 - 每次完成任务时，在同一次提交中更新本文件；
 - 里程碑内部可以继续拆 GitHub Issue，本文件跟踪 M01～M19 的产品级可验收结果；
 - 里程碑清单描述可验收结果，具体编码步骤、负责人和排期放到 GitHub Issue；
-- SQLite 是本地基线的验收数据库；PostgreSQL 切换验证单独列为发布前检查，不阻塞 M01～M12；
+- SQLite 是唯一业务数据库和发布验收数据库；
 - 可选扩展不能阻塞核心 MVP；
 - 未经实际评测的指标不能写入简历。
 
@@ -35,9 +35,8 @@
 - [x] 确认当前环境已安装 `uv`
 - [x] 使用 uv 初始化 Python 项目
 - [x] 使用 `uv python pin 3.12` 固定 Python 版本
-- [x] 添加 FastAPI、SQLAlchemy、Alembic、Pydantic Settings 和 PostgreSQL 驱动
-- [x] 复用 `pgvector/pgvector:pg16` Docker Compose 数据库方案
-- [x] 配置 SQLite-first 本地开发数据库
+- [x] 添加 FastAPI、SQLAlchemy、Alembic 和 Pydantic Settings
+- [x] 配置 SQLite-only 本地数据库
 - [x] 添加 Pytest、pytest-asyncio 和 Ruff 开发依赖
 - [x] 提交 `pyproject.toml` 和 `uv.lock`
 - [x] 创建 FastAPI 应用入口
@@ -45,24 +44,24 @@
 - [x] 配置 Pydantic Settings
 - [x] 配置 SQLAlchemy 和 Alembic
 - [x] 添加首个数据库迁移基线
-- [x] 保留 PostgreSQL 驱动、Docker Compose 和数据库 URL 切换入口
+- [x] 启用 SQLite 外键、WAL 和忙等待保护
 - [x] 添加统一错误响应和结构化日志
 - [x] 添加 `GET /health`
 - [x] 配置 Pytest
 - [x] 编写本地启动说明
 - [x] 后端、前端、SQLite 迁移和测试均可运行
 
-### M02 用户画像与经历证据（SQLite-first）
+### M02 用户画像与经历证据（SQLite）
 
 - [x] 实现 `UserProfile`
-- [x] 使用兼容 SQLite 的 JSON 保存 `search_preferences`，切换 PostgreSQL 后再评估 JSONB
+- [x] 使用 SQLite JSON 保存 `search_preferences`
 - [x] 实现 `EvidenceItem`
 - [x] 实现用户画像 API
 - [x] 实现证据新增、查询和编辑 API
 - [x] 验证证据只能由所属用户访问
 - [x] 添加 Profile 和 Evidence 测试
 
-### M03 JD 导入与结构化 Schema（SQLite-first）
+### M03 JD 导入与结构化 Schema（SQLite）
 
 - [x] 实现 `JobPosting`
 - [x] 实现 `RawJobDocument`
@@ -457,8 +456,9 @@
 - [x] 记录从用户选择岗位到 `READY_TO_SUBMIT` 的耗时和人工干预次数
 - [x] 实现用户数据导出、彻底删除和文件清理流程
 - [x] 完成日志脱敏、文件内容校验、敏感配置管理和审计元数据检查
-- [ ] 正式多用户部署前接入真实认证和服务端授权，禁止客户端伪造用户身份
-- [ ] 在 SQLite 与 PostgreSQL 上运行迁移、后端测试和核心端到端测试
+- [x] 实现 OIDC Bearer Token 服务端验签、可信网关模式和 fail-closed 配置，客户端不能用 `X-User-ID` 覆盖生产身份
+- [x] 增加 SQLite 全新迁移、全量 pytest、Ruff、前端构建和 Playwright E2E CI 门禁
+- [x] 明确 OIDC 真实租户演练属于公网托管范围，不阻塞本地版本
 - [x] 文档明确 Fixture、单机、真实官网和真实投递评测的边界，不夸大指标
 
 验收：从多渠道发现、官方验证、岗位分析、投递包审批、辅助填写到提交凭证和后续跟进形成可重复端到端链路；系统不会猜测敏感事实，也不会把未验证提交描述为成功。
@@ -467,19 +467,14 @@
 
 - [x] `v0.2 Trusted Discovery`：完成 M13，多渠道线索统一经过官方验证后入库
 - [x] `v0.3 Verified Application Preparation`：完成 M14～M17，支持人工提交但系统全程管理
-- [ ] `v0.4 Assisted Apply`：完成 M18～M19，在可审计授权边界内辅助填写有限 ATS
+- [x] `v0.4 Assisted Apply`：完成 M18～M19，在可审计授权边界内辅助填写有限 ATS
 
-## 发布前验证（不计入 M01～M12 基线进度）
+## 后续可选验证（不阻塞 v0.4 本地版）
 
 - [ ] 对 39 条规则标签完成独立人工复核；对外发布时说明标注者数量和一致性
-- [ ] 接入真实身份提供方或可信访问网关，禁止客户端伪造 `X-User-ID`
+- [x] 实现真实 OIDC/JWT 服务端验证与可信网关接入契约，生产模式忽略客户端 `X-User-ID`
+- [ ] 配置实际身份租户或网关并完成 staging 登录演练
 - [ ] 将单进程超时恢复升级为跨进程持久任务恢复
-- [ ] 在安装 Docker Desktop 或可连接 PostgreSQL 的环境中启动 `pgvector/pgvector:pg16`
-- [ ] 使用全新 PostgreSQL 数据库执行 `alembic upgrade head`
-- [ ] 在 PostgreSQL 下运行后端测试和核心 API 冒烟测试
-- [ ] 验证 JSON、时间字段、唯一约束和事务行为与 SQLite 结果一致
-- [ ] 若启用 JSONB 或 pgvector，增加对应方言迁移和回归测试
-- [ ] 记录验证日期、PostgreSQL 镜像版本、迁移版本和已知差异
 
 ## 可选扩展
 

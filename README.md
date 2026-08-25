@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M18、`v0.2 Trusted Discovery` 与 `v0.3 Verified Application Preparation` 已完成；从可信岗位发现到有限 ATS 辅助、真实凭证和后续跟进的闭环均已落地。
-> 当前阶段：M19 端到端评测与安全加固进行中；Mock ATS、投递指标、数据导出/删除和本地安全边界已落地，真实身份提供方与 PostgreSQL 实机验证仍待完成。
+> 当前状态：M01～M19 与 `v0.4 Assisted Apply` 已完成；从可信岗位发现、可审核投递包到有限 ATS 辅助、真实提交凭证和后续跟进的 SQLite 本地闭环均已落地。
+> 发布范围：单机、本地优先、SQLite-only。公网多用户托管、任意 ATS、无人值守批量投递和跨进程任务调度不属于 `v0.4` 承诺。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -575,7 +575,7 @@ flowchart LR
     APPLICATION --> EVENTS["Business Events"]
     ANALYSIS --> TRACE["Agent Trace"]
 
-    DISCOVERY --> DB["SQLite（核心 MVP） / PostgreSQL（发布前验证与可选升级）"]
+    DISCOVERY --> DB["SQLite（唯一业务数据库）"]
     ANALYSIS --> DB
     APPLICATION --> DB
 ```
@@ -687,7 +687,7 @@ AgentRun
 DiscoveryRun
 ```
 
-核心 MVP 使用 SQLite-first，求职偏好作为 `UserProfile.search_preferences JSON` 保存；切换 PostgreSQL 后可以再升级为 JSONB。M05 使用 `SearchPreferences` Schema 明确地点、岗位类型、到岗日期、每周天数和实习时长的类型、范围与 `null` 语义，不能在资格函数中直接猜测任意 JSON。岗位原文、内容指纹和读取时间直接保存在 `JobPosting`；审批状态和用户最终文本直接保存在 `ResumeSuggestion`。
+核心产品使用 SQLite，求职偏好作为 `UserProfile.search_preferences JSON` 保存。M05 使用 `SearchPreferences` Schema 明确地点、岗位类型、到岗日期、每周天数和实习时长的类型、范围与 `null` 语义，不能在资格函数中直接猜测任意 JSON。岗位原文、内容指纹和读取时间直接保存在 `JobPosting`；审批状态和用户最终文本直接保存在 `ResumeSuggestion`。
 
 关键关系：
 
@@ -712,7 +712,7 @@ CandidateJob
 
 `JobParseResult` 是岗位级、与用户无关的解析缓存，只允许按 `content_hash + schema_version + parser_version + prompt_version + model` 复用。`JobAnalysis` 是用户级结果，必须包含 `user_id`、`analysis_version` 和可选 `invalidated_at`，并在每次分析时使用当前画像和当前证据重新计算资格、匹配与分数，不能跨用户复用。
 
-`DiscoveryRun` 保存一次用户手动发现的来源、状态、发现/新增/重复数量、失败摘要和起止时间。`DomainEvent` 通过 `entity_type + entity_id` 关联候选岗位或申请；`AgentRun` 从 M04 首次接入模型时开始保存必要执行轨迹，切换 PostgreSQL 后可升级为 JSONB，不参与业务状态计算，也不在普通日志中保存完整敏感输入。
+`DiscoveryRun` 保存一次用户手动发现的来源、状态、发现/新增/重复数量、失败摘要和起止时间。`DomainEvent` 通过 `entity_type + entity_id` 关联候选岗位或申请；`AgentRun` 从 M04 首次接入模型时开始保存必要执行轨迹，不参与业务状态计算，也不在普通日志中保存完整敏感输入。
 
 以下实体延后到确有需求时再增加：
 
@@ -780,8 +780,7 @@ Unsupported Claim Rate
 - Pydantic
 - SQLAlchemy
 - Alembic
-- SQLite（本地 MVP）
-- PostgreSQL 16 + pgvector（Docker Compose，可选升级路径）
+- SQLite（唯一业务数据库）
 
 ### 前端
 
@@ -877,9 +876,9 @@ powershell -ExecutionPolicy Bypass -File scripts/capture-demo.ps1
 
 普通 E2E 不请求真实招聘网站，也不会改写演示素材；`capture-demo.ps1` 才会更新 `docs/assets/` 下的 PNG 和 GIF。
 
-### SQLite-first 本地开发
+### SQLite 本地开发
 
-默认配置使用 SQLite，适合先完成用户画像、岗位分析、资格判断、证据匹配和申请状态机，不需要安装数据库服务。数据库文件会自动创建在 `./data/jobflow.db`，并被 Git 忽略。
+默认且唯一支持的数据库是 SQLite，不需要 WSL、Docker 或独立数据库服务。数据库文件会自动创建在 `./data/jobflow.db`，并被 Git 忽略。
 
 ```powershell
 Copy-Item .env.example .env
@@ -888,37 +887,25 @@ uv run alembic upgrade head
 uv run uvicorn src.main:app --reload --host 127.0.0.1 --port 18001
 ```
 
-后续如果模型中使用 PostgreSQL 专有能力（例如 JSONB 或 pgvector），再为对应迁移增加 PostgreSQL 方言分支；业务服务和 SQLAlchemy Session 接口保持不变。
+运行时会为每个 SQLite 连接启用外键约束、WAL 日志和 5 秒 `busy_timeout`。应用只支持一个后端实例；如果需要多个写入进程或公网多租户服务，应单独设计下一版本，而不是绕过当前数据库检查。
 
-### PostgreSQL 发布前验证与可选升级
-
-SQLite 是 M01～M11 的核心开发和验收数据库，因此没有 Docker Desktop 不影响核心进度。准备部署、需要验证 PostgreSQL 迁移，或开始使用 JSONB/向量检索时，再启用 PostgreSQL。该检查属于发布前验证，不计入 M01～M11 核心进度。
-
-基础设施采用与 Memory-RAG 相同的轻量方案：使用 `pgvector/pgvector:pg16` 镜像、持久化卷和健康检查。当前 Compose 文件只负责数据库，API 和前端仍按本地开发方式启动。
-
-不需要单独安装 PostgreSQL，但需要安装并运行 Docker Desktop：
+发布检查使用 [`.github/workflows/ci.yml`](.github/workflows/ci.yml)，从空 SQLite 文件执行迁移，然后运行后端测试、Ruff、前端类型检查、生产构建和 Playwright 桌面/移动端回归。本地可用同样的命令复现：
 
 ```powershell
-Copy-Item .env.example .env
-docker compose up -d postgres
-docker compose ps
-$env:DATABASE_URL = 'postgresql+psycopg://jobflow:jobflow@localhost:5432/jobflow?connect_timeout=3'
 uv run alembic upgrade head
+uv run pytest -q
+uv run ruff check .
+Set-Location frontend
+npm run typecheck
+npm run build
+npm run test:e2e
 ```
-
-API 在宿主机运行时通过 `localhost:5432` 连接数据库；以后如果 API 也放进 Compose，需要把连接地址中的主机名改为 `postgres`。数据库数据保存在 `jobflow_postgres_data` 卷中，执行 `docker compose down` 不会删除该卷。
-
-停止数据库：
-
-```powershell
-docker compose stop postgres
-```
-
-如果暂时没有 Docker Desktop，可以继续完成 SQLite 迁移、测试和全部核心功能。发布前应在全新 PostgreSQL 数据库上执行迁移，并复核 JSON、时区、唯一约束、事务和核心 API；验证结果记录镜像版本、迁移版本、日期及已知差异。
 
 ### M02 用户画像与经历证据 API
 
-当前 M02 使用 SQLite 保存用户画像和经历证据。API 通过 `X-User-ID` 识别本地用户；不传该请求头时使用 `.env` 中的 `DEFAULT_USER_ID`，默认值为 `local-user`。这只是开发阶段的身份占位，不等同于生产认证。公开部署前必须由可信反向代理或身份提供方完成认证，并剥离客户端自行传入的身份头；本地作品集阶段不伪装成已实现多用户认证。
+当前 M02 使用 SQLite 保存用户画像和经历证据。`AUTH_MODE=local` 时，API 通过 `X-User-ID` 识别本地用户；不传时使用 `DEFAULT_USER_ID`。`local` 只能用于开发测试，staging/production 会拒绝启动。
+
+生产环境支持 `AUTH_MODE=oidc` 和 `AUTH_MODE=trusted_header`。OIDC 模式从 `Authorization: Bearer` 读取访问令牌，使用受限算法和缓存 JWKS 校验签名、`kid`、issuer、audience、`exp`、`iat` 与 `sub`，再将 issuer + subject 哈希为固定长度内部用户 ID；客户端传入的 `X-User-ID` 完全不起作用。可信头模式只适用于会剥离客户端同名头、注入已认证主体且不允许绕过的身份网关。两种生产模式都要求 `ALLOW_INSECURE_USER_HEADER=false`。
 
 ```text
 GET   /api/profile
@@ -1261,7 +1248,7 @@ POST  /api/application-attempts/{attempt_id}/finalize
 
 数据库使用 Attempt 创建幂等键、申请与投递包版本唯一约束、每个 Attempt 一份 Receipt 以及每个 Application 一份 Receipt，配合条件状态更新防止刷新、重试或并发确认生成重复记录。`DomainEvent` 只保存 Attempt、Blocker、Receipt 和 PacketRevision 的 ID、状态及校验类型，不写确认文本、申请编号或截图信息。前端“投递执行”工作区提供执行清单、官方地址、阻塞队列、凭证录入和最终确认，桌面与移动端均有 Playwright 覆盖。
 
-当前用户隔离仍建立在本地开发用 `X-User-ID` 上，不等同于生产认证。公开多用户部署前必须由可信身份层生成用户身份并移除客户端伪造请求头的能力。
+用户隔离统一依赖 `CurrentUserId`。本地模式使用开发身份；OIDC 模式只接受通过服务端签名和注册声明校验的 Bearer Token；可信头模式只接受受控网关注入的身份。所有 Application、Packet、Attempt、Receipt 和 Follow-up 查询继续使用该内部用户 ID 过滤。
 
 ### M17 跟进中心
 
@@ -1328,9 +1315,9 @@ POST /api/ats-sessions/{session_id}/submit
 
 前端“浏览器辅助”工作区提供 Attempt 队列、八阶段执行轨道、字段来源/风险/动作表、敏感字段确认、人工接管、最终摘要、一次性授权和凭证状态。Fixture 测试覆盖 Greenhouse/Lever 字段映射、简历上传、下拉框、CAPTCHA、跨用户隔离、授权撤销与消费、页面变化、伪成功页和执行器异常；Playwright 覆盖桌面与移动端。当前不支持任意网站、Workday、登录态接管或无人值守批量投递，也不绕过任何反自动化控制。
 
-### M19 端到端评测与安全加固（进行中）
+### M19 端到端评测与安全加固（已完成）
 
-M19 第一批已完成。版本化 [`m19_assisted_apply_manifest.json`](datasets/m19_assisted_apply_manifest.json) 包含 14 个离线结构化 Mock ATS 场景，覆盖 Greenhouse/Lever、简历上传验证失败、非简历文件控件、原生/自定义下拉框、开放题缺失、敏感字段确认、登录、CAPTCHA、2FA、权限、安全检查、页面变化、明确成功、失败和伪成功。重复提交继续由 M18 的一次性授权服务测试覆盖。
+版本化 [`m19_assisted_apply_manifest.json`](datasets/m19_assisted_apply_manifest.json) 包含 14 个离线结构化 Mock ATS 场景，覆盖 Greenhouse/Lever、简历上传验证失败、非简历文件控件、原生/自定义下拉框、开放题缺失、敏感字段确认、登录、CAPTCHA、2FA、权限、安全检查、页面变化、明确成功、失败和伪成功。重复提交继续由 M18 的一次性授权服务测试覆盖。
 
 评测命令：
 
@@ -1359,9 +1346,9 @@ DELETE /api/account            {"confirmation": "DELETE_MY_DATA"}
 
 导出结果是 `no-store` ZIP，包含版本化 JSON 清单和经过哈希复核的原始简历文件；内部 `storage_key` 不对外暴露。彻底删除会清除全部用户归属表、关联 Application、仅该用户占用的岗位/解析缓存和哈希私密目录，同时保留其他用户仍在引用的共享岗位事实。文件先移动到私密目录内的隔离区，数据库提交失败时恢复，提交成功后再销毁。
 
-安全加固包括 JSON 日志中的密钥、令牌、邮箱和手机号脱敏；PDF 活动内容/加密/嵌入对象拒绝；DOCX 宏、嵌入对象、路径穿越、加密条目和异常解压大小拒绝；以及 DomainEvent/Discovery trace 敏感元数据扫描。`staging`/`production` 若仍允许 `X-User-ID` 或没有配置可信身份头，会直接返回 `503`。这只是可信反向代理的防误配契约，不等同于已经接入 OIDC 等真实身份提供方；服务必须部署在会删除客户端同名头并注入可信主体的网关之后。
+安全加固包括 JSON 日志中的密钥、令牌、邮箱和手机号脱敏；PDF 活动内容/加密/嵌入对象拒绝；DOCX 宏、嵌入对象、路径穿越、加密条目和异常解压大小拒绝；DomainEvent/Discovery trace 敏感元数据扫描；以及 OIDC 非对称 JWT 验签。JWKS 获取失败、未知签名密钥、伪造签名、过期令牌、issuer/audience 不符都会失败关闭。`staging`/`production` 若仍使用 `local`、允许不安全身份头、缺少 OIDC 参数或使用非 HTTPS 身份端点，会拒绝启动。
 
-M19 尚未完成的发布门槛只有两项：接入并实测真实身份提供方；在全新 PostgreSQL 环境执行迁移、后端测试和核心端到端测试。完成前 `v0.4 Assisted Apply` 不标记发布完成。
+M19 在 SQLite 单机发布范围内已经完成。OIDC 与可信网关是可选部署能力，真实身份租户演练属于公网托管前置工作，不阻塞本地 `v0.4`；PostgreSQL 不再属于项目支持范围。
 
 ## 15. 安全与数据边界
 
@@ -1458,7 +1445,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M18 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试、真实凭证、提交后跟进中心，以及 Greenhouse / Lever 有限 ATS 辅助均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M19 的 SQLite 本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、14 个 Assisted Apply 场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试、真实凭证、提交后跟进中心，以及 Greenhouse / Lever 有限 ATS 辅助均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个完成结论限定于 SQLite 单机与冻结 Fixture；公开多用户托管仍需真实身份租户、网络边界和跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1615,20 +1602,20 @@ flowchart LR
 
 | 里程碑 | 目标 | 主要成果 |
 |---|---|---|
-| M13 | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
+| M13（已完成） | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
 | M14（已完成） | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
 | M15（已完成） | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
 | M16（已完成） | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
 | M17（已完成） | 跟进中心 | 测评、面试、截止日期、日历和待办 |
 | M18（已完成） | 有限浏览器辅助 | Greenhouse / Lever ATS Adapter、一次性授权与人工接管 |
-| M19 | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |
+| M19（已完成） | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |
 
 详细任务、依赖关系和验收条件见 [`TODO.md`](TODO.md)。
 
 ### 20.4 版本切分
 
-- `v0.2 Trusted Discovery`：完成 M13，形成多渠道发现、官方验证、统一入库的岗位入口；
+- `v0.2 Trusted Discovery`（已完成）：完成 M13，形成多渠道发现、官方验证、统一入库的岗位入口；
 - `v0.3 Verified Application Preparation`（已完成）：完成 M14～M17，支持人工提交但系统管理投递包、阻塞、凭证和跟进；
-- `v0.4 Assisted Apply`：完成 M18～M19，在明确授权和可审计边界内辅助填写有限 ATS。
+- `v0.4 Assisted Apply`（已完成）：完成 M18～M19，在明确授权和可审计边界内辅助填写有限 ATS。
 
 下一阶段仍不以自动海投量为成功标准。核心指标是岗位事实可验证、材料内容可追溯、敏感答案不被猜测、最终提交有明确授权，并且任何 `SUBMITTED` 状态都能找到真实凭证。

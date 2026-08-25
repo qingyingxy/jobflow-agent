@@ -14,8 +14,16 @@ class Settings(BaseSettings):
     resume_max_bytes: int = 5 * 1024 * 1024
     account_export_max_bytes: int = 100 * 1024 * 1024
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    auth_mode: str = "local"
     allow_insecure_user_header: bool = True
     trusted_identity_header: str | None = None
+    oidc_issuer: str | None = None
+    oidc_audience: str | None = None
+    oidc_jwks_url: str | None = None
+    oidc_algorithms: str = "RS256"
+    oidc_jwks_cache_seconds: int = 300
+    oidc_clock_skew_seconds: int = 30
+    oidc_http_timeout_seconds: float = 5.0
     discovery_run_timeout_seconds: int = 3600
     ats_authorization_ttl_seconds: int = 600
     log_level: str = "INFO"

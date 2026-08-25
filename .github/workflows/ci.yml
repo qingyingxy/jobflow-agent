@@ -1,0 +1,68 @@
+name: SQLite release checks
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  release-checks:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:///./data/jobflow-ci.db
+      APP_ENV: testing
+      AUTH_MODE: local
+      STRUCTURED_MODEL_PROVIDER: fake
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install backend dependencies
+        run: uv sync --frozen
+      - name: Verify fresh SQLite migrations
+        run: uv run alembic upgrade head
+      - name: Run backend tests
+        run: uv run pytest -q
+      - name: Run backend lint
+        run: uv run ruff check .
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Check frontend types
+        working-directory: frontend
+        run: npm run typecheck
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+      - name: Install Playwright Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Start backend for browser tests
+        shell: bash
+        run: |
+          uv run uvicorn src.main:app --host 127.0.0.1 --port 18001 > backend.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:18001/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat backend.log
+          exit 1
+      - name: Run browser end-to-end tests
+        working-directory: frontend
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: frontend/test-results
+          if-no-files-found: ignore

@@ -45,10 +45,12 @@ async def http_exception_handler(
         code = "http_error"
         message = detail if isinstance(detail, str) else "请求失败"
         details = None if isinstance(detail, str) else detail
+    headers = dict(exception.headers or {})
+    headers["X-Request-ID"] = _request_id(request)
     return JSONResponse(
         status_code=exception.status_code,
         content=_body(request, code, message, details or None),
-        headers={"X-Request-ID": _request_id(request)},
+        headers=headers,
     )
 
 

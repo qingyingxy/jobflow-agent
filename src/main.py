@@ -21,8 +21,10 @@ from src.api.profiles import router as profile_router
 from src.config import get_settings
 from src.errors import register_exception_handlers
 from src.logging_config import configure_logging
+from src.services.oidc_auth import validate_auth_configuration
 
 settings = get_settings()
+validate_auth_configuration(settings)
 configure_logging(settings.log_level)
 logger = logging.getLogger("jobflow.api")
 

@@ -64,6 +64,7 @@ async def test_deployed_environment_requires_trusted_gateway_identity(
     transport = httpx.ASGITransport(app=app)
     insecure = Settings(
         app_env="production",
+        auth_mode="local",
         allow_insecure_user_header=True,
         trusted_identity_header=None,
     )
@@ -75,10 +76,11 @@ async def test_deployed_environment_requires_trusted_gateway_identity(
         )
 
     assert refused.status_code == 503
-    assert refused.json()["error"]["code"] == "trusted_identity_not_configured"
+    assert refused.json()["error"]["code"] == "authentication_not_configured"
 
     trusted = Settings(
         app_env="production",
+        auth_mode="trusted_header",
         allow_insecure_user_header=False,
         trusted_identity_header="X-Verified-User-ID",
     )
