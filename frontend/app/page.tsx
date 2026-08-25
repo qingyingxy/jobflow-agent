@@ -227,6 +227,7 @@ type DiscoveryRunItem = {
   analysis_completed_count: number;
   analysis_failure_count: number;
   analysis_status: "NOT_REQUESTED" | "PENDING" | "RUNNING" | "SUCCEEDED" | "PARTIAL" | "FAILED";
+  search_plan: DiscoverySearchPlan | null;
   agent_trace: DiscoveryAgentTraceStep[];
   result_matches: DiscoveryResultMatch[];
   failure_summary: string | null;
@@ -251,6 +252,31 @@ type DiscoveryAgentTraceStep = {
   source_id: string | null;
   company: string | null;
   url: string | null;
+  occurred_at?: string | null;
+  duration_ms?: number | null;
+  error_code?: string | null;
+  details?: Record<string, unknown>;
+};
+
+type DiscoverySearchPlan = {
+  version: string;
+  planner: string;
+  query: string | null;
+  allowed_source_ids: string[];
+  routes: Array<{
+    source_id: string;
+    company: string | null;
+    source_url: string;
+    tool_sequence: string[];
+  }>;
+  budget: {
+    max_results: number;
+    max_analysis: number;
+    max_detail_links_per_source: number | null;
+    max_concurrency: number | null;
+    request_timeout_seconds: number | null;
+  };
+  stop_conditions: string[];
 };
 
 type DiscoverySourceOption = {
@@ -331,7 +357,14 @@ const discoveryTraceOutcomeLabel: Record<string, string> = {
   empty: "没有事实",
   failed: "工具失败",
   needs_adapter: "需要适配",
+  route_exhausted: "路线耗尽",
   recommended: "建议人工接管",
+};
+
+const discoveryStopConditionLabel: Record<string, string> = {
+  max_results_reached: "达到结果上限",
+  source_route_exhausted: "来源路线耗尽",
+  no_verified_jobs_requires_human_input: "无事实时人工接管",
 };
 
 const featuredDiscoveryCompanyIds = [
@@ -1557,7 +1590,7 @@ function DiscoveryWorkspace({
           <div>
             <div className="section-kicker"><span>01</span> 即时发现岗位</div>
             <h2>把模糊目标交给 <em>官方来源。</em></h2>
-            <p>描述目标后，Agent 会在登记的官方来源中规划工具路线，依次尝试结构化数据、静态页面和专用 Adapter；无法验证时停止生成岗位并请求人工补充 JD。</p>
+            <p>描述目标后，Agent 会把所选公司锁定为来源白名单：已适配公司优先走专用 Adapter，其余公司使用受控页面验证；工具路线耗尽时停止生成岗位并请求人工补充 JD。</p>
           </div>
           <span className="discovery-safety-mark">TOOL ROUTING / HUMAN GATE</span>
         </div>
@@ -1870,12 +1903,41 @@ function DiscoveryRunHistory({ runs }: { runs: DiscoveryRunItem[] }) {
               {run.agent_trace?.length ? (
                 <details className="discovery-agent-trace">
                   <summary>AGENT TRACE / {run.agent_trace.length.toString().padStart(2, "0")} STEPS</summary>
+                  {run.search_plan ? (
+                    <div className="discovery-plan-contract">
+                      <div className="discovery-plan-heading">
+                        <span>{run.search_plan.version.toUpperCase()}</span>
+                        <strong>
+                          白名单 {run.search_plan.allowed_source_ids.length} · 岗位上限 {run.search_plan.budget.max_results} · 自动分析 {run.search_plan.budget.max_analysis}
+                        </strong>
+                      </div>
+                      <div className="discovery-plan-routes">
+                        {run.search_plan.routes.slice(0, 6).map((route) => (
+                          <p key={`${run.id}-${route.source_id}-plan`}>
+                            <b>{route.company ?? route.source_id}</b>
+                            <span>{route.tool_sequence.join(" → ")}</span>
+                          </p>
+                        ))}
+                        {run.search_plan.routes.length > 6 ? (
+                          <p><b>其余来源</b><span>还有 {run.search_plan.routes.length - 6} 条受控路线</span></p>
+                        ) : null}
+                      </div>
+                      <div className="discovery-plan-stops">
+                        {run.search_plan.stop_conditions.map((condition) => (
+                          <span key={`${run.id}-${condition}`}>{discoveryStopConditionLabel[condition] ?? condition}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="discovery-agent-trace-list">
                     {run.agent_trace.map((step, index) => (
                       <article className={`discovery-agent-step trace-${step.outcome}`} key={`${run.id}-${index}-${step.tool}`}>
                         <div>
                           <span>{(index + 1).toString().padStart(2, "0")} · {step.phase.toUpperCase()}</span>
                           <strong>{discoveryTraceOutcomeLabel[step.outcome] ?? step.outcome}</strong>
+                          {step.duration_ms !== null && step.duration_ms !== undefined ? <small>{step.duration_ms} MS</small> : null}
+                          {typeof step.details?.output_count === "number" ? <small>OUTPUT {step.details.output_count}</small> : null}
+                          {step.error_code ? <code>{step.error_code}</code> : null}
                         </div>
                         <h3>{step.company ? `${step.company} / ` : ""}{step.tool}</h3>
                         <p>{step.observation}</p>

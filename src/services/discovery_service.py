@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from time import perf_counter
 from urllib.parse import urlsplit, urlunsplit
 
 from sqlalchemy import or_, select
@@ -11,8 +12,11 @@ from sqlalchemy.orm import Session
 from src.config import get_settings
 from src.domain.application import CandidateStatus
 from src.domain.discovery import (
+    DiscoveryPlanBudget,
+    DiscoveryPlanRoute,
     DiscoveryRun,
     DiscoveryRunStatus,
+    DiscoverySearchPlan,
     generate_discovery_run_id,
 )
 from src.domain.job import JobPosting
@@ -75,6 +79,11 @@ class DiscoveryService:
     ) -> DiscoveryRun:
         if self.adapter is None:
             raise RuntimeError("发现运行缺少来源适配器")
+        search_plan = self._build_search_plan(
+            search_query=search_query,
+            max_results=max_results,
+        )
+        started_at = datetime.now(UTC)
         run = DiscoveryRun(
             id=generate_discovery_run_id(),
             user_id=user_id,
@@ -83,9 +92,10 @@ class DiscoveryService:
             search_query=search_query,
             max_results=max_results,
             status=DiscoveryRunStatus.RUNNING.value,
-            agent_trace=[self._plan_trace()],
+            search_plan=search_plan.model_dump(mode="json"),
+            agent_trace=[self._plan_trace(search_plan, occurred_at=started_at)],
             result_matches=[],
-            started_at=datetime.now(UTC),
+            started_at=started_at,
         )
         self.session.add(run)
         self.session.commit()
@@ -113,6 +123,7 @@ class DiscoveryService:
             self._mark_failed(run.id, error)
             raise self._failure(run.id, error) from error
 
+        validation_started = perf_counter()
         failures: list[str] = []
         result_matches: list[dict[str, object]] = []
         new_count = 0
@@ -152,10 +163,14 @@ class DiscoveryService:
             strict_count=len(self.analysis_job_ids),
             expanded_count=len(result_matches) - len(self.analysis_job_ids),
             failure_count=len(all_failures),
+            duration_ms=max(
+                0,
+                round((perf_counter() - validation_started) * 1000),
+            ),
         )
         run.agent_trace = [
-            *(run.agent_trace or [self._plan_trace()]),
-            *adapter_trace[:40],
+            *(run.agent_trace or []),
+            *adapter_trace[:55],
             result_trace,
         ]
         if not stubs:
@@ -170,6 +185,10 @@ class DiscoveryService:
                     "source_id": None,
                     "company": None,
                     "url": None,
+                    "occurred_at": datetime.now(UTC).isoformat(),
+                    "duration_ms": None,
+                    "error_code": None,
+                    "details": {"requires_human_input": True},
                 },
             ]
         should_analyze = bool(getattr(self.adapter, "auto_analyze_top", False))
@@ -248,6 +267,12 @@ class DiscoveryService:
                     "source_id": None,
                     "company": None,
                     "url": None,
+                    "occurred_at": finished_at.isoformat(),
+                    "duration_ms": None,
+                    "error_code": "discovery_run_timeout",
+                    "details": {
+                        "timeout_seconds": self.run_timeout_seconds,
+                    },
                 },
             ][-60:]
             run.finished_at = finished_at
@@ -336,7 +361,7 @@ class DiscoveryService:
         run.analysis_status = "FAILED"
         run.failure_summary = str(error)[:4000]
         run.agent_trace = [
-            *(run.agent_trace or [self._plan_trace()]),
+            *(run.agent_trace or []),
             {
                 "phase": "stop",
                 "tool": "discovery_orchestrator",
@@ -346,29 +371,89 @@ class DiscoveryService:
                 "source_id": None,
                 "company": None,
                 "url": None,
+                "occurred_at": datetime.now(UTC).isoformat(),
+                "duration_ms": None,
+                "error_code": getattr(error, "code", "discovery_source_failed"),
+                "details": {},
             },
         ]
         run.finished_at = datetime.now(UTC)
         self.session.commit()
 
-    def _plan_trace(self) -> dict[str, object]:
+    def _build_search_plan(
+        self,
+        *,
+        search_query: str | None,
+        max_results: int,
+    ) -> DiscoverySearchPlan:
         if self.adapter is None:
-            source_count = 0
-        else:
-            sources = getattr(self.adapter, "sources", None)
-            source_count = len(sources) if isinstance(sources, list) else 1
+            raise RuntimeError("发现运行缺少来源适配器")
+        builder = getattr(self.adapter, "build_search_plan", None)
+        if callable(builder):
+            return builder(query=search_query, max_results=max_results)
+
+        source_id = self.adapter.source_id
+        return DiscoverySearchPlan(
+            query=search_query,
+            allowed_source_ids=[source_id],
+            routes=[
+                DiscoveryPlanRoute(
+                    source_id=source_id,
+                    company=None,
+                    source_url=self.adapter.source_url,
+                    tool_sequence=["source_adapter"],
+                )
+            ],
+            budget=DiscoveryPlanBudget(
+                max_results=min(max_results, 20),
+                max_analysis=(
+                    5 if getattr(self.adapter, "auto_analyze_top", False) else 0
+                ),
+                max_concurrency=1,
+            ),
+            stop_conditions=[
+                "max_results_reached",
+                "source_route_exhausted",
+            ],
+        )
+
+    @staticmethod
+    def _plan_trace(
+        plan: DiscoverySearchPlan,
+        *,
+        occurred_at: datetime,
+    ) -> dict[str, object]:
+        dedicated_count = sum(
+            route.tool_sequence[0]
+            in {"bytedance_public_job_adapter", "tencent_public_job_adapter"}
+            for route in plan.routes
+        )
+        static_count = len(plan.routes) - dedicated_count
         return {
             "phase": "plan",
-            "tool": "discovery_orchestrator",
+            "tool": "bounded_discovery_planner",
             "outcome": "selected",
-            "observation": f"已登记 {source_count} 个本次允许访问的公开来源。",
+            "observation": (
+                f"已将 {len(plan.allowed_source_ids)} 个用户选择的官方来源锁定为"
+                "本次访问白名单。"
+            ),
             "decision": (
-                "按结构化数据、静态页面、专用 Adapter、人工粘贴 JD 的"
-                "有界顺序执行。"
+                f"{dedicated_count} 个来源优先使用专用 Adapter，"
+                f"{static_count} 个来源直接使用受控页面验证；"
+                "失败时只按计划内后续工具回退，并严格执行结果上限和停止条件。"
             ),
             "source_id": None,
             "company": None,
             "url": None,
+            "occurred_at": occurred_at.isoformat(),
+            "duration_ms": 0,
+            "error_code": None,
+            "details": {
+                "plan_version": plan.version,
+                "allowed_source_ids": plan.allowed_source_ids,
+                "budget": plan.budget.model_dump(mode="json"),
+                "stop_conditions": plan.stop_conditions,
+            },
         }
 
     @staticmethod
@@ -378,6 +463,7 @@ class DiscoveryService:
         strict_count: int,
         expanded_count: int,
         failure_count: int,
+        duration_ms: int,
     ) -> dict[str, object]:
         return {
             "phase": "observe",
@@ -398,6 +484,15 @@ class DiscoveryService:
             "source_id": None,
             "company": None,
             "url": None,
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "duration_ms": duration_ms,
+            "error_code": None,
+            "details": {
+                "output_count": discovered_count,
+                "strict_count": strict_count,
+                "expanded_count": expanded_count,
+                "failure_count": failure_count,
+            },
         }
 
     def _item_failure(self, index: int, stub: JobStub, error: Exception) -> str:

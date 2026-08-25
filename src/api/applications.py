@@ -406,7 +406,7 @@ async def create_suggestion(
         response_status = (
             status.HTTP_503_SERVICE_UNAVAILABLE
             if error.code in {"model_timeout", "model_unavailable", "model_error"}
-            else status.HTTP_422_UNPROCESSABLE_ENTITY
+            else status.HTTP_422_UNPROCESSABLE_CONTENT
         )
         raise HTTPException(
             status_code=response_status,
@@ -492,7 +492,7 @@ def decide_suggestion(
         ) from error
     except ValueError as error:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={"code": "invalid_suggestion_decision", "message": str(error)},
         ) from error
     return _suggestion_response(suggestion)

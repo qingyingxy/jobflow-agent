@@ -2497,6 +2497,69 @@ textarea::placeholder {
   border-bottom: 1px solid var(--line-soft);
 }
 
+.discovery-plan-contract {
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 12px;
+  background: rgba(181, 220, 125, 0.1);
+}
+
+.discovery-plan-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.discovery-plan-heading span,
+.discovery-plan-heading strong {
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+.discovery-plan-heading span {
+  color: var(--muted-ink);
+}
+
+.discovery-plan-routes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 16px;
+}
+
+.discovery-plan-routes p {
+  display: grid;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.discovery-plan-routes b {
+  color: var(--ink);
+}
+
+.discovery-plan-routes span {
+  color: var(--muted-ink);
+  overflow-wrap: anywhere;
+}
+
+.discovery-plan-stops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.discovery-plan-stops span {
+  border: 1px solid rgba(23, 33, 29, 0.14);
+  padding: 3px 6px;
+  color: var(--muted-ink);
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
 .discovery-agent-trace-list {
   display: grid;
   max-height: 380px;
@@ -2533,6 +2596,14 @@ textarea::placeholder {
   font-size: 9px;
 }
 
+.discovery-agent-step small,
+.discovery-agent-step code {
+  color: var(--muted-ink);
+  font-family: inherit;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
 .discovery-agent-step h3,
 .discovery-agent-step p {
   margin: 0;
@@ -2551,6 +2622,7 @@ textarea::placeholder {
 }
 
 .trace-needs_adapter strong,
+.trace-route_exhausted strong,
 .trace-recommended strong,
 .trace-failed strong {
   color: var(--coral);
@@ -3565,6 +3637,15 @@ textarea::placeholder {
   .discovery-agent-step {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+
+  .discovery-plan-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .discovery-plan-routes {
+    grid-template-columns: 1fr;
   }
 
   .result-heading {

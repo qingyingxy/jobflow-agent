@@ -2,7 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：本地作品集版已完成；M11 的 39 条真实岗位 Parser 评测与 Playwright 演示已落地
+> 当前状态：本地作品集版已完成；M11 的 39 条岗位 Parser 评测、M12 的 13 场景 Discovery Agent 控制面评测与 Playwright 演示已落地
+> 下一阶段：按 M13～M19 演进为“宽发现、严验证、人工确认提交”的可信求职投递系统。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -121,17 +122,19 @@ Agent 负责读取、分析和提出建议
 
 ### 5.1 Discovery Agent & Ingestion Tools
 
-负责根据用户求职意向规划岗位读取路径，并读取用户选中的岗位信息。Agent Orchestrator 只在允许的官方来源和受控工具之间决策；固定解析器、来源 Adapter、URL Reader、岗位标准化与去重都是它调用的确定性工具，而不是 Agent 本身。
+负责根据用户求职意向编排岗位读取路径，并读取用户选中的岗位信息。当前 Planner 使用确定性策略，不允许模型自由生成 URL 或突破工具预算；来源 Adapter、URL Reader、岗位标准化与去重都是受控执行工具。
 
-每次运行持久化 `agent_trace`，至少记录：
+每次运行在发出网络请求前先持久化结构化 `search_plan`，其中包含用户允许的来源白名单、逐来源工具顺序、结果与分析预算以及停止条件。执行阶段再持久化 `agent_trace`，至少记录：
 
 ```text
-plan：本次允许访问哪些来源，采用什么有界工具顺序
-act：选择结构化数据、静态页面或专用 Adapter
+plan：本次允许访问哪些来源，各来源采用什么有界工具顺序
+act：已适配来源优先使用专用 Adapter，其余来源使用受控页面验证
 observe：工具返回了岗位事实、空结果还是失败原因
 fallback：为什么切换工具或请求用户粘贴 JD
 stop：为什么生成候选岗位或拒绝把页面当作岗位
 ```
+
+轨迹步骤同时保存发生时间、耗时、稳定错误码和关键计数。专用 Adapter 失败后回退静态页面时，两次真实执行都会保留，最终成功步骤不会覆盖前面的失败记录。
 
 输入：
 
@@ -415,8 +418,9 @@ Agent Trace：
 
 ```text
 调用了什么工具
-工具输入摘要
+本次允许访问哪些来源与工具
 工具是否成功
+工具耗时、输出数量和稳定错误码
 是否发生回退
 模型输出是否通过校验
 最终使用了哪些证据
@@ -564,8 +568,7 @@ flowchart LR
 ### Agent 负责
 
 - 理解用户求职意向并生成检索条件；
-- 判断岗位页面类型和语义相关性；
-- 在系统允许的工具范围内提出读取或回退建议；
+- 判断岗位与求职目标的语义相关性；
 - 解析非结构化 JD；
 - 判断岗位要求与经历之间的语义关系；
 - 解释匹配结论；
@@ -574,7 +577,8 @@ flowchart LR
 ### 确定性代码负责
 
 - 数据模型校验；
-- 招聘来源注册和 Adapter 路由；
+- 生成并校验来源白名单、工具预算和停止条件；
+- 判断页面类型并执行招聘来源注册和 Adapter 路由；
 - URL、工具、超时和重试策略；
 - 硬性资格规则；
 - 匹配分数计算；
@@ -1002,7 +1006,7 @@ M09 已实现 `SuggestionTargetInput`、`ResumeSuggestion` 和 `SuggestionServic
 
 ### M10 岗位发现池与来源安全
 
-M10 已完成 `SafeHTTPReader`、Generic HTML / JSON-LD 提取、`JobSourceAdapter`、`OfficialCompanyRegistryAdapter`、`GreenhouseAdapter`、字节跳动 / 腾讯专用 Adapter、40 家官方来源注册表、`DiscoveryRun` 和岗位发现页。发现搜索是用户手动触发的只读流程：系统限制协议、端口、凭据、DNS 解析结果、重定向、响应大小、超时和重试次数；页面正文中的脚本、样式、隐藏元素不会进入岗位原文。通用规则会拒绝招聘指南、投递流程、FAQ、活动和列表页；动态页面无法静态取得具体岗位时会记录来源失败并提示需要专用 Adapter。每次搜索最多保存 20 条岗位，持久化严格匹配 / 拓展候选及原因，并只自动分析严格匹配前 5 条；结果使用来源岗位 ID、规范 URL 和内容指纹按优先级去重，首次发现创建 `DISCOVERED` 候选，重复运行不会创建重复 `JobPosting` 或 `Application`。
+M10 已完成 `SafeHTTPReader`、Generic HTML / JSON-LD 提取、`JobSourceAdapter`、`OfficialCompanyRegistryAdapter`、`GreenhouseAdapter`、字节跳动 / 腾讯专用 Adapter、40 家官方来源注册表、`DiscoveryRun` 和岗位发现页。发现搜索是用户手动触发的只读流程：网络请求前先保存经过 Schema 校验的 `search_plan`，锁定来源白名单、逐来源工具顺序、Top 20 / Top 5 预算和停止条件；执行轨迹保存每一步耗时、输出数量、错误码和真实回退顺序。系统限制协议、端口、凭据、DNS 解析结果、重定向、响应大小、超时和重试次数；页面正文中的脚本、样式、隐藏元素不会进入岗位原文。通用规则会拒绝招聘指南、投递流程、FAQ、活动和列表页；动态页面无法静态取得具体岗位时会记录来源失败并提示需要专用 Adapter。每次搜索最多保存 20 条岗位，持久化严格匹配 / 拓展候选及原因，并只自动分析严格匹配前 5 条；结果使用来源岗位 ID、规范 URL 和内容指纹按优先级去重，首次发现创建 `DISCOVERED` 候选，重复运行不会创建重复 `JobPosting` 或 `Application`。
 
 如果本机使用 Mihomo/Clash 的 Fake-IP DNS，设置 `URL_FETCH_PROXY=http://127.0.0.1:7890` 后，读取器会通过显式本地代理访问官网。`URL_FETCH_PROXY_ALLOW_UNLISTED_HOSTS` 默认关闭；本地开发需要跟随官网跳转到飞书招聘、热招网等外部招聘域名时可以显式设为 `true`。该模式仍拒绝本机/内网字面量 IP、异常端口、带凭据 URL，并限制协议和重定向次数；生产环境应优先使用 `redir-host` 或维护明确的外部来源白名单。
 
@@ -1024,6 +1028,18 @@ uv run python -m src.evaluation.run --manifest datasets/m11_evaluation_manifest.
 ```
 
 真实 prediction 生成命令、指标口径和 39 条结果见 [`docs/EVALUATION.md`](docs/EVALUATION.md) 与 [`docs/evaluation/m11-ai-campus-39-summary.json`](docs/evaluation/m11-ai-campus-39-summary.json)。开发预测夹具故意包含错误，只用于验收评测器能发现资格误接受和非法证据，不能作为模型效果或简历数据。
+
+### M12 Discovery Agent 控制面评测
+
+M12 用 13 个离线确定性场景单独验证 Agent 控制面，不把固定 Fixture 当成真实官网搜索效果。场景覆盖来源白名单和 SSRF 阻断、字节/腾讯专用 Adapter 路由、Adapter 失败与空结果回退、单来源故障隔离、动态页面和招聘指南拒收、人工 JD 接管、Top20 / Top5 预算门控，以及重复发现的状态幂等性。
+
+当前固定版本 13/13 场景通过：来源越权访问率 0% (0/2)、轨迹完整率 100% (11/11)、工具路由准确率 100% (9/9)、回退正确率 100% (3/3)、非岗位误收率 0% (0/2)、人工接管准确率 100% (2/2)、预算合规率 100% (2/2)、状态一致率 100% (1/1)。这些比例只适用于已列明的离线控制面场景，不代表真实官网召回率或完整 Agent 准确率。
+
+```text
+uv run python -m src.evaluation.discovery_agent --manifest datasets/m12_discovery_agent_manifest.json --output docs/evaluation/m12-discovery-agent-summary.json --markdown docs/DISCOVERY_AGENT_EVALUATION.md
+```
+
+完整指标口径、逐场景结果和限制见 [`docs/DISCOVERY_AGENT_EVALUATION.md`](docs/DISCOVERY_AGENT_EVALUATION.md)。
 
 ## 15. 安全与数据边界
 
@@ -1103,7 +1119,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M11 的本地作品集闭环已经完成：39 条真实岗位 Parser 评测、Playwright E2E 与演示素材、字节跳动 / 腾讯专用 Adapter、超时发现任务恢复、评测契约、AgentRun 汇总和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 与官方公司注册表已经可重复测试。这个结论限定于 SQLite 单机作品集场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M12 的本地作品集闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 离线控制面场景、Playwright E2E 与演示素材、字节跳动 / 腾讯专用 Adapter、超时发现任务恢复、评测契约、AgentRun 汇总和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 与官方公司注册表已经可重复测试。这个结论限定于 SQLite 单机作品集场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1158,7 +1174,7 @@ M01～M11 的本地作品集闭环已经完成：39 条真实岗位 Parser 评�
 → unknown、读取失败和无证据场景可以正常展示
 ```
 
-更多来源、100～300 条岗位、岗位快照、变化检测和复杂 Playwright 动态页面回退属于核心 MVP 完成后的扩展目标；第 2 个大厂专用来源已由 `TencentAdapter` 完成。
+多渠道线索、官方验证、岗位快照、变化检测和复杂 Playwright 动态页面回退从 M13 起按下述路线继续实现；第 2 个大厂专用来源已由 `TencentAdapter` 完成。
 
 在当前阶段达到完成条件之前，不进入下一阶段。
 
@@ -1202,3 +1218,71 @@ Agent 能处理非结构化 JD
 ```
 
 本项目不追求成为完整招聘平台，而是完成一个范围清晰、结果可解释、具备人工控制的求职 Agent 产品闭环。
+
+## 20. M13～M19 改造路线
+
+下一阶段的产品目标是从“岗位分析与申请管理作品集”演进为可信的人机协同求职投递系统。核心策略是：
+
+```text
+宽发现、严验证
+→ 先实现人工提交但系统全程管理
+→ 再加入范围明确的浏览器辅助
+```
+
+### 20.1 改造原则
+
+- 保留现有 Discovery、Parser、Eligibility、Evidence 和 Application 状态机；
+- 外部 Agent、第三方平台和网页搜索只能提交 `JobLead`，不能直接创建可信 `JobPosting`；
+- 搜索摘要不作为岗位事实，正式岗位必须经过正文读取、来源验证、标准化和去重；
+- 使用独立的 `ApplicationPacket` 和 `ApplicationAttempt` 管理投递准备与表单执行，不把临时状态塞入现有 `Application`；
+- Agent 只能提出建议，不能确认敏感事实或直接改变提交状态；
+- `SUBMITTED` 必须绑定真实 `SubmissionReceipt`；
+- 已批准的投递包不可原地修改，任何变更生成新版本；
+- 不绕过登录、验证码、Cloudflare、反自动化控制或 2FA。
+
+### 20.2 目标架构
+
+```mermaid
+flowchart LR
+    INTENT["用户求职意图"] --> QUERY["DiscoveryRun / Search Plan"]
+    QUERY --> OFFICIAL["Official / ATS Providers"]
+    QUERY --> AGENT["External Agent Web Search"]
+    QUERY --> MANUAL["Manual Import"]
+    OFFICIAL --> LEAD["JobLead"]
+    AGENT --> LEAD
+    MANUAL --> LEAD
+    LEAD --> VERIFY["Lead Verifier"]
+    VERIFY -->|"verified"| JOB["JobPosting"]
+    VERIFY -->|"needs help"| HANDOFF["Browser / User Handoff"]
+    JOB --> ANALYSIS["Parser / Eligibility / Evidence"]
+    ANALYSIS --> APPLICATION["Application"]
+    APPLICATION --> PACKET["ApplicationPacket"]
+    PACKET --> ATTEMPT["ApplicationAttempt"]
+    ATTEMPT --> APPROVAL["Human Approval"]
+    APPROVAL --> RECEIPT["SubmissionReceipt"]
+    RECEIPT --> FOLLOWUP["Follow-up Timeline"]
+```
+
+`JobLead` 只是待验证线索；只有验证成功后才生成 `JobPosting` 并进入严格匹配和完整分析。外部 Agent 可以扩大岗位覆盖范围，但不能绕过系统的来源、证据和状态边界。
+
+### 20.3 里程碑
+
+| 里程碑 | 目标 | 主要成果 |
+|---|---|---|
+| M13 | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
+| M14 | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
+| M15 | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
+| M16 | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
+| M17 | 跟进中心 | 测评、面试、截止日期、日历和待办 |
+| M18 | 有限浏览器辅助 | Greenhouse / Lever 等 ATS Adapter |
+| M19 | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |
+
+详细任务、依赖关系和验收条件见 [`TODO.md`](TODO.md)。
+
+### 20.4 版本切分
+
+- `v0.2 Trusted Discovery`：完成 M13，形成多渠道发现、官方验证、统一入库的岗位入口；
+- `v0.3 Verified Application Preparation`：完成 M14～M17，支持人工提交但系统管理投递包、阻塞、凭证和跟进；
+- `v0.4 Assisted Apply`：完成 M18～M19，在明确授权和可审计边界内辅助填写有限 ATS。
+
+下一阶段仍不以自动海投量为成功标准。核心指标是岗位事实可验证、材料内容可追溯、敏感答案不被猜测、最终提交有明确授权，并且任何 `SUBMITTED` 状态都能找到真实凭证。

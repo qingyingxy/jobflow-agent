@@ -108,6 +108,7 @@ async def execute_official_search(
             outcome="selected",
             observation=f"准备分析排序靠前的 {len(job_ids)} 条岗位。",
             decision="语义抽取交给模型，资格、证据和评分交给确定性代码。",
+            details={"analysis_target_count": len(job_ids)},
         )
         session.commit()
 
@@ -196,6 +197,11 @@ def _finish_analysis(session: Session, run_id: str) -> None:
             f"失败 {run.analysis_failure_count} 条。"
         ),
         decision="等待用户查看证据并决定是否准备申请。",
+        details={
+            "analysis_target_count": run.analysis_target_count,
+            "analysis_completed_count": run.analysis_completed_count,
+            "analysis_failure_count": run.analysis_failure_count,
+        },
     )
     run.finished_at = datetime.now(UTC)
     session.commit()
@@ -225,6 +231,8 @@ def _finish_analysis_with_failure(
         outcome="failed",
         observation=detail,
         decision="不保存半成品分析，保留岗位事实并向用户报告失败。",
+        error_code="analysis_failed",
+        details={"analysis_target_count": target_count},
     )
     run.finished_at = datetime.now(UTC)
     session.commit()
@@ -244,6 +252,7 @@ def _finish_run_with_failure(session: Session, run_id: str, detail: str) -> None
         outcome="failed",
         observation=detail,
         decision="停止运行并保留失败轨迹。",
+        error_code="discovery_failed",
     )
     run.finished_at = datetime.now(UTC)
     session.commit()
@@ -257,6 +266,8 @@ def _append_agent_trace(
     outcome: str,
     observation: str,
     decision: str,
+    error_code: str | None = None,
+    details: dict[str, object] | None = None,
 ) -> None:
     run.agent_trace = [
         *(run.agent_trace or []),
@@ -269,5 +280,9 @@ def _append_agent_trace(
             "source_id": None,
             "company": None,
             "url": None,
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "duration_ms": None,
+            "error_code": error_code,
+            "details": details or {},
         },
     ][-60:]

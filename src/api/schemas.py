@@ -10,6 +10,7 @@ from src.domain.application import (
     ApplicationStatus,
     CandidateStatus,
 )
+from src.domain.discovery import DiscoverySearchPlan
 from src.domain.eligibility import EligibilityResult, SearchPreferences
 from src.domain.job import StructuredJobDescription, normalize_job_text
 from src.domain.matching import MatchScore, RequirementMatch
@@ -192,6 +193,10 @@ class DiscoveryAgentTraceStep(BaseModel):
     source_id: str | None = None
     company: str | None = None
     url: str | None = None
+    occurred_at: datetime | None = None
+    duration_ms: int | None = Field(default=None, ge=0)
+    error_code: str | None = None
+    details: dict[str, object] = Field(default_factory=dict)
 
 
 class DiscoveryResultMatchRead(BaseModel):
@@ -218,6 +223,7 @@ class DiscoveryRunRead(BaseModel):
     analysis_completed_count: int = 0
     analysis_failure_count: int = 0
     analysis_status: str = "NOT_REQUESTED"
+    search_plan: DiscoverySearchPlan | None = None
     agent_trace: list[DiscoveryAgentTraceStep] = Field(default_factory=list)
     result_matches: list[DiscoveryResultMatchRead] = Field(default_factory=list)
     failure_summary: str | None

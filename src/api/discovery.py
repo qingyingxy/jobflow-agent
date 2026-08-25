@@ -125,7 +125,7 @@ async def create_official_search(
         adapter = create_official_search_adapter(payload.query, payload.company_ids)
     except ValueError as error:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={"code": "unknown_company_source", "message": str(error)},
         ) from error
     service = DiscoveryService(session, adapter)

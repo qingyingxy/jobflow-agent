@@ -3,11 +3,17 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from time import perf_counter
 from typing import ClassVar, Protocol
 from urllib.parse import urlencode, urljoin, urlsplit
 
+from src.domain.discovery import (
+    DiscoveryPlanBudget,
+    DiscoveryPlanRoute,
+    DiscoverySearchPlan,
+)
 from src.services.company_registry import CompanySource
 from src.services.url_reader import (
     HTMLLink,
@@ -97,8 +103,12 @@ class DiscoveryAgentTraceStep:
     source_id: str | None = None
     company: str | None = None
     url: str | None = None
+    occurred_at: str | None = None
+    duration_ms: int | None = None
+    error_code: str | None = None
+    details: dict[str, object] = field(default_factory=dict)
 
-    def as_dict(self) -> dict[str, str | None]:
+    def as_dict(self) -> dict[str, object]:
         return {
             "phase": self.phase,
             "tool": self.tool,
@@ -108,6 +118,10 @@ class DiscoveryAgentTraceStep:
             "source_id": self.source_id,
             "company": self.company,
             "url": self.url,
+            "occurred_at": self.occurred_at,
+            "duration_ms": self.duration_ms,
+            "error_code": self.error_code,
+            "details": self.details,
         }
 
 
@@ -164,6 +178,35 @@ class GreenhouseAdapter:
     @property
     def api_base_url(self) -> str:
         return f"https://{self.api_host}/v1/boards/{self.board_token}"
+
+    def build_search_plan(
+        self,
+        *,
+        query: str | None,
+        max_results: int,
+    ) -> DiscoverySearchPlan:
+        return DiscoverySearchPlan(
+            query=query,
+            allowed_source_ids=[self.source_id],
+            routes=[
+                DiscoveryPlanRoute(
+                    source_id=self.source_id,
+                    company=self.company_override,
+                    source_url=self.source_url,
+                    tool_sequence=["greenhouse_public_job_api"],
+                )
+            ],
+            budget=DiscoveryPlanBudget(
+                max_results=min(max_results, 20),
+                max_analysis=0,
+                max_concurrency=1,
+                request_timeout_seconds=_reader_timeout(self.reader),
+            ),
+            stop_conditions=[
+                "max_results_reached",
+                "source_route_exhausted",
+            ],
+        )
 
     async def list_jobs(self) -> list[JobStub]:
         _, payload = await self.reader.fetch_json(f"{self.api_base_url}/jobs?content=true")
@@ -630,7 +673,53 @@ class OfficialCompanyRegistryAdapter:
         self.max_concurrency = max(1, max_concurrency)
         self.failures: list[str] = []
         self.trace_steps: list[DiscoveryAgentTraceStep] = []
-        self._source_steps: dict[str, DiscoveryAgentTraceStep] = {}
+        self._source_steps: dict[str, list[DiscoveryAgentTraceStep]] = {}
+
+    def build_search_plan(
+        self,
+        *,
+        query: str | None,
+        max_results: int,
+    ) -> DiscoverySearchPlan:
+        sources = [source for source in self.sources if source.enabled]
+        return DiscoverySearchPlan(
+            query=query,
+            allowed_source_ids=[source.id for source in sources],
+            routes=[
+                DiscoveryPlanRoute(
+                    source_id=source.id,
+                    company=source.company,
+                    source_url=source.career_url,
+                    tool_sequence=self._tool_sequence(source),
+                )
+                for source in sources
+            ],
+            budget=DiscoveryPlanBudget(
+                max_results=min(max_results, self.max_jobs),
+                max_analysis=5,
+                max_detail_links_per_source=self.max_detail_links_per_source,
+                max_concurrency=self.max_concurrency,
+                request_timeout_seconds=_reader_timeout(self.reader),
+            ),
+            stop_conditions=[
+                "max_results_reached",
+                "source_route_exhausted",
+                "no_verified_jobs_requires_human_input",
+            ],
+        )
+
+    @staticmethod
+    def _tool_sequence(source: CompanySource) -> list[str]:
+        static_tools = [
+            "json_ld_job_parser",
+            "static_job_page_validator",
+            "visible_job_link_reader",
+        ]
+        if source.id == "bytedance":
+            return ["bytedance_public_job_adapter", *static_tools]
+        if source.id == "tencent":
+            return ["tencent_public_job_adapter", *static_tools]
+        return static_tools
 
     async def list_jobs(self) -> list[JobStub]:
         self.failures = []
@@ -640,9 +729,22 @@ class OfficialCompanyRegistryAdapter:
 
         async def collect(source: CompanySource) -> list[JobStub] | Exception:
             async with semaphore:
+                occurred_at = datetime.now(UTC).isoformat()
+                started = perf_counter()
                 try:
                     return await self._list_source(source)
                 except Exception as error:  # noqa: BLE001 - isolate source failures
+                    self._set_source_step(
+                        source,
+                        phase="observe",
+                        tool="safe_http_reader",
+                        outcome="failed",
+                        observation=str(error)[:240],
+                        decision="停止当前来源，继续检查其他官方来源。",
+                        error_code=_error_code(error),
+                        occurred_at=occurred_at,
+                        duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                    )
                     return error
 
         results = await asyncio.gather(
@@ -652,14 +754,6 @@ class OfficialCompanyRegistryAdapter:
         source_list = [source for source in self.sources if source.enabled]
         for source, result in zip(source_list, results, strict=True):
             if isinstance(result, Exception):
-                self._set_source_step(
-                    source,
-                    phase="observe",
-                    tool="safe_http_reader",
-                    outcome="failed",
-                    observation=str(result)[:240],
-                    decision="停止当前来源，继续检查其他官方来源。",
-                )
                 self.failures.append(
                     f"{source.company}（{source.career_url}）：{str(result)[:240]}"
                 )
@@ -667,9 +761,9 @@ class OfficialCompanyRegistryAdapter:
             candidates.extend(result)
 
         self.trace_steps = [
-            self._source_steps[source.id]
+            step
             for source in source_list
-            if source.id in self._source_steps
+            for step in self._source_steps.get(source.id, [])
         ]
         return _rank_official_jobs(candidates, query=self.query)[: self.max_jobs]
 
@@ -688,8 +782,12 @@ class OfficialCompanyRegistryAdapter:
         observation: str,
         decision: str,
         url: str | None = None,
+        occurred_at: str | None = None,
+        duration_ms: int | None = None,
+        error_code: str | None = None,
+        details: dict[str, object] | None = None,
     ) -> None:
-        self._source_steps[source.id] = DiscoveryAgentTraceStep(
+        step = DiscoveryAgentTraceStep(
             phase=phase,
             tool=tool,
             outcome=outcome,
@@ -698,7 +796,12 @@ class OfficialCompanyRegistryAdapter:
             source_id=source.id,
             company=source.company,
             url=url or source.career_url,
+            occurred_at=occurred_at or datetime.now(UTC).isoformat(),
+            duration_ms=duration_ms,
+            error_code=error_code,
+            details=details or {},
         )
+        self._source_steps.setdefault(source.id, []).append(step)
 
     async def _list_source(self, source: CompanySource) -> list[JobStub]:
         if source.id == "bytedance":
@@ -708,11 +811,26 @@ class OfficialCompanyRegistryAdapter:
                 max_jobs=self.max_jobs,
                 company=source.company,
             )
+            occurred_at = datetime.now(UTC).isoformat()
+            started = perf_counter()
             try:
                 jobs = await adapter.list_jobs()
             except (URLReaderError, SourcePayloadError) as error:
                 self.failures.append(
                     f"{source.company} 专用 Adapter：{str(error)[:180]}；回退静态读取"
+                )
+                self._set_source_step(
+                    source,
+                    phase="fallback",
+                    tool="bytedance_public_job_adapter",
+                    outcome="failed",
+                    observation=str(error)[:240],
+                    decision="专用 Adapter 失败，按计划回退受控静态页面验证。",
+                    url=ByteDanceAdapter.search_url,
+                    occurred_at=occurred_at,
+                    duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                    error_code=_error_code(error),
+                    details={"output_count": 0},
                 )
             else:
                 self.failures.extend(adapter.warnings)
@@ -724,7 +842,7 @@ class OfficialCompanyRegistryAdapter:
                     )
                     self._set_source_step(
                         source,
-                        phase="decide",
+                        phase="act",
                         tool="bytedance_public_job_adapter",
                         outcome="succeeded",
                         observation=(
@@ -733,10 +851,32 @@ class OfficialCompanyRegistryAdapter:
                         ),
                         decision="保留真实地点与正文，进入统一排序、去重和分析。",
                         url=ByteDanceAdapter.search_url,
+                        occurred_at=occurred_at,
+                        duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                        details={
+                            "output_count": len(jobs),
+                            "keyword_probe_count": len(adapter.search_terms),
+                            "used_location_fallback": adapter.used_location_fallback,
+                        },
                     )
                     return jobs
                 self.failures.append(
                     f"{source.company} 专用 Adapter：官方接口未返回匹配岗位；回退静态读取"
+                )
+                self._set_source_step(
+                    source,
+                    phase="fallback",
+                    tool="bytedance_public_job_adapter",
+                    outcome="empty",
+                    observation="官方接口未返回可验证的匹配岗位。",
+                    decision="按计划回退受控静态页面验证。",
+                    url=ByteDanceAdapter.search_url,
+                    occurred_at=occurred_at,
+                    duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                    details={
+                        "output_count": 0,
+                        "keyword_probe_count": len(adapter.search_terms),
+                    },
                 )
         elif source.id == "tencent":
             adapter = TencentAdapter(
@@ -745,18 +885,33 @@ class OfficialCompanyRegistryAdapter:
                 max_jobs=self.max_jobs,
                 company=source.company,
             )
+            occurred_at = datetime.now(UTC).isoformat()
+            started = perf_counter()
             try:
                 jobs = await adapter.list_jobs()
             except (URLReaderError, SourcePayloadError) as error:
                 self.failures.append(
                     f"{source.company} 专用 Adapter：{str(error)[:180]}；回退静态读取"
                 )
+                self._set_source_step(
+                    source,
+                    phase="fallback",
+                    tool="tencent_public_job_adapter",
+                    outcome="failed",
+                    observation=str(error)[:240],
+                    decision="专用 Adapter 失败，按计划回退受控静态页面验证。",
+                    url=TencentAdapter.search_url,
+                    occurred_at=occurred_at,
+                    duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                    error_code=_error_code(error),
+                    details={"output_count": 0},
+                )
             else:
                 self.failures.extend(adapter.warnings)
                 if jobs:
                     self._set_source_step(
                         source,
-                        phase="decide",
+                        phase="act",
                         tool="tencent_public_job_adapter",
                         outcome="succeeded",
                         observation=(
@@ -766,14 +921,40 @@ class OfficialCompanyRegistryAdapter:
                         ),
                         decision="保留真实岗位字段，进入统一分层、去重和分析门控。",
                         url=TencentAdapter.search_url,
+                        occurred_at=occurred_at,
+                        duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                        details={
+                            "output_count": len(jobs),
+                            "keyword_probe_count": len(adapter.search_terms),
+                            "recruitment_type_count": len(
+                                adapter.recruitment_type_ids
+                            ),
+                        },
                     )
                     return jobs
                 self.failures.append(
                     f"{source.company} 专用 Adapter：官方接口未返回匹配岗位；回退静态读取"
                 )
+                self._set_source_step(
+                    source,
+                    phase="fallback",
+                    tool="tencent_public_job_adapter",
+                    outcome="empty",
+                    observation="官方接口未返回可验证的匹配岗位。",
+                    decision="按计划回退受控静态页面验证。",
+                    url=TencentAdapter.search_url,
+                    occurred_at=occurred_at,
+                    duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                    details={
+                        "output_count": 0,
+                        "keyword_probe_count": len(adapter.search_terms),
+                    },
+                )
         return await self._list_static_source(source)
 
     async def _list_static_source(self, source: CompanySource) -> list[JobStub]:
+        occurred_at = datetime.now(UTC).isoformat()
+        started = perf_counter()
         response = await self.reader.fetch(source.career_url)
         html = response.body.decode("utf-8", errors="replace")
         document = parse_html_document(html)
@@ -830,7 +1011,7 @@ class OfficialCompanyRegistryAdapter:
             tools = " + ".join(dict.fromkeys(successful_tools))
             self._set_source_step(
                 source,
-                phase="decide",
+                phase="act",
                 tool=tools or "candidate_page_validator",
                 outcome="succeeded",
                 observation=(
@@ -839,6 +1020,12 @@ class OfficialCompanyRegistryAdapter:
                 ),
                 decision="进入标准化、去重和相关性排序。",
                 url=response.final_url,
+                occurred_at=occurred_at,
+                duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                details={
+                    "output_count": len(jobs),
+                    "checked_link_count": len(followed_links),
+                },
             )
         elif _looks_like_dynamic_shell(html):
             self.failures.append(
@@ -848,14 +1035,28 @@ class OfficialCompanyRegistryAdapter:
             self._set_source_step(
                 source,
                 phase="fallback",
-                tool="structured_data → static_html → company_adapter",
-                outcome="needs_adapter",
+                tool="json_ld_job_parser → static_job_page_validator → visible_job_link_reader",
+                outcome=(
+                    "route_exhausted"
+                    if source.id in {"bytedance", "tencent"}
+                    else "needs_adapter"
+                ),
                 observation=(
                     f"入口最终到达 {response.final_url}；未发现 JobPosting，"
                     "页面依赖 JavaScript。"
                 ),
-                decision="不创建候选岗位；等待专用 Adapter 或由用户粘贴 JD。",
+                decision=(
+                    "不创建候选岗位；当前工具路线已耗尽，由用户粘贴 JD。"
+                    if source.id in {"bytedance", "tencent"}
+                    else "不创建候选岗位；等待专用 Adapter 或由用户粘贴 JD。"
+                ),
                 url=response.final_url,
+                occurred_at=occurred_at,
+                duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                details={
+                    "output_count": 0,
+                    "checked_link_count": len(followed_links),
+                },
             )
         else:
             self._set_source_step(
@@ -868,6 +1069,12 @@ class OfficialCompanyRegistryAdapter:
                 ),
                 decision="停止当前来源，避免把招聘说明页或首页当作岗位。",
                 url=response.final_url,
+                occurred_at=occurred_at,
+                duration_ms=max(0, round((perf_counter() - started) * 1000)),
+                details={
+                    "output_count": 0,
+                    "checked_link_count": len(followed_links),
+                },
             )
         return jobs
 
@@ -1340,6 +1547,20 @@ def _location_names(value: object) -> list[str]:
         if name and name not in locations:
             locations.append(name)
     return locations
+
+
+def _reader_timeout(reader: object) -> float | None:
+    timeout = getattr(reader, "timeout_seconds", None)
+    if not isinstance(timeout, (int, float)) or timeout <= 0:
+        return None
+    return min(float(timeout), 60)
+
+
+def _error_code(error: Exception) -> str:
+    code = getattr(error, "code", None)
+    if isinstance(code, str) and code:
+        return code[:100]
+    return error.__class__.__name__[:100]
 
 
 def _unique(values: list[str]) -> list[str]:

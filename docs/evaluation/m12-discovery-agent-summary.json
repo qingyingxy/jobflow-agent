@@ -1,0 +1,651 @@
+{
+  "evaluation_version": "discovery-agent-control-plane-v1",
+  "manifest_version": "m12-discovery-agent-manifest-v1",
+  "dataset_version": "m12-discovery-agent-fixtures-2026-08-09-v1",
+  "purpose": "使用固定离线响应回归验证 Discovery Agent 的来源授权、工具路由、回退、人工接管、预算和状态一致性。",
+  "source_policy": "所有场景只允许访问内存 Fixture 或被安全检查器预先拒绝的地址；不发送真实官网请求。",
+  "scope": {
+    "mode": "offline_deterministic_fixtures",
+    "live_source_results_included": false,
+    "claim_boundary": "验证受控发现流程的安全、路由、轨迹、回退和状态边界；不代表真实官网召回率或端到端语义准确率。"
+  },
+  "case_count": 13,
+  "passed_case_count": 13,
+  "case_pass_rate": 1.0,
+  "all_thresholds_passed": true,
+  "metrics": {
+    "case_pass_rate": {
+      "value": 1.0,
+      "numerator": 13,
+      "denominator": 13,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "unauthorized_source_access_rate": {
+      "value": 0.0,
+      "numerator": 0,
+      "denominator": 2,
+      "direction": "lower_is_better",
+      "threshold": {
+        "maximum": 0.0
+      },
+      "passed": true
+    },
+    "trace_completeness_rate": {
+      "value": 1.0,
+      "numerator": 11,
+      "denominator": 11,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "tool_route_accuracy": {
+      "value": 1.0,
+      "numerator": 9,
+      "denominator": 9,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "fallback_correctness_rate": {
+      "value": 1.0,
+      "numerator": 3,
+      "denominator": 3,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "non_job_false_accept_rate": {
+      "value": 0.0,
+      "numerator": 0,
+      "denominator": 2,
+      "direction": "lower_is_better",
+      "threshold": {
+        "maximum": 0.0
+      },
+      "passed": true
+    },
+    "human_gate_accuracy": {
+      "value": 1.0,
+      "numerator": 2,
+      "denominator": 2,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "budget_compliance_rate": {
+      "value": 1.0,
+      "numerator": 2,
+      "denominator": 2,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    },
+    "state_consistency_rate": {
+      "value": 1.0,
+      "numerator": 1,
+      "denominator": 1,
+      "direction": "higher_is_better",
+      "threshold": {
+        "minimum": 1.0
+      },
+      "passed": true
+    }
+  },
+  "cases": [
+    {
+      "id": "M12-001",
+      "category": "source_authorization",
+      "fixture": "unknown_company_blocked",
+      "description": "未登记公司必须在构造 Adapter 前被拒绝，且不能发生网络访问。",
+      "passed": true,
+      "checks": {
+        "unauthorized_access_occurred": {
+          "expected": false,
+          "actual": false,
+          "passed": true
+        }
+      },
+      "trace_phases": [],
+      "trace_tools": [],
+      "details": {
+        "network_call_count": 0,
+        "blocked_before_adapter": true
+      },
+      "error": null
+    },
+    {
+      "id": "M12-002",
+      "category": "source_authorization",
+      "fixture": "private_url_blocked",
+      "description": "解析到本机地址的 URL 必须在 HTTP 请求发出前被拒绝。",
+      "passed": true,
+      "checks": {
+        "unauthorized_access_occurred": {
+          "expected": false,
+          "actual": false,
+          "passed": true
+        }
+      },
+      "trace_phases": [],
+      "trace_tools": [],
+      "details": {
+        "network_call_count": 0,
+        "blocked_before_request": true
+      },
+      "error": null
+    },
+    {
+      "id": "M12-003",
+      "category": "tool_routing",
+      "fixture": "bytedance_success",
+      "description": "字节来源优先使用专用公开职位 Adapter，并保留完整轨迹。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "strict_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "bytedance_public_job_adapter",
+        "candidate_validator"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-004",
+      "category": "tool_routing",
+      "fixture": "tencent_success",
+      "description": "腾讯来源优先使用专用公开职位 Adapter，并保留完整轨迹。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "strict_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "tencent_public_job_adapter",
+        "candidate_validator"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-005",
+      "category": "adapter_fallback",
+      "fixture": "bytedance_failure_static_success",
+      "description": "字节专用 Adapter 失败后按计划回退静态岗位链接读取。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "fallback_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "fallback",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "bytedance_public_job_adapter",
+        "visible_job_link_reader",
+        "candidate_validator"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-006",
+      "category": "adapter_fallback",
+      "fixture": "tencent_empty_static_success",
+      "description": "腾讯专用 Adapter 返回空结果后按计划回退静态岗位链接读取。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "fallback_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "fallback",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "tencent_public_job_adapter",
+        "visible_job_link_reader",
+        "candidate_validator"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-007",
+      "category": "human_gate",
+      "fixture": "dynamic_shell_human_gate",
+      "description": "无法静态验证岗位的动态页面不得入库，并进入人工 JD 接管。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "non_job_accepted": {
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        "human_gate_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "fallback",
+        "observe",
+        "human_gate"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "json_ld_job_parser → static_job_page_validator → visible_job_link_reader",
+        "candidate_validator",
+        "manual_jd_input"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-008",
+      "category": "non_job_rejection",
+      "fixture": "guideline_rejected",
+      "description": "校园招聘指南页不得误判为具体岗位，并进入人工 JD 接管。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "non_job_accepted": {
+          "expected": false,
+          "actual": false,
+          "passed": true
+        },
+        "human_gate_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "stop",
+        "observe",
+        "human_gate"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "structured_data → static_html",
+        "candidate_validator",
+        "manual_jd_input"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-009",
+      "category": "structured_extraction",
+      "fixture": "jsonld_job_accepted",
+      "description": "合法 JobPosting JSON-LD 必须通过统一候选验证并保留来源轨迹。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "strict_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "json_ld_job_parser",
+        "candidate_validator"
+      ],
+      "details": {},
+      "error": null
+    },
+    {
+      "id": "M12-010",
+      "category": "failure_isolation",
+      "fixture": "source_failure_isolated",
+      "description": "一个来源读取失败时，其他来源的有效岗位仍必须保留并继续处理。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "fallback_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "observe",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "safe_http_reader",
+        "json_ld_job_parser",
+        "candidate_validator"
+      ],
+      "details": {
+        "failed_source_isolated": true
+      },
+      "error": null
+    },
+    {
+      "id": "M12-011",
+      "category": "budget",
+      "fixture": "result_and_analysis_budget",
+      "description": "25 条候选只能保留 Top20，且仅严格匹配的 Top5 标记为自动分析目标。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 20,
+          "actual": 20,
+          "passed": true
+        },
+        "strict_count": {
+          "expected": 20,
+          "actual": 20,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "tool_route_correct": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "budget_compliant": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "act",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "json_ld_job_parser",
+        "candidate_validator"
+      ],
+      "details": {
+        "analysis_target_count": 5
+      },
+      "error": null
+    },
+    {
+      "id": "M12-012",
+      "category": "analysis_gate",
+      "fixture": "strict_expanded_gate",
+      "description": "拓展候选可以展示，但不能挤占严格匹配岗位的自动分析预算。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 2,
+          "actual": 2,
+          "passed": true
+        },
+        "strict_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "expanded_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "budget_compliant": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "candidate_validator"
+      ],
+      "details": {
+        "analysis_target_count": 1
+      },
+      "error": null
+    },
+    {
+      "id": "M12-013",
+      "category": "state_idempotency",
+      "fixture": "duplicate_rerun_idempotent",
+      "description": "同一岗位重复发现不得创建重复 JobPosting 或 CandidateJob。",
+      "passed": true,
+      "checks": {
+        "discovered_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "duplicate_count": {
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        "trace_complete": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        "state_consistent": {
+          "expected": true,
+          "actual": true,
+          "passed": true
+        }
+      },
+      "trace_phases": [
+        "plan",
+        "observe"
+      ],
+      "trace_tools": [
+        "bounded_discovery_planner",
+        "candidate_validator"
+      ],
+      "details": {
+        "job_count": 1,
+        "candidate_count": 1
+      },
+      "error": null
+    }
+  ],
+  "limitations": [
+    "场景使用固定离线响应，不能衡量招聘官网实时可用性或岗位召回率。",
+    "非岗位误收率只覆盖清单中的动态壳与招聘指南负例，不等于互联网总体误收率。",
+    "本评测验证控制面与用户可见轨迹，不替代 39 条 JD Parser 字段评测。",
+    "字节与腾讯 Fixture 固化当前公开接口契约，官网接口变化仍需单独实时验收。"
+  ],
+  "run": {
+    "started_at": "2026-08-09T08:24:15.485630+00:00",
+    "finished_at": "2026-08-09T08:24:15.750490+00:00",
+    "duration_ms": 265.72,
+    "python_version": "3.12.13",
+    "platform": "Windows-11-10.0.26200-SP0"
+  }
+}

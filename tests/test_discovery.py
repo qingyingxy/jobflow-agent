@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import func, select
 
 from src.domain.application import CandidateJob, CandidateStatus
-from src.domain.discovery import DiscoveryRun, DiscoveryRunStatus
+from src.domain.discovery import DiscoveryRun, DiscoveryRunStatus, DiscoverySearchPlan
 from src.domain.job import RawJobDocument
 from src.infrastructure.llm_client import DemoModelClient
 from src.main import app
@@ -30,6 +32,7 @@ from src.services.url_reader import (
     FetchedResponse,
     ResponseTooLargeError,
     SafeHTTPReader,
+    URLFetchError,
     URLSafetyChecker,
     URLSafetyError,
     extract_html_links,
@@ -850,6 +853,129 @@ async def test_official_registry_routes_tencent_to_dedicated_adapter() -> None:
     assert jobs[0].source_id == "tencent:public-careers"
     assert adapter.trace_steps[0].tool == "tencent_public_job_adapter"
     assert adapter.trace_steps[0].outcome == "succeeded"
+
+
+def test_official_search_plan_records_real_source_routes_and_budgets(
+    db_session,
+) -> None:
+    adapter = OfficialCompanyRegistryAdapter(
+        sources=[
+            CompanySource(
+                id="bytedance",
+                company="字节跳动",
+                priority="A",
+                career_url="https://jobs.bytedance.com/campus/",
+                entry_type="official_campus_page",
+            ),
+            CompanySource(
+                id="dynamic-demo",
+                company="动态官网",
+                priority="B",
+                career_url="https://jobs.example.com/campus",
+                entry_type="official_campus_page",
+            ),
+        ],
+        query="北京 AI Agent 校招",
+        reader=FakeReader(b"<html></html>"),  # type: ignore[arg-type]
+        max_jobs=20,
+        max_detail_links_per_source=4,
+        max_concurrency=2,
+    )
+
+    run = DiscoveryService(db_session, adapter).create_run(
+        user_id="plan-user",
+        search_query="北京 AI Agent 校招",
+    )
+
+    assert run.search_plan is not None
+    assert run.search_plan["allowed_source_ids"] == ["bytedance", "dynamic-demo"]
+    routes = run.search_plan["routes"]
+    assert routes[0]["tool_sequence"] == [
+        "bytedance_public_job_adapter",
+        "json_ld_job_parser",
+        "static_job_page_validator",
+        "visible_job_link_reader",
+    ]
+    assert routes[1]["tool_sequence"] == [
+        "json_ld_job_parser",
+        "static_job_page_validator",
+        "visible_job_link_reader",
+    ]
+    assert run.search_plan["budget"] == {
+        "max_results": 20,
+        "max_analysis": 5,
+        "max_detail_links_per_source": 4,
+        "max_concurrency": 2,
+        "request_timeout_seconds": None,
+    }
+    assert run.agent_trace[0]["tool"] == "bounded_discovery_planner"
+    assert run.agent_trace[0]["details"]["allowed_source_ids"] == [
+        "bytedance",
+        "dynamic-demo",
+    ]
+    invalid_plan = deepcopy(run.search_plan)
+    invalid_plan["routes"][0]["tool_sequence"] = ["unregistered_browser_tool"]
+    with pytest.raises(ValidationError):
+        DiscoverySearchPlan.model_validate(invalid_plan)
+
+
+@pytest.mark.asyncio
+async def test_dedicated_adapter_failure_keeps_real_fallback_trace() -> None:
+    listing_html = (
+        "<html><head><title>校园招聘</title></head><body>"
+        "<a href='/job/123'>AI Agent 校园招聘工程师</a>"
+        "</body></html>"
+    ).encode()
+    detail_html = (
+        "<html><head><title>AI Agent 校园招聘工程师</title></head><body>"
+        "<h1>AI Agent 校园招聘工程师</h1>"
+        "<p>岗位职责：负责大模型 Agent 平台开发和服务评测。</p>"
+        "<p>职位要求：熟悉 Python，面向应届毕业生。</p>"
+        "</body></html>"
+    ).encode()
+
+    class FallbackReader:
+        async def post_json(self, url: str, payload: object, *, headers=None):
+            raise URLFetchError("专用接口暂时不可用")
+
+        async def fetch(self, url: str) -> FetchedResponse:
+            body = detail_html if url.endswith("/job/123") else listing_html
+            return FetchedResponse(
+                requested_url=url,
+                final_url=url,
+                status_code=200,
+                content_type="text/html; charset=utf-8",
+                body=body,
+            )
+
+    adapter = OfficialCompanyRegistryAdapter(
+        sources=[
+            CompanySource(
+                id="bytedance",
+                company="字节跳动",
+                priority="A",
+                career_url="https://jobs.bytedance.com/campus/",
+                entry_type="official_campus_page",
+            )
+        ],
+        query="AI Agent 校招",
+        reader=FallbackReader(),  # type: ignore[arg-type]
+        max_concurrency=1,
+    )
+
+    jobs = await adapter.list_jobs()
+
+    assert len(jobs) == 1
+    assert [step.tool for step in adapter.trace_steps] == [
+        "bytedance_public_job_adapter",
+        "visible_job_link_reader",
+    ]
+    assert adapter.trace_steps[0].phase == "fallback"
+    assert adapter.trace_steps[0].error_code == "url_fetch_failed"
+    assert adapter.trace_steps[0].details["output_count"] == 0
+    assert adapter.trace_steps[1].outcome == "succeeded"
+    assert adapter.trace_steps[1].details["output_count"] == 1
+    assert all(step.duration_ms is not None for step in adapter.trace_steps)
 
 
 @pytest.mark.asyncio

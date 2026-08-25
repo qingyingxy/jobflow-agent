@@ -57,7 +57,7 @@ def create_http_reader() -> SafeHTTPReader:
 
 def _url_reader_error(error: URLReaderError) -> HTTPException:
     if isinstance(error, URLSafetyError):
-        response_status = status.HTTP_422_UNPROCESSABLE_ENTITY
+        response_status = status.HTTP_422_UNPROCESSABLE_CONTENT
     elif isinstance(error, URLFetchTimeout):
         response_status = status.HTTP_504_GATEWAY_TIMEOUT
     else:
@@ -129,7 +129,7 @@ async def import_job_url(
     document = parse_html_document(fetched.body.decode("utf-8", errors="replace"))
     if len(document.text) < 20:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={
                 "code": "job_content_too_short",
                 "message": "页面中没有提取到足够的岗位正文",
@@ -187,7 +187,7 @@ async def parse_job(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="岗位不存在") from error
     except JDParseFailure as error:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={
                 "code": error.code,
                 "message": str(error),
@@ -251,7 +251,7 @@ async def analyze_job(
         response_status = (
             status.HTTP_503_SERVICE_UNAVAILABLE
             if error.code in {"model_timeout", "model_unavailable", "model_error"}
-            else status.HTTP_422_UNPROCESSABLE_ENTITY
+            else status.HTTP_422_UNPROCESSABLE_CONTENT
         )
         raise HTTPException(
             status_code=response_status,

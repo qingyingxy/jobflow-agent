@@ -1,6 +1,6 @@
-# M11 评测与失败案例
+# 可重复评测与失败案例
 
-M11 的评测分为两个层次：12 条合成 Fixture 验证评测器和失败边界；39 条公开中文 AI 校招岗位严格子集验证当前 Core / Staged Parser。公开报告只包含聚合指标，不提交岗位原文、模型 prediction、本地 AgentRun 或密钥。
+项目评测分为两个独立层次。M11 使用 12 条合成 Fixture 验证评测器边界，并使用 39 条公开中文 AI 校招岗位严格子集评测 Core / Staged Parser 的字段抽取；M12 使用 13 个离线确定性场景回归 Discovery Agent 的来源授权、工具路由、回退、轨迹、人工接管、预算与状态一致性。公开报告只包含聚合指标，不提交岗位原文、模型 prediction、本地 AgentRun 或密钥。
 
 ## 1. 数据文件
 
@@ -117,3 +117,42 @@ uv run python -m src.evaluation.prepare_manifest `
 `Unsupported Claim Rate` 在这次 parser-only 评测中的值为 `0`，但 `supported_claim_count=0`，因此用户可见幻觉率应报告为“不适用”，不能写成“0% 幻觉”。完整证据匹配链的幻觉指标必须在带候选证据和期望引用的评测集上单独报告。
 
 机器可读的精简结果见 [`evaluation/m11-ai-campus-39-summary.json`](evaluation/m11-ai-campus-39-summary.json)。本地原始 prediction、checkpoint 和完整报告位于被 Git 忽略的 `artifacts/evaluation/`。
+
+## 8. M12 Discovery Agent 控制面评测
+
+M12 不调用真实官网，也不调用 LLM。评测通过内存 SQLite 和固定 HTTP/API Fixture 重放 13 个控制面场景，验证在外部页面不稳定时仍应保持不变的系统约束：
+
+- 未登记公司和私有地址必须在网络访问前被拒绝；
+- 字节、腾讯来源优先路由到专用 Adapter；
+- 专用 Adapter 失败或返回空结果后，按计划回退静态读取；
+- 单一来源失败不能中断其他来源；
+- 动态页面壳和招聘指南不能被保存为岗位，并进入人工 JD 接管；
+- 每次最多保留 20 条，仅严格匹配 Top5 自动分析；
+- 拓展候选不占用自动分析预算；
+- 重复发现不创建重复 `JobPosting` 或 `CandidateJob`；
+- 每次执行轨迹均包含阶段、工具、结果、观察、决策和时间。
+
+2026-08-09 的固定版本结果如下。百分比后保留了实际分子和分母，避免把少量回归样本包装成泛化能力：
+
+| 指标 | 结果 |
+|---|---:|
+| 场景通过率 | 100% (13/13) |
+| 来源越权访问率 | 0% (0/2) |
+| Agent Trace 完整率 | 100% (11/11) |
+| 工具路由准确率 | 100% (9/9) |
+| Adapter 回退正确率 | 100% (3/3) |
+| 非岗位误收率 | 0% (0/2) |
+| 人工接管准确率 | 100% (2/2) |
+| Top20 / Top5 预算合规率 | 100% (2/2) |
+| 状态与幂等一致率 | 100% (1/1) |
+
+复现命令：
+
+```text
+uv run python -m src.evaluation.discovery_agent `
+  --manifest datasets/m12_discovery_agent_manifest.json `
+  --output docs/evaluation/m12-discovery-agent-summary.json `
+  --markdown docs/DISCOVERY_AGENT_EVALUATION.md
+```
+
+详细场景和限制见 [`DISCOVERY_AGENT_EVALUATION.md`](DISCOVERY_AGENT_EVALUATION.md)，机器可读报告见 [`evaluation/m12-discovery-agent-summary.json`](evaluation/m12-discovery-agent-summary.json)。这些结果只说明固定控制面回归场景通过，不代表真实官网召回率、真实网络稳定性或整个 Agent 的 100% 准确率。

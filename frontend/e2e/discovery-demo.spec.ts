@@ -31,16 +31,48 @@ const completedRun = {
   analysis_completed_count: 1,
   analysis_failure_count: 0,
   analysis_status: "SUCCEEDED",
+  search_plan: {
+    version: "bounded-discovery-v1",
+    planner: "deterministic_policy",
+    query: "北京的 AI Agent 校招岗位",
+    allowed_source_ids: ["bytedance", "tencent"],
+    routes: [
+      {
+        source_id: "bytedance",
+        company: "字节跳动",
+        source_url: "https://jobs.bytedance.com/campus/",
+        tool_sequence: ["bytedance_public_job_adapter", "json_ld_job_parser", "static_job_page_validator", "visible_job_link_reader"],
+      },
+      {
+        source_id: "tencent",
+        company: "腾讯",
+        source_url: "https://careers.tencent.com/campusrecruit.html",
+        tool_sequence: ["tencent_public_job_adapter", "json_ld_job_parser", "static_job_page_validator", "visible_job_link_reader"],
+      },
+    ],
+    budget: {
+      max_results: 20,
+      max_analysis: 5,
+      max_detail_links_per_source: 4,
+      max_concurrency: 6,
+      request_timeout_seconds: 8,
+    },
+    stop_conditions: ["max_results_reached", "source_route_exhausted", "no_verified_jobs_requires_human_input"],
+  },
   agent_trace: [
     {
       phase: "plan",
-      tool: "discovery_orchestrator",
+      tool: "bounded_discovery_planner",
       outcome: "selected",
-      observation: "已登记 2 个本次允许访问的公开来源。",
-      decision: "按专用 Adapter 和受控页面读取顺序执行。",
+      observation: "已将 2 个用户选择的官方来源锁定为本次访问白名单。",
+      decision: "2 个来源优先使用专用 Adapter；严格执行来源路线、结果上限和停止条件。",
       source_id: null,
       company: null,
       url: null,
+      occurred_at: now,
+      duration_ms: 0,
+      error_code: null,
+      details: { allowed_source_ids: ["bytedance", "tencent"] },
     },
     {
       phase: "observe",
@@ -51,6 +83,10 @@ const completedRun = {
       source_id: null,
       company: null,
       url: null,
+      occurred_at: now,
+      duration_ms: 3,
+      error_code: null,
+      details: { output_count: 2, strict_count: 1, expanded_count: 1 },
     },
   ],
   result_matches: resultMatches,
@@ -189,6 +225,12 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   await expect(expanded.getByText("地点不匹配", { exact: true })).toBeVisible();
   await expect(expanded.getByText("非校招", { exact: true })).toBeVisible();
   await expect(expanded.getByRole("button", { name: "手动分析 ↗" })).toBeVisible();
+
+  const trace = page.locator("details.discovery-agent-trace");
+  await trace.locator("summary").click();
+  await expect(trace.getByText("白名单 2 · 岗位上限 20 · 自动分析 5")).toBeVisible();
+  await expect(trace.getByText("tencent_public_job_adapter", { exact: false })).toBeVisible();
+  await expect(trace.getByText("无事实时人工接管")).toBeVisible();
 
   if (process.env.UPDATE_DEMO_ASSETS === "1") {
     await page.getByText("Senior Platform Architect - Enterprise AI Agent").scrollIntoViewIfNeeded();
