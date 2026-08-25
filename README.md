@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M17、`v0.2 Trusted Discovery` 与 `v0.3 Verified Application Preparation` 已完成；从可信岗位发现到人工提交、真实凭证和后续跟进的闭环均已落地。
-> 下一阶段：M18 有限 ATS 浏览器辅助，在一次性授权和人工接管边界内支持 Greenhouse / Lever 等稳定表单。
+> 当前状态：M01～M18、`v0.2 Trusted Discovery` 与 `v0.3 Verified Application Preparation` 已完成；从可信岗位发现到有限 ATS 辅助、真实凭证和后续跟进的闭环均已落地。
+> 下一阶段：M19 端到端评测、安全与发布加固，补齐 Mock ATS、投递指标、数据导出/删除和生产身份边界。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -1296,6 +1296,38 @@ POST  /api/follow-ups/{task_id}/cancel
 
 后端测试覆盖时区午夜、日期边界、重复任务、跨用户访问、状态终态和事件脱敏；Playwright 覆盖桌面与移动端的完整任务生命周期、日期筛选、横向溢出和浏览器控制台错误。
 
+### M18 有限 ATS 浏览器辅助
+
+M18 已完成。系统只对 Greenhouse 和 Lever 两类结构相对稳定的 ATS 提供有限辅助，并复用 M16 的 `ApplicationAttempt`、`SubmissionReceipt` 与最终提交状态机：
+
+```text
+detect → inspect → map_fields → fill → verify
+       → request_approval → submit → capture_receipt
+
+INSPECTED → NEEDS_USER → READY_FOR_APPROVAL
+          → AUTHORIZED → SUBMITTING → SUBMITTED / FAILED
+```
+
+`AtsAssistanceSession` 绑定用户、Attempt、岗位、已批准的 `PacketRevision`、申请 URL、ATS 类型、页面指纹和字段计划。系统只填写当前批准投递包中来源明确的值；个人信息、薪资、工作资格和法律确认等字段必须针对本次页面逐项确认。登录、CAPTCHA、Cloudflare、安全检查、2FA、必填值缺失、页面变化或上传/验证异常都会进入人工接管。
+
+最终提交使用 `AtsSubmissionAuthorization`。原始令牌只返回一次，数据库仅保存 SHA-256 哈希；授权同时绑定岗位、URL、投递包版本、页面指纹和字段计划，并在浏览器点击提交前原子消费。刷新授权会撤销此前未使用令牌，令牌不能跨岗位、跨 Attempt 或跨投递包版本复用。
+
+M18 API：
+
+```text
+GET  /api/ats-sessions
+GET  /api/ats-sessions/{session_id}
+POST /api/application-attempts/{attempt_id}/ats-session
+POST /api/ats-sessions/{session_id}/retry
+POST /api/ats-sessions/{session_id}/confirm-fields
+POST /api/ats-sessions/{session_id}/authorization
+POST /api/ats-sessions/{session_id}/submit
+```
+
+成功页必须产生可验证确认文本、确认 URL 或申请编号，随后沿用 M16 的 Receipt 校验与 `finalize_submission`；普通感谢页、伪成功页或任何不确定结果都不会创建 Receipt，也不会把 Application 标记为 `SUBMITTED`。提交结果不确定时禁止自动重试，必须先在官网人工核对。
+
+前端“浏览器辅助”工作区提供 Attempt 队列、八阶段执行轨道、字段来源/风险/动作表、敏感字段确认、人工接管、最终摘要、一次性授权和凭证状态。Fixture 测试覆盖 Greenhouse/Lever 字段映射、简历上传、下拉框、CAPTCHA、跨用户隔离、授权撤销与消费、页面变化、伪成功页和执行器异常；Playwright 覆盖桌面与移动端。当前不支持任意网站、Workday、登录态接管或无人值守批量投递，也不绕过任何反自动化控制。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -1391,7 +1423,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M17 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试、真实凭证和提交后跟进中心均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M18 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试、真实凭证、提交后跟进中心，以及 Greenhouse / Lever 有限 ATS 辅助均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1553,7 +1585,7 @@ flowchart LR
 | M15（已完成） | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
 | M16（已完成） | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
 | M17（已完成） | 跟进中心 | 测评、面试、截止日期、日历和待办 |
-| M18 | 有限浏览器辅助 | Greenhouse / Lever 等 ATS Adapter |
+| M18（已完成） | 有限浏览器辅助 | Greenhouse / Lever ATS Adapter、一次性授权与人工接管 |
 | M19 | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |
 
 详细任务、依赖关系和验收条件见 [`TODO.md`](TODO.md)。

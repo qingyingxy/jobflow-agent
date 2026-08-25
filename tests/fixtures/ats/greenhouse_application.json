@@ -1,0 +1,30 @@
+{
+  "provider": "GREENHOUSE",
+  "title": "AI Engineer application",
+  "fields": [
+    {
+      "key": "greenhouse_resume",
+      "label": "Resume / CV",
+      "name": "resume",
+      "input_type": "file",
+      "required": true,
+      "selector": "#resume"
+    },
+    {
+      "key": "greenhouse_email",
+      "label": "Email",
+      "name": "email",
+      "input_type": "email",
+      "required": false,
+      "selector": "#email"
+    },
+    {
+      "key": "greenhouse_privacy",
+      "label": "I agree to the privacy terms",
+      "name": "privacy_consent",
+      "input_type": "checkbox",
+      "required": true,
+      "selector": "#privacy"
+    }
+  ]
+}

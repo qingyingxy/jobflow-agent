@@ -433,17 +433,17 @@
 
 ### M18 有限 ATS 浏览器辅助
 
-- [ ] 定义 `detect → inspect → map_fields → fill → verify → request_approval → submit → capture_receipt` Adapter 契约
-- [ ] 先选择 1～2 个结构稳定且符合访问边界的 ATS，优先评估 Greenhouse 和 Lever
-- [ ] 浏览器执行必须绑定具体申请 URL、已批准 PacketRevision 和当前 Attempt
-- [ ] 只自动填写来源明确且已批准的低风险字段
-- [ ] 薪资、工作资格、法律问题和表述不一致的字段必须暂停并请求用户确认
-- [ ] 登录、CAPTCHA、Cloudflare、2FA、权限提示和异常上传必须进入用户接管
-- [ ] 最终提交前展示公司、岗位、简历版本、关键答案、开放题和风险摘要
-- [ ] 使用与岗位、URL、PacketRevision 绑定的一次性授权；授权不得跨任务复用
-- [ ] 提交后验证成功页或确认信息并创建 Receipt；无法验证时不得标记 `SUBMITTED`
-- [ ] 使用本地 Fixture 覆盖字段映射、上传、下拉框、接管、授权和凭证捕获
-- [ ] 暂不支持任意网站、Workday 和无人值守批量提交
+- [x] 定义 `detect → inspect → map_fields → fill → verify → request_approval → submit → capture_receipt` Adapter 契约
+- [x] 先选择 1～2 个结构稳定且符合访问边界的 ATS，优先评估 Greenhouse 和 Lever
+- [x] 浏览器执行必须绑定具体申请 URL、已批准 PacketRevision 和当前 Attempt
+- [x] 只自动填写来源明确且已批准的低风险字段
+- [x] 薪资、工作资格、法律问题和表述不一致的字段必须暂停并请求用户确认
+- [x] 登录、CAPTCHA、Cloudflare、2FA、权限提示和异常上传必须进入用户接管
+- [x] 最终提交前展示公司、岗位、简历版本、关键答案、开放题和风险摘要
+- [x] 使用与岗位、URL、PacketRevision 绑定的一次性授权；授权不得跨任务复用
+- [x] 提交后验证成功页或确认信息并创建 Receipt；无法验证时不得标记 `SUBMITTED`
+- [x] 使用本地 Fixture 覆盖字段映射、上传、下拉框、接管、授权和凭证捕获
+- [x] 暂不支持任意网站、Workday 和无人值守批量提交
 
 验收：有限 ATS 可以在明确授权下完成可重复辅助填写；所有敏感、不可验证和不可逆操作都能正确暂停，且提交状态仍由确定性代码和真实凭证控制。
 

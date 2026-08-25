@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.application_attempts import router as application_attempts_router
 from src.api.application_packets import router as application_packets_router
 from src.api.applications import router as applications_router
+from src.api.ats_assistance import router as ats_assistance_router
 from src.api.discovery import router as discovery_router
 from src.api.evidence import router as evidence_router
 from src.api.follow_ups import router as follow_ups_router
@@ -30,6 +31,7 @@ app.include_router(evidence_router)
 app.include_router(applications_router)
 app.include_router(application_packets_router)
 app.include_router(application_attempts_router)
+app.include_router(ats_assistance_router)
 app.include_router(follow_ups_router)
 app.include_router(discovery_router)
 app.include_router(jobs_router)

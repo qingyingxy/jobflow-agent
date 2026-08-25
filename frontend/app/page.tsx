@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AttemptWorkspace from "./attempt-workspace";
+import AtsWorkspace from "./ats-workspace";
 import FollowUpWorkspace from "./follow-up-workspace";
 import MaterialsWorkspace from "./materials-workspace";
 import PacketWorkspace from "./packet-workspace";
@@ -87,7 +88,7 @@ type AnalysisResponse = {
   missing_information: string[];
 };
 
-type WorkspaceMode = "profile" | "materials" | "packets" | "attempts" | "followups" | "discover" | "analysis" | "board";
+type WorkspaceMode = "profile" | "materials" | "packets" | "attempts" | "assisted" | "followups" | "discover" | "analysis" | "board";
 type CandidateStatus = "DISCOVERED" | "SAVED" | "IGNORED" | "CONVERTED";
 type ApplicationStatus =
   | "PREPARING"
@@ -392,6 +393,14 @@ const applicationEventLabel: Record<string, string> = {
   FollowUpTaskUpdated: "更新跟进任务",
   FollowUpTaskCompleted: "完成跟进任务",
   FollowUpTaskCancelled: "取消跟进任务",
+  AtsAssistanceInspected: "检查 ATS 表单",
+  AtsAssistanceNeedsUser: "ATS 请求人工接管",
+  AtsSensitiveFieldsConfirmed: "确认 ATS 高影响字段",
+  AtsAssistancePrepared: "验证 ATS 填写结果",
+  AtsSubmissionAuthorized: "签发 ATS 一次性授权",
+  AtsSubmissionStarted: "执行 ATS 提交",
+  AtsSubmissionUnverified: "ATS 提交结果待核对",
+  AtsSubmissionVerified: "验证 ATS 提交凭证",
   SuggestionCreated: "生成材料建议",
   SuggestionDecisionRecorded: "记录材料决策",
 };
@@ -1130,6 +1139,13 @@ export default function Home() {
             投递执行 <span>M16</span>
           </button>
           <button
+            className={mode === "assisted" ? "workspace-nav-active" : ""}
+            onClick={() => setMode("assisted")}
+            type="button"
+          >
+            浏览器辅助 <span>M18</span>
+          </button>
+          <button
             className={mode === "followups" ? "workspace-nav-active" : ""}
             onClick={() => setMode("followups")}
             type="button"
@@ -1160,15 +1176,15 @@ export default function Home() {
         </nav>
         <div className="topbar-trail">
           <span className="topbar-path">
-            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "attempts" ? "人工投递执行台" : mode === "followups" ? "申请跟进日程台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
+            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "attempts" ? "人工投递执行台" : mode === "assisted" ? "有限 ATS 浏览器辅助台" : mode === "followups" ? "申请跟进日程台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
           </span>
-          <span className="build-pill"><span className="live-dot" />M17 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M18 / LOCAL</span>
         </div>
       </header>
 
       <section className="workspace-intro">
         <div>
-          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "attempts" ? "03" : mode === "followups" ? "04" : mode === "discover" ? "05" : mode === "analysis" ? "06" : "07"}</p>
+          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "attempts" ? "03" : mode === "assisted" ? "04" : mode === "followups" ? "05" : mode === "discover" ? "06" : mode === "analysis" ? "07" : "08"}</p>
           {mode === "profile" ? (
             <h1>
               先把经历写清楚，
@@ -1193,6 +1209,11 @@ export default function Home() {
             <h1>
               把每个下一步，
               <em>放进时间里。</em>
+            </h1>
+          ) : mode === "assisted" ? (
+            <h1>
+              让浏览器帮忙，
+              <em>但不替你决定。</em>
             </h1>
           ) : mode === "analysis" ? (
             <h1>
@@ -1225,6 +1246,8 @@ export default function Home() {
             ? "打开官网、填写表单、记录阻塞和保存成功凭证。申请只会在凭证通过校验后进入已投递。"
             : mode === "followups"
             ? "把测评、笔试、面试和主动跟进变成有时间、有状态的行动。提醒不会被冒充为申请事实。"
+            : mode === "assisted"
+            ? "只在 Greenhouse 与 Lever 中填写来源明确的字段；敏感问题、登录验证、最终授权和不可验证结果始终交回给你。"
             : mode === "discover"
             ? "从登记的公司官方招聘入口即时读取岗位，最多保存 20 条，只自动分析严格匹配中的前 5 条。"
             : mode === "analysis"
@@ -1241,6 +1264,8 @@ export default function Home() {
         <PacketWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "attempts" ? (
         <AttemptWorkspace apiUrl={apiUrl} userId={userId} />
+      ) : mode === "assisted" ? (
+        <AtsWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "followups" ? (
         <FollowUpWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "analysis" ? <section className="analysis-layout">
@@ -3107,6 +3132,31 @@ function eventDescription(event: ApplicationEvent): string {
   }
   if (event.event_type === "FollowUpTaskCancelled") {
     return "跟进任务已取消 · 历史记录继续保留";
+  }
+  if (event.event_type === "AtsAssistanceInspected") {
+    return `${String(event.payload.provider ?? "ATS")} 表单已检查 · ${String(event.payload.field_count ?? 0)} 个字段`;
+  }
+  if (event.event_type === "AtsAssistanceNeedsUser") {
+    return "浏览器辅助已暂停 · 需要用户确认字段或完成人工验证";
+  }
+  if (event.event_type === "AtsSensitiveFieldsConfirmed") {
+    const fields = Array.isArray(event.payload.field_keys) ? event.payload.field_keys.length : 0;
+    return `已针对本次表单确认 ${fields} 个高影响字段`;
+  }
+  if (event.event_type === "AtsAssistancePrepared") {
+    return `字段填写已验证 · ${String(event.payload.fill_count ?? 0)} 个字段等待最终授权`;
+  }
+  if (event.event_type === "AtsSubmissionAuthorized") {
+    return "一次性提交授权已签发 · 仅绑定当前岗位、URL、投递包和页面指纹";
+  }
+  if (event.event_type === "AtsSubmissionStarted") {
+    return "一次性授权已消费 · 正在执行受控 ATS 提交";
+  }
+  if (event.event_type === "AtsSubmissionUnverified") {
+    return "ATS 未返回足够成功证据 · 禁止自动重试，等待人工核对";
+  }
+  if (event.event_type === "AtsSubmissionVerified") {
+    return "ATS 成功信息已生成有效凭证 · 申请进入已投递";
   }
   return "用户确认创建申请记录";
 }

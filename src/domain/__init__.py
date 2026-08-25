@@ -24,6 +24,14 @@ from .application_packet import (
     PacketRevision,
     PacketStatus,
 )
+from .ats_assistance import (
+    AtsAssistanceSession,
+    AtsFieldAction,
+    AtsFieldRisk,
+    AtsProvider,
+    AtsSessionStatus,
+    AtsSubmissionAuthorization,
+)
 from .discovery import (
     DiscoveryRun,
     DiscoveryRunStatus,
@@ -92,6 +100,12 @@ __all__ = [
     "ApplicationBlocker",
     "ApplicationPacket",
     "ApplicationStatus",
+    "AtsAssistanceSession",
+    "AtsFieldAction",
+    "AtsFieldRisk",
+    "AtsProvider",
+    "AtsSessionStatus",
+    "AtsSubmissionAuthorization",
     "AttemptStatus",
     "BlockerStatus",
     "CandidateJob",

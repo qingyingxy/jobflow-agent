@@ -1,0 +1,30 @@
+{
+  "provider": "LEVER",
+  "title": "Platform Engineer application",
+  "fields": [
+    {
+      "key": "lever_resume",
+      "label": "Resume",
+      "name": "resume",
+      "input_type": "file",
+      "required": true,
+      "selector": "input[name=resume]"
+    },
+    {
+      "key": "lever_salary",
+      "label": "Expected salary",
+      "name": "salary",
+      "input_type": "text",
+      "required": true,
+      "selector": "input[name=salary]"
+    },
+    {
+      "key": "lever_work_auth",
+      "label": "Are you authorized to work in this location?",
+      "name": "work_authorization",
+      "input_type": "select",
+      "required": true,
+      "selector": "select[name=work_authorization]"
+    }
+  ]
+}

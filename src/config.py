@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     resume_max_bytes: int = 5 * 1024 * 1024
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     discovery_run_timeout_seconds: int = 3600
+    ats_authorization_ttl_seconds: int = 600
     log_level: str = "INFO"
     url_fetch_proxy: str | None = None
     url_fetch_proxy_allow_unlisted_hosts: bool = False
