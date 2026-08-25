@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from time import perf_counter
-from urllib.parse import urlsplit, urlunsplit
 
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.config import get_settings
-from src.domain.application import CandidateStatus
 from src.domain.discovery import (
     DiscoveryPlanBudget,
     DiscoveryPlanRoute,
@@ -19,12 +16,10 @@ from src.domain.discovery import (
     DiscoverySearchPlan,
     generate_discovery_run_id,
 )
-from src.domain.job import JobPosting
-from src.services.application_service import ApplicationService
 from src.services.discovery_matching import classify_discovery_job
 from src.services.discovery_sources import JobSourceAdapter, JobStub
-from src.services.jd_analysis_service import invalidate_analyses_for_job
-from src.services.job_service import JobImportService
+from src.services.job_lead_service import JobLeadService
+from src.services.lead_providers import OfficialAdapterLeadProvider
 from src.services.url_reader import URLReaderError
 
 
@@ -66,7 +61,7 @@ class DiscoveryService:
             else get_settings().discovery_run_timeout_seconds
         )
         self.run_timeout_seconds = max(60, configured_timeout)
-        self.user_id = ""
+        self.leads = JobLeadService(session)
         self.processed_job_ids: list[str] = []
         self.analysis_job_ids: list[str] = []
 
@@ -110,14 +105,13 @@ class DiscoveryService:
     ) -> DiscoveryRunResult:
         if self.adapter is None:
             raise RuntimeError("发现运行缺少来源适配器")
-        self.user_id = user_id
         self.processed_job_ids = []
         self.analysis_job_ids = []
         if run is None:
             run = self.create_run(user_id=user_id)
 
         try:
-            stubs = await self.adapter.list_jobs()
+            candidates = await OfficialAdapterLeadProvider(self.adapter).discover()
         except Exception as error:
             self.session.rollback()
             self._mark_failed(run.id, error)
@@ -128,9 +122,24 @@ class DiscoveryService:
         result_matches: list[dict[str, object]] = []
         new_count = 0
         duplicate_count = 0
-        for index, stub in enumerate(stubs, start=1):
+        for index, candidate in enumerate(candidates, start=1):
+            stub = candidate.verification_stub
+            if stub is None:
+                failures.append(f"第 {index} 条线索缺少官方验证快照")
+                continue
             try:
-                created, job_id = self._upsert_stub(stub)
+                lead = self.leads.capture_candidate(
+                    user_id=user_id,
+                    discovery_run_id=run.id,
+                    candidate=candidate,
+                )
+                verified = self.leads.verify_stub(
+                    user_id=user_id,
+                    lead_id=lead.id,
+                    stub=stub,
+                )
+                created = verified.posting_created
+                job_id = verified.posting.id
                 self.processed_job_ids.append(job_id)
                 match = classify_discovery_job(stub, query=run.search_query)
                 result_matches.append(match.as_dict(job_posting_id=job_id))
@@ -147,7 +156,7 @@ class DiscoveryService:
         run = self.session.get(DiscoveryRun, run.id)
         if run is None:
             raise RuntimeError("发现运行记录在处理过程中丢失")
-        run.discovered_count = len(stubs)
+        run.discovered_count = len(candidates)
         run.new_count = new_count
         run.duplicate_count = duplicate_count
         run.result_matches = result_matches
@@ -159,7 +168,7 @@ class DiscoveryService:
             for step in getattr(self.adapter, "trace_steps", [])
         ]
         result_trace = self._result_trace(
-            discovered_count=len(stubs),
+            discovered_count=len(candidates),
             strict_count=len(self.analysis_job_ids),
             expanded_count=len(result_matches) - len(self.analysis_job_ids),
             failure_count=len(all_failures),
@@ -173,7 +182,7 @@ class DiscoveryService:
             *adapter_trace[:55],
             result_trace,
         ]
-        if not stubs:
+        if not candidates:
             run.agent_trace = [
                 *run.agent_trace,
                 {
@@ -278,68 +287,6 @@ class DiscoveryService:
             run.finished_at = finished_at
         self.session.commit()
         return len(runs)
-
-    def _upsert_stub(self, stub: JobStub) -> tuple[bool, str]:
-        normalized_url = _normalize_url(stub.detail_url)
-        raw_content = stub.raw_content.replace("\r\n", "\n").replace("\r", "\n").strip()
-        if len(raw_content) < 20:
-            raise ValueError("岗位正文过短")
-        content_hash = hashlib.sha256(raw_content.encode("utf-8")).hexdigest()
-
-        posting = self.session.scalar(
-            select(JobPosting).where(
-                JobPosting.source_id == stub.source_id,
-                JobPosting.source_job_id == stub.source_job_id,
-            )
-        )
-        if posting is None:
-            posting = self.session.scalar(
-                select(JobPosting).where(
-                    or_(
-                        JobPosting.source_url == normalized_url,
-                        JobPosting.content_hash == content_hash,
-                    )
-                )
-            )
-        if posting is None:
-            posting = JobImportService(self.session).import_text(
-                raw_content=raw_content,
-                source_url=normalized_url,
-                source_type="company_adapter",
-                company=stub.company,
-                title=stub.title,
-                source_id=stub.source_id,
-                source_job_id=stub.source_job_id,
-                locations=stub.locations,
-                job_type=stub.job_type,
-                published_at=stub.published_at,
-                last_seen_at=datetime.now(UTC),
-            )
-            ApplicationService(self.session).create_candidate(
-                user_id=self.user_id,
-                job_posting_id=posting.id,
-                initial_status=CandidateStatus.DISCOVERED,
-            )
-            return True, posting.id
-
-        content_changed = posting.content_hash != content_hash
-        posting.source_url = normalized_url
-        posting.source_type = "company_adapter"
-        posting.source_id = stub.source_id
-        posting.source_job_id = stub.source_job_id
-        posting.company = stub.company or posting.company
-        posting.title = stub.title or posting.title
-        posting.locations = stub.locations or posting.locations or []
-        posting.job_type = stub.job_type or posting.job_type
-        posting.published_at = stub.published_at or posting.published_at
-        posting.last_seen_at = datetime.now(UTC)
-        if content_changed:
-            posting.raw_content = raw_content
-            posting.content_hash = content_hash
-            posting.retrieved_at = datetime.now(UTC)
-            invalidate_analyses_for_job(self.session, job_id=posting.id)
-        self.session.commit()
-        return False, posting.id
 
     def _failure(self, run_id: str, error: Exception) -> DiscoveryFailure:
         if isinstance(error, URLReaderError):
@@ -498,17 +445,3 @@ class DiscoveryService:
     def _item_failure(self, index: int, stub: JobStub, error: Exception) -> str:
         identifier = stub.source_job_id or stub.detail_url
         return f"#{index} {identifier}: {str(error)[:300]}"
-
-
-def _normalize_url(value: str) -> str:
-    parsed = urlsplit(value.strip())
-    if not parsed.scheme or not parsed.netloc:
-        raise ValueError("岗位来源 URL 无效")
-    host = (parsed.hostname or "").lower().rstrip(".")
-    port = parsed.port
-    netloc = host
-    if port is not None and port not in {80, 443}:
-        netloc = f"{host}:{port}"
-    return urlunsplit(
-        (parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, "")
-    )

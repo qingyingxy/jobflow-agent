@@ -83,6 +83,7 @@ class ApplicationService:
         user_id: str,
         job_posting_id: str,
         initial_status: CandidateStatus = CandidateStatus.SAVED,
+        commit: bool = True,
     ) -> CandidateView:
         posting = self.session.get(JobPosting, job_posting_id)
         if posting is None:
@@ -123,7 +124,10 @@ class ApplicationService:
                     "status": initial_status.value,
                 },
             )
-            self._commit()
+            if commit:
+                self._commit()
+            else:
+                self.session.flush()
         except Exception:
             self.session.rollback()
             raise

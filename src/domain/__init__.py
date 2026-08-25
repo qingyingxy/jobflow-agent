@@ -8,7 +8,15 @@ from .application import (
     CandidateStatus,
     DomainEvent,
 )
-from .discovery import DiscoveryRun, DiscoveryRunStatus
+from .discovery import (
+    DiscoveryRun,
+    DiscoveryRunStatus,
+    JobLead,
+    JobLeadStatus,
+    LeadNextAction,
+    LeadProvider,
+    LeadVerification,
+)
 from .eligibility import (
     CandidateProfileInput,
     EligibilityCheck,
@@ -16,7 +24,13 @@ from .eligibility import (
     EligibilityResult,
     SearchPreferences,
 )
-from .job import JobPosting
+from .job import (
+    JobAvailabilityCheck,
+    JobAvailabilityEvidenceType,
+    JobAvailabilityStatus,
+    JobPosting,
+    JobVerificationStatus,
+)
 from .matching import EvidenceRecord, MatchScore, RequirementMatch
 from .models import EvidenceItem, UserProfile
 from .runs import AgentRun, JobParseResult
@@ -48,8 +62,17 @@ __all__ = [
     "EvidenceItem",
     "EvidenceRecord",
     "JobAnalysis",
+    "JobAvailabilityCheck",
+    "JobAvailabilityEvidenceType",
+    "JobAvailabilityStatus",
+    "JobLead",
+    "JobLeadStatus",
     "JobParseResult",
     "JobPosting",
+    "JobVerificationStatus",
+    "LeadNextAction",
+    "LeadProvider",
+    "LeadVerification",
     "MatchScore",
     "RequirementMatch",
     "ResumeSuggestion",

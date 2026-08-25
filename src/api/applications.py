@@ -57,7 +57,14 @@ def _job_summary(posting) -> JobSummary:
         locations=posting.locations or [],
         job_type=posting.job_type,
         published_at=posting.published_at,
+        verification_status=posting.verification_status,
+        availability_status=posting.availability_status,
+        first_seen_at=posting.first_seen_at,
         last_seen_at=posting.last_seen_at,
+        last_verified_at=posting.last_verified_at,
+        availability_failure_count=posting.availability_failure_count,
+        last_availability_checked_at=posting.last_availability_checked_at,
+        closed_at=posting.closed_at,
     )
 
 

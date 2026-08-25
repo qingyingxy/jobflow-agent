@@ -1,0 +1,246 @@
+{
+  "all_thresholds_passed": true,
+  "case_count": 9,
+  "cases": [
+    {
+      "category": "official_verification",
+      "description": "A concrete official page becomes a formally verified posting.",
+      "error": null,
+      "fixture": "official_page_verified",
+      "id": "official-page-verified",
+      "observation": {
+        "accepted": true,
+        "availability_actual": null,
+        "availability_expected": null,
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": true
+      },
+      "passed": true
+    },
+    {
+      "category": "non_job",
+      "description": "A careers guide is rejected without creating a posting.",
+      "error": null,
+      "fixture": "non_job_rejected",
+      "id": "non-job-rejected",
+      "observation": {
+        "accepted": false,
+        "availability_actual": null,
+        "availability_expected": null,
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": "lead_not_job_page",
+        "non_job_accepted": false,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "snippet_isolation",
+      "description": "Search snippets and inferred hints never become posting facts.",
+      "error": null,
+      "fixture": "snippet_isolation",
+      "id": "snippet-isolation",
+      "observation": {
+        "accepted": true,
+        "availability_actual": null,
+        "availability_expected": null,
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": false,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "dedupe",
+      "description": "Repeated official discoveries share one posting and candidate.",
+      "error": null,
+      "fixture": "dedupe_correct",
+      "id": "dedupe-correct",
+      "observation": {
+        "accepted": null,
+        "availability_actual": null,
+        "availability_expected": null,
+        "browser_handoff_succeeded": null,
+        "details": {
+          "candidate_count": 1,
+          "posting_count": 1
+        },
+        "duplicate_correct": true,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "availability",
+      "description": "A readable concrete job page is ACTIVE.",
+      "error": null,
+      "fixture": "availability_active",
+      "id": "availability-active",
+      "observation": {
+        "accepted": null,
+        "availability_actual": "ACTIVE",
+        "availability_expected": "ACTIVE",
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "availability",
+      "description": "A first read failure becomes UNKNOWN, never CLOSED.",
+      "error": null,
+      "fixture": "availability_unknown",
+      "id": "availability-unknown",
+      "observation": {
+        "accepted": null,
+        "availability_actual": "UNKNOWN",
+        "availability_expected": "UNKNOWN",
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": "url_fetch_failed",
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "availability",
+      "description": "Three consecutive read failures become STALE.",
+      "error": null,
+      "fixture": "availability_stale",
+      "id": "availability-stale",
+      "observation": {
+        "accepted": null,
+        "availability_actual": "STALE",
+        "availability_expected": "STALE",
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": "url_fetch_failed",
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "availability",
+      "description": "Explicit closed-page text is required for automatic CLOSED.",
+      "error": null,
+      "fixture": "availability_closed",
+      "id": "availability-closed",
+      "observation": {
+        "accepted": null,
+        "availability_actual": "CLOSED",
+        "availability_expected": "CLOSED",
+        "browser_handoff_succeeded": null,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": null
+      },
+      "passed": true
+    },
+    {
+      "category": "browser",
+      "description": "A read-only browser snapshot follows the same verification boundary.",
+      "error": null,
+      "fixture": "browser_verified",
+      "id": "browser-verified",
+      "observation": {
+        "accepted": true,
+        "availability_actual": null,
+        "availability_expected": null,
+        "browser_handoff_succeeded": true,
+        "details": {},
+        "duplicate_correct": null,
+        "failure_code": null,
+        "non_job_accepted": null,
+        "snippet_polluted": null,
+        "verified_official": true
+      },
+      "passed": true
+    }
+  ],
+  "dataset_version": "m13-trusted-discovery-fixtures-2026-08-25-v1",
+  "generated_at": "2026-08-25T04:29:19.554502+00:00",
+  "manifest_version": "m13-trusted-discovery-manifest-v1",
+  "metrics": {
+    "availability_status_accuracy": {
+      "passed": true,
+      "threshold": {
+        "minimum": 1.0
+      },
+      "value": 1.0
+    },
+    "browser_handoff_success_rate": {
+      "passed": true,
+      "threshold": {
+        "minimum": 1.0
+      },
+      "value": 1.0
+    },
+    "dedupe_accuracy": {
+      "passed": true,
+      "threshold": {
+        "minimum": 1.0
+      },
+      "value": 1.0
+    },
+    "non_job_false_acceptance_rate": {
+      "passed": true,
+      "threshold": {
+        "maximum": 0.0
+      },
+      "value": 0.0
+    },
+    "official_verification_rate": {
+      "passed": true,
+      "threshold": {
+        "minimum": 1.0
+      },
+      "value": 1.0
+    },
+    "search_snippet_pollution_rate": {
+      "passed": true,
+      "threshold": {
+        "maximum": 0.0
+      },
+      "value": 0.0
+    }
+  },
+  "passed_case_count": 9,
+  "scope": {
+    "boundary": "Offline deterministic fixtures only; no live-source recall or arbitrary-site browser compatibility claim.",
+    "fixture_only": true,
+    "live_source_results_included": false
+  },
+  "verification_failure_distribution": {
+    "lead_not_job_page": 1,
+    "url_fetch_failed": 2
+  }
+}

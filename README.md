@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：本地作品集版已完成；M11 的 39 条岗位 Parser 评测、M12 的 13 场景 Discovery Agent 控制面评测与 Playwright 演示已落地
-> 下一阶段：按 M13～M19 演进为“宽发现、严验证、人工确认提交”的可信求职投递系统。
+> 当前状态：M01～M13 与 `v0.2 Trusted Discovery` 已完成；多渠道线索、正文验证、动态页只读接管和岗位开放状态审计已形成闭环。
+> 下一阶段：从 M14 开始建设候选人私密档案、简历版本和答案库，再进入可审核投递包。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -71,6 +71,8 @@ Agent 负责读取、分析和提出建议
 - 申请状态机；
 - 申请事件时间线；
 - 基础岗位发现、筛选和去重；
+- 外部 Agent、第三方链接和手动 URL 的统一线索验证；
+- 动态岗位页的只读浏览器接管，以及岗位开放/过期状态复查；
 - 可复现的评测脚本。
 
 ### 第一版不实现
@@ -777,7 +779,7 @@ Unsupported Claim Rate
 - 支持结构化输出的大模型接口
 - HTTP Client
 - HTML Parser
-- Playwright，可选的动态页面兜底
+- Playwright，动态岗位页的只读验证兜底
 - Embedding，可选
 
 ### 任务与测试
@@ -795,6 +797,7 @@ Python 环境统一使用 `uv` 管理，提交 `pyproject.toml` 和 `uv.lock`，
 
 ```text
 uv sync
+uv run playwright install chromium
 uv run alembic upgrade head
 uv run uvicorn src.main:app --reload --host 127.0.0.1 --port 18001
 uv run pytest
@@ -1041,6 +1044,67 @@ uv run python -m src.evaluation.discovery_agent --manifest datasets/m12_discover
 
 完整指标口径、逐场景结果和限制见 [`docs/DISCOVERY_AGENT_EVALUATION.md`](docs/DISCOVERY_AGENT_EVALUATION.md)。
 
+### M13 可信岗位线索与验证
+
+M13 与 `v0.2 Trusted Discovery` 已完成。官方 Adapter、外部 Agent、第三方链接和手动导入统一经过同一条可信边界：
+
+```text
+Official Adapter / External Agent / Manual URL / Third-party URL
+→ JobLead
+→ LeadVerification
+→ verified: JobPosting + DISCOVERED CandidateJob
+→ dynamic: read-only Browser Handoff → 同一验证边界
+→ rejected / needs user / failed: 保留线索和验证记录，不创建正式岗位
+```
+
+统一 `LeadProvider` 协议只返回 `LeadCandidate`，不能写正式岗位。`OfficialAdapterLeadProvider` 把 Greenhouse、ByteDance、Tencent 和公司注册表接入该协议；`ExternalAgentProvider` 接收 URL、搜索摘要、推测公司/标题和发现时间；`ManualImportProvider` 同时负责手动 URL 与完整 JD 接管。外部 API 不允许声明 `official_adapter`。
+
+`JobLead` 保存 Provider、原始 URL、规范 URL、来源岗位 ID、搜索摘要和用户归属。搜索摘要、公司提示和岗位提示只留在线索层，不能成为 `JobPosting` 事实。URL 或浏览器验证会重新执行 SSRF 防护、正文清洗和具体岗位页判断，并从页面正文、JSON-LD 或官方 Adapter 载荷重新验证公司、标题、地点、招聘类型、届别和岗位要求。每个字段的值、来源类型、原文片段和字符位置保存在不可变的 `LeadVerification.field_evidence` 中。只有验证成功后，系统才按来源岗位 ID、规范 URL 和正文哈希创建或关联 `JobPosting`。
+
+```text
+JobLead: NEW → VERIFYING → VERIFIED / DUPLICATE
+                            NEEDS_BROWSER / NEEDS_USER
+                            REJECTED_NON_JOB / FAILED
+
+JobPosting.verification_status:
+VERIFIED_OFFICIAL / VERIFIED_SOURCE / USER_PROVIDED / LEGACY_UNVERIFIED
+
+JobPosting.availability_status:
+ACTIVE / UNKNOWN / STALE / CLOSED
+```
+
+线索验证使用原子状态抢占；并发请求只有一个执行者能从可重试状态进入 `VERIFYING`，其余请求返回冲突，避免重复验证记录和正式岗位。来源岗位 ID、规范 URL 与内容指纹共同去重，低信任手动内容不能覆盖已验证的官方正文或降低验证等级。
+
+动态页接管使用服务端 Playwright，只读取一个已绑定线索 URL 的可见正文，不登录、不填写、不下载、不提交。每个导航和子资源请求仍经过 URL 安全检查；遇到登录、CAPTCHA、Cloudflare、安全检查或 2FA 时进入 `NEEDS_USER` 并留存失败记录。它与 M18 的申请表填写自动化是两项独立能力。
+
+岗位可用性由 `JobAvailabilityCheck` 留下不可变审计记录。第一次和第二次读取失败进入 `UNKNOWN`，连续第三次失败进入 `STALE`；普通读取失败永远不能自动关闭岗位。只有页面出现明确关闭文本或用户提交带原因的人工确认才能进入 `CLOSED`。重新读到具体岗位页或人工确认开放后可恢复 `ACTIVE`。迁移 `0014_job_availability_audit` 保存连续失败次数、最后检查时间和关闭时间。
+
+当前线索 API：
+
+```text
+POST /api/discovery/leads
+GET  /api/discovery/leads
+GET  /api/discovery/leads/{lead_id}
+POST /api/discovery/leads/{lead_id}/verify
+POST /api/discovery/leads/{lead_id}/handoff/browser
+POST /api/discovery/leads/{lead_id}/handoff/manual-jd
+POST /api/jobs/{job_posting_id}/availability/check
+POST /api/jobs/{job_posting_id}/availability/confirm
+GET  /api/jobs/{job_posting_id}/availability/checks
+```
+
+外部调用方只能提交 `external_agent`、`manual_url` 或 `third_party` 线索，不能声明自己是官方 Adapter，也不能直接修改验证状态。每条线索根据当前状态返回结构化 `next_action`，用于区分验证、重试、打开浏览器、提供完整 JD 和查看正式岗位。重复提交、重复验证和重复接管是幂等的；岗位、验证记录、候选岗位和发现事件在同一事务中提交。迁移会把历史官方 Adapter 岗位标记为 `VERIFIED_OFFICIAL`，手动文本标记为 `USER_PROVIDED`，其余无法确认的数据保守标记为 `LEGACY_UNVERIFIED`。
+
+岗位发现页提供 URL 线索录入、待处理/需接管/已验证筛选、正文验证、只读浏览器验证、原页跳转和粘贴 JD 接管。岗位卡片展示来源验证状态、开放状态、连续读取失败次数和最后检查时间，并可手动重新检查。浏览器无法验证时，用户仍可从原线索粘贴完整 JD；系统生成 `USER_PROVIDED / UNKNOWN` 岗位，保留原线索和验证历史，再继续 Parser、Eligibility 与 Evidence 流程。
+
+M13 的 9 个离线确定性场景全部通过：官方验证率 100%、非岗位误收率 0%、去重准确率 100%、搜索摘要污染率 0%、可用状态准确率 100%、浏览器接管成功率 100%。这些数字只代表版本化 Fixture，不代表真实官网召回率或任意网站兼容性。复现命令与完整口径：
+
+```text
+uv run python -m src.evaluation.trusted_discovery --manifest datasets/m13_trusted_discovery_manifest.json --output docs/evaluation/m13-trusted-discovery-summary.json --markdown docs/TRUSTED_DISCOVERY_EVALUATION.md
+```
+
+完整报告见 [`docs/TRUSTED_DISCOVERY_EVALUATION.md`](docs/TRUSTED_DISCOVERY_EVALUATION.md) 与 [`docs/evaluation/m13-trusted-discovery-summary.json`](docs/evaluation/m13-trusted-discovery-summary.json)。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -1119,7 +1183,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M12 的本地作品集闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 离线控制面场景、Playwright E2E 与演示素材、字节跳动 / 腾讯专用 Adapter、超时发现任务恢复、评测契约、AgentRun 汇总和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。Fake、错误处理、迁移、解析缓存、资格规则、证据匹配、用户级分析、评分、失效、岗位分析页面、申请状态机、事件时间线、申请看板、材料建议、人工审批、URL 安全、Greenhouse 与官方公司注册表已经可重复测试。这个结论限定于 SQLite 单机作品集场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M13 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、超时恢复和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1151,7 +1215,7 @@ M01～M12 的本地作品集闭环已经完成：39 条真实岗位 Parser 评�
 
 ### 阶段 C：轻量岗位发现
 
-实现岗位链接读取、URL 安全检查、40 家官方招聘入口注册、字节跳动 / 腾讯专用 Adapter、官网岗位聚合、岗位标准化和去重、严格 / 拓展分层、严格匹配前 5 条自动分析以及岗位发现页。定时同步和 Playwright 动态页面回退为可选扩展。
+实现岗位链接读取、URL 安全检查、40 家官方招聘入口注册、字节跳动 / 腾讯专用 Adapter、官网岗位聚合、岗位标准化和去重、严格 / 拓展分层、严格匹配前 5 条自动分析以及岗位发现页。M13 已补齐多渠道 `JobLead`、正文验证、Playwright 动态页只读接管和岗位开放状态审计；每日定时同步仍是可选扩展。
 
 完成条件：
 

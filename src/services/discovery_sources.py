@@ -1297,6 +1297,17 @@ def _looks_like_job_page(
     ) and not generic_title
 
 
+def looks_like_job_page(
+    document: ParsedHTMLDocument,
+    *,
+    url: str,
+    link_text: str = "",
+) -> bool:
+    """Public verification boundary shared by discovery and submitted leads."""
+
+    return _looks_like_job_page(document, url=url, link_text=link_text)
+
+
 def _is_non_job_page(*, url: str, title: str) -> bool:
     parsed = urlsplit(url)
     # A recruiting-site root is a landing or listing page unless the adapter
@@ -1322,6 +1333,10 @@ def _is_non_job_page(*, url: str, title: str) -> bool:
 
 def _looks_like_dynamic_shell(raw_html: str) -> bool:
     return len(re.findall(r"<script\b", raw_html, flags=re.IGNORECASE)) >= 5
+
+
+def looks_like_dynamic_shell(raw_html: str) -> bool:
+    return _looks_like_dynamic_shell(raw_html)
 
 
 def _rank_official_jobs(jobs: list[JobStub], *, query: str) -> list[JobStub]:

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
+from enum import StrEnum
 from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from sqlalchemy import JSON, DateTime, Index, String, Text, func, text
+from sqlalchemy import JSON, DateTime, Index, Integer, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
@@ -19,11 +20,36 @@ def generate_trace_id() -> str:
     return f"trace_{uuid4().hex[:20]}"
 
 
+def generate_availability_check_id() -> str:
+    return f"availability_{uuid4().hex[:20]}"
+
+
 def normalize_job_text(value: str) -> str:
     normalized = value.replace("\r\n", "\n").replace("\r", "\n").strip()
     if len(normalized) < 20:
         raise ValueError("岗位文本规范化后至少需要 20 个字符")
     return normalized
+
+
+class JobVerificationStatus(StrEnum):
+    VERIFIED_OFFICIAL = "VERIFIED_OFFICIAL"
+    VERIFIED_SOURCE = "VERIFIED_SOURCE"
+    USER_PROVIDED = "USER_PROVIDED"
+    LEGACY_UNVERIFIED = "LEGACY_UNVERIFIED"
+
+
+class JobAvailabilityStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    UNKNOWN = "UNKNOWN"
+    STALE = "STALE"
+    CLOSED = "CLOSED"
+
+
+class JobAvailabilityEvidenceType(StrEnum):
+    PAGE_CONTENT = "page_content"
+    EXPLICIT_CLOSED = "explicit_closed"
+    READ_FAILURE = "read_failure"
+    HUMAN_CONFIRMATION = "human_confirmation"
 
 
 class JobPosting(Base):
@@ -64,7 +90,41 @@ class JobPosting(Base):
         DateTime(timezone=True),
         nullable=True,
     )
+    verification_status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default=JobVerificationStatus.LEGACY_UNVERIFIED.value,
+        server_default=JobVerificationStatus.LEGACY_UNVERIFIED.value,
+    )
+    availability_status: Mapped[str] = mapped_column(
+        String(24),
+        nullable=False,
+        default=JobAvailabilityStatus.UNKNOWN.value,
+        server_default=JobAvailabilityStatus.UNKNOWN.value,
+    )
+    first_seen_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     last_seen_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    last_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    availability_failure_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
+    )
+    last_availability_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    closed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
@@ -85,6 +145,45 @@ class JobPosting(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+
+class JobAvailabilityCheck(Base):
+    """Immutable audit observation for one availability decision."""
+
+    __tablename__ = "job_availability_checks"
+    __table_args__ = (
+        Index(
+            "ix_job_availability_checks_job_checked",
+            "job_posting_id",
+            "checked_at",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(48), primary_key=True)
+    job_posting_id: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    previous_status: Mapped[str] = mapped_column(String(24), nullable=False)
+    result_status: Mapped[str] = mapped_column(String(24), nullable=False)
+    evidence_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    source_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    failure_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evidence: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=dict,
+        server_default=text("'{}'"),
+    )
+    checked_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
     )
 
 

@@ -5,7 +5,13 @@ from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
-from src.domain.job import JobPosting, RawJobDocument, generate_job_id
+from src.domain.job import (
+    JobAvailabilityStatus,
+    JobPosting,
+    JobVerificationStatus,
+    RawJobDocument,
+    generate_job_id,
+)
 from src.services.jd_analysis_service import invalidate_analyses_for_job
 
 
@@ -27,6 +33,11 @@ class JobImportService:
         job_type: str | None = None,
         published_at: datetime | None = None,
         last_seen_at: datetime | None = None,
+        verification_status: JobVerificationStatus | str | None = None,
+        availability_status: JobAvailabilityStatus | str | None = None,
+        first_seen_at: datetime | None = None,
+        last_verified_at: datetime | None = None,
+        commit: bool = True,
     ) -> JobPosting:
         document = RawJobDocument(
             source_url=source_url,
@@ -40,6 +51,26 @@ class JobImportService:
             },
         )
         content_hash = hashlib.sha256(document.raw_content.encode("utf-8")).hexdigest()
+        now = datetime.now(UTC)
+        if verification_status is None:
+            verification_status = {
+                "company_adapter": JobVerificationStatus.VERIFIED_OFFICIAL,
+                "generic_html": JobVerificationStatus.VERIFIED_SOURCE,
+                "manual_text": JobVerificationStatus.USER_PROVIDED,
+            }.get(source_type, JobVerificationStatus.LEGACY_UNVERIFIED)
+        verification_value = JobVerificationStatus(verification_status).value
+        if availability_status is None:
+            availability_status = (
+                JobAvailabilityStatus.ACTIVE
+                if verification_value
+                in {
+                    JobVerificationStatus.VERIFIED_OFFICIAL.value,
+                    JobVerificationStatus.VERIFIED_SOURCE.value,
+                }
+                else JobAvailabilityStatus.UNKNOWN
+            )
+        availability_value = JobAvailabilityStatus(availability_status).value
+        seen_at = last_seen_at or now
         posting = JobPosting(
             id=generate_job_id(),
             source_url=document.source_url,
@@ -51,14 +82,21 @@ class JobImportService:
             locations=locations or [],
             job_type=job_type,
             published_at=published_at,
-            last_seen_at=last_seen_at or datetime.now(UTC),
+            verification_status=verification_value,
+            availability_status=availability_value,
+            first_seen_at=first_seen_at or seen_at,
+            last_seen_at=seen_at,
+            last_verified_at=last_verified_at,
             raw_content=document.raw_content,
             content_hash=content_hash,
             retrieved_at=document.retrieved_at,
             trace_id=document.trace_id,
         )
         self.session.add(posting)
-        self.session.commit()
+        if commit:
+            self.session.commit()
+        else:
+            self.session.flush()
         self.session.refresh(posting)
         return posting
 

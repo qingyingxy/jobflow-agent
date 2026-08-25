@@ -1,8 +1,8 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M01～M12 本地作品集闭环已完成；下一阶段按 M13～M19 建设可信岗位发现与辅助投递闭环
-> 已完成基线：12 / 12
-> 外部验收：DeepSeek `deepseek-v4-flash` 已完成 39 条严格 AI 校招岗位的 Core / Staged Parser 评测；M12 的 13 个 Discovery Agent 离线控制面场景、Playwright 演示、错误处理和持久化链路已完成。
+> 当前阶段：M01～M13 已完成；下一步进入 M14 候选人档案与材料库
+> 已完成里程碑：13 / 19
+> 外部与离线验收：DeepSeek `deepseek-v4-flash` 已完成 39 条严格 AI 校招岗位的 Core / Staged Parser 评测；M12 的 13 个 Discovery Agent 控制面场景与 M13 的 9 个 Trusted Discovery 固定场景全部通过。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M12 基线进度。
 
@@ -324,43 +324,47 @@
 
 #### M13-A 数据模型与兼容迁移
 
-- [ ] 扩展现有 `DiscoveryRun` 和 `DiscoverySearchPlan`，保存原始意图、结构化条件、允许来源和预算，不新增第二套查询事实源
-- [ ] 定义 `JobLead`，保存线索 URL、来源 Provider、搜索摘要、公司/岗位提示、发现时间和当前状态
-- [ ] 定义 `LeadVerification`，保存正文来源、验证结论、失败原因、验证时间和可审计证据
-- [ ] 为线索定义 `NEW / VERIFYING / VERIFIED / NEEDS_BROWSER / NEEDS_USER / DUPLICATE / REJECTED_NON_JOB / FAILED` 状态
-- [ ] 为正式岗位单独定义 `ACTIVE / UNKNOWN / STALE / CLOSED` 可用状态，不能与线索验证状态混用
-- [ ] 为来源身份、规范 URL、来源岗位 ID、内容指纹和用户归属添加约束与索引
-- [ ] 增加兼容迁移：专用官方 Adapter 数据标记为官方来源，手动文本标记为 `USER_PROVIDED`，无法确认的历史数据标记为 `LEGACY_UNVERIFIED`
-- [ ] 保持现有 `JobPosting`、`CandidateJob` 和分析 API 向后兼容
+- [x] 扩展现有 `DiscoveryRun` 和 `DiscoverySearchPlan`，保存原始意图、结构化条件、允许来源和预算，不新增第二套查询事实源
+- [x] 定义 `JobLead`，保存线索 URL、来源 Provider、搜索摘要、公司/岗位提示、发现时间和当前状态
+- [x] 定义 `LeadVerification`，保存正文来源、验证结论、失败原因、验证时间和可审计证据
+- [x] 为线索定义 `NEW / VERIFYING / VERIFIED / NEEDS_BROWSER / NEEDS_USER / DUPLICATE / REJECTED_NON_JOB / FAILED` 状态
+- [x] 为正式岗位单独定义 `ACTIVE / UNKNOWN / STALE / CLOSED` 可用状态，不能与线索验证状态混用
+- [x] 为来源身份、规范 URL、来源岗位 ID、内容指纹和用户归属添加约束与索引
+- [x] 增加兼容迁移：专用官方 Adapter 数据标记为官方来源，手动文本标记为 `USER_PROVIDED`，无法确认的历史数据标记为 `LEGACY_UNVERIFIED`
+- [x] 保持现有 `JobPosting`、`CandidateJob` 和分析 API 向后兼容
 
 #### M13-B 多渠道 LeadProvider
 
-- [ ] 定义统一 `LeadProvider` 协议，Provider 只能返回线索，不能绕过验证直接创建可信岗位
-- [ ] 将 Greenhouse、ByteDance、Tencent 和官方公司注册表接入 Provider 边界
-- [ ] 实现 `ManualImportProvider`，支持 URL、完整 JD 文本和用户提供来源
-- [ ] 实现受控的 `ExternalAgentProvider` 接口，接收 URL、搜索摘要、推测字段和发现时间
-- [ ] 外部 Agent 只能通过 API 提交 `JobLead`，不能直接写数据库或修改岗位验证状态
-- [ ] 为第三方平台线索保留来源说明，不把第三方摘要描述成官方事实
+- [x] 定义统一 `LeadProvider` 协议，Provider 只能返回线索，不能绕过验证直接创建可信岗位
+- [x] 将 Greenhouse、ByteDance、Tencent 和官方公司注册表接入 `JobLead` 验证边界
+- [x] 将现有手动 URL 与完整 JD 接管整理为统一 `ManualImportProvider` 协议实现
+- [x] 支持手动 URL 建立线索，并用完整 JD 完成原线索接管，结果明确标记为 `USER_PROVIDED`
+- [x] 实现受控的 `ExternalAgentProvider` 接口，接收 URL、搜索摘要、推测字段和发现时间
+- [x] 外部 Agent 只能通过 API 提交 `JobLead`，不能声明官方 Provider 或修改岗位验证状态
+- [x] 为第三方平台线索保留来源说明，不把第三方摘要描述成官方事实
 
 #### M13-C 验证、去重与可用性
 
-- [ ] 实现 `JobLeadVerifier`，复用 URL 安全检查、受控读取、JSON-LD 和页面正文解析
-- [ ] 验证页面是具体岗位，而不是招聘首页、列表、指南、新闻、活动或搜索摘要
-- [ ] 从正文重新验证公司、标题、地点、招聘类型、届别和岗位要求
-- [ ] 只有验证成功的线索才能生成或关联正式 `JobPosting`
-- [ ] `NEEDS_BROWSER` 和 `NEEDS_USER` 必须提供明确接管原因和下一步动作
-- [ ] 按来源岗位 ID、规范 URL 和内容指纹执行统一去重
-- [ ] 在正式岗位上保存 `first_seen_at`、`last_seen_at`、`last_verified_at`、内容哈希和可用状态
-- [ ] 连续读取失败只能进入 `UNKNOWN` 或 `STALE`；只有明确关闭证据或人工确认才能进入 `CLOSED`
-- [ ] 未验证线索不能进入严格匹配、Top 5 自动分析或申请准备
+- [x] 实现 `JobLeadVerifier`，复用 URL 安全检查、受控读取、JSON-LD 和页面正文解析
+- [x] 验证页面是具体岗位，而不是招聘首页、列表、指南、新闻、活动或搜索摘要
+- [x] 从正文重新验证公司、标题、地点、招聘类型、届别和岗位要求
+- [x] 只有验证成功的线索才能生成或关联正式 `JobPosting`
+- [x] `NEEDS_BROWSER`、`NEEDS_USER` 和失败状态提供明确原因与结构化 `next_action`
+- [x] 按来源岗位 ID、规范 URL 和内容指纹执行统一去重
+- [x] 在正式岗位上保存 `first_seen_at`、`last_seen_at`、`last_verified_at`、内容哈希和可用状态
+- [x] 连续读取失败只能进入 `UNKNOWN` 或 `STALE`；只有明确关闭证据或人工确认才能进入 `CLOSED`
+- [x] 未验证线索不能进入严格匹配、Top 5 自动分析或申请准备
 
 #### M13-D API、页面与评测
 
-- [ ] 实现线索提交、列表、验证、接管和验证结果查询 API
-- [ ] 岗位发现页明确区分已验证岗位、待验证线索、需要浏览器和需要用户处理
-- [ ] 展示 Provider、官方验证状态、最后验证时间和失败原因
-- [ ] 添加来源越权、搜索摘要污染、非岗位误收、重复线索、过期状态和并发验证测试
-- [ ] 增加官方验证率、非岗位误收率、去重准确率和验证失败分布指标
+- [x] 实现线索提交、列表、验证和验证结果查询 API
+- [x] 实现用户粘贴完整 JD 的接管 API，并保持原 `JobLead`、验证历史和候选岗位关联
+- [x] 实现浏览器接管执行 API；登录、验证码和 2FA 仍必须停下交给用户
+- [x] 岗位发现页明确区分已验证岗位、待验证线索、需要浏览器和需要用户处理
+- [x] 展示 Provider、官方验证状态、最后验证时间和失败原因
+- [x] 添加用户越权、非岗位误收、重复线索和重复验证幂等测试
+- [x] 添加搜索摘要污染、过期状态和并发验证测试
+- [x] 增加官方验证率、非岗位误收率、去重准确率和验证失败分布指标
 
 验收：官方 Adapter、外部 Agent、第三方链接和手动导入都先产生可追踪线索；只有通过正文与来源验证的线索才能成为可信岗位并进入自动分析。外部搜索扩大召回范围，但不能绕过现有安全和事实校验。
 
@@ -461,7 +465,7 @@
 
 ## 版本切分
 
-- [ ] `v0.2 Trusted Discovery`：完成 M13，多渠道线索统一经过官方验证后入库
+- [x] `v0.2 Trusted Discovery`：完成 M13，多渠道线索统一经过官方验证后入库
 - [ ] `v0.3 Verified Application Preparation`：完成 M14～M17，支持人工提交但系统全程管理
 - [ ] `v0.4 Assisted Apply`：完成 M18～M19，在可审计授权边界内辅助填写有限 ATS
 

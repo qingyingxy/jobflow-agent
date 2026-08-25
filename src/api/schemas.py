@@ -10,9 +10,14 @@ from src.domain.application import (
     ApplicationStatus,
     CandidateStatus,
 )
-from src.domain.discovery import DiscoverySearchPlan
+from src.domain.discovery import DiscoverySearchPlan, JobLeadStatus, LeadProvider
 from src.domain.eligibility import EligibilityResult, SearchPreferences
-from src.domain.job import StructuredJobDescription, normalize_job_text
+from src.domain.job import (
+    JobAvailabilityStatus,
+    JobVerificationStatus,
+    StructuredJobDescription,
+    normalize_job_text,
+)
 from src.domain.matching import MatchScore, RequirementMatch
 from src.domain.suggestion import (
     SuggestionDecision,
@@ -116,6 +121,94 @@ class DiscoverySearchRequest(BaseModel):
         return normalized
 
 
+class JobLeadCreateRequest(BaseModel):
+    provider: Literal["external_agent", "manual_url", "third_party"]
+    source_url: str = Field(min_length=1, max_length=2048)
+    discovery_run_id: str | None = Field(default=None, max_length=40)
+    company_hint: str | None = Field(default=None, max_length=160)
+    title_hint: str | None = Field(default=None, max_length=160)
+    search_snippet: str | None = Field(default=None, max_length=2000)
+    discovered_at: datetime | None = None
+
+
+class ManualLeadHandoffRequest(BaseModel):
+    raw_content: str = Field(min_length=20, max_length=200_000)
+    company: str | None = Field(default=None, max_length=160)
+    title: str | None = Field(default=None, max_length=160)
+    locations: list[str] = Field(default_factory=list, max_length=20)
+    job_type: Literal[
+        "campus",
+        "internship",
+        "full_time",
+        "part_time",
+        "unknown",
+    ] | None = None
+
+
+class LeadVerificationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    lead_id: str
+    result: str
+    source_url: str
+    source_type: str | None
+    content_hash: str | None
+    field_evidence: dict[str, object] = Field(default_factory=dict)
+    error_code: str | None
+    error_reason: str | None
+    checked_at: datetime
+
+
+class JobAvailabilityCheckRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    job_posting_id: str
+    previous_status: JobAvailabilityStatus
+    result_status: JobAvailabilityStatus
+    evidence_type: str
+    source_url: str | None
+    content_hash: str | None
+    failure_code: str | None
+    failure_reason: str | None
+    evidence: dict[str, object] = Field(default_factory=dict)
+    checked_at: datetime
+
+
+class JobAvailabilityConfirmationRequest(BaseModel):
+    status: Literal["ACTIVE", "CLOSED"]
+    reason: str = Field(min_length=4, max_length=1000)
+
+
+class JobLeadRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    discovery_run_id: str | None
+    provider: LeadProvider
+    source_id: str | None
+    source_job_id: str | None
+    source_url: str
+    normalized_url: str
+    company_hint: str | None
+    title_hint: str | None
+    search_snippet: str | None
+    status: JobLeadStatus
+    next_action: str
+    job_posting_id: str | None
+    failure_code: str | None
+    failure_reason: str | None
+    discovered_at: datetime
+    verified_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class JobLeadDetailRead(JobLeadRead):
+    verifications: list[LeadVerificationRead] = Field(default_factory=list)
+
+
 class DiscoverySourceRead(BaseModel):
     id: str
     company: str
@@ -136,7 +229,14 @@ class JobPostingRead(BaseModel):
     locations: list[str] = Field(default_factory=list)
     job_type: str | None = None
     published_at: datetime | None = None
+    verification_status: JobVerificationStatus
+    availability_status: JobAvailabilityStatus
+    first_seen_at: datetime | None = None
     last_seen_at: datetime | None = None
+    last_verified_at: datetime | None = None
+    availability_failure_count: int = 0
+    last_availability_checked_at: datetime | None = None
+    closed_at: datetime | None = None
     raw_content: str
     content_hash: str
     retrieved_at: datetime
@@ -154,7 +254,14 @@ class JobSummary(BaseModel):
     locations: list[str] = Field(default_factory=list)
     job_type: str | None = None
     published_at: datetime | None = None
+    verification_status: JobVerificationStatus
+    availability_status: JobAvailabilityStatus
+    first_seen_at: datetime | None = None
     last_seen_at: datetime | None = None
+    last_verified_at: datetime | None = None
+    availability_failure_count: int = 0
+    last_availability_checked_at: datetime | None = None
+    closed_at: datetime | None = None
 
 
 class CandidateCreateRequest(BaseModel):

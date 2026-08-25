@@ -201,7 +201,14 @@ type CandidateItem = {
     locations?: string[];
     job_type?: string | null;
     published_at?: string | null;
+    verification_status?: JobVerificationStatus;
+    availability_status?: JobAvailabilityStatus;
+    first_seen_at?: string | null;
     last_seen_at?: string | null;
+    last_verified_at?: string | null;
+    availability_failure_count?: number;
+    last_availability_checked_at?: string | null;
+    closed_at?: string | null;
   };
   analysis?: {
     status: "ready";
@@ -286,6 +293,45 @@ type DiscoverySourceOption = {
   search_mode: "dedicated_adapter" | "official_page";
 };
 
+type JobLeadStatus =
+  | "NEW"
+  | "VERIFYING"
+  | "VERIFIED"
+  | "NEEDS_BROWSER"
+  | "NEEDS_USER"
+  | "DUPLICATE"
+  | "REJECTED_NON_JOB"
+  | "FAILED";
+type LeadSubmissionProvider = "manual_url" | "external_agent" | "third_party";
+type JobVerificationStatus =
+  | "VERIFIED_OFFICIAL"
+  | "VERIFIED_SOURCE"
+  | "USER_PROVIDED"
+  | "LEGACY_UNVERIFIED";
+type JobAvailabilityStatus = "ACTIVE" | "UNKNOWN" | "STALE" | "CLOSED";
+
+type JobLeadItem = {
+  id: string;
+  discovery_run_id: string | null;
+  provider: "official_adapter" | LeadSubmissionProvider;
+  source_id: string | null;
+  source_job_id: string | null;
+  source_url: string;
+  normalized_url: string;
+  company_hint: string | null;
+  title_hint: string | null;
+  search_snippet: string | null;
+  status: JobLeadStatus;
+  next_action?: string;
+  job_posting_id: string | null;
+  failure_code: string | null;
+  failure_reason: string | null;
+  discovered_at: string;
+  verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 const eligibilityLabel: Record<AnalysisResponse["eligibility"]["eligible"], string> = {
   pass: "资格通过",
   fail: "存在硬性风险",
@@ -365,6 +411,38 @@ const discoveryStopConditionLabel: Record<string, string> = {
   max_results_reached: "达到结果上限",
   source_route_exhausted: "来源路线耗尽",
   no_verified_jobs_requires_human_input: "无事实时人工接管",
+};
+
+const jobLeadStatusLabel: Record<JobLeadStatus, string> = {
+  NEW: "待验证",
+  VERIFYING: "验证中",
+  VERIFIED: "已验证",
+  NEEDS_BROWSER: "需要浏览器",
+  NEEDS_USER: "需要处理",
+  DUPLICATE: "已关联岗位",
+  REJECTED_NON_JOB: "不是岗位页",
+  FAILED: "验证失败",
+};
+
+const leadProviderLabel: Record<JobLeadItem["provider"], string> = {
+  official_adapter: "官方 Adapter",
+  manual_url: "手动 URL",
+  external_agent: "外部 Agent",
+  third_party: "第三方平台",
+};
+
+const verificationStatusLabel: Record<JobVerificationStatus, string> = {
+  VERIFIED_OFFICIAL: "官方来源已验证",
+  VERIFIED_SOURCE: "页面正文已验证",
+  USER_PROVIDED: "用户提供",
+  LEGACY_UNVERIFIED: "历史未验证",
+};
+
+const availabilityStatusLabel: Record<JobAvailabilityStatus, string> = {
+  ACTIVE: "开放中",
+  UNKNOWN: "开放状态未知",
+  STALE: "可能过期",
+  CLOSED: "已关闭",
 };
 
 const featuredDiscoveryCompanyIds = [
@@ -472,6 +550,7 @@ export default function Home() {
   const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
   const [preparingApplication, setPreparingApplication] = useState(false);
   const [candidates, setCandidates] = useState<CandidateItem[]>([]);
+  const [jobLeads, setJobLeads] = useState<JobLeadItem[]>([]);
   const [discoveryRuns, setDiscoveryRuns] = useState<DiscoveryRunItem[]>([]);
   const [discoveryState, setDiscoveryState] = useState<DiscoveryState>("idle");
   const [discoveryMessage, setDiscoveryMessage] = useState("");
@@ -481,6 +560,15 @@ export default function Home() {
   const [discoverySourceUrl, setDiscoverySourceUrl] = useState("");
   const [discoveryCompany, setDiscoveryCompany] = useState("");
   const [updatingCandidateId, setUpdatingCandidateId] = useState<string | null>(null);
+  const [updatingAvailabilityJobId, setUpdatingAvailabilityJobId] = useState<string | null>(null);
+  const [leadProvider, setLeadProvider] = useState<LeadSubmissionProvider>("manual_url");
+  const [leadUrl, setLeadUrl] = useState("");
+  const [leadCompany, setLeadCompany] = useState("");
+  const [leadTitle, setLeadTitle] = useState("");
+  const [leadSnippet, setLeadSnippet] = useState("");
+  const [submittingLead, setSubmittingLead] = useState(false);
+  const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
+  const [manualHandoffLeadId, setManualHandoffLeadId] = useState<string | null>(null);
 
   async function loadApplications() {
     setBoardState("loading");
@@ -507,8 +595,12 @@ export default function Home() {
   async function loadDiscoveryData(options: { quiet?: boolean } = {}) {
     if (!options.quiet) setDiscoveryState("loading");
     try {
-      const [candidateResponse, runResponse, sourceResponse] = await Promise.all([
+      const [candidateResponse, leadResponse, runResponse, sourceResponse] = await Promise.all([
         fetch(`${apiUrl}/api/candidates`, {
+          headers: { "X-User-ID": userId },
+          cache: "no-store",
+        }),
+        fetch(`${apiUrl}/api/discovery/leads`, {
           headers: { "X-User-ID": userId },
           cache: "no-store",
         }),
@@ -519,9 +611,11 @@ export default function Home() {
         fetch(`${apiUrl}/api/discovery/sources`, { cache: "no-store" }),
       ]);
       if (!candidateResponse.ok) throw new Error(await readError(candidateResponse));
+      if (!leadResponse.ok) throw new Error(await readError(leadResponse));
       if (!runResponse.ok) throw new Error(await readError(runResponse));
       if (!sourceResponse.ok) throw new Error(await readError(sourceResponse));
       setCandidates((await candidateResponse.json()) as CandidateItem[]);
+      setJobLeads((await leadResponse.json()) as JobLeadItem[]);
       setDiscoveryRuns((await runResponse.json()) as DiscoveryRunItem[]);
       setDiscoverySources((await sourceResponse.json()) as DiscoverySourceOption[]);
       if (!options.quiet) setDiscoveryState("ready");
@@ -636,6 +730,113 @@ export default function Home() {
     }
   }
 
+  async function submitJobLead() {
+    if (!leadUrl.trim()) {
+      setDiscoveryMessage("请先输入一条具体岗位 URL。");
+      return;
+    }
+    setSubmittingLead(true);
+    setDiscoveryMessage("");
+    try {
+      const response = await fetch(`${apiUrl}/api/discovery/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify({
+          provider: leadProvider,
+          source_url: leadUrl.trim(),
+          company_hint: leadCompany.trim() || null,
+          title_hint: leadTitle.trim() || null,
+          search_snippet: leadSnippet.trim() || null,
+        }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const created = (await response.json()) as JobLeadItem;
+      setJobLeads((current) => [created, ...current.filter((item) => item.id !== created.id)]);
+      setLeadUrl("");
+      setLeadCompany("");
+      setLeadTitle("");
+      setLeadSnippet("");
+      setDiscoveryMessage("岗位线索已保存。它仍是待验证信息，不会提前进入候选池。");
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位线索提交失败。");
+    } finally {
+      setSubmittingLead(false);
+    }
+  }
+
+  async function verifyJobLead(leadId: string) {
+    setUpdatingLeadId(leadId);
+    setDiscoveryMessage("正在读取岗位正文并核对来源…");
+    try {
+      const response = await fetch(`${apiUrl}/api/discovery/leads/${leadId}/verify`, {
+        method: "POST",
+        headers: { "X-User-ID": userId },
+      });
+      if (!response.ok) {
+        const errorMessage = await readError(response);
+        await loadDiscoveryData({ quiet: true });
+        throw new Error(errorMessage);
+      }
+      const verified = (await response.json()) as JobLeadItem;
+      await loadDiscoveryData({ quiet: true });
+      setDiscoveryMessage(
+        verified.status === "DUPLICATE"
+          ? "验证完成：该线索已关联到现有岗位，没有创建重复记录。"
+          : "验证完成：岗位已进入可信候选池。",
+      );
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位线索验证失败。");
+    } finally {
+      setUpdatingLeadId(null);
+    }
+  }
+
+  async function verifyJobLeadWithBrowser(leadId: string) {
+    setUpdatingLeadId(leadId);
+    setDiscoveryMessage("正在启动只读浏览器并核对动态页面…");
+    try {
+      const response = await fetch(`${apiUrl}/api/discovery/leads/${leadId}/handoff/browser`, {
+        method: "POST",
+        headers: { "X-User-ID": userId },
+      });
+      if (!response.ok) {
+        const message = await readError(response);
+        await loadDiscoveryData({ quiet: true });
+        throw new Error(message);
+      }
+      const verified = (await response.json()) as JobLeadItem;
+      await loadDiscoveryData({ quiet: true });
+      setDiscoveryMessage(
+        verified.status === "DUPLICATE"
+          ? "浏览器验证完成：已关联到现有岗位。"
+          : "浏览器验证完成：动态岗位已进入可信候选池。",
+      );
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "浏览器接管失败。");
+    } finally {
+      setUpdatingLeadId(null);
+    }
+  }
+
+  async function checkJobAvailability(jobId: string) {
+    setUpdatingAvailabilityJobId(jobId);
+    setDiscoveryMessage("正在重新读取官方岗位页…");
+    try {
+      const response = await fetch(`${apiUrl}/api/jobs/${jobId}/availability/check`, {
+        method: "POST",
+        headers: { "X-User-ID": userId },
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const check = (await response.json()) as { result_status: JobAvailabilityStatus };
+      await loadDiscoveryData({ quiet: true });
+      setDiscoveryMessage(`开放状态检查完成：${availabilityStatusLabel[check.result_status]}。`);
+    } catch (error) {
+      setDiscoveryMessage(error instanceof Error ? error.message : "岗位开放状态检查失败。");
+    } finally {
+      setUpdatingAvailabilityJobId(null);
+    }
+  }
+
   async function updateCandidate(candidateId: string, status: CandidateStatus) {
     setUpdatingCandidateId(candidateId);
     setDiscoveryMessage("");
@@ -668,6 +869,7 @@ export default function Home() {
       setCompany(posting.company ?? "");
       setTitle(posting.title ?? "");
       setAnalysis(null);
+      setManualHandoffLeadId(null);
       setState("empty");
       setErrorMessage("");
       setMode("analysis");
@@ -676,10 +878,12 @@ export default function Home() {
     }
   }
 
-  function openManualJD() {
+  function openManualJD(leadId?: string) {
+    const lead = leadId ? jobLeads.find((item) => item.id === leadId) : null;
     setRawContent("");
-    setCompany("");
-    setTitle("");
+    setCompany(lead?.company_hint ?? "");
+    setTitle(lead?.title_hint ?? "");
+    setManualHandoffLeadId(lead?.id ?? null);
     setAnalysis(null);
     setState("empty");
     setErrorMessage("");
@@ -696,19 +900,37 @@ export default function Home() {
     setState("loading");
     setErrorMessage("");
     try {
-      const importResponse = await fetch(`${apiUrl}/api/jobs/import-text`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company: company.trim() || null,
-          title: title.trim() || null,
-          raw_content: rawContent,
-        }),
-      });
-      if (!importResponse.ok) {
-        throw new Error(await readError(importResponse));
+      let posting: { id: string };
+      if (manualHandoffLeadId) {
+        const handoffResponse = await fetch(
+          `${apiUrl}/api/discovery/leads/${manualHandoffLeadId}/handoff/manual-jd`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-User-ID": userId },
+            body: JSON.stringify({
+              company: company.trim() || null,
+              title: title.trim() || null,
+              raw_content: rawContent,
+            }),
+          },
+        );
+        if (!handoffResponse.ok) throw new Error(await readError(handoffResponse));
+        const completed = (await handoffResponse.json()) as JobLeadItem;
+        if (!completed.job_posting_id) throw new Error("接管完成后没有生成可分析的岗位。");
+        posting = { id: completed.job_posting_id };
+      } else {
+        const importResponse = await fetch(`${apiUrl}/api/jobs/import-text`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company: company.trim() || null,
+            title: title.trim() || null,
+            raw_content: rawContent,
+          }),
+        });
+        if (!importResponse.ok) throw new Error(await readError(importResponse));
+        posting = (await importResponse.json()) as { id: string };
       }
-      const posting = (await importResponse.json()) as { id: string };
 
       const analysisResponse = await fetch(
         `${apiUrl}/api/jobs/${posting.id}/analyze`,
@@ -722,6 +944,7 @@ export default function Home() {
         throw new Error(await readError(analysisResponse));
       }
       setAnalysis((await analysisResponse.json()) as AnalysisResponse);
+      setManualHandoffLeadId(null);
       setState("success");
     } catch (error) {
       setState("error");
@@ -735,6 +958,7 @@ export default function Home() {
     setTitle("AI 应用开发实习生");
     setState("empty");
     setAnalysis(null);
+    setManualHandoffLeadId(null);
     setErrorMessage("");
   }
 
@@ -876,7 +1100,7 @@ export default function Home() {
           <span className="topbar-path">
             {mode === "profile" ? "画像与证据工作台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
           </span>
-          <span className="build-pill"><span className="live-dot" />M11 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M13 / LOCAL</span>
         </div>
       </header>
 
@@ -923,7 +1147,16 @@ export default function Home() {
         <ProfileWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "analysis" ? <section className="analysis-layout">
         <aside className="intake-panel">
-          <div className="section-kicker"><span>01</span> 导入岗位</div>
+          <div className="section-kicker"><span>01</span> {manualHandoffLeadId ? "人工接管线索" : "导入岗位"}</div>
+          {manualHandoffLeadId ? (
+            <div className="manual-handoff-context">
+              <div>
+                <span>USER-PROVIDED JD</span>
+                <strong>正在完成线索 {manualHandoffLeadId.slice(-8).toUpperCase()}</strong>
+              </div>
+              <button onClick={() => setManualHandoffLeadId(null)} type="button">取消接管</button>
+            </div>
+          ) : null}
           <div className="field-pair">
             <label>
               <span>公司（可选）</span>
@@ -948,7 +1181,7 @@ export default function Home() {
             <button className="quiet-button" onClick={resetSample} type="button">恢复样例</button>
           </div>
           <button className="analyze-button" disabled={state === "loading"} onClick={runAnalysis} type="button">
-            <span>{state === "loading" ? "正在拆解岗位…" : "开始岗位分析"}</span>
+            <span>{state === "loading" ? "正在拆解岗位…" : manualHandoffLeadId ? "完成接管并分析" : "开始岗位分析"}</span>
             <span aria-hidden="true">↗</span>
           </button>
           <div className="intake-principle">
@@ -992,6 +1225,7 @@ export default function Home() {
       </section> : mode === "discover" ? (
         <DiscoveryWorkspace
           candidates={candidates}
+          leads={jobLeads}
           runs={discoveryRuns}
           state={discoveryState}
           message={discoveryMessage}
@@ -1001,6 +1235,14 @@ export default function Home() {
           sourceUrl={discoverySourceUrl}
           company={discoveryCompany}
           updatingCandidateId={updatingCandidateId}
+          updatingAvailabilityJobId={updatingAvailabilityJobId}
+          leadProvider={leadProvider}
+          leadUrl={leadUrl}
+          leadCompany={leadCompany}
+          leadTitle={leadTitle}
+          leadSnippet={leadSnippet}
+          submittingLead={submittingLead}
+          updatingLeadId={updatingLeadId}
           onQueryChange={setDiscoveryQuery}
           onToggleCompany={(sourceId) => {
             setSelectedDiscoveryCompanyIds((current) => (
@@ -1011,12 +1253,21 @@ export default function Home() {
           }}
           onSourceUrlChange={setDiscoverySourceUrl}
           onCompanyChange={setDiscoveryCompany}
+          onLeadProviderChange={setLeadProvider}
+          onLeadUrlChange={setLeadUrl}
+          onLeadCompanyChange={setLeadCompany}
+          onLeadTitleChange={setLeadTitle}
+          onLeadSnippetChange={setLeadSnippet}
           onRun={runDiscovery}
           onManualRun={runManualDiscovery}
+          onSubmitLead={submitJobLead}
+          onVerifyLead={verifyJobLead}
+          onBrowserLead={verifyJobLeadWithBrowser}
           onRefresh={loadDiscoveryData}
           onOpen={openCandidate}
-          onPasteJD={openManualJD}
+          onPasteJD={(leadId) => openManualJD(leadId)}
           onUpdate={updateCandidate}
+          onCheckAvailability={checkJobAvailability}
         />
       ) : (
         <ApplicationBoard
@@ -1512,8 +1763,193 @@ function DiscoveryCompanyScope({
   );
 }
 
+type LeadQueueFilter = "actionable" | "handoff" | "verified" | "all";
+
+function JobLeadQueue({
+  leads,
+  provider,
+  sourceUrl,
+  company,
+  title,
+  snippet,
+  submitting,
+  updatingLeadId,
+  onProviderChange,
+  onSourceUrlChange,
+  onCompanyChange,
+  onTitleChange,
+  onSnippetChange,
+  onSubmit,
+  onVerify,
+  onBrowser,
+  onOpenJob,
+  onPasteJD,
+}: {
+  leads: JobLeadItem[];
+  provider: LeadSubmissionProvider;
+  sourceUrl: string;
+  company: string;
+  title: string;
+  snippet: string;
+  submitting: boolean;
+  updatingLeadId: string | null;
+  onProviderChange: (value: LeadSubmissionProvider) => void;
+  onSourceUrlChange: (value: string) => void;
+  onCompanyChange: (value: string) => void;
+  onTitleChange: (value: string) => void;
+  onSnippetChange: (value: string) => void;
+  onSubmit: () => void;
+  onVerify: (leadId: string) => void;
+  onBrowser: (leadId: string) => void;
+  onOpenJob: (jobId: string) => void;
+  onPasteJD: (leadId: string) => void;
+}) {
+  const [filter, setFilter] = useState<LeadQueueFilter>("actionable");
+  const actionableStatuses = new Set<JobLeadStatus>(["NEW", "VERIFYING", "NEEDS_BROWSER", "NEEDS_USER", "FAILED"]);
+  const handoffStatuses = new Set<JobLeadStatus>(["NEEDS_BROWSER", "NEEDS_USER", "REJECTED_NON_JOB"]);
+  const verifiedStatuses = new Set<JobLeadStatus>(["VERIFIED", "DUPLICATE"]);
+  const filteredLeads = leads.filter((lead) => {
+    if (filter === "actionable") return actionableStatuses.has(lead.status);
+    if (filter === "handoff") return handoffStatuses.has(lead.status);
+    if (filter === "verified") return verifiedStatuses.has(lead.status);
+    return true;
+  });
+  const filterOptions: Array<{ value: LeadQueueFilter; label: string; count: number }> = [
+    { value: "actionable", label: "待处理", count: leads.filter((lead) => actionableStatuses.has(lead.status)).length },
+    { value: "handoff", label: "需接管", count: leads.filter((lead) => handoffStatuses.has(lead.status)).length },
+    { value: "verified", label: "已验证", count: leads.filter((lead) => verifiedStatuses.has(lead.status)).length },
+    { value: "all", label: "全部", count: leads.length },
+  ];
+
+  return (
+    <section className="job-lead-section">
+      <div className="job-lead-heading">
+        <div>
+          <div className="section-kicker"><span>02</span> 待验证线索</div>
+          <h2>先核对来源，<em>再进入岗位池。</em></h2>
+          <p>URL、搜索摘要和推测字段保持在线索层；正文验证成功后，系统才创建正式岗位。</p>
+        </div>
+        <span className="job-lead-counter">{leads.length.toString().padStart(2, "0")} LEADS</span>
+      </div>
+
+      <div className="job-lead-composer">
+        <div className="job-lead-composer-topline">
+          <strong>ADD JOB LEAD</strong>
+          <span>不会自动标记为可信岗位</span>
+        </div>
+        <div className="job-lead-form">
+          <label className="job-lead-provider-field">
+            <span>线索来源</span>
+            <select value={provider} onChange={(event) => onProviderChange(event.target.value as LeadSubmissionProvider)}>
+              <option value="manual_url">我找到的 URL</option>
+              <option value="external_agent">外部 Agent 搜索</option>
+              <option value="third_party">第三方招聘平台</option>
+            </select>
+          </label>
+          <label className="job-lead-url-field">
+            <span>具体岗位 URL</span>
+            <input
+              type="url"
+              value={sourceUrl}
+              onChange={(event) => onSourceUrlChange(event.target.value)}
+              placeholder="https://careers.example.com/jobs/123"
+            />
+          </label>
+          <label>
+            <span>公司提示（可选）</span>
+            <input value={company} onChange={(event) => onCompanyChange(event.target.value)} placeholder="例如：示例科技" />
+          </label>
+          <label>
+            <span>岗位提示（可选）</span>
+            <input value={title} onChange={(event) => onTitleChange(event.target.value)} placeholder="例如：AI Agent 工程师" />
+          </label>
+          <label className="job-lead-snippet-field">
+            <span>搜索摘要（可选，仅作线索）</span>
+            <input value={snippet} onChange={(event) => onSnippetChange(event.target.value)} placeholder="保留发现上下文，不作为岗位事实" />
+          </label>
+          <button className="job-lead-submit" onClick={onSubmit} disabled={submitting} type="button">
+            {submitting ? "正在保存…" : "保存线索"}<span aria-hidden="true">＋</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="job-lead-toolbar">
+        <div className="job-lead-filters" aria-label="岗位线索筛选">
+          {filterOptions.map((option) => (
+            <button
+              className={filter === option.value ? "is-active" : ""}
+              key={option.value}
+              onClick={() => setFilter(option.value)}
+              type="button"
+            >
+              {option.label}<span>{option.count.toString().padStart(2, "0")}</span>
+            </button>
+          ))}
+        </div>
+        <span className="job-lead-boundary">UNTRUSTED INPUT → VERIFIED FACT</span>
+      </div>
+
+      {filteredLeads.length > 0 ? (
+        <div className="job-lead-list">
+          {filteredLeads.map((lead) => {
+            const canVerify = lead.status === "NEW" || lead.status === "FAILED";
+            const needsHandoff = handoffStatuses.has(lead.status);
+            const isVerified = verifiedStatuses.has(lead.status);
+            return (
+              <article className={`job-lead-row job-lead-${lead.status.toLowerCase().replaceAll("_", "-")}`} key={lead.id}>
+                <div className="job-lead-status-cell">
+                  <span className="job-lead-provider">{leadProviderLabel[lead.provider]}</span>
+                  <strong>{jobLeadStatusLabel[lead.status]}</strong>
+                  <time>{formatDate(lead.verified_at ?? lead.discovered_at)}</time>
+                </div>
+                <div className="job-lead-main">
+                  <div className="job-lead-title-line">
+                    <div>
+                      <span>{lead.company_hint ?? "公司待验证"}</span>
+                      <h3>{lead.title_hint ?? "岗位名称待验证"}</h3>
+                    </div>
+                    <code>{lead.id.slice(-8).toUpperCase()}</code>
+                  </div>
+                  <a href={lead.source_url} target="_blank" rel="noreferrer">{lead.normalized_url}</a>
+                  {lead.search_snippet ? <p className="job-lead-snippet">搜索摘要：{lead.search_snippet}</p> : null}
+                  {lead.failure_reason ? <p className="job-lead-failure">{lead.failure_code ? `${lead.failure_code} / ` : ""}{lead.failure_reason}</p> : null}
+                  {needsHandoff ? <p className="job-lead-next">下一步：动态页可先尝试只读浏览器验证；遇到登录或安全验证时停下，再由你粘贴完整 JD。</p> : null}
+                </div>
+                <div className="job-lead-actions">
+                  {canVerify ? (
+                    <button className="job-lead-primary" onClick={() => onVerify(lead.id)} disabled={updatingLeadId === lead.id} type="button">
+                      {updatingLeadId === lead.id ? "验证中…" : lead.status === "FAILED" ? "重新验证" : "验证正文"}
+                    </button>
+                  ) : null}
+                  {lead.status === "VERIFYING" ? <button className="job-lead-primary" disabled type="button">验证中…</button> : null}
+                  {lead.status === "NEEDS_BROWSER" ? (
+                    <button className="job-lead-primary" onClick={() => onBrowser(lead.id)} disabled={updatingLeadId === lead.id} type="button">
+                      {updatingLeadId === lead.id ? "浏览器读取中…" : "浏览器验证"}
+                    </button>
+                  ) : null}
+                  {isVerified && lead.job_posting_id ? (
+                    <button className="job-lead-primary" onClick={() => onOpenJob(lead.job_posting_id!)} type="button">查看岗位</button>
+                  ) : null}
+                  <a href={lead.source_url} target="_blank" rel="noreferrer">打开原页 ↗</a>
+                  {needsHandoff ? <button className="job-lead-secondary" onClick={() => onPasteJD(lead.id)} type="button">粘贴 JD 接管</button> : null}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="job-lead-empty">
+          <strong>{leads.length === 0 ? "还没有岗位线索" : "这个视图没有记录"}</strong>
+          <span>{leads.length === 0 ? "提交具体岗位 URL，或运行一次官方来源搜索。" : "切换筛选项查看其他验证状态。"}</span>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function DiscoveryWorkspace({
   candidates,
+  leads,
   runs,
   state,
   message,
@@ -1523,18 +1959,36 @@ function DiscoveryWorkspace({
   sourceUrl,
   company,
   updatingCandidateId,
+  updatingAvailabilityJobId,
+  leadProvider,
+  leadUrl,
+  leadCompany,
+  leadTitle,
+  leadSnippet,
+  submittingLead,
+  updatingLeadId,
   onQueryChange,
   onToggleCompany,
   onSourceUrlChange,
   onCompanyChange,
+  onLeadProviderChange,
+  onLeadUrlChange,
+  onLeadCompanyChange,
+  onLeadTitleChange,
+  onLeadSnippetChange,
   onRun,
   onManualRun,
+  onSubmitLead,
+  onVerifyLead,
+  onBrowserLead,
   onRefresh,
   onOpen,
   onPasteJD,
   onUpdate,
+  onCheckAvailability,
 }: {
   candidates: CandidateItem[];
+  leads: JobLeadItem[];
   runs: DiscoveryRunItem[];
   state: DiscoveryState;
   message: string;
@@ -1544,16 +1998,33 @@ function DiscoveryWorkspace({
   sourceUrl: string;
   company: string;
   updatingCandidateId: string | null;
+  updatingAvailabilityJobId: string | null;
+  leadProvider: LeadSubmissionProvider;
+  leadUrl: string;
+  leadCompany: string;
+  leadTitle: string;
+  leadSnippet: string;
+  submittingLead: boolean;
+  updatingLeadId: string | null;
   onQueryChange: (value: string) => void;
   onToggleCompany: (sourceId: string) => void;
   onSourceUrlChange: (value: string) => void;
   onCompanyChange: (value: string) => void;
+  onLeadProviderChange: (value: LeadSubmissionProvider) => void;
+  onLeadUrlChange: (value: string) => void;
+  onLeadCompanyChange: (value: string) => void;
+  onLeadTitleChange: (value: string) => void;
+  onLeadSnippetChange: (value: string) => void;
   onRun: () => void;
   onManualRun: () => void;
+  onSubmitLead: () => void;
+  onVerifyLead: (leadId: string) => void;
+  onBrowserLead: (leadId: string) => void;
   onRefresh: () => void;
   onOpen: (jobId: string) => void;
-  onPasteJD: () => void;
+  onPasteJD: (leadId?: string) => void;
   onUpdate: (candidateId: string, status: CandidateStatus) => void;
+  onCheckAvailability: (jobId: string) => void;
 }) {
   const pool = candidates.filter((item) => item.status === "DISCOVERED" || item.status === "SAVED");
   const ignoredPool = candidates.filter((item) => item.status === "IGNORED");
@@ -1650,6 +2121,27 @@ function DiscoveryWorkspace({
 
       {message ? <div className="discovery-message">{message}</div> : null}
 
+      <JobLeadQueue
+        leads={leads}
+        provider={leadProvider}
+        sourceUrl={leadUrl}
+        company={leadCompany}
+        title={leadTitle}
+        snippet={leadSnippet}
+        submitting={submittingLead}
+        updatingLeadId={updatingLeadId}
+        onProviderChange={onLeadProviderChange}
+        onSourceUrlChange={onLeadUrlChange}
+        onCompanyChange={onLeadCompanyChange}
+        onTitleChange={onLeadTitleChange}
+        onSnippetChange={onLeadSnippetChange}
+        onSubmit={onSubmitLead}
+        onVerify={onVerifyLead}
+        onBrowser={onBrowserLead}
+        onOpenJob={onOpen}
+        onPasteJD={onPasteJD}
+      />
+
       {needsHumanJD ? (
         <div className="discovery-human-gate">
           <div>
@@ -1657,13 +2149,13 @@ function DiscoveryWorkspace({
             <h3>官网没有给出可靠结果，改由你提供岗位事实。</h3>
             <p>粘贴具体岗位描述后，解析、资格判断、证据匹配和评分会从这里继续，不会虚构候选岗位。</p>
           </div>
-          <button onClick={onPasteJD} type="button">粘贴 JD 继续分析 <span aria-hidden="true">↗</span></button>
+          <button onClick={() => onPasteJD()} type="button">粘贴 JD 继续分析 <span aria-hidden="true">↗</span></button>
         </div>
       ) : null}
 
       <div className="discovery-pool-heading">
         <div>
-          <div className="section-kicker"><span>02</span> 岗位候选池</div>
+          <div className="section-kicker"><span>03</span> 已验证岗位池</div>
           <h2>先看见，<em>再判断。</em></h2>
           <p>公司、地点、招聘类型和岗位方向同时满足才进入严格匹配；自动分析只处理其中排序靠前的 5 条。</p>
         </div>
@@ -1694,7 +2186,7 @@ function DiscoveryWorkspace({
           <div className="empty-glyph">＋</div>
           <h3>{needsHumanJD ? "这次没有可验证的候选岗位。" : "候选池还是空的。"}</h3>
           <p>{needsHumanJD ? "系统已经停止自动生成结果。你可以粘贴具体 JD 继续，也可以调整目标后重新搜索。" : "描述目标后开始即时搜索。岗位进入这里后，你可以先保存、忽略，或者查看自动分析结果。"}</p>
-          <button className="discovery-paste-button" onClick={onPasteJD} type="button">粘贴 JD 继续 <span aria-hidden="true">↗</span></button>
+          <button className="discovery-paste-button" onClick={() => onPasteJD()} type="button">粘贴 JD 继续 <span aria-hidden="true">↗</span></button>
         </div>
       ) : null}
       {latestRun && latestRun.status !== "RUNNING" && latestRun.discovered_count > 0 ? (
@@ -1723,8 +2215,10 @@ function DiscoveryWorkspace({
               candidate={candidate}
               match={match}
               updating={updatingCandidateId === candidate.id}
+              checkingAvailability={updatingAvailabilityJobId === candidate.job.id}
               onOpen={() => onOpen(candidate.job.id)}
               onUpdate={(status) => onUpdate(candidate.id, status)}
+              onCheckAvailability={() => onCheckAvailability(candidate.job.id)}
             />
           ))}
         </div>
@@ -1744,8 +2238,10 @@ function DiscoveryWorkspace({
                   candidate={candidate}
                   match={match}
                   updating={updatingCandidateId === candidate.id}
+                  checkingAvailability={updatingAvailabilityJobId === candidate.job.id}
                   onOpen={() => onOpen(candidate.job.id)}
                   onUpdate={(status) => onUpdate(candidate.id, status)}
+                  onCheckAvailability={() => onCheckAvailability(candidate.job.id)}
                 />
               ))}
             </div>
@@ -1764,8 +2260,10 @@ function DiscoveryWorkspace({
                 key={candidate.id}
                 candidate={candidate}
                 updating={updatingCandidateId === candidate.id}
+                checkingAvailability={updatingAvailabilityJobId === candidate.job.id}
                 onOpen={() => onOpen(candidate.job.id)}
                 onUpdate={(status) => onUpdate(candidate.id, status)}
+                onCheckAvailability={() => onCheckAvailability(candidate.job.id)}
               />
             ))}
           </div>
@@ -1781,8 +2279,10 @@ function DiscoveryWorkspace({
                 key={candidate.id}
                 candidate={candidate}
                 updating={updatingCandidateId === candidate.id}
+                checkingAvailability={updatingAvailabilityJobId === candidate.job.id}
                 onOpen={() => onOpen(candidate.job.id)}
                 onUpdate={(status) => onUpdate(candidate.id, status)}
+                onCheckAvailability={() => onCheckAvailability(candidate.job.id)}
               />
             ))}
           </div>
@@ -1798,14 +2298,18 @@ function DiscoveryCard({
   candidate,
   match,
   updating,
+  checkingAvailability,
   onOpen,
   onUpdate,
+  onCheckAvailability,
 }: {
   candidate: CandidateItem;
   match?: DiscoveryResultMatch;
   updating: boolean;
+  checkingAvailability: boolean;
   onOpen: () => void;
   onUpdate: (status: CandidateStatus) => void;
+  onCheckAvailability: () => void;
 }) {
   const locations = candidate.job.locations ?? [];
   const canSave = candidate.available_transitions.includes("SAVED");
@@ -1834,6 +2338,11 @@ function DiscoveryCard({
       <div className="discovery-card-topline">
         <span>{sourceLabel}</span>
         <div className="discovery-card-signals">
+          {candidate.job.verification_status ? (
+            <span className={`discovery-verification discovery-verification-${candidate.job.verification_status.toLowerCase()}`}>
+              {verificationStatusLabel[candidate.job.verification_status]}
+            </span>
+          ) : null}
           {match ? <span className={`discovery-match-tier discovery-match-tier-${match.match_tier}`}>{match.match_tier === "strict" ? "严格匹配" : "拓展候选"}</span> : null}
           <span className="discovery-status">{candidateStatusLabel[candidate.status]}</span>
         </div>
@@ -1849,6 +2358,16 @@ function DiscoveryCard({
             <span> / </span>
             {analysisLabel}
           </p>
+          {candidate.job.availability_status ? (
+            <p className={`discovery-availability discovery-availability-${candidate.job.availability_status.toLowerCase()}`}>
+              {availabilityStatusLabel[candidate.job.availability_status]}
+              {candidate.job.availability_failure_count
+                ? ` · 连续读取失败 ${candidate.job.availability_failure_count} 次`
+                : candidate.job.last_availability_checked_at
+                  ? ` · ${formatDate(candidate.job.last_availability_checked_at)}`
+                  : ""}
+            </p>
+          ) : null}
           {match?.mismatch_labels.length ? (
             <div className="discovery-mismatch-list" aria-label="条件放宽原因">
               {match.mismatch_labels.map((label) => <span key={label}>{label}</span>)}
@@ -1856,13 +2375,16 @@ function DiscoveryCard({
           ) : null}
         </div>
         <div className="discovery-date">
-          <span>LAST SEEN</span>
-          <strong>{formatDate(candidate.job.last_seen_at ?? candidate.updated_at)}</strong>
+          <span>{candidate.job.last_verified_at ? "VERIFIED" : "LAST SEEN"}</span>
+          <strong>{formatDate(candidate.job.last_verified_at ?? candidate.job.last_seen_at ?? candidate.updated_at)}</strong>
         </div>
       </div>
       <div className="discovery-card-footer">
         <button className="discovery-open" onClick={onOpen} type="button">{openLabel}</button>
         <div className="discovery-secondary-actions">
+          <button onClick={onCheckAvailability} disabled={checkingAvailability} type="button">
+            {checkingAvailability ? "检查中…" : "检查开放状态"}
+          </button>
           {canSave ? (
             <button onClick={() => onUpdate("SAVED")} disabled={updating} type="button">保存</button>
           ) : null}
@@ -1880,7 +2402,7 @@ function DiscoveryRunHistory({ runs }: { runs: DiscoveryRunItem[] }) {
     <section className="discovery-history">
       <div className="discovery-history-heading">
         <div>
-          <div className="section-kicker"><span>03</span> 同步记录</div>
+          <div className="section-kicker"><span>04</span> 同步记录</div>
           <h2>每次决策，都留下 <em>工具与回退轨迹。</em></h2>
         </div>
         <span>{runs.length.toString().padStart(2, "0")} RUNS</span>

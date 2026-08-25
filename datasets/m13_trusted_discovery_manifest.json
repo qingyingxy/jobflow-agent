@@ -1,0 +1,70 @@
+{
+  "manifest_version": "m13-trusted-discovery-manifest-v1",
+  "dataset_version": "m13-trusted-discovery-fixtures-2026-08-25-v1",
+  "purpose": "Verify the deterministic trust, dedupe, browser handoff, and availability boundaries introduced in M13.",
+  "scope_boundary": "Offline deterministic fixtures only; no live-source recall or arbitrary-site browser compatibility claim.",
+  "thresholds": {
+    "official_verification_rate": {"minimum": 1.0},
+    "non_job_false_acceptance_rate": {"maximum": 0.0},
+    "dedupe_accuracy": {"minimum": 1.0},
+    "search_snippet_pollution_rate": {"maximum": 0.0},
+    "availability_status_accuracy": {"minimum": 1.0},
+    "browser_handoff_success_rate": {"minimum": 1.0}
+  },
+  "cases": [
+    {
+      "id": "official-page-verified",
+      "category": "official_verification",
+      "fixture": "official_page_verified",
+      "description": "A concrete official page becomes a formally verified posting."
+    },
+    {
+      "id": "non-job-rejected",
+      "category": "non_job",
+      "fixture": "non_job_rejected",
+      "description": "A careers guide is rejected without creating a posting."
+    },
+    {
+      "id": "snippet-isolation",
+      "category": "snippet_isolation",
+      "fixture": "snippet_isolation",
+      "description": "Search snippets and inferred hints never become posting facts."
+    },
+    {
+      "id": "dedupe-correct",
+      "category": "dedupe",
+      "fixture": "dedupe_correct",
+      "description": "Repeated official discoveries share one posting and candidate."
+    },
+    {
+      "id": "availability-active",
+      "category": "availability",
+      "fixture": "availability_active",
+      "description": "A readable concrete job page is ACTIVE."
+    },
+    {
+      "id": "availability-unknown",
+      "category": "availability",
+      "fixture": "availability_unknown",
+      "description": "A first read failure becomes UNKNOWN, never CLOSED."
+    },
+    {
+      "id": "availability-stale",
+      "category": "availability",
+      "fixture": "availability_stale",
+      "description": "Three consecutive read failures become STALE."
+    },
+    {
+      "id": "availability-closed",
+      "category": "availability",
+      "fixture": "availability_closed",
+      "description": "Explicit closed-page text is required for automatic CLOSED."
+    },
+    {
+      "id": "browser-verified",
+      "category": "browser",
+      "fixture": "browser_verified",
+      "description": "A read-only browser snapshot follows the same verification boundary."
+    }
+  ]
+}

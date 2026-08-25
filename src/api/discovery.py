@@ -8,10 +8,21 @@ from src.api.schemas import (
     DiscoveryRunRead,
     DiscoverySearchRequest,
     DiscoverySourceRead,
+    JobAvailabilityCheckRead,
+    JobAvailabilityConfirmationRequest,
+    JobLeadCreateRequest,
+    JobLeadDetailRead,
+    JobLeadRead,
+    LeadVerificationRead,
+    ManualLeadHandoffRequest,
 )
 from src.config import get_settings
+from src.domain.discovery import JobLeadStatus, LeadProvider
+from src.domain.job import JobAvailabilityStatus
+from src.services.browser_job_reader import PlaywrightBrowserJobReader
 from src.services.company_registry import (
     company_source_hosts,
+    enabled_company_source_hosts,
     enabled_company_sources,
 )
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
@@ -20,10 +31,53 @@ from src.services.discovery_sources import (
     OfficialCompanyRegistryAdapter,
     SourceNotSupportedError,
 )
+from src.services.job_availability_service import (
+    InvalidAvailabilityConfirmationError,
+    JobAvailabilityNotFoundError,
+    JobAvailabilityService,
+)
+from src.services.job_lead_service import (
+    JobLeadNotFoundError,
+    JobLeadService,
+    JobLeadStateError,
+    LeadVerificationFailure,
+)
+from src.services.lead_providers import (
+    ExternalAgentProvider,
+    ManualImportProvider,
+    ThirdPartyLeadProvider,
+)
 from src.services.official_search_service import execute_official_search_in_worker
 from src.services.url_reader import SafeHTTPReader, URLFetchTimeout
 
 router = APIRouter(prefix="/api", tags=["discovery"])
+
+
+def create_lead_reader() -> SafeHTTPReader:
+    settings = get_settings()
+    allowed_hosts = enabled_company_source_hosts()
+    allowed_hosts.update(GreenhouseAdapter.supported_hosts)
+    allowed_hosts.add(GreenhouseAdapter.api_host)
+    return SafeHTTPReader(
+        proxy=settings.url_fetch_proxy,
+        proxy_allowed_hosts=allowed_hosts,
+        proxy_allow_unlisted_hosts=settings.url_fetch_proxy_allow_unlisted_hosts,
+    )
+
+
+def create_browser_reader() -> PlaywrightBrowserJobReader:
+    return PlaywrightBrowserJobReader()
+
+
+def _lead_detail(service: JobLeadService, *, user_id: str, lead_id: str) -> JobLeadDetailRead:
+    lead = service.get_lead(user_id=user_id, lead_id=lead_id)
+    return JobLeadDetailRead(
+        **JobLeadRead.model_validate(lead).model_dump(),
+        verifications=[
+            LeadVerificationRead.model_validate(item)
+            for item in service.list_verifications(user_id=user_id, lead_id=lead_id)
+        ],
+    )
 
 
 def create_greenhouse_adapter(
@@ -78,6 +132,304 @@ def _discovery_failure_error(error: DiscoveryFailure) -> HTTPException:
             "details": error.details,
         },
     )
+
+
+@router.post(
+    "/discovery/leads",
+    response_model=JobLeadRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_job_lead(
+    payload: JobLeadCreateRequest,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobLeadRead:
+    try:
+        provider_kind = LeadProvider(payload.provider)
+        if provider_kind is LeadProvider.MANUAL_URL:
+            provider = ManualImportProvider(
+                source_url=payload.source_url,
+                company_hint=payload.company_hint,
+                title_hint=payload.title_hint,
+                discovered_at=payload.discovered_at,
+            )
+        else:
+            provider_class = (
+                ExternalAgentProvider
+                if provider_kind is LeadProvider.EXTERNAL_AGENT
+                else ThirdPartyLeadProvider
+            )
+            provider = provider_class(
+                source_url=payload.source_url,
+                search_snippet=payload.search_snippet,
+                inferred_company=payload.company_hint,
+                inferred_title=payload.title_hint,
+                discovered_at=payload.discovered_at,
+            )
+        leads = await JobLeadService(session).ingest_provider(
+            user_id=user_id,
+            provider=provider,
+            discovery_run_id=payload.discovery_run_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "invalid_job_lead", "message": str(error)},
+        ) from error
+    return JobLeadRead.model_validate(leads[0])
+
+
+@router.get("/discovery/leads", response_model=list[JobLeadRead])
+def list_job_leads(
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+    lead_status: JobLeadStatus | None = None,
+) -> list[JobLeadRead]:
+    return [
+        JobLeadRead.model_validate(lead)
+        for lead in JobLeadService(session).list_leads(
+            user_id=user_id,
+            status=lead_status,
+        )
+    ]
+
+
+@router.get("/discovery/leads/{lead_id}", response_model=JobLeadDetailRead)
+def read_job_lead(
+    lead_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobLeadDetailRead:
+    service = JobLeadService(session)
+    try:
+        return _lead_detail(service, user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位线索不存在",
+        ) from error
+
+
+@router.post(
+    "/discovery/leads/{lead_id}/verify",
+    response_model=JobLeadDetailRead,
+)
+async def verify_job_lead(
+    lead_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobLeadDetailRead:
+    service = JobLeadService(session)
+    official_hosts = enabled_company_source_hosts()
+    official_hosts.update(GreenhouseAdapter.supported_hosts)
+    try:
+        await service.verify_url(
+            user_id=user_id,
+            lead_id=lead_id,
+            reader=create_lead_reader(),
+            official_hosts=official_hosts,
+        )
+        return _lead_detail(service, user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位线索不存在",
+        ) from error
+    except JobLeadStateError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "invalid_lead_state", "message": str(error)},
+        ) from error
+    except LeadVerificationFailure as error:
+        response_status = (
+            status.HTTP_422_UNPROCESSABLE_CONTENT
+            if error.code
+            in {
+                "lead_not_job_page",
+                "lead_requires_browser",
+                "url_not_allowed",
+                "url_host_not_allowed",
+                "unsafe_url",
+            }
+            else status.HTTP_502_BAD_GATEWAY
+        )
+        raise HTTPException(
+            status_code=response_status,
+            detail={
+                "code": error.code,
+                "message": str(error),
+                "lead_id": error.lead_id,
+            },
+        ) from error
+
+
+@router.post(
+    "/discovery/leads/{lead_id}/handoff/browser",
+    response_model=JobLeadDetailRead,
+)
+async def complete_browser_lead_handoff(
+    lead_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobLeadDetailRead:
+    service = JobLeadService(session)
+    official_hosts = enabled_company_source_hosts()
+    official_hosts.update(GreenhouseAdapter.supported_hosts)
+    try:
+        await service.verify_browser(
+            user_id=user_id,
+            lead_id=lead_id,
+            reader=create_browser_reader(),
+            official_hosts=official_hosts,
+        )
+        return _lead_detail(service, user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位线索不存在",
+        ) from error
+    except JobLeadStateError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "invalid_lead_state", "message": str(error)},
+        ) from error
+    except LeadVerificationFailure as error:
+        response_status = (
+            status.HTTP_422_UNPROCESSABLE_CONTENT
+            if error.code
+            in {
+                "unsafe_url",
+                "browser_job_page_unverified",
+                "browser_login_required",
+                "browser_captcha_required",
+                "browser_2fa_required",
+                "browser_security_challenge",
+                "browser_response_too_large",
+            }
+            else status.HTTP_502_BAD_GATEWAY
+        )
+        raise HTTPException(
+            status_code=response_status,
+            detail={
+                "code": error.code,
+                "message": str(error),
+                "lead_id": error.lead_id,
+            },
+        ) from error
+
+
+@router.post(
+    "/discovery/leads/{lead_id}/handoff/manual-jd",
+    response_model=JobLeadDetailRead,
+)
+def complete_manual_lead_handoff(
+    lead_id: str,
+    payload: ManualLeadHandoffRequest,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobLeadDetailRead:
+    service = JobLeadService(session)
+    try:
+        service.complete_manual_handoff(
+            user_id=user_id,
+            lead_id=lead_id,
+            raw_content=payload.raw_content,
+            company=payload.company,
+            title=payload.title,
+            locations=payload.locations,
+            job_type=payload.job_type,
+        )
+        return _lead_detail(service, user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位线索不存在",
+        ) from error
+    except JobLeadStateError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "invalid_lead_state", "message": str(error)},
+        ) from error
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "invalid_manual_jd", "message": str(error)},
+        ) from error
+
+
+@router.post(
+    "/jobs/{job_posting_id}/availability/check",
+    response_model=JobAvailabilityCheckRead,
+)
+async def check_job_availability(
+    job_posting_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobAvailabilityCheckRead:
+    try:
+        check = await JobAvailabilityService(session).check_url(
+            user_id=user_id,
+            job_posting_id=job_posting_id,
+            reader=create_lead_reader(),
+        )
+    except JobAvailabilityNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位不存在或不属于当前用户",
+        ) from error
+    return JobAvailabilityCheckRead.model_validate(check)
+
+
+@router.post(
+    "/jobs/{job_posting_id}/availability/confirm",
+    response_model=JobAvailabilityCheckRead,
+)
+def confirm_job_availability(
+    job_posting_id: str,
+    payload: JobAvailabilityConfirmationRequest,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> JobAvailabilityCheckRead:
+    try:
+        check = JobAvailabilityService(session).confirm(
+            user_id=user_id,
+            job_posting_id=job_posting_id,
+            status=JobAvailabilityStatus(payload.status),
+            reason=payload.reason,
+        )
+    except JobAvailabilityNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位不存在或不属于当前用户",
+        ) from error
+    except InvalidAvailabilityConfirmationError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "invalid_availability_confirmation", "message": str(error)},
+        ) from error
+    return JobAvailabilityCheckRead.model_validate(check)
+
+
+@router.get(
+    "/jobs/{job_posting_id}/availability/checks",
+    response_model=list[JobAvailabilityCheckRead],
+)
+def list_job_availability_checks(
+    job_posting_id: str,
+    user_id: CurrentUserId,
+    session: DatabaseSession,
+) -> list[JobAvailabilityCheckRead]:
+    try:
+        checks = JobAvailabilityService(session).list_checks(
+            user_id=user_id,
+            job_posting_id=job_posting_id,
+        )
+    except JobAvailabilityNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="岗位不存在或不属于当前用户",
+        ) from error
+    return [JobAvailabilityCheckRead.model_validate(item) for item in checks]
 
 
 @router.post(
