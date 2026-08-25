@@ -32,6 +32,16 @@ from .job import (
     JobVerificationStatus,
 )
 from .matching import EvidenceRecord, MatchScore, RequirementMatch
+from .materials import (
+    AnswerBankEntry,
+    AnswerScope,
+    AnswerSensitivity,
+    CandidatePrivateProfile,
+    PrivateFieldState,
+    ResumeAsset,
+    ResumeVersion,
+    VoluntaryDisclosurePolicy,
+)
 from .models import EvidenceItem, UserProfile
 from .runs import AgentRun, JobParseResult
 from .suggestion import (
@@ -48,9 +58,13 @@ __all__ = [
     "CANDIDATE_TRANSITIONS",
     "AgentRun",
     "AnalysisRisk",
+    "AnswerBankEntry",
+    "AnswerScope",
+    "AnswerSensitivity",
     "Application",
     "ApplicationStatus",
     "CandidateJob",
+    "CandidatePrivateProfile",
     "CandidateProfileInput",
     "CandidateStatus",
     "DiscoveryRun",
@@ -74,12 +88,16 @@ __all__ = [
     "LeadProvider",
     "LeadVerification",
     "MatchScore",
+    "PrivateFieldState",
     "RequirementMatch",
+    "ResumeAsset",
     "ResumeSuggestion",
     "ResumeSuggestionModelOutput",
+    "ResumeVersion",
     "SearchPreferences",
     "SuggestionDecision",
     "SuggestionStatus",
     "SuggestionTargetInput",
     "UserProfile",
+    "VoluntaryDisclosurePolicy",
 ]

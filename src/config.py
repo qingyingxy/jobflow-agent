@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     database_url: str = "sqlite:///./data/jobflow.db"
     default_user_id: str = "local-user"
+    private_storage_dir: str = "./data/private"
+    resume_max_bytes: int = 5 * 1024 * 1024
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     discovery_run_timeout_seconds: int = 3600
     log_level: str = "INFO"

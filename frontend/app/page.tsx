@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MaterialsWorkspace from "./materials-workspace";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:18001";
 const userId = "local-user";
@@ -83,7 +84,7 @@ type AnalysisResponse = {
   missing_information: string[];
 };
 
-type WorkspaceMode = "profile" | "discover" | "analysis" | "board";
+type WorkspaceMode = "profile" | "materials" | "discover" | "analysis" | "board";
 type CandidateStatus = "DISCOVERED" | "SAVED" | "IGNORED" | "CONVERTED";
 type ApplicationStatus =
   | "PREPARING"
@@ -1075,6 +1076,13 @@ export default function Home() {
             我的资料 <span>CV</span>
           </button>
           <button
+            className={mode === "materials" ? "workspace-nav-active" : ""}
+            onClick={() => setMode("materials")}
+            type="button"
+          >
+            投递资料 <span>M14</span>
+          </button>
+          <button
             className={mode === "discover" ? "workspace-nav-active" : ""}
             onClick={() => setMode("discover")}
             type="button"
@@ -1098,19 +1106,24 @@ export default function Home() {
         </nav>
         <div className="topbar-trail">
           <span className="topbar-path">
-            {mode === "profile" ? "画像与证据工作台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
+            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
           </span>
-          <span className="build-pill"><span className="live-dot" />M13 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M14 / LOCAL</span>
         </div>
       </header>
 
       <section className="workspace-intro">
         <div>
-          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "discover" ? "01" : mode === "analysis" ? "02" : "03"}</p>
+          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "discover" ? "02" : mode === "analysis" ? "03" : "04"}</p>
           {mode === "profile" ? (
             <h1>
               先把经历写清楚，
               <em>再让证据说话。</em>
+            </h1>
+          ) : mode === "materials" ? (
+            <h1>
+              不猜一项事实，
+              <em>再准备投递。</em>
             </h1>
           ) : mode === "analysis" ? (
             <h1>
@@ -1135,6 +1148,8 @@ export default function Home() {
         <p className="intro-note">
           {mode === "profile"
             ? "把学历、求职偏好和项目事实整理成可引用证据。系统不会把整份简历直接交给模型。"
+            : mode === "materials"
+            ? "把联系方式、工作资格、简历版本和确认答案放进独立私密边界。缺失与拒绝保存会被明确保留，不会被 Agent 猜测。"
             : mode === "discover"
             ? "从登记的公司官方招聘入口即时读取岗位，最多保存 20 条，只自动分析严格匹配中的前 5 条。"
             : mode === "analysis"
@@ -1145,6 +1160,8 @@ export default function Home() {
 
       {mode === "profile" ? (
         <ProfileWorkspace apiUrl={apiUrl} userId={userId} />
+      ) : mode === "materials" ? (
+        <MaterialsWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "analysis" ? <section className="analysis-layout">
         <aside className="intake-panel">
           <div className="section-kicker"><span>01</span> {manualHandoffLeadId ? "人工接管线索" : "导入岗位"}</div>

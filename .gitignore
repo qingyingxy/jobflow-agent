@@ -24,3 +24,4 @@ frontend/playwright-report/
 
 # Personal resume data drafts
 data/local_resume_profile_draft.json
+data/private/

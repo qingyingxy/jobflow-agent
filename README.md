@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M13 与 `v0.2 Trusted Discovery` 已完成；多渠道线索、正文验证、动态页只读接管和岗位开放状态审计已形成闭环。
-> 下一阶段：从 M14 开始建设候选人私密档案、简历版本和答案库，再进入可审核投递包。
+> 当前状态：M01～M14 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密候选人档案、简历版本和确认答案库均已落地。
+> 下一阶段：从 M15 开始建设可审核、可冻结和可追溯的 `ApplicationPacket`。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -73,6 +73,9 @@ Agent 负责读取、分析和提出建议
 - 基础岗位发现、筛选和去重；
 - 外部 Agent、第三方链接和手动 URL 的统一线索验证；
 - 动态岗位页的只读浏览器接管，以及岗位开放/过期状态复查；
+- 与公开分析画像隔离的候选人私密档案；
+- 带文件哈希、用户归属和默认版本的简历材料库；
+- 必须由用户明确确认的可复用答案库；
 - 可复现的评测脚本。
 
 ### 第一版不实现
@@ -115,6 +118,7 @@ Agent 负责读取、分析和提出建议
 → Agent 生成材料修改建议
 → 用户逐条接受、修改或拒绝
 → 保存用户最终文本和审批结果
+→ 用户确认私密申请事实、简历版本和可复用答案
 → 用户在看板中更新申请状态
 ```
 
@@ -804,6 +808,15 @@ uv run pytest
 uv run ruff check src tests migrations
 ```
 
+M14 私密材料的本地配置：
+
+```text
+PRIVATE_STORAGE_DIR=./data/private
+RESUME_MAX_BYTES=5242880
+```
+
+`PRIVATE_STORAGE_DIR` 必须指向后端可写且不会由 Web Server 公开托管的目录。默认目录已加入 `.gitignore`；生产部署仍需使用受控持久卷、真实认证、备份和删除策略。
+
 本地前端开发：
 
 ```powershell
@@ -1105,6 +1118,60 @@ uv run python -m src.evaluation.trusted_discovery --manifest datasets/m13_truste
 
 完整报告见 [`docs/TRUSTED_DISCOVERY_EVALUATION.md`](docs/TRUSTED_DISCOVERY_EVALUATION.md) 与 [`docs/evaluation/m13-trusted-discovery-summary.json`](docs/evaluation/m13-trusted-discovery-summary.json)。
 
+### M14 候选人私密档案与材料库
+
+M14 已完成。申请准备资料不再写入现有公开 `UserProfile`，而是进入独立的私密边界：
+
+```text
+CandidatePrivateProfile
+├── contact_email / contact_phone
+├── current_status / availability_date
+├── work_authorization / sponsorship_required
+├── salary_strategy / relocation_willing
+└── voluntary_disclosure_policy（只保存策略）
+
+ResumeAsset ── file identity / MIME / size / SHA-256 / private storage key
+    └── ResumeVersion ── version / job family / source version / reason / default
+
+AnswerBankEntry ── normalized question / confirmed answer / scope / sensitivity
+```
+
+每个高影响档案字段都由状态和值组成，状态固定为：
+
+```text
+missing            没有事实，必须返回 needs_confirmation
+provided           只能在同时存在合法值时使用
+not_applicable     用户已明确该字段不适用
+declined_to_store  不保存具体值，真实使用时再次向用户确认
+```
+
+`provided` 没有值，或其他状态暗带具体值，都会被 API 拒绝。档案响应统一返回 `readiness` 和逐字段 `needs_confirmation`；Agent 没有可用状态去表达“猜测值”。自愿身份披露默认只保存 `ask_each_time / prefer_not_to_answer / allow_user_entry` 处理策略，不提供默认保存具体身份答案的字段。
+
+简历文件只接受 MIME、扩展名和文件魔数相互匹配的 PDF 或 DOCX，默认上限 5 MB。文件内容写入 `PRIVATE_STORAGE_DIR`（默认 `./data/private`），不在前端静态目录中；数据库只保存文件身份和相对存储标识。上传时按 SHA-256 做当前用户内去重，存储目录使用用户标识哈希，下载、建版本、设默认版本都重新检查用户归属。`ResumeVersion` 记录用户级递增版本号、岗位族、来源版本和生成原因，第一份版本自动成为默认版本。
+
+答案库要求每次创建或修改都显式提交 `confirmed: true`，并重新记录确认时间。问题会规范化后按用户和适用范围去重；适用范围支持通用、岗位族、公司和具体岗位，敏感级别支持普通、个人信息和高影响。联系方式、简历正文和答案内容不会写入普通请求日志或 `DomainEvent`。
+
+M14 API：
+
+```text
+GET    /api/private-profile
+PUT    /api/private-profile
+POST   /api/resumes/assets
+GET    /api/resumes/assets
+GET    /api/resumes/assets/{asset_id}/download
+POST   /api/resumes/versions
+GET    /api/resumes/versions
+PATCH  /api/resumes/versions/{version_id}
+POST   /api/answer-bank
+GET    /api/answer-bank
+PATCH  /api/answer-bank/{answer_id}
+DELETE /api/answer-bank/{answer_id}
+```
+
+前端“投递资料”工作区按私密档案、简历版本、答案库三步组织。缺失和拒绝保存状态始终可见；简历文件与版本分开登记；答案编辑后必须再次勾选确认。后端测试覆盖跨用户访问、状态和值一致性、文件 MIME/大小/内容、哈希重复、敏感日志和高影响字段缺失，Playwright 同时覆盖桌面与移动端流程。
+
+当前用户隔离仍建立在本地开发用 `X-User-ID` 上，不等同于生产认证。公开多用户部署前必须由可信身份层生成用户身份并移除客户端伪造请求头的能力。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -1115,7 +1182,8 @@ uv run python -m src.evaluation.trusted_discovery --manifest datasets/m13_truste
 - 读取发现任务时自动把超过 `DISCOVERY_RUN_TIMEOUT_SECONDS` 的遗留 `RUNNING` 任务标记为失败、写入恢复轨迹，并允许用户重试；
 - 清理脚本、隐藏元素和与岗位无关的页面内容；
 - 普通日志不保存完整简历、联系方式和其他敏感信息；
-- 用户删除材料时，同步删除关联证据、建议和最终文本。
+- 私密简历保存在非公开目录，API 不返回任意文件系统路径；
+- 完整数据导出和彻底删除流程安排在 M19，当前不能把删除单条答案等同于账户数据已彻底清除。
 
 ## 16. 推荐目录结构
 
@@ -1128,6 +1196,8 @@ jobflow-agent/
 │   │   ├── evidence.py
 │   │   ├── jobs.py
 │   │   ├── applications.py
+│   │   ├── materials.py
+│   │   ├── materials_schemas.py
 │   │   └── schemas.py
 │   ├── domain/
 │   │   ├── models.py
@@ -1137,7 +1207,8 @@ jobflow-agent/
 │   │   ├── suggestion.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
-│   │   └── matching.py
+│   │   ├── matching.py
+│   │   └── materials.py
 │   ├── services/
 │   │   ├── profile_service.py
 │   │   ├── evidence_service.py
@@ -1155,6 +1226,7 @@ jobflow-agent/
 │   │   ├── application_service.py
 │   │   ├── suggestion_generator.py
 │   │   ├── suggestion_service.py
+│   │   ├── candidate_material_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -1183,7 +1255,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M13 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、超时恢复和一键启动均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M14 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本和确认答案库均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1334,7 +1406,7 @@ flowchart LR
 | 里程碑 | 目标 | 主要成果 |
 |---|---|---|
 | M13 | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
-| M14 | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
+| M14（已完成） | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
 | M15 | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
 | M16 | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
 | M17 | 跟进中心 | 测评、面试、截止日期、日历和待办 |
