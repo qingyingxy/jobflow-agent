@@ -1,7 +1,7 @@
 # JobFlow Agent TODO
 
-> 当前阶段：M01～M14 已完成；下一步进入 M15 可审核投递包
-> 已完成里程碑：13 / 19
+> 当前阶段：M01～M15 已完成；下一步进入 M16 投递尝试、阻塞与提交凭证
+> 已完成里程碑：14 / 19
 > 外部与离线验收：DeepSeek `deepseek-v4-flash` 已完成 39 条严格 AI 校招岗位的 Core / Staged Parser 评测；M12 的 13 个 Discovery Agent 控制面场景与 M13 的 9 个 Trusted Discovery 固定场景全部通过。
 
 > 当前状态：核心 MVP 采用 SQLite-first；PostgreSQL + pgvector 仅作为发布前切换验证和可选升级路径，不计入 M01～M12 基线进度。
@@ -388,16 +388,16 @@
 
 ### M15 可审核投递包
 
-- [ ] 定义 `ApplicationPacket`、`PacketRevision` 和 `PacketDecision`
-- [ ] 投递包绑定当前用户、Application、JobPosting、有效 JobAnalysis 和 JD 内容哈希
-- [ ] 冻结画像版本、简历版本、选中证据、表单答案、开放题、风险和待确认项
-- [ ] 定义 `DRAFT / NEEDS_REVIEW / APPROVED / SUPERSEDED` 状态及转换表
-- [ ] Agent 只能创建或更新草稿，只有用户可以批准投递包
-- [ ] 已批准版本不可原地修改；岗位、画像、简历或答案变化后生成新版本并使旧版本失效
-- [ ] 资格未知、敏感答案未确认、材料缺失或分析失效时禁止批准
-- [ ] 实现生成、读取、逐项编辑、批准和创建新版本 API
-- [ ] 实现投递包审核页，展示 JD 快照、简历 Diff、证据来源、敏感答案和阻塞项
-- [ ] 添加并发审批、重复审批、过期分析、跨用户访问和版本不可变测试
+- [x] 定义 `ApplicationPacket`、`PacketRevision` 和 `PacketDecision`
+- [x] 投递包绑定当前用户、Application、JobPosting、有效 JobAnalysis 和 JD 内容哈希
+- [x] 冻结画像版本、简历版本、选中证据、表单答案、开放题、风险和待确认项
+- [x] 定义 `DRAFT / NEEDS_REVIEW / APPROVED / SUPERSEDED` 状态及转换表
+- [x] Agent 只能创建或更新草稿，只有用户可以批准投递包
+- [x] 已批准版本不可原地修改；岗位、画像、简历或答案变化后生成新版本并使旧版本失效
+- [x] 资格未知、敏感答案未确认、材料缺失或分析失效时禁止批准
+- [x] 实现生成、读取、逐项编辑、批准和创建新版本 API
+- [x] 实现投递包审核页，展示 JD 快照、简历 Diff、证据来源、敏感答案和阻塞项
+- [x] 添加并发审批、重复审批、过期分析、跨用户访问和版本不可变测试
 
 验收：用户批准的是一份内容明确、版本冻结、事实可追溯的投递材料；任何关键输入变化都不能悄悄修改已批准内容。
 

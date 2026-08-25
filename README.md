@@ -2,7 +2,7 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M14 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密候选人档案、简历版本和确认答案库均已落地。
+> 当前状态：M01～M15 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密候选人档案、材料库和可审核冻结投递包均已落地。
 > 下一阶段：从 M15 开始建设可审核、可冻结和可追溯的 `ApplicationPacket`。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
@@ -1170,6 +1170,51 @@ DELETE /api/answer-bank/{answer_id}
 
 前端“投递资料”工作区按私密档案、简历版本、答案库三步组织。缺失和拒绝保存状态始终可见；简历文件与版本分开登记；答案编辑后必须再次勾选确认。后端测试覆盖跨用户访问、状态和值一致性、文件 MIME/大小/内容、哈希重复、敏感日志和高影响字段缺失，Playwright 同时覆盖桌面与移动端流程。
 
+### M15 可审核冻结投递包
+
+M15 已完成。投递准备不再引用一组会随时变化的资料，而是批准一个明确修订：
+
+```text
+ApplicationPacket ── user / application / job / current revision
+    └── PacketRevision R01
+        ├── JobPosting snapshot + JD content hash
+        ├── valid JobAnalysis snapshot + analysis input hash
+        ├── CandidatePrivateProfile revision + frozen values
+        ├── ResumeVersion + file SHA-256 identity
+        ├── selected evidence / confirmed form answers / open questions
+        ├── risks / confirmation items / approval blockers
+        └── payload hash + source fingerprint
+
+PacketDecision ── one user approval audit record per revision
+```
+
+修订状态固定为：
+
+```text
+DRAFT → NEEDS_REVIEW → APPROVED → SUPERSEDED
+```
+
+用户或 Agent 可以生成和更新 `DRAFT`，但 Agent 不能确认开放题或批准修订。进入 `NEEDS_REVIEW` 后，服务会在批准时重新核对 JD 哈希、有效分析、私密画像修订、简历文件身份、经历证据和答案确认时间。资格未知或失败、私密画像未完成、简历缺失、敏感答案未确认、必备经历证据缺失、分析失效或任何来源漂移都会阻止批准。
+
+审批使用 `status = NEEDS_REVIEW` 条件更新，并对同一修订的决定类型设置唯一约束；并发和重复批准最多生成一条 `PacketDecision`，重复请求返回同一个已批准结果。`APPROVED` 修订不能通过编辑 API 原地修改。岗位、画像、简历、证据或答案变化时，读取结果会显示 `source_changed`；创建新修订会冻结当前资料，并将上一批准版本转为 `SUPERSEDED`。普通 `DomainEvent` 只记录投递包、修订和决定 ID，不写入联系方式、简历内容或答案。
+
+M15 API：
+
+```text
+POST   /api/applications/{application_id}/packet
+GET    /api/application-packets
+GET    /api/application-packets/{packet_id}
+GET    /api/packet-revisions/{revision_id}
+PATCH  /api/packet-revisions/{revision_id}/items
+POST   /api/packet-revisions/{revision_id}/review
+POST   /api/packet-revisions/{revision_id}/approve
+POST   /api/application-packets/{packet_id}/revisions
+```
+
+前端“投递审核”工作区提供申请索引、修订历史、JD 快照、简历版本差异身份、证据来源、表单答案、开放题、风险和阻塞登记。批准按钮只在当前修订无阻塞且来源未变化时可用，桌面和移动端都覆盖生成、审核和批准流程。
+
+`APPROVED` 只表示材料修订已经由用户批准，不表示真实招聘网站已经收到申请，也不会把现有 `Application` 推进到 `SUBMITTED`。真实表单执行、阻塞记录和提交凭证属于 M16。
+
 当前用户隔离仍建立在本地开发用 `X-User-ID` 上，不等同于生产认证。公开多用户部署前必须由可信身份层生成用户身份并移除客户端伪造请求头的能力。
 
 ## 15. 安全与数据边界
@@ -1196,14 +1241,17 @@ jobflow-agent/
 │   │   ├── evidence.py
 │   │   ├── jobs.py
 │   │   ├── applications.py
+│   │   ├── application_packets.py
 │   │   ├── materials.py
 │   │   ├── materials_schemas.py
+│   │   ├── packet_schemas.py
 │   │   └── schemas.py
 │   ├── domain/
 │   │   ├── models.py
 │   │   ├── runs.py
 │   │   ├── analysis.py
 │   │   ├── application.py
+│   │   ├── application_packet.py
 │   │   ├── suggestion.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
@@ -1227,6 +1275,7 @@ jobflow-agent/
 │   │   ├── suggestion_generator.py
 │   │   ├── suggestion_service.py
 │   │   ├── candidate_material_service.py
+│   │   ├── application_packet_service.py
 │   │   └── match_score.py
 │   ├── infrastructure/
 │   │   ├── database.py
@@ -1255,7 +1304,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M14 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本和确认答案库均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M15 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库和冻结投递包均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1407,7 +1456,7 @@ flowchart LR
 |---|---|---|
 | M13 | 多渠道岗位发现与可信验证 | `JobLead`、`LeadProvider`、Verifier、外部 Agent 接入 |
 | M14（已完成） | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
-| M15 | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
+| M15（已完成） | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
 | M16 | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
 | M17 | 跟进中心 | 测评、面试、截止日期、日历和待办 |
 | M18 | 有限浏览器辅助 | Greenhouse / Lever 等 ATS Adapter |
