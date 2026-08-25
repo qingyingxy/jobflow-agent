@@ -8,6 +8,7 @@ import src.domain.application
 import src.domain.application_attempt
 import src.domain.application_packet
 import src.domain.discovery
+import src.domain.follow_up
 import src.domain.materials
 import src.domain.models
 import src.domain.runs

@@ -40,6 +40,13 @@ from .eligibility import (
     EligibilityResult,
     SearchPreferences,
 )
+from .follow_up import (
+    FOLLOW_UP_TRANSITIONS,
+    FollowUpEffectiveStatus,
+    FollowUpEventType,
+    FollowUpStatus,
+    FollowUpTask,
+)
 from .job import (
     JobAvailabilityCheck,
     JobAvailabilityEvidenceType,
@@ -73,6 +80,7 @@ __all__ = [
     "APPLICATION_TRANSITIONS",
     "ATTEMPT_TRANSITIONS",
     "CANDIDATE_TRANSITIONS",
+    "FOLLOW_UP_TRANSITIONS",
     "PACKET_TRANSITIONS",
     "AgentRun",
     "AnalysisRisk",
@@ -98,6 +106,10 @@ __all__ = [
     "EligibilityResult",
     "EvidenceItem",
     "EvidenceRecord",
+    "FollowUpEffectiveStatus",
+    "FollowUpEventType",
+    "FollowUpStatus",
+    "FollowUpTask",
     "JobAnalysis",
     "JobAvailabilityCheck",
     "JobAvailabilityEvidenceType",

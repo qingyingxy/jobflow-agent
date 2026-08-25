@@ -2,8 +2,8 @@
 
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
-> 当前状态：M01～M16 与 `v0.2 Trusted Discovery` 已完成；可信岗位发现、私密材料、冻结投递包、人工投递尝试和真实提交凭证均已落地。
-> 下一阶段：M17 跟进中心，补齐测评、面试、截止日期、日历和待办。
+> 当前状态：M01～M17、`v0.2 Trusted Discovery` 与 `v0.3 Verified Application Preparation` 已完成；从可信岗位发现到人工提交、真实凭证和后续跟进的闭环均已落地。
+> 下一阶段：M18 有限 ATS 浏览器辅助，在一次性授权和人工接管边界内支持 Greenhouse / Lever 等稳定表单。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -1263,6 +1263,39 @@ POST  /api/application-attempts/{attempt_id}/finalize
 
 当前用户隔离仍建立在本地开发用 `X-User-ID` 上，不等同于生产认证。公开多用户部署前必须由可信身份层生成用户身份并移除客户端伪造请求头的能力。
 
+### M17 跟进中心
+
+M17 已完成。提交后的测评、笔试、面试、材料截止和主动联系统一记录为 `FollowUpTask`，并与具体 `Application` 和 `JobPosting` 绑定：
+
+```text
+FollowUpTask
+├── event type: ASSESSMENT / WRITTEN_TEST / INTERVIEW
+│               MATERIAL_DEADLINE / OUTREACH / CUSTOM
+├── schedule: UTC time + IANA timezone + local display time
+├── context: contact / channel / next action / private notes
+└── PENDING → COMPLETED / CANCELLED
+        └── OVERDUE 由当前时间动态计算，不持久化
+```
+
+只有处于 `SUBMITTED / ASSESSMENT / INTERVIEW / OFFER` 的申请可以创建跟进任务。创建、编辑、完成和取消都会写入现有 Application 时间线，但提醒状态不会自动改变 Application 状态；联系人、联系方式、下一步动作和备注正文不会进入普通 `DomainEvent`。重复请求通过显式幂等键和自然身份约束去重，完成与取消都是不可逆终态。
+
+M17 API：
+
+```text
+GET   /api/follow-ups
+GET   /api/follow-ups/summary
+GET   /api/follow-ups/{task_id}
+GET   /api/applications/{application_id}/follow-ups
+POST  /api/applications/{application_id}/follow-ups
+PATCH /api/follow-ups/{task_id}
+POST  /api/follow-ups/{task_id}/complete
+POST  /api/follow-ups/{task_id}/cancel
+```
+
+前端“跟进中心”提供今日、逾期、未来 7 天、未来 30 天和全部记录视图，并支持 30 天日期矩阵、按申请筛选、任务创建与编辑、完成和取消。时间范围使用用户指定的 IANA 时区和左闭右开日期边界。系统暂不监听邮箱或短信；外部消息必须由用户确认后手动录入。
+
+后端测试覆盖时区午夜、日期边界、重复任务、跨用户访问、状态终态和事件脱敏；Playwright 覆盖桌面与移动端的完整任务生命周期、日期筛选、横向溢出和浏览器控制台错误。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -1289,6 +1322,8 @@ jobflow-agent/
 │   │   ├── applications.py
 │   │   ├── application_attempts.py
 │   │   ├── application_packets.py
+│   │   ├── follow_ups.py
+│   │   ├── follow_up_schemas.py
 │   │   ├── attempt_schemas.py
 │   │   ├── materials.py
 │   │   ├── materials_schemas.py
@@ -1301,6 +1336,7 @@ jobflow-agent/
 │   │   ├── application.py
 │   │   ├── application_attempt.py
 │   │   ├── application_packet.py
+│   │   ├── follow_up.py
 │   │   ├── suggestion.py
 │   │   ├── job.py
 │   │   ├── eligibility.py
@@ -1322,6 +1358,7 @@ jobflow-agent/
 │   │   ├── jd_analysis_service.py
 │   │   ├── application_service.py
 │   │   ├── application_attempt_service.py
+│   │   ├── follow_up_service.py
 │   │   ├── suggestion_generator.py
 │   │   ├── suggestion_service.py
 │   │   ├── candidate_material_service.py
@@ -1354,7 +1391,7 @@ jobflow-agent/
 
 具体模块边界、接口和完成标准见 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md)，当前开发进度见 [`TODO.md`](TODO.md)。
 
-M01～M16 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试和真实凭证均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
+M01～M17 的本地闭环已经完成：39 条真实岗位 Parser 评测、13 个 Discovery Agent 控制面场景、9 个 Trusted Discovery 固定场景、Playwright E2E、字节跳动 / 腾讯专用 Adapter、统一线索验证、动态页只读接管、开放状态审计、私密候选人档案、简历版本、确认答案库、冻结投递包、人工投递尝试、真实凭证和提交后跟进中心均已落地。真实 API 默认通过 Core + Detail + 本地组装生成完整 JD，旧的一次性 `JDParser` 只保留用于兼容和对照。这个结论限定于 SQLite 单机与离线 Fixture 场景；公开多用户部署仍需真实认证、部署环境迁移验证和更强的跨进程任务恢复。
 
 ### 阶段 A：岗位分析闭环
 
@@ -1454,6 +1491,7 @@ Agent 能处理非结构化 JD
 材料修改由用户最终确认
 申请状态由确定性状态机管理
 任何 SUBMITTED 都能追溯到批准版本、投递尝试和有效凭证
+每个提交后的下一步动作都有明确时间、状态和申请时间线记录
 业务事件和 Agent Trace 能够分别追踪
 核心效果能够通过评测复现
 ```
@@ -1514,7 +1552,7 @@ flowchart LR
 | M14（已完成） | 候选人档案与材料库 | 私密画像、简历版本、答案库 |
 | M15（已完成） | 可审核投递包 | `ApplicationPacket`、审批页、版本冻结 |
 | M16（已完成） | 投递尝试与提交凭证 | Attempt、Blocker、Receipt |
-| M17 | 跟进中心 | 测评、面试、截止日期、日历和待办 |
+| M17（已完成） | 跟进中心 | 测评、面试、截止日期、日历和待办 |
 | M18 | 有限浏览器辅助 | Greenhouse / Lever 等 ATS Adapter |
 | M19 | 端到端评测与安全加固 | Mock ATS、投递指标、隐私和权限 |
 
@@ -1523,7 +1561,7 @@ flowchart LR
 ### 20.4 版本切分
 
 - `v0.2 Trusted Discovery`：完成 M13，形成多渠道发现、官方验证、统一入库的岗位入口；
-- `v0.3 Verified Application Preparation`：完成 M14～M17，支持人工提交但系统管理投递包、阻塞、凭证和跟进；
+- `v0.3 Verified Application Preparation`（已完成）：完成 M14～M17，支持人工提交但系统管理投递包、阻塞、凭证和跟进；
 - `v0.4 Assisted Apply`：完成 M18～M19，在明确授权和可审计边界内辅助填写有限 ATS。
 
 下一阶段仍不以自动海投量为成功标准。核心指标是岗位事实可验证、材料内容可追溯、敏感答案不被猜测、最终提交有明确授权，并且任何 `SUBMITTED` 状态都能找到真实凭证。

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AttemptWorkspace from "./attempt-workspace";
+import FollowUpWorkspace from "./follow-up-workspace";
 import MaterialsWorkspace from "./materials-workspace";
 import PacketWorkspace from "./packet-workspace";
 
@@ -86,7 +87,7 @@ type AnalysisResponse = {
   missing_information: string[];
 };
 
-type WorkspaceMode = "profile" | "materials" | "packets" | "attempts" | "discover" | "analysis" | "board";
+type WorkspaceMode = "profile" | "materials" | "packets" | "attempts" | "followups" | "discover" | "analysis" | "board";
 type CandidateStatus = "DISCOVERED" | "SAVED" | "IGNORED" | "CONVERTED";
 type ApplicationStatus =
   | "PREPARING"
@@ -387,6 +388,10 @@ const applicationEventLabel: Record<string, string> = {
   ApplicationBlockerResolved: "解决投递阻塞",
   SubmissionReceiptRecorded: "保存提交凭证",
   ApplicationSubmissionVerified: "确认真实投递",
+  FollowUpTaskCreated: "创建跟进任务",
+  FollowUpTaskUpdated: "更新跟进任务",
+  FollowUpTaskCompleted: "完成跟进任务",
+  FollowUpTaskCancelled: "取消跟进任务",
   SuggestionCreated: "生成材料建议",
   SuggestionDecisionRecorded: "记录材料决策",
 };
@@ -400,6 +405,15 @@ const attemptStatusLabel: Record<string, string> = {
   SUBMITTED: "已验证投递",
   FAILED: "本次失败",
   ABANDONED: "已结束",
+};
+
+const followUpEventTypeLabel: Record<string, string> = {
+  ASSESSMENT: "在线测评",
+  WRITTEN_TEST: "笔试",
+  INTERVIEW: "面试",
+  MATERIAL_DEADLINE: "材料截止",
+  OUTREACH: "主动跟进",
+  CUSTOM: "自定义事项",
 };
 
 const candidateStatusLabel: Record<CandidateStatus, string> = {
@@ -1116,6 +1130,13 @@ export default function Home() {
             投递执行 <span>M16</span>
           </button>
           <button
+            className={mode === "followups" ? "workspace-nav-active" : ""}
+            onClick={() => setMode("followups")}
+            type="button"
+          >
+            跟进中心 <span>M17</span>
+          </button>
+          <button
             className={mode === "discover" ? "workspace-nav-active" : ""}
             onClick={() => setMode("discover")}
             type="button"
@@ -1139,15 +1160,15 @@ export default function Home() {
         </nav>
         <div className="topbar-trail">
           <span className="topbar-path">
-            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "attempts" ? "人工投递执行台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
+            {mode === "profile" ? "画像与证据工作台" : mode === "materials" ? "私密投递资料工作台" : mode === "packets" ? "冻结投递包审核台" : mode === "attempts" ? "人工投递执行台" : mode === "followups" ? "申请跟进日程台" : mode === "analysis" ? "岗位分析工作台" : mode === "discover" ? "岗位发现工作台" : "申请状态工作台"}
           </span>
-          <span className="build-pill"><span className="live-dot" />M16 / LOCAL</span>
+          <span className="build-pill"><span className="live-dot" />M17 / LOCAL</span>
         </div>
       </header>
 
       <section className="workspace-intro">
         <div>
-          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "attempts" ? "03" : mode === "discover" ? "04" : mode === "analysis" ? "05" : "06"}</p>
+          <p className="eyebrow">CAREER SIGNAL LAB / {mode === "profile" ? "00" : mode === "materials" ? "01" : mode === "packets" ? "02" : mode === "attempts" ? "03" : mode === "followups" ? "04" : mode === "discover" ? "05" : mode === "analysis" ? "06" : "07"}</p>
           {mode === "profile" ? (
             <h1>
               先把经历写清楚，
@@ -1167,6 +1188,11 @@ export default function Home() {
             <h1>
               只有真实凭证，
               <em>才算完成投递。</em>
+            </h1>
+          ) : mode === "followups" ? (
+            <h1>
+              把每个下一步，
+              <em>放进时间里。</em>
             </h1>
           ) : mode === "analysis" ? (
             <h1>
@@ -1197,6 +1223,8 @@ export default function Home() {
             ? "逐项核对岗位快照、简历版本、经历证据和敏感答案。批准只绑定一个不可原地修改的冻结修订。"
             : mode === "attempts"
             ? "打开官网、填写表单、记录阻塞和保存成功凭证。申请只会在凭证通过校验后进入已投递。"
+            : mode === "followups"
+            ? "把测评、笔试、面试和主动跟进变成有时间、有状态的行动。提醒不会被冒充为申请事实。"
             : mode === "discover"
             ? "从登记的公司官方招聘入口即时读取岗位，最多保存 20 条，只自动分析严格匹配中的前 5 条。"
             : mode === "analysis"
@@ -1213,6 +1241,8 @@ export default function Home() {
         <PacketWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "attempts" ? (
         <AttemptWorkspace apiUrl={apiUrl} userId={userId} />
+      ) : mode === "followups" ? (
+        <FollowUpWorkspace apiUrl={apiUrl} userId={userId} />
       ) : mode === "analysis" ? <section className="analysis-layout">
         <aside className="intake-panel">
           <div className="section-kicker"><span>01</span> {manualHandoffLeadId ? "人工接管线索" : "导入岗位"}</div>
@@ -3063,6 +3093,20 @@ function eventDescription(event: ApplicationEvent): string {
   }
   if (event.event_type === "ApplicationSubmissionVerified") {
     return "投递包、执行记录与真实凭证已关联，申请进入已投递";
+  }
+  if (event.event_type === "FollowUpTaskCreated") {
+    const type = followUpEventTypeLabel[String(event.payload.event_type ?? "")] ?? "跟进事项";
+    return `${type}已加入日程 · ${String(event.payload.scheduled_at ?? "时间待确认")}`;
+  }
+  if (event.event_type === "FollowUpTaskUpdated") {
+    const fields = Array.isArray(event.payload.changed_fields) ? event.payload.changed_fields.length : 0;
+    return `跟进日程已更新 · ${fields} 个字段发生变化，申请状态未改变`;
+  }
+  if (event.event_type === "FollowUpTaskCompleted") {
+    return "跟进任务已完成 · 申请阶段仍需用户根据事实单独确认";
+  }
+  if (event.event_type === "FollowUpTaskCancelled") {
+    return "跟进任务已取消 · 历史记录继续保留";
   }
   return "用户确认创建申请记录";
 }

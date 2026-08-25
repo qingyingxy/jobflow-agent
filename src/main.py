@@ -12,6 +12,7 @@ from src.api.application_packets import router as application_packets_router
 from src.api.applications import router as applications_router
 from src.api.discovery import router as discovery_router
 from src.api.evidence import router as evidence_router
+from src.api.follow_ups import router as follow_ups_router
 from src.api.jobs import router as jobs_router
 from src.api.materials import router as materials_router
 from src.api.profiles import router as profile_router
@@ -29,6 +30,7 @@ app.include_router(evidence_router)
 app.include_router(applications_router)
 app.include_router(application_packets_router)
 app.include_router(application_attempts_router)
+app.include_router(follow_ups_router)
 app.include_router(discovery_router)
 app.include_router(jobs_router)
 app.include_router(materials_router)
