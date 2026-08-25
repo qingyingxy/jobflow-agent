@@ -282,14 +282,43 @@ class CandidateMaterialService:
             raise CandidateMaterialValidationError("简历文件不能为空")
         if len(content) > self.resume_max_bytes:
             raise CandidateMaterialValidationError("简历文件超过大小限制")
-        if suffix == ".pdf" and not content.startswith(b"%PDF-"):
-            raise CandidateMaterialValidationError("PDF 文件内容无效")
+        if suffix == ".pdf":
+            folded = content.lower()
+            if (
+                not content.startswith(b"%PDF-")
+                or b"%%EOF" not in content[-1024:]
+                or re.search(
+                    rb"/(?:javascript|js|launch|embeddedfile|encrypt)\b",
+                    folded,
+                )
+            ):
+                raise CandidateMaterialValidationError("PDF 文件内容无效或包含活动内容")
         if suffix == ".docx":
             try:
                 with zipfile.ZipFile(BytesIO(content)) as archive:
-                    names = set(archive.namelist())
+                    entries = archive.infolist()
+                    names = {entry.filename for entry in entries}
                     if not {"[Content_Types].xml", "word/document.xml"} <= names:
                         raise CandidateMaterialValidationError("DOCX 文件内容无效")
+                    if len(entries) > 1000:
+                        raise CandidateMaterialValidationError("DOCX 文件条目过多")
+                    if any(
+                        entry.flag_bits & 0x1
+                        or Path(entry.filename).is_absolute()
+                        or ".." in Path(entry.filename).parts
+                        for entry in entries
+                    ):
+                        raise CandidateMaterialValidationError("DOCX 文件结构不安全")
+                    lowered_names = {name.casefold() for name in names}
+                    if any(
+                        name.endswith("vbaproject.bin")
+                        or "/embeddings/" in f"/{name}"
+                        for name in lowered_names
+                    ):
+                        raise CandidateMaterialValidationError("DOCX 文件包含宏或嵌入对象")
+                    expanded_size = sum(entry.file_size for entry in entries)
+                    if expanded_size > max(self.resume_max_bytes * 4, 20_000_000):
+                        raise CandidateMaterialValidationError("DOCX 解压后内容超过限制")
             except zipfile.BadZipFile as exception:
                 raise CandidateMaterialValidationError("DOCX 文件内容无效") from exception
         return cleaned_filename, suffix

@@ -1,0 +1,228 @@
+{
+  "manifest_version": "m19-assisted-apply-manifest-v1",
+  "dataset_version": "m19-mock-ats-2026-08-25-v1",
+  "purpose": "Verify deterministic ATS field mapping, handoff, and receipt boundaries before Assisted Apply release.",
+  "scope_boundary": "Offline structured Mock ATS fixtures only; no live ATS compatibility, real submission success rate, or user workflow duration claim.",
+  "thresholds": {
+    "field_fill_accuracy": {"minimum": 1.0},
+    "resume_version_accuracy": {"minimum": 1.0},
+    "human_handoff_accuracy": {"minimum": 1.0},
+    "submission_receipt_coverage": {"minimum": 1.0},
+    "sensitive_field_misfill_rate": {"maximum": 0.0},
+    "false_submitted_rate": {"maximum": 0.0}
+  },
+  "packet": {
+    "id": "packet_revision_m19_fixture",
+    "job_snapshot": {
+      "company": "M19 Fixture Co",
+      "title": "AI Platform Engineer"
+    },
+    "profile_snapshot": {
+      "work_authorization": {"state": "provided", "value": "Yes"},
+      "salary_strategy": {"state": "provided", "value": "Negotiable"},
+      "voluntary_disclosure_policy": "prefer_not_to_answer"
+    },
+    "resume_snapshot": {
+      "label": "AI Platform R04",
+      "asset": {"id": "resume_asset_m19_fixture"}
+    },
+    "form_answer_snapshots": [],
+    "open_questions": [
+      {
+        "id": "open_question_m19",
+        "question": "Why do you want to join us",
+        "answer": "I build evidence-first AI systems."
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "greenhouse-success",
+      "provider": "GREENHOUSE",
+      "description": "Resume and approved open answer are filled and explicit success creates a receipt.",
+      "fields": [
+        {"key": "resume", "label": "Resume / CV", "name": "resume", "input_type": "file", "required": true, "selector": "#resume"},
+        {"key": "motivation", "label": "Why do you want to join us?", "name": "motivation", "input_type": "textarea", "required": true, "selector": "#motivation"}
+      ],
+      "expected_fill_values": {
+        "resume": "resume_asset_m19_fixture",
+        "motivation": "I build evidence-first AI systems."
+      },
+      "expected_handoff_codes": [],
+      "submission_success": true,
+      "submission_text": "Your application has been submitted successfully. Reference APP-M19-001",
+      "receipt_expected": true,
+      "expected_resume_asset_id": "resume_asset_m19_fixture"
+    },
+    {
+      "id": "lever-native-select-confirmed",
+      "provider": "LEVER",
+      "description": "A confirmed high-impact native select uses the approved profile value.",
+      "fields": [
+        {"key": "work-auth", "label": "Work authorization", "name": "work_authorization", "input_type": "select", "required": true, "selector": "#work-auth", "options": ["Yes", "No"]}
+      ],
+      "confirm_fields": ["work-auth"],
+      "expected_fill_values": {"work-auth": "Yes"},
+      "expected_handoff_codes": [],
+      "submission_success": true,
+      "submission_text": "Thank you for applying. We received your application.",
+      "receipt_expected": true
+    },
+    {
+      "id": "sensitive-field-unconfirmed",
+      "provider": "LEVER",
+      "description": "An unconfirmed work authorization value pauses instead of being filled.",
+      "fields": [
+        {"key": "work-auth", "label": "Work authorization", "name": "work_authorization", "input_type": "select", "required": true, "selector": "#work-auth", "options": ["Yes", "No"]}
+      ],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["sensitive_field_confirmation_required"],
+      "submission_success": false,
+      "submission_text": "Application form",
+      "receipt_expected": false
+    },
+    {
+      "id": "custom-dropdown-handoff",
+      "provider": "LEVER",
+      "description": "A custom combobox remains a user operation even when an approved value exists.",
+      "fields": [
+        {"key": "custom-work-auth", "label": "Work authorization", "name": "work_authorization", "input_type": "custom_select", "required": true, "selector": "#custom-work-auth", "options": ["Yes", "No"]}
+      ],
+      "confirm_fields": ["custom-work-auth"],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["unsupported_field_control"],
+      "submission_success": false,
+      "submission_text": "Application form",
+      "receipt_expected": false
+    },
+    {
+      "id": "missing-open-answer",
+      "provider": "GREENHOUSE",
+      "description": "An unknown required open question pauses instead of inventing an answer.",
+      "fields": [
+        {"key": "unknown-question", "label": "Describe a project not in your resume", "name": "unknown_project", "input_type": "textarea", "required": true, "selector": "#unknown-question"}
+      ],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["approved_value_missing"],
+      "submission_success": false,
+      "submission_text": "Application form",
+      "receipt_expected": false
+    },
+    {
+      "id": "captcha-handoff",
+      "provider": "GREENHOUSE",
+      "description": "CAPTCHA always pauses browser assistance.",
+      "gates": ["browser_captcha_required"],
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["browser_captcha_required"],
+      "submission_success": false,
+      "submission_text": "CAPTCHA",
+      "receipt_expected": false
+    },
+    {
+      "id": "resume-upload-verification-failure",
+      "provider": "GREENHOUSE",
+      "description": "A resume upload verification failure pauses before authorization.",
+      "fields": [
+        {"key": "resume", "label": "Resume / CV", "name": "resume", "input_type": "file", "required": true, "selector": "#resume"}
+      ],
+      "preparation_issues": ["field_fill_failed:resume"],
+      "expected_fill_values": {"resume": "resume_asset_m19_fixture"},
+      "expected_handoff_codes": ["field_fill_failed:resume"],
+      "submission_success": false,
+      "submission_text": "Resume upload rejected",
+      "receipt_expected": false,
+      "expected_resume_asset_id": "resume_asset_m19_fixture"
+    },
+    {
+      "id": "login-and-2fa-handoff",
+      "provider": "LEVER",
+      "description": "Login and 2FA remain user-only steps.",
+      "gates": ["browser_login_required", "browser_2fa_required"],
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["browser_2fa_required", "browser_login_required"],
+      "submission_success": false,
+      "submission_text": "Sign in to continue with two-factor authentication",
+      "receipt_expected": false
+    },
+    {
+      "id": "permission-handoff",
+      "provider": "GREENHOUSE",
+      "description": "Browser permission prompts require user control.",
+      "gates": ["browser_permission_required"],
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["browser_permission_required"],
+      "submission_success": false,
+      "submission_text": "Please grant permission",
+      "receipt_expected": false
+    },
+    {
+      "id": "security-challenge-handoff",
+      "provider": "GREENHOUSE",
+      "description": "Cloudflare and security checks always require human control.",
+      "gates": ["browser_security_challenge"],
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["browser_security_challenge"],
+      "submission_success": false,
+      "submission_text": "Cloudflare security check",
+      "receipt_expected": false
+    },
+    {
+      "id": "dynamic-page-change",
+      "provider": "GREENHOUSE",
+      "description": "A required field added after approval invalidates the page fingerprint and plan.",
+      "fields": [
+        {"key": "resume", "label": "Resume / CV", "name": "resume", "input_type": "file", "required": true, "selector": "#resume"}
+      ],
+      "changed_fields": [
+        {"key": "resume", "label": "Resume / CV", "name": "resume", "input_type": "file", "required": true, "selector": "#resume"},
+        {"key": "new-required", "label": "New required question", "name": "new_required", "input_type": "textarea", "required": true, "selector": "#new-required"}
+      ],
+      "expected_fill_values": {"resume": "resume_asset_m19_fixture"},
+      "expected_handoff_codes": ["ats_page_changed"],
+      "submission_success": false,
+      "submission_text": "Application form changed",
+      "receipt_expected": false,
+      "expected_resume_asset_id": "resume_asset_m19_fixture"
+    },
+    {
+      "id": "non-resume-file-handoff",
+      "provider": "GREENHOUSE",
+      "description": "A portfolio or cover-letter upload never receives the approved resume file.",
+      "fields": [
+        {"key": "portfolio", "label": "Portfolio attachment", "name": "portfolio", "input_type": "file", "required": true, "selector": "#portfolio"}
+      ],
+      "expected_fill_values": {},
+      "expected_handoff_codes": ["unsupported_field_control"],
+      "submission_success": false,
+      "submission_text": "Application form",
+      "receipt_expected": false
+    },
+    {
+      "id": "generic-thank-you-pseudo-success",
+      "provider": "GREENHOUSE",
+      "description": "A generic careers-page thank-you is not submission evidence.",
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": [],
+      "submission_success": true,
+      "submission_text": "Thank you for your interest in our company.",
+      "receipt_expected": false
+    },
+    {
+      "id": "explicit-failure-page",
+      "provider": "LEVER",
+      "description": "A submission failure page never creates a receipt.",
+      "fields": [],
+      "expected_fill_values": {},
+      "expected_handoff_codes": [],
+      "submission_success": false,
+      "submission_text": "We could not submit your application. Please try again.",
+      "receipt_expected": false
+    }
+  ]
+}

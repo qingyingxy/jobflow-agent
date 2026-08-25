@@ -6,7 +6,7 @@ type AttemptStatus = "CREATED" | "FORM_IN_PROGRESS" | "NEEDS_USER" | "BLOCKED" |
 type AtsStatus = "INSPECTED" | "NEEDS_USER" | "READY_FOR_APPROVAL" | "AUTHORIZED" | "SUBMITTING" | "SUBMITTED" | "FAILED";
 type AtsProvider = "GREENHOUSE" | "LEVER";
 type FieldRisk = "LOW" | "PERSONAL" | "HIGH_IMPACT" | "LEGAL";
-type FieldAction = "FILL" | "NEEDS_CONFIRMATION" | "NEEDS_VALUE" | "SKIP";
+type FieldAction = "FILL" | "NEEDS_CONFIRMATION" | "NEEDS_VALUE" | "NEEDS_USER" | "SKIP";
 
 type ApplicationItem = {
   id: string;
@@ -99,6 +99,7 @@ const actionLabel: Record<FieldAction, string> = {
   FILL: "自动填写",
   NEEDS_CONFIRMATION: "等待确认",
   NEEDS_VALUE: "缺少来源",
+  NEEDS_USER: "人工处理",
   SKIP: "保持为空",
 };
 

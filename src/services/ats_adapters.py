@@ -195,7 +195,13 @@ class StructuredAtsAdapter:
             risk = _field_risk(field, canonical)
             value, source = _resolve_value(field, canonical, packet)
             value_hash = _hash_text(value) if value is not None else None
-            if value is None:
+            if field.input_type == "custom_select":
+                action = AtsFieldAction.NEEDS_USER
+                reason = "自定义下拉框不在当前自动操作范围内，必须由用户处理"
+            elif field.input_type == "file" and canonical != "resume":
+                action = AtsFieldAction.NEEDS_USER
+                reason = "非简历文件上传不在当前自动操作范围内，必须由用户处理"
+            elif value is None:
                 action = (
                     AtsFieldAction.NEEDS_VALUE
                     if field.required
@@ -313,19 +319,7 @@ class StructuredAtsAdapter:
 
     def capture_receipt(self, evidence: AtsSubmissionEvidence) -> dict[str, Any]:
         text = " ".join((evidence.confirmation_text or "").split())
-        success_markers = (
-            "submitted",
-            "received",
-            "thank you",
-            "application complete",
-            "提交成功",
-            "申请已提交",
-            "已收到",
-            "感谢申请",
-        )
-        if not evidence.success or not any(
-            marker in text.casefold() for marker in success_markers
-        ):
+        if not evidence.success or not has_submission_success_marker(text):
             raise AtsAdapterError(
                 "ATS 页面没有提供可验证的提交成功信息",
                 code=evidence.failure_code or "ats_submission_unverified",
@@ -399,7 +393,11 @@ def blocking_reasons(
             "code": (
                 "sensitive_field_confirmation_required"
                 if item.get("action") == AtsFieldAction.NEEDS_CONFIRMATION.value
-                else "approved_value_missing"
+                else (
+                    "unsupported_field_control"
+                    if item.get("action") == AtsFieldAction.NEEDS_USER.value
+                    else "approved_value_missing"
+                )
             ),
             "category": "field",
             "field_key": item.get("field_key"),
@@ -411,15 +409,42 @@ def blocking_reasons(
         in {
             AtsFieldAction.NEEDS_CONFIRMATION.value,
             AtsFieldAction.NEEDS_VALUE.value,
+            AtsFieldAction.NEEDS_USER.value,
         }
     )
     return reasons
 
 
+def has_submission_success_marker(text: str) -> bool:
+    folded = " ".join(text.casefold().split())
+    markers = (
+        "application submitted",
+        "application has been submitted",
+        "application was submitted",
+        "application received",
+        "received your application",
+        "thank you for applying",
+        "thank you for your application",
+        "application complete",
+        "提交成功",
+        "申请已提交",
+        "申请提交成功",
+        "已收到你的申请",
+        "已收到您的申请",
+        "感谢你的申请",
+        "感谢您的申请",
+    )
+    return any(marker in folded for marker in markers)
+
+
 def _canonical_field(field: AtsFieldDescriptor) -> str:
     text = _fold(f"{field.label} {field.name} {field.autocomplete or ''}")
-    if field.input_type == "file" or _contains(text, "resume", "cv", "简历"):
-        return "resume"
+    if field.input_type == "file":
+        return (
+            "resume"
+            if _contains(text, "resume", "curriculum vitae", "cv", "简历")
+            else "unsupported_file"
+        )
     if field.input_type == "email" or _contains(text, "email", "邮箱", "电子邮件"):
         return "contact_email"
     if field.input_type == "tel" or _contains(text, "phone", "mobile", "电话", "手机"):

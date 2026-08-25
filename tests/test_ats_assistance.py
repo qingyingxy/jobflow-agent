@@ -26,7 +26,9 @@ from src.services.ats_adapters import (
     AtsPageSnapshot,
     AtsPreparationResult,
     AtsSubmissionEvidence,
+    blocking_reasons,
 )
+from src.services.ats_browser import PlaywrightAtsBrowserExecutor
 from tests.test_application_attempts import _approved_revision
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "ats"
@@ -516,3 +518,66 @@ def test_unsupported_ats_is_rejected() -> None:
     )
     with pytest.raises(AtsAdapterError, match="不受支持|不是受支持"):
         AtsAdapterRegistry().detect(snapshot)
+
+
+def test_generic_thank_you_is_not_submission_evidence() -> None:
+    snapshot = _snapshot("greenhouse_application.json")
+    adapter = AtsAdapterRegistry().detect(snapshot)
+    generic_thanks = AtsSubmissionEvidence(
+        success=True,
+        confirmation_text="Thank you for your interest in our company.",
+        confirmation_url=snapshot.final_url,
+        application_number=None,
+        captured_at=datetime.now(UTC),
+    )
+    explicit_success = AtsSubmissionEvidence(
+        success=True,
+        confirmation_text="Your application has been submitted successfully.",
+        confirmation_url=snapshot.final_url,
+        application_number="APP-42",
+        captured_at=datetime.now(UTC),
+    )
+
+    with pytest.raises(AtsAdapterError) as rejected:
+        adapter.capture_receipt(generic_thanks)
+
+    assert rejected.value.code == "ats_submission_unverified"
+    assert adapter.capture_receipt(explicit_success)["application_number"] == "APP-42"
+
+
+def test_custom_dropdown_and_permission_prompt_require_handoff() -> None:
+    snapshot = AtsPageSnapshot(
+        requested_url="https://jobs.lever.co/example/platform-engineer",
+        final_url="https://jobs.lever.co/example/platform-engineer",
+        title="Platform Engineer",
+        visible_text="Application",
+        fields=(
+            AtsFieldDescriptor(
+                key="custom_work_auth",
+                label="Work authorization",
+                name="work_authorization",
+                input_type="custom_select",
+                required=True,
+                selector="#work-authorization",
+                options=("Yes", "No"),
+            ),
+        ),
+        provider_hint=AtsProvider.LEVER,
+    )
+    packet = {
+        "profile_snapshot": {
+            "work_authorization": {"state": "provided", "value": "Yes"}
+        },
+        "resume_snapshot": {},
+        "form_answer_snapshots": [],
+        "open_questions": [],
+    }
+    adapter = AtsAdapterRegistry().detect(snapshot)
+    plan = adapter.map_fields(snapshot, packet, [])
+
+    assert plan[0]["action"] == AtsFieldAction.NEEDS_USER.value
+    assert adapter.fill(plan) == []
+    assert blocking_reasons(snapshot, plan)[0]["code"] == "unsupported_field_control"
+    assert "browser_permission_required" in PlaywrightAtsBrowserExecutor._human_gates(
+        "Please grant permission and allow camera to continue"
+    )

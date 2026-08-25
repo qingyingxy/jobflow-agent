@@ -14,6 +14,7 @@ from src.services.ats_adapters import (
     AtsPageSnapshot,
     AtsPreparationResult,
     AtsSubmissionEvidence,
+    has_submission_success_marker,
 )
 from src.services.url_reader import URLReaderError, URLSafetyChecker
 
@@ -116,17 +117,7 @@ class PlaywrightAtsBrowserExecutor(AtsBrowserExecutor):
                 (await page.locator("body").inner_text(timeout=self.timeout_ms)).split()
             )
             folded = text.casefold()
-            success_markers = (
-                "submitted",
-                "received",
-                "thank you",
-                "application complete",
-                "提交成功",
-                "申请已提交",
-                "已收到",
-                "感谢申请",
-            )
-            success = any(marker in folded for marker in success_markers)
+            success = has_submission_success_marker(folded)
             number_match = re.search(
                 r"(?:application|reference|申请|编号)[\s:#-]*([A-Z0-9-]{3,40})",
                 text,
@@ -203,7 +194,7 @@ class PlaywrightAtsBrowserExecutor(AtsBrowserExecutor):
         final_url = await self._validate_url(page.url)
         visible_text = await page.locator("body").inner_text(timeout=self.timeout_ms)
         raw_fields: list[dict[str, Any]] = await page.locator(
-            "input:not([type='hidden']):not([type='submit']):not([type='button']), select, textarea"
+            "input:not([type='hidden']):not([type='submit']):not([type='button']), select, textarea, [role='combobox']"
         ).evaluate_all(
             """
             (elements) => elements.map((element, index) => {
@@ -219,7 +210,7 @@ class PlaywrightAtsBrowserExecutor(AtsBrowserExecutor):
                 id: element.id || '',
                 name: element.name || '',
                 label,
-                input_type: element.tagName === 'SELECT' ? 'select' : element.tagName === 'TEXTAREA' ? 'textarea' : (element.type || 'text'),
+                input_type: element.getAttribute('role') === 'combobox' && element.tagName !== 'SELECT' ? 'custom_select' : element.tagName === 'SELECT' ? 'select' : element.tagName === 'TEXTAREA' ? 'textarea' : (element.type || 'text'),
                 required: Boolean(element.required || element.getAttribute('aria-required') === 'true'),
                 selector,
                 options: element.tagName === 'SELECT' ? Array.from(element.options).map((option) => option.text.trim()).filter(Boolean) : [],
@@ -336,6 +327,14 @@ class PlaywrightAtsBrowserExecutor(AtsBrowserExecutor):
                 "cloudflare",
                 "security check",
                 "安全检查",
+            ),
+            "browser_permission_required": (
+                "allow camera",
+                "allow microphone",
+                "grant permission",
+                "请允许摄像头",
+                "请允许麦克风",
+                "授予权限",
             ),
         }
         return tuple(

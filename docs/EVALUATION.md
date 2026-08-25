@@ -156,3 +156,27 @@ uv run python -m src.evaluation.discovery_agent `
 ```
 
 详细场景和限制见 [`DISCOVERY_AGENT_EVALUATION.md`](DISCOVERY_AGENT_EVALUATION.md)，机器可读报告见 [`evaluation/m12-discovery-agent-summary.json`](evaluation/m12-discovery-agent-summary.json)。这些结果只说明固定控制面回归场景通过，不代表真实官网召回率、真实网络稳定性或整个 Agent 的 100% 准确率。
+
+## 9. M19 Assisted Apply 与运行指标
+
+M19 使用 `datasets/m19_assisted_apply_manifest.json` 的 14 个离线结构化 Mock ATS 场景回归字段映射、人工接管和提交凭证边界。它不访问真实 ATS，也不会真的投递：
+
+```text
+uv run python -m src.evaluation.assisted_apply `
+  --manifest datasets/m19_assisted_apply_manifest.json `
+  --output artifacts/evaluation/m19-assisted-apply-report.json `
+  --markdown docs/evaluation/m19-assisted-apply-summary.md
+```
+
+发布阈值包括字段填写准确率、简历版本准确率、人工接管准确率、提交凭证覆盖率，以及两个必须为 0 的指标：敏感字段误填率和错误标记为已提交的比例。分母、逐场景结果和接管原因保存在机器可读报告中。普通 “Thank you for your interest” 明确作为伪成功案例，不构成提交凭证。
+
+Fixture 没有用户思考和操作时间，因此报告中的 `ready_to_submit_seconds` 固定为 `null`。真实使用数据通过数据库时间戳单独统计：
+
+```text
+uv run python -m src.evaluation.application_operations `
+  --database-url sqlite:///./data/jobflow.db `
+  --user-id local-user `
+  --output artifacts/evaluation/application-operations.json
+```
+
+运行指标从 Application 创建时间到 Attempt `ready_at` 计算，人工干预拆分为 Blocker 和敏感字段确认次数。这个口径仍不等同于从首次看到岗位到投递完成的完整用户旅程，公开报告时必须保留该限制。

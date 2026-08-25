@@ -3,7 +3,7 @@
 面向国内校招与实习场景的岗位发现、分析与申请管理 Agent。
 
 > 当前状态：M01～M18、`v0.2 Trusted Discovery` 与 `v0.3 Verified Application Preparation` 已完成；从可信岗位发现到有限 ATS 辅助、真实凭证和后续跟进的闭环均已落地。
-> 下一阶段：M19 端到端评测、安全与发布加固，补齐 Mock ATS、投递指标、数据导出/删除和生产身份边界。
+> 当前阶段：M19 端到端评测与安全加固进行中；Mock ATS、投递指标、数据导出/删除和本地安全边界已落地，真实身份提供方与 PostgreSQL 实机验证仍待完成。
 > 项目名称：暂定，正式发布前需检查重名情况。
 
 ## 1. 项目简介
@@ -1328,6 +1328,41 @@ POST /api/ats-sessions/{session_id}/submit
 
 前端“浏览器辅助”工作区提供 Attempt 队列、八阶段执行轨道、字段来源/风险/动作表、敏感字段确认、人工接管、最终摘要、一次性授权和凭证状态。Fixture 测试覆盖 Greenhouse/Lever 字段映射、简历上传、下拉框、CAPTCHA、跨用户隔离、授权撤销与消费、页面变化、伪成功页和执行器异常；Playwright 覆盖桌面与移动端。当前不支持任意网站、Workday、登录态接管或无人值守批量投递，也不绕过任何反自动化控制。
 
+### M19 端到端评测与安全加固（进行中）
+
+M19 第一批已完成。版本化 [`m19_assisted_apply_manifest.json`](datasets/m19_assisted_apply_manifest.json) 包含 14 个离线结构化 Mock ATS 场景，覆盖 Greenhouse/Lever、简历上传验证失败、非简历文件控件、原生/自定义下拉框、开放题缺失、敏感字段确认、登录、CAPTCHA、2FA、权限、安全检查、页面变化、明确成功、失败和伪成功。重复提交继续由 M18 的一次性授权服务测试覆盖。
+
+评测命令：
+
+```text
+uv run python -m src.evaluation.assisted_apply `
+  --manifest datasets/m19_assisted_apply_manifest.json `
+  --output artifacts/evaluation/m19-assisted-apply-report.json `
+  --markdown docs/evaluation/m19-assisted-apply-summary.md
+```
+
+当前固定 Fixture 为 14/14，通过字段填写准确率、简历版本准确率、人工接管准确率和凭证覆盖率四个阈值；敏感字段误填率与错误标记为已提交的比例均为 0。以上数字只代表冻结的结构化 Fixture，不代表真实 ATS 兼容率、真实投递成功率或线上耗时。真实操作数据使用 `src.evaluation.application_operations` 从 `Application.created_at`、Attempt `ready_at`、Blocker 和敏感字段确认记录计算：
+
+```text
+uv run python -m src.evaluation.application_operations `
+  --user-id local-user `
+  --output artifacts/evaluation/application-operations.json
+```
+
+账户数据生命周期 API：
+
+```text
+GET    /api/account/data-summary
+POST   /api/account/export     {"confirmed": true}
+DELETE /api/account            {"confirmation": "DELETE_MY_DATA"}
+```
+
+导出结果是 `no-store` ZIP，包含版本化 JSON 清单和经过哈希复核的原始简历文件；内部 `storage_key` 不对外暴露。彻底删除会清除全部用户归属表、关联 Application、仅该用户占用的岗位/解析缓存和哈希私密目录，同时保留其他用户仍在引用的共享岗位事实。文件先移动到私密目录内的隔离区，数据库提交失败时恢复，提交成功后再销毁。
+
+安全加固包括 JSON 日志中的密钥、令牌、邮箱和手机号脱敏；PDF 活动内容/加密/嵌入对象拒绝；DOCX 宏、嵌入对象、路径穿越、加密条目和异常解压大小拒绝；以及 DomainEvent/Discovery trace 敏感元数据扫描。`staging`/`production` 若仍允许 `X-User-ID` 或没有配置可信身份头，会直接返回 `503`。这只是可信反向代理的防误配契约，不等同于已经接入 OIDC 等真实身份提供方；服务必须部署在会删除客户端同名头并注入可信主体的网关之后。
+
+M19 尚未完成的发布门槛只有两项：接入并实测真实身份提供方；在全新 PostgreSQL 环境执行迁移、后端测试和核心端到端测试。完成前 `v0.4 Assisted Apply` 不标记发布完成。
+
 ## 15. 安全与数据边界
 
 第一版至少实现以下约束：
@@ -1339,7 +1374,7 @@ POST /api/ats-sessions/{session_id}/submit
 - 清理脚本、隐藏元素和与岗位无关的页面内容；
 - 普通日志不保存完整简历、联系方式和其他敏感信息；
 - 私密简历保存在非公开目录，API 不返回任意文件系统路径；
-- 完整数据导出和彻底删除流程安排在 M19，当前不能把删除单条答案等同于账户数据已彻底清除。
+- 账户级导出和彻底删除由 M19 数据生命周期 API 管理；删除单条答案仍不等同于账户数据已彻底清除。
 
 ## 16. 推荐目录结构
 

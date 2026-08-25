@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     default_user_id: str = "local-user"
     private_storage_dir: str = "./data/private"
     resume_max_bytes: int = 5 * 1024 * 1024
+    account_export_max_bytes: int = 100 * 1024 * 1024
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    allow_insecure_user_header: bool = True
+    trusted_identity_header: str | None = None
     discovery_run_timeout_seconds: int = 3600
     ats_authorization_ttl_seconds: int = 600
     log_level: str = "INFO"

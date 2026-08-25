@@ -37,6 +37,7 @@ class AtsFieldAction(StrEnum):
     FILL = "FILL"
     NEEDS_CONFIRMATION = "NEEDS_CONFIRMATION"
     NEEDS_VALUE = "NEEDS_VALUE"
+    NEEDS_USER = "NEEDS_USER"
     SKIP = "SKIP"
 
 
