@@ -121,6 +121,22 @@ powershell -ExecutionPolicy Bypass -File scripts/start-dev.ps1
 
 打开 `http://localhost:3000`。后端默认运行在 `http://127.0.0.1:18001`。
 
+### 可选：浏览器能力
+
+基础界面和 Fake Model 演示不依赖浏览器组件。使用动态岗位页面读取或 ATS
+浏览器辅助时，在项目根目录安装 Python Playwright 对应的 Chromium：
+
+```powershell
+uv run playwright install chromium
+```
+
+运行前端 Playwright E2E 时，另行安装 Node.js Playwright 对应的 Chromium：
+
+```powershell
+Set-Location frontend
+npx playwright install chromium
+```
+
 ### 分别启动
 
 后端：

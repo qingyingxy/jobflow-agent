@@ -9,8 +9,13 @@ htmlcov/
 
 # Local database and generated files
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 artifacts/
+tmp/
 datasets/m11_evaluation_evidence.json
 datasets/m11_evaluation_profile.json
 
