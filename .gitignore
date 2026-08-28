@@ -18,6 +18,7 @@ datasets/m11_evaluation_profile.json
 frontend/node_modules/
 frontend/.next/
 frontend/.env.local
+frontend/next-env.d.ts
 frontend/tsconfig.tsbuildinfo
 frontend/test-results/
 frontend/playwright-report/

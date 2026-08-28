@@ -598,7 +598,7 @@ Greenhouse 指定来源、定时同步和 Playwright 为可选项；当前搜索
 
 验收：最终运行前已冻结 Evaluation Manifest、指标口径和发布阈值；评测可重复运行并记录模型、提示词和数据集版本；原始模型输出和 Validator 后结果分别报告，用户可见 Unsupported Claim Rate 为 0；真实岗位发现到申请管理可以完整演示；unknown、无证据和读取失败场景可以正常处理。
 
-当前本地作品集阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、真实/Fixture prediction 生成、证据边界 Validator、字段/资格/证据/失败码指标、AgentRun 汇总和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，另有 39 条公开岗位严格 `eval` 子集完成 Core / Staged 真实模型运行。`docs/EVALUATION.md` 记录空值、分母、运行元数据、实际指标和适用范围，Playwright E2E 可重复生成 PNG / GIF。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果；对外作为正式基准发布前仍需独立人工复核标签。
+当前本地作品集阶段已经完成：`src/evaluation` 提供版本化 Pydantic 契约、真实/Fixture prediction 生成、证据边界 Validator、字段/资格/证据/失败码指标、AgentRun 汇总和命令行入口；`datasets/m11_evaluation_manifest.json` 提供 12 个 dev 案例，另有基于公开招聘页面构建的 39 条严格 `eval` 子集完成 Core / Staged 真实模型运行。`docs/EVALUATION.md` 记录空值、分母、运行元数据、实际指标和适用范围，Playwright E2E 可重复生成 PNG / GIF。固定预测夹具包含故意错误，只用于测试评测器，不计入最终效果；对外作为正式基准发布前仍需独立人工复核标签。
 
 ## 9. 测试重点
 
@@ -618,7 +618,8 @@ Adapter Fixture 测试直接放在对应测试文件中，不建设独立 Contra
 
 ## 10. 任务里程碑
 
-当前完成进度和子任务见 [`TODO.md`](../TODO.md)。
+当前里程碑与实现记录见
+[`IMPLEMENTATION_HISTORY.md`](IMPLEMENTATION_HISTORY.md)。
 
 ```text
 M01 工程骨架与数据库

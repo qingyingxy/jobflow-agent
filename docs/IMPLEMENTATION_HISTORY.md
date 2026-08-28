@@ -1,4 +1,7 @@
-# JobFlow Agent TODO
+# JobFlow Agent 里程碑与实现记录
+
+> 本文档保留 `v0.1` 至 `v0.4` 的验收清单。未完成项均为当前本地版本之外的
+> 可选扩展，不影响 `v0.4 Assisted Apply` 的发布状态。
 
 > 当前阶段：M01～M19 与 `v0.4 Assisted Apply` 已完成。
 > 已完成里程碑：19 / 19
@@ -6,7 +9,8 @@
 
 > 当前状态：项目采用 SQLite-only 单机发布范围；公网多用户托管与跨进程调度属于后续扩展。
 
-产品设计见 [README.md](README.md)，实现约束和完成标准见 [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)。
+项目概览见 [README](../README.md)，实现约束和完成标准见
+[DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)。
 
 ## 维护规则
 
@@ -267,7 +271,7 @@
 ### M11 评测、失败案例与演示
 
 - [x] 定义可版本化的数据集格式、字段标签、资格标签和证据标注规范
-- [x] 准备 39 条公开岗位严格评测子集，记录来源、授权边界、规则标签和人工覆盖
+- [x] 基于公开招聘页面准备 39 条严格评测子集，记录来源、授权边界、规则标签和人工覆盖
 - [x] 为正常、字段缺失、`unknown`、无证据、读取失败和非法模型输出预先规定最小样本分布
 - [x] 区分开发样本和最终评测样本，避免只对演示案例调参
 - [x] 实现字段级 Precision
