@@ -10,8 +10,10 @@ from src.infrastructure.database import (
 )
 
 
-def test_default_database_is_local_sqlite() -> None:
-    assert Settings().database_url == "sqlite:///./data/jobflow.db"
+def test_default_database_is_local_sqlite(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    assert Settings(_env_file=None).database_url == "sqlite:///./data/jobflow.db"
 
 
 def test_non_sqlite_database_url_is_rejected() -> None:
