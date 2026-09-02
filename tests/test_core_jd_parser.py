@@ -31,7 +31,7 @@ async def test_core_parser_keeps_contract_small_and_builds_local_evidence() -> N
 
     result = await parser.parse(RawJobDocument(raw_content=CORE_RAW))
 
-    assert result.fields.model_dump() == {
+    assert result.fields.model_dump(exclude={"skill_concepts"}) == {
         "job_type": "campus",
         "locations": ["深圳"],
         "required_skills": ["Python", "RAG", "Agent"],
@@ -39,6 +39,14 @@ async def test_core_parser_keeps_contract_small_and_builds_local_evidence() -> N
         "preferred_skills": None,
         "skill_mentions": None,
     }
+    assert [
+        (item.skill_id, item.canonical_name, item.strength)
+        for item in result.fields.skill_concepts or []
+    ] == [
+        ("skill:python", "Python", "required"),
+        ("skill:rag", "RAG", "required"),
+        ("skill:agent", "Agent", "required"),
+    ]
     assert result.field_evidence
     assert all(item.source_text in CORE_RAW for item in result.field_evidence)
     assert {item.field_path for item in result.field_evidence} == {
@@ -64,6 +72,14 @@ async def test_core_parser_keeps_contract_small_and_builds_local_evidence() -> N
         "preferred",
         "mention",
     ]
+    assert clause_schema["properties"]["qualifier"]["anyOf"][0]["enum"] == [
+        "project_experience",
+        "internship_experience",
+        "research_experience",
+        "development_experience",
+        "practical_experience",
+        "open_source_experience",
+    ]
     assert "any_of" not in clause_schema["properties"]
     assert "优先、加分" in client.last_request.messages[0].content
     assert "最小语义条款" in client.last_request.messages[0].content
@@ -71,20 +87,16 @@ async def test_core_parser_keeps_contract_small_and_builds_local_evidence() -> N
     assert "strength=mention" in client.last_request.messages[0].content
     assert "relation=all_of" in client.last_request.messages[0].content
     assert "relation=any_of" in client.last_request.messages[0].content
-    assert "不得越过逗号或分号扩张" in client.last_request.messages[0].content
-    assert "前端（React）" in client.last_request.messages[0].content
-    assert "不遗漏并列技能" in client.last_request.messages[0].content
-    assert "工程能力、论文复现、工程实现" in client.last_request.messages[0].content
-    assert "至少一种/任一种" in client.last_request.messages[0].content
-    assert "AI 项目或开源实践者加分" in client.last_request.messages[0].content
-    assert "优化器与训练算法" in client.last_request.messages[0].content
-    assert "需求分析、逻辑拆解" in client.last_request.messages[0].content
-    assert "模型效果分析、训练策略诊断、数据问题诊断" in (
+    assert "不要遗漏并列技术能力" in client.last_request.messages[0].content
+    assert "project_experience" in client.last_request.messages[0].content
+    assert "不生成标准技能名或技能 ID" in client.last_request.messages[0].content
+    assert "preferred或 mention 即使含‘或’也用 all_of" in (
         client.last_request.messages[0].content
     )
-    assert "编程基础扎实、工程能力良好" in client.last_request.messages[0].content
-    assert "一个或多个" in client.last_request.messages[0].content
-    assert "有实践或浓厚兴趣" in client.last_request.messages[0].content
+    assert "只把上位方向名称建成 any_of" in client.last_request.messages[0].content
+    assert "拆成多个 clause" in client.last_request.messages[0].content
+    assert "需求分析、逻辑拆解" in client.last_request.messages[0].content
+    assert len(client.last_request.messages[0].content) < 2400
     assert "examples" not in str(client.last_request.json_schema)
     assert result.prompt_version == DEFAULT_CORE_PROMPT_VERSION
     assert result.parser_version == DEFAULT_CORE_PARSER_VERSION
@@ -99,6 +111,7 @@ def test_core_skill_clause_uses_one_skill_array_and_explicit_relation() -> None:
     )
 
     assert clause.skills == ["Python"]
+    assert clause.qualifier is None
     with pytest.raises(ValueError, match="at least two skills"):
         CoreSkillClause(
             source_text="熟悉 Python 或其他语言",
@@ -135,6 +148,43 @@ def test_core_skill_clause_uses_one_skill_array_and_explicit_relation() -> None:
 
 
 @pytest.mark.asyncio
+async def test_core_parser_keeps_experience_as_structured_qualifier() -> None:
+    raw_content = (
+        "示例公司 2027 校园招聘，工作地点北京。"
+        "任职要求：有 VLA 项目经验者优先。"
+    )
+    parser = CoreJDParser(
+        FakeModelClient(
+            output={
+                "job_type": "campus",
+                "locations": ["北京"],
+                "skill_clauses": [
+                    {
+                        "source_text": "有 VLA 项目经验者优先",
+                        "strength": "preferred",
+                        "relation": "all_of",
+                        "skills": ["VLA"],
+                        "qualifier": "project_experience",
+                    }
+                ],
+            }
+        ),
+        validation_retries=0,
+    )
+
+    result = await parser.parse(RawJobDocument(raw_content=raw_content))
+
+    assert result.fields.preferred_skills == ["VLA"]
+    assert result.fields.skill_concepts is not None
+    concept = result.fields.skill_concepts[0]
+    assert concept.skill_id == "skill:vla"
+    assert concept.canonical_name == "VLA"
+    assert concept.strength == "preferred"
+    assert concept.qualifier == "project_experience"
+    assert concept.source_text == "有 VLA 项目经验者优先"
+
+
+@pytest.mark.asyncio
 async def test_core_parser_preserves_null_when_source_has_no_core_signal() -> None:
     raw_content = "示例公司发布岗位信息，当前页面没有明确的类型、地点或技能要求。"
     parser = CoreJDParser(
@@ -150,7 +200,7 @@ async def test_core_parser_preserves_null_when_source_has_no_core_signal() -> No
 
     result = await parser.parse(RawJobDocument(raw_content=raw_content))
 
-    assert result.fields.model_dump() == {
+    assert result.fields.model_dump(exclude={"skill_concepts"}) == {
         "job_type": None,
         "locations": None,
         "required_skills": None,
@@ -158,6 +208,7 @@ async def test_core_parser_preserves_null_when_source_has_no_core_signal() -> No
         "preferred_skills": None,
         "skill_mentions": None,
     }
+    assert result.fields.skill_concepts is None
     assert result.field_evidence == []
 
 

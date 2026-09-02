@@ -38,8 +38,8 @@ class Settings(BaseSettings):
     parser_validation_retries: int = 1
     prompt_version: str = "jd-parser-prompt-v4"
     parser_version: str = "jd-parser-v3"
-    core_prompt_version: str = "jd-core-parser-prompt-v18"
-    core_parser_version: str = "jd-core-parser-v28"
+    core_prompt_version: str = "jd-core-parser-prompt-v20"
+    core_parser_version: str = "jd-core-parser-v30"
     detail_prompt_version: str = "jd-detail-parser-prompt-v1"
     staged_prompt_version: str = "jd-staged-parser-prompt-v2"
     staged_parser_version: str = "jd-staged-parser-v17"

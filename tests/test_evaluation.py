@@ -362,6 +362,121 @@ def test_any_of_relation_metric_splits_conditional_accuracy_and_false_positives(
     }
 
 
+def test_concept_metrics_separate_identity_strength_and_qualifier() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skills": ["HTTP协议"],
+            "preferred_skills": ["VLA项目"],
+        },
+        expected_skill_mentions=["HTTP协议", "VLA项目", "LLM/VLM"],
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skills", "preferred_skills"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "required_skills": ["HTTP"],
+            "preferred_skills": ["VLA"],
+            "skill_mentions": ["LLM", "VLM"],
+            "skill_concepts": [
+                {
+                    "skill_id": "skill:http",
+                    "canonical_name": "HTTP",
+                    "strength": "required",
+                    "relation": "all_of",
+                },
+                {
+                    "skill_id": "skill:vla",
+                    "canonical_name": "VLA",
+                    "strength": "preferred",
+                    "qualifier": "project_experience",
+                    "relation": "all_of",
+                },
+                {
+                    "skill_id": "skill:llm",
+                    "canonical_name": "LLM",
+                    "strength": "mention",
+                    "relation": "all_of",
+                },
+                {
+                    "skill_id": "skill:vlm",
+                    "canonical_name": "VLM",
+                    "strength": "mention",
+                    "relation": "all_of",
+                },
+            ],
+        },
+    )
+
+    metrics = evaluate_manifest(manifest, [prediction])["validated"]
+
+    assert metrics["skill_concepts"]["f1"] == 1.0
+    assert metrics["skill_concept_strength"]["macro_f1"] == 1.0
+    assert metrics["skill_qualifiers"]["f1"] == 1.0
+
+
+def test_concept_any_of_metric_uses_ids_and_ignores_display_group_name() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skill_groups": [
+                {
+                    "name": "前端语言",
+                    "any_of": ["JS", "TS"],
+                    "allow_other": False,
+                }
+            ]
+        }
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skill_groups"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "skill_concepts": [
+                {
+                    "skill_id": "skill:javascript",
+                    "canonical_name": "JavaScript",
+                    "strength": "required",
+                    "relation": "any_of",
+                    "group_name": "Web 技术",
+                    "allow_other": False,
+                    "source_text": "熟悉 JavaScript 或 TypeScript",
+                },
+                {
+                    "skill_id": "skill:typescript",
+                    "canonical_name": "TypeScript",
+                    "strength": "required",
+                    "relation": "any_of",
+                    "group_name": "Web 技术",
+                    "allow_other": False,
+                    "source_text": "熟悉 JavaScript 或 TypeScript",
+                },
+            ]
+        },
+    )
+
+    metric = evaluate_manifest(manifest, [prediction])["validated"][
+        "concept_any_of_relations"
+    ]
+
+    assert metric["conditional_exact_match_accuracy"] == 1.0
+    assert metric["false_positive_case_rate"] is None
+
+
 def test_report_exposes_failure_codes_and_timeout_rate() -> None:
     cases = [make_case(case_id="case-success"), make_case(case_id="case-timeout")]
     manifest = EvaluationManifest(

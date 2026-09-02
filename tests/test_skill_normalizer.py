@@ -4,10 +4,12 @@ from src.domain.skill_normalizer import (
     normalize_atomic_skill_values,
     normalize_core_fields,
     normalize_skill_category,
+    normalize_skill_concepts,
     normalize_skill_fields,
     normalize_skill_groups,
     normalize_skill_values,
     skill_category_for,
+    skill_id_for,
 )
 
 
@@ -31,6 +33,45 @@ def test_shared_ontology_normalizes_categories_and_short_aliases() -> None:
         "图像生成",
         "CPU架构",
     ]
+
+
+def test_skill_concepts_use_stable_ids_for_surface_aliases() -> None:
+    variants = [
+        "HTTP",
+        "HTTP协议",
+        "大模型API调用",
+        "LLM API",
+        "工程实现能力",
+        "工程实现",
+    ]
+
+    identities = {
+        value: [item.skill_id for item in normalize_skill_concepts(value)]
+        for value in variants
+    }
+
+    assert identities["HTTP"] == identities["HTTP协议"] == ["skill:http"]
+    assert identities["大模型API调用"] == identities["LLM API"] == [
+        "skill:llm-api"
+    ]
+    assert identities["工程实现能力"] == identities["工程实现"] == [
+        "skill:工程实现"
+    ]
+    assert skill_id_for("C++") == "skill:c-plus-plus"
+
+
+def test_skill_concepts_split_compounds_and_legacy_qualifiers() -> None:
+    compound = normalize_skill_concepts("LLM/VLM")
+    legacy = normalize_skill_concepts("VLA项目")
+
+    assert [(item.skill_id, item.canonical_name) for item in compound] == [
+        ("skill:llm", "LLM"),
+        ("skill:vlm", "VLM"),
+    ]
+    assert len(legacy) == 1
+    assert legacy[0].skill_id == "skill:vla"
+    assert legacy[0].canonical_name == "VLA"
+    assert legacy[0].qualifier == "project_experience"
 
 
 def test_security_hardening_alias_requires_software_context_in_source_text() -> None:

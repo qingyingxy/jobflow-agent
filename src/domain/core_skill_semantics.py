@@ -8,8 +8,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from src.domain.job import ParsingWarning
 from src.domain.skill_normalizer import (
+    SkillQualifier,
     explicit_skill_categories,
     normalize_atomic_skill_values,
+    normalize_skill_concepts,
     normalize_skill_group,
     normalize_skill_groups,
     normalize_skill_values,
@@ -47,6 +49,10 @@ class CoreSkillClause(BaseModel):
         description="Shared category for skills when relation is any_of.",
     )
     allow_other: bool = False
+    qualifier: SkillQualifier | None = Field(
+        default=None,
+        description="Explicit experience scope applied to every skill in the clause.",
+    )
 
     @model_validator(mode="after")
     def require_skill_content(self) -> CoreSkillClause:
@@ -57,6 +63,21 @@ class CoreSkillClause(BaseModel):
         if self.relation == "all_of" and self.allow_other:
             raise ValueError("allow_other requires any_of relation")
         return self
+
+
+class SkillConcept(BaseModel):
+    """Locally normalized skill identity with model-owned semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    skill_id: str = Field(min_length=7)
+    canonical_name: str = Field(min_length=1)
+    strength: SkillStrength
+    qualifier: SkillQualifier | None = None
+    relation: SkillRelation = "all_of"
+    group_name: str | None = None
+    allow_other: bool = False
+    source_text: str | None = None
 
 
 class CoreModelOutput(BaseModel):
@@ -89,6 +110,7 @@ def compile_core_model_output(
     groups: list[dict[str, Any]] = []
     group_options: list[str] = []
     skill_sources: dict[str, str] = {}
+    concept_candidates: list[SkillConcept] = []
     warnings: list[ParsingWarning] = []
 
     for index, clause in enumerate(output.skill_clauses or []):
@@ -138,10 +160,27 @@ def compile_core_model_output(
         for skill in [*skills, *category_mentions]:
             skill_sources.setdefault(skill, source_text)
         mentions.extend(category_mentions)
+        concept_candidates.extend(
+            _concepts_for_labels(
+                category_mentions,
+                strength="mention",
+                relation="all_of",
+                source_text=source_text,
+            )
+        )
 
         if clause.strength == "required":
             if clause.relation == "all_of":
                 required.extend(skills)
+                concept_candidates.extend(
+                    _concepts_for_labels(
+                        skills,
+                        strength="required",
+                        relation="all_of",
+                        qualifier=clause.qualifier,
+                        source_text=source_text,
+                    )
+                )
             else:
                 group = normalize_skill_group(
                     {
@@ -163,12 +202,45 @@ def compile_core_model_output(
                     group_options.extend(group["any_of"])
                     for option in group["any_of"]:
                         skill_sources.setdefault(option, source_text)
+                    concept_candidates.extend(
+                        _concepts_for_labels(
+                            group["any_of"],
+                            strength="required",
+                            relation="any_of",
+                            qualifier=clause.qualifier,
+                            group_name=group["name"],
+                            allow_other=group["allow_other"],
+                            source_text=source_text,
+                        )
+                    )
         elif clause.strength == "preferred":
             # The public v2 contract has no preferred group field, so its options
             # remain preferred skills while the model still classifies them once.
             preferred.extend(skills)
+            concept_candidates.extend(
+                _concepts_for_labels(
+                    skills,
+                    strength="preferred",
+                    relation=clause.relation,
+                    qualifier=clause.qualifier,
+                    group_name=clause.group_name,
+                    allow_other=clause.allow_other,
+                    source_text=source_text,
+                )
+            )
         elif clause.strength == "mention":
             mentions.extend(skills)
+            concept_candidates.extend(
+                _concepts_for_labels(
+                    skills,
+                    strength="mention",
+                    relation=clause.relation,
+                    qualifier=clause.qualifier,
+                    group_name=clause.group_name,
+                    allow_other=clause.allow_other,
+                    source_text=source_text,
+                )
+            )
 
     fields = _finalize_fields(
         job_type=output.job_type,
@@ -178,6 +250,13 @@ def compile_core_model_output(
         mentions=mentions,
         groups=groups,
         group_options=group_options,
+    )
+    fields["skill_concepts"] = _serialized_concepts(
+        build_skill_concepts(
+            fields,
+            candidates=concept_candidates,
+            skill_sources=skill_sources,
+        )
     )
     return CompiledCoreOutput(
         fields=fields,
@@ -203,7 +282,177 @@ def compile_legacy_core_output(payload: dict[str, Any]) -> CompiledCoreOutput:
         groups=groups,
         group_options=group_options,
     )
+    fields["skill_concepts"] = _serialized_concepts(
+        build_skill_concepts(fields)
+    )
     return CompiledCoreOutput(fields=fields, skill_sources={})
+
+
+def build_skill_concepts(
+    fields: dict[str, Any],
+    *,
+    candidates: list[SkillConcept] | None = None,
+    skill_sources: dict[str, str] | None = None,
+) -> list[SkillConcept]:
+    """Derive a concept view while keeping the legacy public fields intact."""
+
+    sources = skill_sources or {}
+    slots: list[SkillConcept] = []
+    required_ids: set[str] = set()
+    preferred_ids: set[str] = set()
+    group_ids: set[str] = set()
+
+    required = _concepts_for_labels(
+        _list_field(fields.get("required_skills")),
+        strength="required",
+        relation="all_of",
+        skill_sources=sources,
+    )
+    slots.extend(required)
+    required_ids.update(item.skill_id for item in required)
+
+    for group in _dict_list_field(fields.get("required_skill_groups")):
+        normalized = normalize_skill_group(group, options_are_atomic=True)
+        if normalized is None:
+            continue
+        concepts = _concepts_for_labels(
+            normalized["any_of"],
+            strength="required",
+            relation="any_of",
+            group_name=normalized["name"],
+            allow_other=normalized["allow_other"],
+            skill_sources=sources,
+        )
+        slots.extend(concepts)
+        group_ids.update(item.skill_id for item in concepts)
+
+    preferred = _concepts_for_labels(
+        _list_field(fields.get("preferred_skills")),
+        strength="preferred",
+        relation="all_of",
+        skill_sources=sources,
+    )
+    preferred = [
+        item
+        for item in preferred
+        if item.skill_id not in required_ids and item.skill_id not in group_ids
+    ]
+    slots.extend(preferred)
+    preferred_ids.update(item.skill_id for item in preferred)
+
+    mentions = _concepts_for_labels(
+        _list_field(fields.get("skill_mentions")),
+        strength="mention",
+        relation="all_of",
+        skill_sources=sources,
+    )
+    slots.extend(
+        item
+        for item in mentions
+        if item.skill_id not in required_ids
+        and item.skill_id not in group_ids
+        and item.skill_id not in preferred_ids
+    )
+
+    candidate_list = candidates or []
+    enriched: list[SkillConcept] = []
+    for slot in slots:
+        matches = [
+            candidate
+            for candidate in candidate_list
+            if candidate.skill_id == slot.skill_id
+            and candidate.strength == slot.strength
+        ]
+        exact_relation = [
+            candidate
+            for candidate in matches
+            if candidate.relation == slot.relation
+        ]
+        candidate = (exact_relation or matches or [None])[0]
+        if candidate is None:
+            enriched.append(slot)
+            continue
+        enriched.append(
+            slot.model_copy(
+                update={
+                    "qualifier": candidate.qualifier or slot.qualifier,
+                    "relation": candidate.relation,
+                    "group_name": candidate.group_name or slot.group_name,
+                    "allow_other": candidate.allow_other,
+                    "source_text": candidate.source_text or slot.source_text,
+                }
+            )
+        )
+    return _unique_concepts(enriched)
+
+
+def _concepts_for_labels(
+    labels: list[str],
+    *,
+    strength: SkillStrength,
+    relation: SkillRelation,
+    qualifier: SkillQualifier | None = None,
+    group_name: str | None = None,
+    allow_other: bool = False,
+    source_text: str | None = None,
+    skill_sources: dict[str, str] | None = None,
+) -> list[SkillConcept]:
+    concepts: list[SkillConcept] = []
+    for label in labels:
+        resolved_source = source_text or (skill_sources or {}).get(label)
+        for identity in normalize_skill_concepts(
+            label,
+            qualifier=qualifier,
+            source_text=resolved_source,
+        ):
+            concepts.append(
+                SkillConcept(
+                    skill_id=identity.skill_id,
+                    canonical_name=identity.canonical_name,
+                    strength=strength,
+                    qualifier=identity.qualifier,
+                    relation=relation,
+                    group_name=group_name if relation == "any_of" else None,
+                    allow_other=allow_other if relation == "any_of" else False,
+                    source_text=resolved_source,
+                )
+            )
+    return concepts
+
+
+def _unique_concepts(concepts: list[SkillConcept]) -> list[SkillConcept]:
+    unique: list[SkillConcept] = []
+    seen: set[tuple[Any, ...]] = set()
+    for concept in concepts:
+        key = (
+            concept.skill_id,
+            concept.strength,
+            concept.qualifier,
+            concept.relation,
+            concept.group_name,
+            concept.allow_other,
+        )
+        if key in seen:
+            continue
+        unique.append(concept)
+        seen.add(key)
+    return unique
+
+
+def _serialized_concepts(
+    concepts: list[SkillConcept],
+) -> list[dict[str, Any]] | None:
+    return [concept.model_dump(mode="json") for concept in concepts] or None
+
+
+def _list_field(value: Any) -> list[str]:
+    values = value if isinstance(value, list) else [value]
+    return [item for item in values if isinstance(item, str) and item.strip()]
+
+
+def _dict_list_field(value: Any) -> list[dict[str, Any]]:
+    values = value if isinstance(value, list) else [value]
+    return [item for item in values if isinstance(item, dict)]
 
 
 def _finalize_fields(

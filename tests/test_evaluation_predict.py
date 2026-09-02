@@ -194,11 +194,26 @@ async def test_generate_predictions_supports_core_parser_mode() -> None:
     )
 
     prediction = prediction_file.predictions[0]
-    assert prediction.fields == {
+    assert {
+        key: prediction.fields[key]
+        for key in ("job_type", "locations", "required_skills")
+    } == {
         "job_type": "internship",
         "locations": ["北京"],
         "required_skills": ["RAG"],
     }
+    assert prediction.fields["skill_concepts"] == [
+        {
+            "skill_id": "skill:rag",
+            "canonical_name": "RAG",
+            "strength": "required",
+            "qualifier": None,
+            "relation": "all_of",
+            "group_name": None,
+            "allow_other": False,
+            "source_text": "RAG",
+        }
+    ]
     assert prediction.eligibility is None
     assert prediction.matches == []
     assert prediction.failure_code is None

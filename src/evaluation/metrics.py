@@ -4,11 +4,13 @@ import json
 import re
 import unicodedata
 from collections import Counter
+from dataclasses import dataclass
 from typing import Any
 
 from src.domain.skill_normalizer import (
     SKILL_ONTOLOGY_VERSION,
     normalize_atomic_skill_values,
+    normalize_skill_concepts,
     normalize_skill_group,
 )
 from src.evaluation.models import (
@@ -19,6 +21,17 @@ from src.evaluation.models import (
 )
 
 EvaluationReport = dict[str, Any]
+
+
+@dataclass(frozen=True)
+class _MetricConcept:
+    skill_id: str
+    strength: str
+    qualifier: str | None = None
+    relation: str = "all_of"
+    group_name: str | None = None
+    allow_other: bool = False
+    source_text: str | None = None
 
 
 def validate_prediction(
@@ -182,6 +195,22 @@ def _metric_bundle(
             cases_by_id,
             predictions_by_id,
         ),
+        "skill_concepts": _skill_concept_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
+        "skill_concept_strength": _skill_concept_strength_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
+        "skill_qualifiers": _skill_qualifier_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
+        "concept_any_of_relations": _concept_any_of_relation_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
         "eligibility_accuracy": _eligibility_accuracy(
             cases_by_id,
             predictions_by_id,
@@ -329,6 +358,324 @@ def _any_of_relation_metric(
     }
 
 
+def _skill_concept_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    pairs: list[tuple[set[str], set[str]]] = []
+    for case_id, case in cases_by_id.items():
+        if case.expected.fields.get("skill_concepts"):
+            expected = _concept_ids(_concept_records(case.expected.fields))
+        elif case.expected.skill_mentions:
+            expected = _concept_ids_for_labels(case.expected.skill_mentions)
+        else:
+            expected = _concept_ids(_concept_records(case.expected.fields))
+        predicted = _concept_ids(
+            _concept_records(predictions_by_id[case_id].fields)
+        )
+        pairs.append((expected, predicted))
+    return _set_metric(pairs)
+
+
+def _skill_concept_strength_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    pairs_by_strength: dict[str, list[tuple[set[str], set[str]]]] = {
+        "required": [],
+        "preferred": [],
+        "mention": [],
+    }
+    for case_id, case in cases_by_id.items():
+        expected = _concept_records(
+            case.expected.fields,
+            mentions=case.expected.skill_mentions,
+        )
+        predicted = _concept_records(predictions_by_id[case_id].fields)
+        for strength, pairs in pairs_by_strength.items():
+            pairs.append(
+                (
+                    {
+                        item.skill_id
+                        for item in expected
+                        if item.strength == strength
+                    },
+                    {
+                        item.skill_id
+                        for item in predicted
+                        if item.strength == strength
+                    },
+                )
+            )
+    class_metrics = {
+        strength: _set_metric(pairs)
+        for strength, pairs in pairs_by_strength.items()
+    }
+    return {
+        "classes": class_metrics,
+        "macro_f1": _safe_average(
+            [
+                metric["f1"]
+                for metric in class_metrics.values()
+                if metric["f1"] is not None
+            ]
+        ),
+    }
+
+
+def _skill_qualifier_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    pairs: list[tuple[set[tuple[str, str]], set[tuple[str, str]]]] = []
+    for case_id, case in cases_by_id.items():
+        expected = {
+            (item.skill_id, item.qualifier)
+            for item in _concept_records(
+                case.expected.fields,
+                mentions=case.expected.skill_mentions,
+            )
+            if item.qualifier is not None
+        }
+        predicted = {
+            (item.skill_id, item.qualifier)
+            for item in _concept_records(predictions_by_id[case_id].fields)
+            if item.qualifier is not None
+        }
+        pairs.append((expected, predicted))
+    return _set_metric(pairs)
+
+
+def _concept_any_of_relation_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    expected_positive_cases = 0
+    exact_match_cases = 0
+    expected_negative_cases = 0
+    false_positive_cases = 0
+    for case_id, case in cases_by_id.items():
+        expected = _concept_any_of_groups(case.expected.fields)
+        predicted = _concept_any_of_groups(predictions_by_id[case_id].fields)
+        if expected:
+            expected_positive_cases += 1
+            exact_match_cases += expected == predicted
+        else:
+            expected_negative_cases += 1
+            false_positive_cases += bool(predicted)
+    return {
+        "expected_positive_case_count": expected_positive_cases,
+        "exact_match_case_count": exact_match_cases,
+        "conditional_exact_match_accuracy": _ratio(
+            exact_match_cases,
+            expected_positive_cases,
+        ),
+        "expected_negative_case_count": expected_negative_cases,
+        "false_positive_case_count": false_positive_cases,
+        "false_positive_case_rate": _ratio(
+            false_positive_cases,
+            expected_negative_cases,
+        ),
+    }
+
+
+def _concept_records(
+    fields: dict[str, Any],
+    *,
+    mentions: list[str] | None = None,
+) -> list[_MetricConcept]:
+    explicit = fields.get("skill_concepts")
+    if isinstance(explicit, list) and explicit:
+        records = _explicit_concept_records(explicit)
+        if records:
+            return records
+    return _fallback_concept_records(fields, mentions=mentions)
+
+
+def _explicit_concept_records(values: list[Any]) -> list[_MetricConcept]:
+    records: list[_MetricConcept] = []
+    for value in values:
+        if not isinstance(value, dict):
+            continue
+        strength = value.get("strength")
+        if strength not in {"required", "preferred", "mention"}:
+            continue
+        canonical_name = value.get("canonical_name")
+        identities = normalize_skill_concepts(
+            canonical_name,
+            qualifier=value.get("qualifier"),
+            source_text=value.get("source_text"),
+        )
+        for identity in identities:
+            records.append(
+                _MetricConcept(
+                    skill_id=identity.skill_id,
+                    strength=strength,
+                    qualifier=identity.qualifier,
+                    relation=(
+                        value.get("relation")
+                        if value.get("relation") in {"all_of", "any_of"}
+                        else "all_of"
+                    ),
+                    group_name=value.get("group_name"),
+                    allow_other=bool(value.get("allow_other", False)),
+                    source_text=value.get("source_text"),
+                )
+            )
+    return _unique_metric_concepts(records)
+
+
+def _fallback_concept_records(
+    fields: dict[str, Any],
+    *,
+    mentions: list[str] | None = None,
+) -> list[_MetricConcept]:
+    records: list[_MetricConcept] = []
+    required_ids: set[str] = set()
+    preferred_ids: set[str] = set()
+    group_ids: set[str] = set()
+
+    required = _metric_concepts_for_labels(
+        fields.get("required_skills"),
+        strength="required",
+    )
+    records.extend(required)
+    required_ids.update(item.skill_id for item in required)
+
+    raw_groups = fields.get("required_skill_groups")
+    groups = raw_groups if isinstance(raw_groups, list) else [raw_groups]
+    for raw_group in groups:
+        if not isinstance(raw_group, dict):
+            continue
+        group = normalize_skill_group(raw_group, options_are_atomic=True)
+        if group is None:
+            continue
+        options = _metric_concepts_for_labels(
+            group["any_of"],
+            strength="required",
+            relation="any_of",
+            group_name=group["name"],
+            allow_other=group["allow_other"],
+        )
+        records.extend(options)
+        group_ids.update(item.skill_id for item in options)
+
+    preferred = [
+        item
+        for item in _metric_concepts_for_labels(
+            fields.get("preferred_skills"),
+            strength="preferred",
+        )
+        if item.skill_id not in required_ids and item.skill_id not in group_ids
+    ]
+    records.extend(preferred)
+    preferred_ids.update(item.skill_id for item in preferred)
+
+    raw_mentions: Any = mentions if mentions is not None else fields.get("skill_mentions")
+    records.extend(
+        item
+        for item in _metric_concepts_for_labels(raw_mentions, strength="mention")
+        if item.skill_id not in required_ids
+        and item.skill_id not in group_ids
+        and item.skill_id not in preferred_ids
+    )
+    return _unique_metric_concepts(records)
+
+
+def _metric_concepts_for_labels(
+    value: Any,
+    *,
+    strength: str,
+    relation: str = "all_of",
+    group_name: str | None = None,
+    allow_other: bool = False,
+) -> list[_MetricConcept]:
+    values = value if isinstance(value, list) else [value]
+    return [
+        _MetricConcept(
+            skill_id=identity.skill_id,
+            strength=strength,
+            qualifier=identity.qualifier,
+            relation=relation,
+            group_name=group_name,
+            allow_other=allow_other,
+        )
+        for label in values
+        for identity in normalize_skill_concepts(label)
+    ]
+
+
+def _concept_ids(records: list[_MetricConcept]) -> set[str]:
+    return {item.skill_id for item in records}
+
+
+def _concept_ids_for_labels(labels: list[str]) -> set[str]:
+    return {
+        identity.skill_id
+        for label in labels
+        for identity in normalize_skill_concepts(label)
+    }
+
+
+def _concept_any_of_groups(fields: dict[str, Any]) -> set[tuple[Any, ...]]:
+    explicit = fields.get("skill_concepts")
+    if isinstance(explicit, list) and explicit:
+        records = [
+            item for item in _explicit_concept_records(explicit)
+            if item.relation == "any_of"
+        ]
+        grouped: dict[tuple[Any, ...], set[str]] = {}
+        for item in records:
+            grouping_key = (
+                item.strength,
+                item.group_name,
+                item.source_text,
+                item.allow_other,
+            )
+            grouped.setdefault(grouping_key, set()).add(item.skill_id)
+        return {
+            (strength, tuple(sorted(options)), allow_other)
+            for (strength, _name, _source, allow_other), options in grouped.items()
+            if len(options) >= 2
+        }
+
+    raw_groups = fields.get("required_skill_groups")
+    groups = raw_groups if isinstance(raw_groups, list) else [raw_groups]
+    signatures: set[tuple[Any, ...]] = set()
+    for raw_group in groups:
+        if not isinstance(raw_group, dict):
+            continue
+        group = normalize_skill_group(raw_group, options_are_atomic=True)
+        if group is None:
+            continue
+        option_ids = _concept_ids_for_labels(group["any_of"])
+        if len(option_ids) >= 2:
+            signatures.add(
+                ("required", tuple(sorted(option_ids)), group["allow_other"])
+            )
+    return signatures
+
+
+def _unique_metric_concepts(
+    records: list[_MetricConcept],
+) -> list[_MetricConcept]:
+    unique: list[_MetricConcept] = []
+    seen: set[tuple[Any, ...]] = set()
+    for item in records:
+        key = (
+            item.skill_id,
+            item.strength,
+            item.qualifier,
+            item.relation,
+            item.group_name,
+            item.allow_other,
+        )
+        if key not in seen:
+            unique.append(item)
+            seen.add(key)
+    return unique
+
+
 def _expected_detected_skills(case: EvaluationCase) -> set[str]:
     explicit_mentions = _value_set(
         case.expected.skill_mentions,
@@ -399,7 +746,7 @@ def _required_group_options(fields: dict[str, Any]) -> set[str]:
 
 
 def _set_metric(
-    pairs: list[tuple[set[str], set[str]]],
+    pairs: list[tuple[set[Any], set[Any]]],
 ) -> dict[str, Any]:
     true_positive = sum(len(expected & predicted) for expected, predicted in pairs)
     false_positive = sum(len(predicted - expected) for expected, predicted in pairs)

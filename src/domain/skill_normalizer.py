@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import copy
 import re
+import unicodedata
 from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import pairwise
-from typing import Any
+from typing import Any, Literal
 
-SKILL_ONTOLOGY_VERSION = "skill-ontology-v3"
+SKILL_ONTOLOGY_VERSION = "skill-ontology-v4"
+
+SkillQualifier = Literal[
+    "project_experience",
+    "internship_experience",
+    "research_experience",
+    "development_experience",
+    "practical_experience",
+    "open_source_experience",
+]
 
 # These are deliberately canonical, user-matchable labels. Fine-grained terms
 # such as MCP, ReAct, and KV Cache remain traceability mentions unless the JD
@@ -62,6 +72,7 @@ SKILL_PATTERNS: tuple[tuple[str, str], ...] = (
     ("Rust", r"(?<![A-Za-z])Rust(?![A-Za-z])"),
     ("JavaScript", r"JavaScript|(?<![A-Za-z.])JS(?![A-Za-z])"),
     ("TypeScript", r"TypeScript|(?<![A-Za-z])TS(?![A-Za-z])"),
+    ("HTTP", r"(?<![A-Za-z])HTTP(?:\s*协议)?(?![A-Za-z])"),
     # ReAct is an Agent reasoning pattern, not the React frontend framework.
     # The outer extraction is case-insensitive, so opt this token back into
     # exact-case matching.
@@ -142,6 +153,9 @@ SKILL_PATTERNS: tuple[tuple[str, str], ...] = (
     ),
     ("NLP", r"(?<![A-Za-z])NLP(?![A-Za-z])|自然语言处理"),
     ("Transformer", r"Transformer"),
+    ("GPT", r"(?<![A-Za-z])GPT(?![A-Za-z])"),
+    ("BERT", r"(?<![A-Za-z])BERT(?![A-Za-z])"),
+    ("模型架构", r"模型架构"),
     ("Linux", r"(?<![A-Za-z])Linux(?:\s*(?:开发|驱动))?(?![A-Za-z])"),
     ("Conda", r"(?<![A-Za-z])Conda(?![A-Za-z])"),
     ("Docker", r"Docker"),
@@ -424,6 +438,7 @@ SKILL_CATEGORY_MEMBERS: dict[str, tuple[str, ...]] = {
         "SQL",
     ),
     "深度学习框架": ("PyTorch", "TensorFlow", "PaddlePaddle", "JAX"),
+    "模型架构": ("Transformer", "GPT", "BERT"),
     "Web框架": ("FastAPI", "Flask", "Django"),
     "低代码平台": ("Coze", "Dify"),
     "Agent框架": (
@@ -475,6 +490,9 @@ _SKILL_CATEGORY_ALIASES: dict[str, str] = {
     "深度学习框架": "深度学习框架",
     "机器学习框架": "深度学习框架",
     "训练框架": "深度学习框架",
+    "模型架构": "模型架构",
+    "模型结构": "模型架构",
+    "大模型架构": "模型架构",
     "web框架": "Web框架",
     "web开发框架": "Web框架",
     "低代码平台": "低代码平台",
@@ -610,6 +628,12 @@ _ATOMIC_SKILL_VALUE_ALIASES: dict[str, str] = {
     "ai agent工具": "AI Agent工具使用",
     "ai agent相关实践项目": "AI Agent项目",
     "llm api调用": "LLM API",
+    "大模型api调用": "LLM API",
+    "大模型 api调用": "LLM API",
+    "大模型 api 调用": "LLM API",
+    "http协议": "HTTP",
+    "http 协议": "HTTP",
+    "工程实现能力": "工程实现",
     "上下文调试": "Context调试",
     "大语言模型": "LLM",
     "深度学习框架架构": "深度学习框架原理",
@@ -742,6 +766,15 @@ class SkillMatch:
     source_text: str
     start: int
     end: int
+
+
+@dataclass(frozen=True)
+class NormalizedSkillConcept:
+    """A locally-owned skill identity, independent of model wording."""
+
+    skill_id: str
+    canonical_name: str
+    qualifier: SkillQualifier | None = None
 
 
 def extract_skill_matches(value: str) -> list[SkillMatch]:
@@ -895,6 +928,107 @@ def normalize_atomic_skill_values(
     ):
         labels = [label for label in labels if label.casefold() != "c"]
     return labels
+
+
+_SKILL_QUALIFIER_SUFFIXES: tuple[tuple[re.Pattern[str], SkillQualifier], ...] = (
+    (
+        re.compile(r"(?:相关)?开源(?:项目)?(?:经历|经验|实践)?$", re.IGNORECASE),
+        "open_source_experience",
+    ),
+    (
+        re.compile(r"(?:相关)?实习(?:经历|经验)?$", re.IGNORECASE),
+        "internship_experience",
+    ),
+    (
+        re.compile(r"(?:相关)?(?:科研|研究)(?:项目)?(?:经历|经验)?$", re.IGNORECASE),
+        "research_experience",
+    ),
+    (
+        re.compile(r"(?:相关)?研发(?:经历|经验)?$", re.IGNORECASE),
+        "development_experience",
+    ),
+    (
+        re.compile(r"(?:相关)?实践(?:经历|经验)?$", re.IGNORECASE),
+        "practical_experience",
+    ),
+    (
+        re.compile(r"(?:相关)?项目(?:经历|经验)?$", re.IGNORECASE),
+        "project_experience",
+    ),
+)
+
+
+def normalize_skill_concepts(
+    value: Any,
+    *,
+    qualifier: SkillQualifier | None = None,
+    source_text: str | None = None,
+) -> list[NormalizedSkillConcept]:
+    """Resolve one surface label to one or more stable local concepts.
+
+    The model supplies surface skills and semantic qualifiers. Canonical names
+    and IDs are generated here so prompt wording cannot create new identities.
+    Legacy suffix labels remain supported for offline replay.
+    """
+
+    if not isinstance(value, str):
+        return []
+    surface = re.sub(r"\s+", " ", value).strip(" \t\r\n,，、;；")
+    if not surface:
+        return []
+    base, inferred_qualifier = split_skill_qualifier(surface)
+    resolved_qualifier = qualifier or inferred_qualifier
+
+    explicit_alias = _ATOMIC_SKILL_VALUE_ALIASES.get(base.casefold())
+    category = normalize_skill_category(base)
+    if explicit_alias is not None:
+        canonical_names = [explicit_alias]
+    elif category is not None:
+        canonical_names = [category]
+    else:
+        extracted = _unique_labels(match.canonical for match in extract_skill_matches(base))
+        is_explicit_compound = bool(re.search(r"[/、,，]|\b(?:or|and)\b|或|以及", base, re.IGNORECASE))
+        if len(extracted) >= 2 and is_explicit_compound:
+            canonical_names = extracted
+        else:
+            canonical_names = normalize_atomic_skill_values(
+                [base],
+                source_text=source_text,
+            )
+
+    return [
+        NormalizedSkillConcept(
+            skill_id=skill_id_for(canonical_name),
+            canonical_name=canonical_name,
+            qualifier=resolved_qualifier,
+        )
+        for canonical_name in _unique_labels(canonical_names)
+    ]
+
+
+def split_skill_qualifier(
+    value: str,
+) -> tuple[str, SkillQualifier | None]:
+    """Split legacy experience suffixes without treating them as skill names."""
+
+    normalized = re.sub(r"\s+", " ", value).strip()
+    for pattern, qualifier in _SKILL_QUALIFIER_SUFFIXES:
+        match = pattern.search(normalized)
+        if match is None:
+            continue
+        base = normalized[: match.start()].rstrip(" /_-、，,")
+        if base:
+            return base, qualifier
+    return normalized, None
+
+
+def skill_id_for(canonical_name: str) -> str:
+    """Build a readable, deterministic ID from a locally canonical label."""
+
+    token = unicodedata.normalize("NFKC", canonical_name).strip().casefold()
+    token = token.replace("+", " plus ").replace("#", " sharp ")
+    token = re.sub(r"[\W_]+", "-", token, flags=re.UNICODE).strip("-")
+    return f"skill:{token}"
 
 
 def build_skill_source_map(source_content: str) -> dict[str, str]:

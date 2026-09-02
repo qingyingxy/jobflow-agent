@@ -289,6 +289,7 @@ def _evaluation_fields(payload: dict[str, Any]) -> dict[str, Any]:
         "required_skill_groups",
         "preferred_skills",
         "skill_mentions",
+        "skill_concepts",
     ):
         if payload.get(field_name) is not None:
             fields[field_name] = payload[field_name]
