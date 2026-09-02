@@ -1,0 +1,139 @@
+{
+  "version": "ai-campus-label-overrides-v11-holdout5-smoke3-frozen-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout5_smoke3_v11_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据第五批未见候选池中固定种子抽取的 3 条原始 JD 和既定标注规则人工复核；冻结前未读取或生成这些样本的 v17 模型预测。",
+  "annotation_rules": {
+    "required_skills": "只标任职要求中由必须、掌握、熟悉、具备、精通或无弱化修饰的理解等措辞直接约束，且必须同时满足的原子技术能力。",
+    "required_skill_groups": "只在必备条款原文明示至少一种、任一种、A 或 B、从若干项中选择时使用 any_of；弱要求和优先条款中的选择关系不建立必备组。",
+    "preferred_skills": "原文明示优先、加分的原子技术能力或技术项目经验；论文、竞赛、兴趣以及与必备重复的字段不计入。",
+    "skill_mentions": "职责段技术、了解或基础认知、示例名、备选组选项和其他非独立硬门槛技术，仅用于追溯。",
+    "exclusions": "学历、专业、论文、竞赛、兴趣及沟通、学习、责任心等软能力不作为技能标签。"
+  },
+  "case_ids": [
+    "campus-ai-134",
+    "campus-ai-054",
+    "campus-ai-113"
+  ],
+  "cases": {
+    "campus-ai-134": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "多体运动学", "动力学", "机构学", "机器人传动机构", "误差传递", "数据分析"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "仿真工具",
+            "any_of": ["Adams", "Simulink", "MATLAB"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": [
+          "CAD装配", "干涉检查", "灵巧手", "机械臂", "关节模组", "腱绳传动"
+        ]
+      },
+      "skill_mentions": [
+        "多体运动学", "动力学", "机构学", "机器人传动机构", "误差传递",
+        "Adams", "Simulink", "MATLAB", "CAD装配", "干涉检查", "数据分析",
+        "灵巧手", "机械臂", "关节模组", "腱绳传动"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v11_holdout5_smoke3_human_reviewed", "required_anyof", "preferred_project_domains"],
+      "manual_notes": "仿真工具原文明示 Adams、Simulink、MATLAB 或其他工具，建立开放必备组；CAD 与项目方向属于优先项，竞赛本身不计技能。"
+    },
+    "campus-ai-054": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": [
+          "Linux", "项目开发", "ReAct", "Plan-and-Execute", "Tool Calling", "RAG",
+          "Context Engineering", "Memory", "Multi-Agent", "实验设计", "执行轨迹分析",
+          "优化方案设计"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Python", "Go", "Java", "C++"],
+            "allow_other": false
+          },
+          {
+            "name": "深度学习框架",
+            "any_of": ["PyTorch", "TensorFlow"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "Python", "Go", "Java", "C++", "Linux", "项目开发", "ReAct",
+        "Plan-and-Execute", "Tool Calling", "RAG", "Context Engineering", "Memory",
+        "Multi-Agent", "PyTorch", "TensorFlow", "SFT", "RL", "PPO", "GRPO",
+        "实验设计", "执行轨迹分析", "优化方案设计"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v11_holdout5_smoke3_human_reviewed", "two_required_anyof_groups", "weak_mentions"],
+      "manual_notes": "至少一种编程语言和至少一种深度学习框架分别建立必备组；了解的 SFT、RL、PPO、GRPO 只作提及。"
+    },
+    "campus-ai-113": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": [
+          "机器学习", "深度学习", "LLM", "数据分析", "模型训练", "模型评测",
+          "问题定位", "方案迭代"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "机器人策略模型方向",
+            "any_of": ["VLA", "VLM", "World Model", "机器人策略模型"],
+            "allow_other": false
+          },
+          {
+            "name": "后训练方法",
+            "any_of": ["Imitation Learning", "SFT", "偏好优化", "强化学习", "持续学习"],
+            "allow_other": true
+          },
+          {
+            "name": "项目方向",
+            "any_of": ["LLM", "自动驾驶", "机器人"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["真实机器人落地", "大规模训练", "高质量开源项目"]
+      },
+      "skill_mentions": [
+        "机器学习", "深度学习", "LLM", "VLA", "VLM", "World Model", "机器人策略模型",
+        "Imitation Learning", "SFT", "偏好优化", "强化学习", "持续学习", "自动驾驶",
+        "机器人", "数据分析", "模型训练", "模型评测", "问题定位", "方案迭代",
+        "真实机器人落地", "大规模训练", "高质量开源项目"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v11_holdout5_smoke3_human_reviewed", "three_required_anyof_groups", "preferred_exclusions"],
+      "manual_notes": "三个原文明示的备选范围分别建立必备组；顶会论文与竞赛不计技能，真实机器人、大规模训练和高质量开源项目保留为优先项。"
+    }
+  }
+}

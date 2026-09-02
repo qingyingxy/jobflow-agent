@@ -1,0 +1,355 @@
+{
+  "version": "ai-campus-label-overrides-v5.1-skill-schema-reviewed-2026-09-01",
+  "label_status": "human_reviewed_v5_1_skill_schema",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "用户确认 A1-A8 全部采用建议方案。",
+  "field_guide": {
+    "required_skills": "必须同时满足的直接必备技能。只收录任职要求中明确要求掌握、熟悉、具备、精通或有实践经验的技术能力。",
+    "required_skill_groups": "必备技能的备选组。满足 any_of 中任意一项即可；allow_other=true 表示原文用‘如、例如、等、包括但不限于’，列出的只是示例。",
+    "preferred_skills": "不是硬门槛，但原文明示‘优先、加分、bonus’的技术能力。",
+    "skill_mentions": "原文出现但不是直接硬门槛的技术名称，包括职责段技术、仅了解项、示例名，以及 required_skill_groups 中的具体选项。"
+  },
+  "annotation_rules": {
+    "precedence": "同一技能同时出现在必备要求和加分项时，以必备为准。",
+    "alternatives": "至少一种、任一种、A 或 B、满足一项即可，进入 required_skill_groups，不把每个选项当成同时必需。",
+    "examples": "如、例如、包括但不限于、等之后的具体名称通常进入 skill_mentions；只有同时存在‘至少一种、任选、或’等选择信号时才建立开放技能组，否则标注上位必备能力。",
+    "ordinary_enumerations": "没有选择信号的同类普通枚举不标 any_of；上位能力进入 required_skills，具体名称进入 skill_mentions。",
+    "canonical_names": "同义词统一为一个评测标签：AI Agent 统一为 Agent，Tool Use 与 Function Calling 统一为 Tool Calling，三维视觉统一为 3D视觉。",
+    "understanding": "‘了解’通常进入 skill_mentions；‘深入理解、理解并能应用’可在有明确岗位约束时进入 required_skills。",
+    "scope": "以下 20 条的四个技能字段已完成 v5 人工复核；其余样本仍沿用已有标签状态。"
+  },
+  "case_ids": [
+    "campus-ai-059",
+    "campus-ai-061",
+    "campus-ai-073",
+    "campus-ai-077",
+    "campus-ai-087",
+    "campus-ai-088",
+    "campus-ai-089",
+    "campus-ai-092",
+    "campus-ai-100",
+    "campus-ai-103",
+    "campus-ai-105",
+    "campus-ai-106",
+    "campus-ai-108",
+    "campus-ai-109",
+    "campus-ai-152",
+    "campus-ai-153",
+    "campus-ai-156",
+    "campus-ai-158",
+    "campus-ai-159",
+    "campus-ai-165"
+  ],
+  "review_decisions": [
+    {
+      "id": "A1",
+      "case_id": "campus-ai-059",
+      "field": "required_skills",
+      "question": "‘熟练掌握 Python、PyTorch 等编程语言与深度学习框架’是否把 Python 和 PyTorch 视为明确必备？",
+      "confirmed_choice": "两者都作为直接必备技能。",
+      "alternative": "拆成两个 allow_other=true、各只有一个示例的开放技能组。"
+    },
+    {
+      "id": "A2",
+      "case_id": "campus-ai-087",
+      "field": "required_skill_groups",
+      "question": "‘至少一种主流推理框架（TensorRT/...）’的括号列表是否允许列表外的其他主流框架？",
+      "confirmed_choice": "allow_other=true，视为开放示例列表。",
+      "alternative": "allow_other=false，只接受括号中列出的框架。"
+    },
+    {
+      "id": "A3",
+      "case_id": "campus-ai-088",
+      "field": "required_skill_groups",
+      "question": "‘目标跟随/语义分割/图像增强等图像算法相关科研经验’是否只需具备其中一个方向？",
+      "confirmed_choice": "作为开放的图像算法方向 any_of 组。",
+      "alternative": "只标上位类别‘计算机视觉’，具体方向仅作提及。"
+    },
+    {
+      "id": "A4",
+      "case_id": "campus-ai-092",
+      "field": "required_skill_groups",
+      "question": "‘三维视觉、神经渲染或生成模型基础’是否明确表示三选一？",
+      "confirmed_choice": "作为封闭 any_of 组。",
+      "alternative": "将三项都视为直接必备基础。"
+    },
+    {
+      "id": "A5",
+      "case_id": "campus-ai-105",
+      "field": "required_skill_groups",
+      "question": "‘以下方向满足其中一项或多项即可’是否用一个包含六个上位方向的封闭 any_of 组？",
+      "confirmed_choice": "使用一个封闭 any_of 组，方向内的方法名只作提及。",
+      "alternative": "把六个方向拆成多个独立技能标签。"
+    },
+    {
+      "id": "A6",
+      "case_id": "campus-ai-106",
+      "field": "required_skill_groups / skill_mentions",
+      "question": "‘对机器人触觉感知或接触操作有基本理解’虽然位于‘必须要求’，但强度只是‘基本理解’，是否仍计为二选一的必备技能组？",
+      "confirmed_choice": "计为 required_skill_groups：触觉感知或接触操作满足一项即可。",
+      "alternative": "两项都只放入 skill_mentions，不计入硬门槛。"
+    },
+    {
+      "id": "A7",
+      "case_id": "campus-ai-152",
+      "field": "required_skills / skill_mentions",
+      "question": "‘熟练掌握 PPO、SAC、RLHF、GAE、TD(λ) 等强化学习算法’没有‘至少一种/或’，应标上位能力还是把五项都视为直接必备？",
+      "confirmed_choice": "required_skills 标‘强化学习’，五个具体算法放入 skill_mentions。",
+      "alternative": "五项全部进入 required_skills。"
+    },
+    {
+      "id": "A8",
+      "case_id": "campus-ai-165",
+      "field": "required_skills",
+      "question": "‘熟练掌握 Python 等编程语言’是否把 Python 视为明确必备？",
+      "confirmed_choice": "Python 作为直接必备技能。",
+      "alternative": "使用 allow_other=true、any_of=[Python] 的开放编程语言组。"
+    }
+  ],
+  "cases": {
+    "campus-ai-059": {
+      "fields": {
+        "required_skills": ["Python", "PyTorch", "后训练技术"],
+        "required_skill_groups": [
+          {
+            "name": "大模型/Agent研发经验",
+            "any_of": ["大模型训练", "大模型后训练", "Agent系统研发"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [],
+        "skill_mentions": ["大模型训练", "大模型后训练", "Agent系统研发", "SFT", "强化学习", "Reward Model", "数据分析", "数据库", "SQL生成", "实验设计", "因果推断", "多工具协同"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"],
+      "manual_notes": "A1 已确认 Python/PyTorch 为直接必备；没有选择关系的 SFT/RL/Reward Model 枚举按上位后训练技术标注。"
+    },
+    "campus-ai-061": {
+      "fields": {
+        "required_skills": ["任务规划", "Tool Calling", "记忆机制", "轨迹建模", "反馈闭环", "数据构建", "训练流程"],
+        "required_skill_groups": [
+          {"name": "Agent/LLM方向", "any_of": ["Agent", "LLM"], "allow_other": true},
+          {"name": "Agent实践方向", "any_of": ["复杂任务求解", "长链路推理", "多工具调用", "环境交互", "Coding Agent", "Search Agent", "Productivity Agent"], "allow_other": false},
+          {"name": "编程语言", "any_of": ["Python", "C++"], "allow_other": true}
+        ],
+        "preferred_skills": [],
+        "skill_mentions": ["Agent", "LLM", "复杂任务求解", "长链路推理", "多工具调用", "环境交互", "Coding Agent", "Search Agent", "Productivity Agent", "Python", "C++"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-073": {
+      "fields": {
+        "required_skills": ["Python", "LLM API", "Prompt Engineering", "前端开发", "AI Coding"],
+        "required_skill_groups": [],
+        "preferred_skills": ["FastAPI", "Flask", "Django", "LangChain", "LlamaIndex", "Coze", "Dify"],
+        "skill_mentions": ["Agent", "LangGraph", "多工具调用", "流程编排", "记忆管理", "任务拆解", "大模型微调", "RAG"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-077": {
+      "fields": {
+        "required_skills": ["强化学习", "Sim-to-Real", "MDP", "策略梯度", "价值函数估计", "探索-利用权衡", "机器人学", "运动控制", "机器人运动学", "机器人动力学", "机器人仿真平台", "ROS2", "最优化", "数值计算", "C++", "Python", "Eigen", "NumPy", "传感器"],
+        "required_skill_groups": [
+          {"name": "强化学习框架", "any_of": ["RLlib", "Stable-Baselines3", "Acme", "TensorFlow Agents"], "allow_other": true}
+        ],
+        "preferred_skills": ["复杂多体系统强化学习运动控制"],
+        "skill_mentions": ["RLlib", "Stable-Baselines3", "Acme", "TensorFlow Agents", "MuJoCo", "PyBullet", "Isaac Gym", "Isaac Sim", "状态估计", "滤波", "PPO", "SAC", "TD3"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-087": {
+      "fields": {
+        "required_skills": ["C++", "CUDA", "Python", "Transformer", "Diffusion", "VLM"],
+        "required_skill_groups": [
+          {"name": "推理框架", "any_of": ["TensorRT", "TensorRT-LLM", "vLLM", "TVM", "MNN", "NCNN", "llama.cpp"], "allow_other": true},
+          {"name": "模型压缩方向", "any_of": ["模型量化", "模型剪枝", "模型蒸馏", "模型稀疏化"], "allow_other": false}
+        ],
+        "preferred_skills": ["大模型部署", "PagedAttention", "FlashAttention", "Speculative Decoding", "KV-Cache", "GPU/NPU算子开发", "Triton", "MLIR"],
+        "skill_mentions": ["TensorRT", "TensorRT-LLM", "vLLM", "TVM", "MNN", "NCNN", "llama.cpp", "模型量化", "模型剪枝", "模型蒸馏", "模型稀疏化", "动态批处理", "多模型调度", "推理图优化"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-088": {
+      "fields": {
+        "required_skills": ["计算机视觉", "模型压缩", "推理框架"],
+        "required_skill_groups": [
+          {"name": "图像算法方向", "any_of": ["目标跟随", "语义分割", "图像增强"], "allow_other": true}
+        ],
+        "preferred_skills": ["大模型结构研发", "端侧算法部署", "软硬件协同设计"],
+        "skill_mentions": ["目标跟随", "语义分割", "图像增强", "机器学习", "多模态模型", "大模型", "软硬件协同优化"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-089": {
+      "fields": {
+        "required_skills": ["深度学习", "3D视觉", "PyTorch", "CUDA", "模型训练", "工程能力"],
+        "required_skill_groups": [
+          {"name": "模型训练方式", "any_of": ["大规模模型训练", "分布式训练"], "allow_other": false},
+          {"name": "3D视觉方向", "any_of": ["DUSt3R", "MASt3R", "VGGT", "Spann3R", "3DGS", "NeRF", "Occupancy", "BEV"], "allow_other": true}
+        ],
+        "preferred_skills": ["多模态基础模型", "世界模型"],
+        "skill_mentions": ["大规模模型训练", "分布式训练", "DUSt3R", "MASt3R", "VGGT", "Spann3R", "3DGS", "NeRF", "Occupancy", "BEV"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-092": {
+      "fields": {
+        "required_skills": ["PyTorch", "CUDA", "大规模数据处理", "模型训练", "模型评测"],
+        "required_skill_groups": [
+          {"name": "世界模型基础方向", "any_of": ["3D视觉", "神经渲染", "生成模型"], "allow_other": false},
+          {"name": "世界模型技术方向", "any_of": ["3DGS", "4DGS", "NeRF", "神经隐式表征", "Diffusion", "视频生成", "可控生成", "场景编辑", "Driving World Model", "Embodied World Model"], "allow_other": false}
+        ],
+        "preferred_skills": ["世界模型复现", "开源框架贡献", "Sim-to-Real"],
+        "skill_mentions": ["3D视觉", "神经渲染", "生成模型", "3DGS", "4DGS", "NeRF", "神经隐式表征", "Diffusion", "视频生成", "可控生成", "场景编辑", "Driving World Model", "Embodied World Model", "Sora", "Cosmos", "GAIA", "DriveDreamer", "Vista", "WorldDreamer", "Genie", "Nerfstudio", "gsplat", "Threestudio", "Diffusers", "强化学习"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-100": {
+      "fields": {
+        "required_skills": ["编程基础", "编程语言", "模块开发", "代码调试", "问题定位", "数据结构", "操作系统", "计算机网络", "数据库"],
+        "required_skill_groups": [],
+        "preferred_skills": ["Agent项目", "大模型应用", "复杂软件系统", "知识检索", "文档理解", "长期记忆", "Context Engineering", "前后端开发", "任务调度", "日志监控", "数据平台", "模型训练平台", "MLOps", "自动化测试", "Agent评测"],
+        "skill_mentions": ["LLM", "Agent", "Prompt Engineering", "结构化输出", "Tool Calling", "多轮对话", "任务规划", "Context Engineering", "记忆机制"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-103": {
+      "fields": {
+        "required_skills": ["Agent", "Agent Loop", "Tool Calling", "Context Engineering", "状态管理", "任务规划", "软件工程", "编程能力", "Python", "系统设计", "异步编程", "并发"],
+        "required_skill_groups": [],
+        "preferred_skills": ["Agent系统上线", "ROS", "ROS2", "机器人真机开发", "VLA", "具身智能", "机器人Agent", "计算机视觉", "多模态模型"],
+        "skill_mentions": ["行为树", "有限状态机", "目标检测", "图像识别", "语义分割", "视觉定位"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-105": {
+      "fields": {
+        "required_skills": ["Python", "C++", "PyTorch", "机器人部署", "问题定位"],
+        "required_skill_groups": [
+          {"name": "机器人算法基础", "any_of": ["机器学习", "深度学习", "机器人学", "控制理论"], "allow_other": false},
+          {"name": "具身算法方向", "any_of": ["具身策略/VLA/Robot Policy", "Sensorimotor/灵巧操作", "System 0/高频控制", "机器人学习/Sim-to-Real", "具身数据", "机器人系统"], "allow_other": false}
+        ],
+        "preferred_skills": ["VLA", "World Model", "Robot Foundation Model", "大规模机器人策略训练", "大规模机器人数据", "灵巧手", "力觉/触觉", "双臂协作", "Contact-rich Manipulation"],
+        "skill_mentions": ["机器学习", "深度学习", "机器人学", "控制理论", "具身策略/VLA/Robot Policy", "Sensorimotor/灵巧操作", "System 0/高频控制", "机器人学习/Sim-to-Real", "具身数据", "机器人系统", "Behavior Cloning", "Diffusion Policy", "Flow Matching", "强化学习", "Meta Learning", "力控制", "阻抗控制", "域随机化"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-106": {
+      "fields": {
+        "required_skills": ["实验设计", "实验结果分析", "Linux", "Git", "训练环境", "代码调试"],
+        "required_skill_groups": [
+          {"name": "深度学习框架", "any_of": ["PyTorch"], "allow_other": true},
+          {"name": "机器人算法基础", "any_of": ["机器人学习", "模仿学习", "强化学习", "机器人控制", "多模态学习", "计算机视觉"], "allow_other": false},
+          {"name": "触觉/接触基础", "any_of": ["触觉感知", "接触操作"], "allow_other": false},
+          {"name": "环境管理工具", "any_of": ["Conda", "Docker"], "allow_other": false}
+        ],
+        "preferred_skills": ["视觉-触觉融合", "触觉表征学习", "接触状态估计", "滑移检测", "抓取稳定性预测", "力控制", "Imitation Learning", "Diffusion Policy", "VLA", "VLM", "ACT", "LeRobot", "OpenVLA", "Octo", "阻抗控制", "导纳控制", "模型预测控制", "多模态训练", "机器人数据采集"],
+        "skill_mentions": ["PyTorch", "机器人学习", "模仿学习", "强化学习", "机器人控制", "多模态学习", "计算机视觉", "触觉感知", "接触操作", "Conda", "Docker", "力矩", "接触", "摩擦", "滑移", "形变"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-108": {
+      "fields": {
+        "required_skills": ["软件工程", "Python", "TypeScript", "JavaScript", "Agent", "LLM", "Prompt Engineering", "Context Engineering", "Tool Calling", "RAG", "Memory", "Skill", "MCP", "Multi-Agent", "Agent Runtime", "异步编程", "API服务", "数据库", "缓存", "消息队列", "AI Coding"],
+        "required_skill_groups": [
+          {"name": "Agent框架", "any_of": ["OpenClaw", "Hermes", "Pi", "LangGraph", "OpenAI Agents SDK"], "allow_other": true}
+        ],
+        "preferred_skills": [],
+        "skill_mentions": ["OpenClaw", "Hermes", "Pi", "LangGraph", "OpenAI Agents SDK", "Workflow", "Agent Template"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-109": {
+      "fields": {
+        "required_skills": ["LLM", "Agent", "Agent Runtime", "Context Engineering", "Tool Calling", "Planning", "Memory", "RAG", "Skill", "Agent Evaluation", "数据分析", "实验设计", "Python"],
+        "required_skill_groups": [],
+        "preferred_skills": ["Redis", "向量数据库", "PostgreSQL", "消息队列", "分布式系统", "云原生开发", "LangGraph", "LangChain", "LlamaIndex", "OpenClaw", "Hermes", "Pi", "Agent Harness", "生产级Agent平台"],
+        "skill_mentions": ["Observability", "Memory Retrieval", "Skill Selection", "Tool Routing", "Task Planning", "Skill Ops", "Prompt", "Workflow", "Agent Governance"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-152": {
+      "fields": {
+        "required_skills": ["强化学习", "机器人运动学", "机器人动力学", "坐标系变换", "关节空间与任务空间映射", "WBC", "PyTorch", "机器人仿真平台", "机器人部署"],
+        "required_skill_groups": [
+          {"name": "VLA架构", "any_of": ["RT-2", "OpenVLA", "Octo", "π0", "GR00T"], "allow_other": true}
+        ],
+        "preferred_skills": ["CUDA", "vLLM", "Triton", "双足机器人平衡控制", "步态规划", "全身操作", "MPC", "强化学习运控"],
+        "skill_mentions": ["RT-2", "OpenVLA", "Octo", "π0", "GR00T", "PPO", "SAC", "RLHF", "GAE", "TD(λ)", "Isaac Sim", "MuJoCo", "Genesis", "Diffusion Policy", "3D Diffusion Actor", "Action Tokenization", "Latent Action Quantization", "Flow Matching", "DAPG", "Orin", "Thor"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-153": {
+      "fields": {
+        "required_skills": ["LLM Agent", "Prompt Engineering", "Tool Calling", "Agent Workflow", "具身Agent"],
+        "required_skill_groups": [
+          {"name": "任务与运动规划方向", "any_of": ["TAMP", "符号推理", "几何推理", "Learning-based Planning"], "allow_other": false},
+          {"name": "具身Agent项目经历", "any_of": ["完整具身Agent项目", "LeRobot", "Open X-Embodiment", "GR00T", "Meta-World", "CALVIN"], "allow_other": false}
+        ],
+        "preferred_skills": [],
+        "skill_mentions": ["ReAct", "Reflexion", "LATS", "AutoGPT", "TAMP", "符号推理", "几何推理", "Learning-based Planning", "完整具身Agent项目", "LeRobot", "Open X-Embodiment", "GR00T", "Meta-World", "CALVIN", "VLA", "RL", "WBC", "RAG", "在线学习"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-156": {
+      "fields": {
+        "required_skills": ["编程基础", "Python", "实验分析", "工程落地"],
+        "required_skill_groups": [],
+        "preferred_skills": ["数据处理", "分布式计算", "数据Pipeline", "LLM", "NLP", "信息检索", "数据挖掘", "代码数据", "多模态数据"],
+        "skill_mentions": ["大模型数据工程", "预训练数据配比", "数据质量评估", "合成数据", "数据采集", "数据清洗", "数据去重", "质量过滤", "数据飞轮", "自蒸馏数据"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-158": {
+      "fields": {
+        "required_skills": ["数据结构与算法", "操作系统", "计算机网络", "Agent"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Go", "Java", "C++", "Rust"], "allow_other": false}
+        ],
+        "preferred_skills": ["LLM", "商业化平台", "权限计费", "内容平台", "CDN", "云原生", "微服务", "gRPC", "PostgreSQL", "MySQL", "Redis", "消息队列", "Kubernetes", "CI/CD"],
+        "skill_mentions": ["Go", "Java", "C++", "Rust"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-159": {
+      "fields": {
+        "required_skills": ["强化学习", "策略梯度", "Actor-Critic", "Self-Play", "Meta-RL", "MARL", "大规模训练", "低延迟推理", "系统编程", "分布式架构"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Python", "C++", "Rust"], "allow_other": false},
+          {"name": "Agent系统经历", "any_of": ["Agentic RL", "工具调用Agent", "多智能体系统"], "allow_other": false}
+        ],
+        "preferred_skills": ["代码沙箱", "程序合成", "仿真器安全"],
+        "skill_mentions": ["Python", "C++", "Rust", "Agentic RL", "工具调用Agent", "多智能体系统"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    },
+    "campus-ai-165": {
+      "fields": {
+        "required_skills": ["机器学习", "深度学习", "PyTorch", "Python"],
+        "required_skill_groups": [],
+        "preferred_skills": ["机器人真机操作"],
+        "skill_mentions": ["MLLM", "Qwen-Omni", "MiniCPM-Omni", "Cosmos", "Genie", "DUSt3R", "CUT3R", "VGGT", "RayZer", "3DGS", "LRM", "VLA", "π0", "GR00T", "动作生成", "运动控制"]
+      },
+      "reasons": [],
+      "tags": ["v5_skill_schema_human_reviewed"]
+    }
+  }
+}

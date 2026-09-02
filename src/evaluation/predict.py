@@ -186,6 +186,7 @@ async def _predict_case(
         return PredictionRecord(
             case_id=case_id,
             fields=_prediction_core_fields(parsed_core.fields),
+            warnings=list(parsed_core.warnings),
         )
 
     if parser_mode == "staged":
@@ -203,6 +204,7 @@ async def _predict_case(
                 failure_details=error.details,
             )
         structured = parsed_staged.structured_jd
+        parsing_warnings = list(parsed_staged.warnings)
     else:
         if not isinstance(parser, JDParser):
             return PredictionRecord(
@@ -218,9 +220,14 @@ async def _predict_case(
                 failure_details=error.details,
             )
         structured = parsed.structured_jd
+        parsing_warnings = list(parsed.warnings)
     fields = _prediction_fields(structured)
     if parser_only:
-        return PredictionRecord(case_id=case_id, fields=fields)
+        return PredictionRecord(
+            case_id=case_id,
+            fields=fields,
+            warnings=parsing_warnings,
+        )
 
     eligibility = check_eligibility(
         EligibilityInput(
@@ -243,6 +250,7 @@ async def _predict_case(
                 fields=fields,
                 eligibility=eligibility.eligible,
                 matches=matches,
+                warnings=parsing_warnings,
                 failure_code=error.code,
                 failure_details=error.details,
             )
@@ -260,23 +268,31 @@ async def _predict_case(
         fields=fields,
         eligibility=eligibility.eligible,
         matches=matches,
+        warnings=parsing_warnings,
     )
 
 
 def _prediction_fields(structured: StructuredJobDescription) -> dict[str, Any]:
-    payload = structured.model_dump(mode="json")
-    return {
-        field_name: payload.get(field_name)
-        for field_name in ("job_type", "locations", "required_skills")
-    }
+    return _evaluation_fields(structured.model_dump(mode="json"))
 
 
 def _prediction_core_fields(fields: Any) -> dict[str, Any]:
-    payload = fields.model_dump(mode="json")
-    return {
+    return _evaluation_fields(fields.model_dump(mode="json"))
+
+
+def _evaluation_fields(payload: dict[str, Any]) -> dict[str, Any]:
+    fields = {
         field_name: payload.get(field_name)
         for field_name in ("job_type", "locations", "required_skills")
     }
+    for field_name in (
+        "required_skill_groups",
+        "preferred_skills",
+        "skill_mentions",
+    ):
+        if payload.get(field_name) is not None:
+            fields[field_name] = payload[field_name]
+    return fields
 
 
 def main() -> int:

@@ -225,6 +225,21 @@ class FieldEvidence(BaseModel):
         return self
 
 
+class ParsingWarning(BaseModel):
+    """A non-fatal parser issue retained for evaluation and audit."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: Literal[
+        "unsupported_field_value",
+        "empty_skill_group",
+        "unsupported_clause_evidence",
+    ]
+    field_path: str = Field(min_length=1, max_length=160)
+    value: Any | None = None
+    message: str = Field(min_length=1, max_length=500)
+
+
 class QualificationCondition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -260,6 +275,36 @@ class JobRequirement(BaseModel):
     evidence: list[FieldEvidence] | None = None
 
 
+class SkillRequirementGroup(BaseModel):
+    """A requirement satisfied by any one of the listed skills."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=80)
+    any_of: list[str] = Field(min_length=1)
+    allow_other: bool = False
+
+    @field_validator("name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        return value.strip()
+
+    @field_validator("any_of")
+    @classmethod
+    def normalize_options(cls, value: list[str]) -> list[str]:
+        options: list[str] = []
+        seen: set[str] = set()
+        for item in value:
+            normalized = item.strip()
+            key = normalized.casefold()
+            if normalized and key not in seen:
+                options.append(normalized)
+                seen.add(key)
+        if not options:
+            raise ValueError("any_of 至少需要一个技能选项")
+        return options
+
+
 class StructuredJobDescription(BaseModel):
     """Validated target shape for the JD parser introduced in M04."""
 
@@ -274,7 +319,9 @@ class StructuredJobDescription(BaseModel):
     education_requirements: list[str] | None = None
     major_requirements: list[str] | None = None
     required_skills: list[str] | None = None
+    required_skill_groups: list[SkillRequirementGroup] | None = None
     preferred_skills: list[str] | None = None
+    skill_mentions: list[str] | None = None
     internship_duration_months: int | None = Field(default=None, ge=0)
     weekly_days: int | None = Field(default=None, ge=1, le=7)
     earliest_start_date: date | None = None
@@ -339,7 +386,9 @@ def validate_field_evidence(
         "education_requirements",
         "major_requirements",
         "required_skills",
+        "required_skill_groups",
         "preferred_skills",
+        "skill_mentions",
         "internship_duration_months",
         "weekly_days",
         "earliest_start_date",

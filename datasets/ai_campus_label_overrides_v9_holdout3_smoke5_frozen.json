@@ -1,0 +1,174 @@
+{
+  "version": "ai-campus-label-overrides-v9-holdout3-smoke5-frozen-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout3_smoke5_v9_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据第三批未见候选池中固定种子抽取的 5 条原始 JD 和既定标注规则人工复核；冻结前未读取或生成这些样本的 v15 模型预测。",
+  "annotation_rules": {
+    "required_skills": "只标任职要求中由必须、掌握、熟悉、具备、精通或无弱化修饰的理解等措辞直接约束，且必须同时满足的原子技术能力。",
+    "required_skill_groups": "只在必备条款原文明示至少一种、任一种、A 或 B、从若干项中选择时使用 any_of；优先条款中的选择关系不建立必备组。",
+    "preferred_skills": "原文明示优先、加分的原子技术能力或技术项目经验；与必备重复时以必备为准。",
+    "skill_mentions": "职责段技术、了解或基础认知、示例名、备选组选项和其他非独立硬门槛技术，仅用于追溯。",
+    "exclusions": "学历、专业、论文、竞赛、兴趣及沟通、学习、责任心等软能力不作为技能标签。"
+  },
+  "case_ids": [
+    "campus-ai-086",
+    "campus-ai-107",
+    "campus-ai-136",
+    "campus-ai-072",
+    "campus-ai-025"
+  ],
+  "cases": {
+    "campus-ai-086": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "编程能力", "Go", "Python", "HTTP", "gRPC", "数据库", "缓存",
+          "消息队列", "任务调度", "权限控制", "日志监控", "AI工具使用",
+          "方案分析", "原型开发", "效果验证"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "Agent SDK", "LangChain", "AutoGen", "MCP", "RAG",
+          "Context Engineering", "Prompt Engineering", "多智能体系统",
+          "自动化工作流", "Agent调试", "运行追踪", "Agent评测", "日志分析",
+          "Token成本分析", "可观测性", "AI Native产品", "人机协作",
+          "Agent工作台", "智能研发工具"
+        ]
+      },
+      "skill_mentions": [
+        "数据结构", "算法", "操作系统", "计算机网络", "数据库", "LLM",
+        "Agent", "开发者工具", "智能工作流", "Prompt Engineering", "LLM API",
+        "RAG", "Tool Calling", "Agent Workflow", "Agent SDK", "LangChain",
+        "AutoGen", "MCP", "Context Engineering", "多智能体系统"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v9_holdout3_smoke5_human_reviewed", "long_bonus_section"],
+      "manual_notes": "Go、Python 是无选择词的普通并列必备；了解项只作提及；显式加分段中的技术能力逐项进入 preferred。"
+    },
+    "campus-ai-107": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳", "北京", "上海"],
+        "required_skills": [],
+        "required_skill_groups": [],
+        "preferred_skills": ["开源贡献"]
+      },
+      "skill_mentions": [
+        "大模型预训练", "大模型后训练", "模型性能优化", "模型结构设计",
+        "模型压缩", "模型量化", "模型蒸馏", "模型稀疏化"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v9_holdout3_smoke5_human_reviewed", "responsibility_only_skills"],
+      "manual_notes": "预训练、后训练、量化、蒸馏和稀疏化只出现在职位描述，不提升为必备；论文排除，开源贡献保留为优先经历。"
+    },
+    "campus-ai-136": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["C++", "数据结构", "操作系统", "计算机网络", "Linux"],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "驱动开发", "进程通信", "网络通信", "嵌入式开发", "机器人项目",
+          "自动驾驶项目", "嵌入式系统项目", "高质量工程代码", "开源项目",
+          "机器人系统联调"
+        ]
+      },
+      "skill_mentions": [
+        "C++", "Linux", "ROS", "ROS2", "Apollo", "机器人中间件",
+        "驱动开发", "进程通信", "网络通信", "嵌入式开发"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v9_holdout3_smoke5_human_reviewed", "weak_ros_enumeration"],
+      "manual_notes": "C/C++ 按既有本体归一为 C++；ROS/ROS2、Apollo 和中间件仅要求了解，不建立必备 any_of；经验者优先与加分项逐项标注。"
+    },
+    "campus-ai-072": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["苏州"],
+        "required_skills": [
+          "数学建模", "统计模型", "机器学习", "数据分析", "实验验证", "LLM",
+          "AI原生工作流"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Python", "R", "MATLAB"],
+            "allow_other": true
+          },
+          {
+            "name": "大模型应用技术",
+            "any_of": ["Prompt Engineering", "RAG"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["Agent", "AI应用原型开发"]
+      },
+      "skill_mentions": [
+        "Python", "R", "MATLAB", "假设检验", "聚类分析", "回归模型",
+        "XGBoost", "LLM", "Prompt Engineering", "RAG", "Agent"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v9_holdout3_smoke5_human_reviewed", "two_required_anyof_groups"],
+      "manual_notes": "至少一门语言建开放组；LLM 原理是独立必备，Prompt Engineering 或 RAG 建封闭组；Agent 或 AI 应用原型开发属于优先经历。"
+    },
+    "campus-ai-025": {
+      "fields": {
+        "job_type": "campus",
+        "locations": [],
+        "required_skills": ["Agent框架", "开源生态", "Agent", "Agent项目"],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Python", "Java", "Go"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["开源贡献", "程序分析", "质量保障"]
+      },
+      "skill_mentions": [
+        "Python", "Java", "Go", "Agent", "Agent Workflow", "任务规划",
+        "Context Engineering", "多工具调用", "Agent框架", "Agent调试", "Agent评测"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v9_holdout3_smoke5_human_reviewed", "location_not_observable"],
+      "manual_notes": "Python/Java/Go 至少一门建封闭组；Agent 项目已是必备，不在加分项重复；正文没有可观测地点，冻结为空列表。"
+    }
+  }
+}

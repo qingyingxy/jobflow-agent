@@ -1,0 +1,172 @@
+{
+  "version": "ai-campus-label-overrides-v10-holdout4-smoke5-frozen-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout4_smoke5_v10_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据第四批未见候选池中固定种子抽取的 5 条原始 JD 和既定标注规则人工复核；冻结前未读取或生成这些样本的 v16 模型预测。",
+  "annotation_rules": {
+    "required_skills": "只标任职要求中由必须、掌握、熟悉、具备、精通或无弱化修饰的理解等措辞直接约束，且必须同时满足的原子技术能力。",
+    "required_skill_groups": "只在必备条款原文明示至少一种、任一种、A 或 B、从若干项中选择时使用 any_of；弱要求和优先条款中的选择关系不建立必备组。",
+    "preferred_skills": "原文明示优先、加分的原子技术能力或技术项目经验；论文、兴趣以及与必备重复的字段不计入。",
+    "skill_mentions": "职责段技术、了解或基础认知、示例名、备选组选项和其他非独立硬门槛技术，仅用于追溯。",
+    "exclusions": "学历、专业、论文、竞赛、兴趣及沟通、学习、责任心等软能力不作为技能标签。"
+  },
+  "case_ids": [
+    "campus-ai-101",
+    "campus-ai-068",
+    "campus-ai-065",
+    "campus-ai-057",
+    "campus-ai-018"
+  ],
+  "cases": {
+    "campus-ai-101": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "深度学习", "Python", "实验复现", "深度学习框架", "模型训练",
+          "代码调试", "模型评测", "实验结果分析", "机器人动作约束",
+          "数据分析", "失败归因", "模型迭代"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "灵巧手操作方向",
+            "any_of": [
+              "多指操作", "力觉/触觉", "手眼协同", "双臂协同", "操作策略学习"
+            ],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [
+          "端到端操作", "机器人导航", "VLA", "大模型后训练", "强化学习",
+          "机器人决策规划", "真实机器人项目", "高质量开源项目"
+        ]
+      },
+      "skill_mentions": [
+        "Transformer", "Diffusion", "Flow Matching", "行为克隆", "强化学习",
+        "多模态模型", "LLM", "VLA", "世界模型", "机器人决策规划",
+        "PyTorch", "机器人感知", "机器人规划", "机器人控制", "状态估计",
+        "多传感器数据", "灵巧手操作", "抓取", "精细操作", "多指操作",
+        "力觉/触觉", "手眼协同", "双臂协同", "操作策略学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v10_holdout4_smoke5_human_reviewed", "mixed_strength_anyof"],
+      "manual_notes": "了解的一种或多种模型方向仅作提及；熟悉的一种或多种灵巧手方向建立必备组；加分项单独进入 preferred。"
+    },
+    "campus-ai-068": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳"],
+        "required_skills": ["C++", "代码调试"],
+        "required_skill_groups": [
+          {
+            "name": "系统基础",
+            "any_of": ["操作系统", "编译器", "CPU架构", "汇编"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": ["安全防护", "软件加固", "逆向工程"]
+      },
+      "skill_mentions": [
+        "C++", "操作系统", "编译器", "CPU架构", "汇编",
+        "GDB", "LLDB", "Hopper", "IDA", "安全防护", "软件加固", "逆向工程"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v10_holdout4_smoke5_human_reviewed", "required_anyof_with_examples"],
+      "manual_notes": "C/C++ 按共享本体归一为 C++；系统基础明确要求某一方面并带等字，建立开放组；调试器是系统级调试能力示例。"
+    },
+    "campus-ai-065": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "北京"],
+        "required_skills": [
+          "智能辅助驾驶", "多模态模型", "LLM", "模型训练", "模型评测",
+          "云端优化", "语料生产", "编程能力", "深度学习框架", "多模态训练",
+          "模型迭代", "模型性能优化", "语料自动化生产", "语料质量分析",
+          "VLM", "VLA", "强化学习"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "智能辅助驾驶", "多模态模型", "LLM", "VLM", "VLA", "强化学习",
+        "模型训练", "模型评测", "模型迭代", "模型性能优化", "语料生产",
+        "语料自动化生产", "语料质量分析", "编程能力", "深度学习框架"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v10_holdout4_smoke5_human_reviewed", "dense_required_capabilities"],
+      "manual_notes": "四条职位要求均为强约束；LLM、VLM、VLA 和强化学习是普通并列而非 any_of；论文优先不作为技能。"
+    },
+    "campus-ai-057": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": [
+          "编程能力", "C++", "Go", "Python", "数据结构与算法",
+          "软件工程", "系统设计", "API开发", "代码质量控制"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "编程能力", "C++", "Go", "Python", "数据结构与算法",
+        "软件工程", "系统设计", "API开发", "代码质量控制"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v10_holdout4_smoke5_human_reviewed", "interest_only_technologies"],
+      "manual_notes": "代码和软件工程能力属于必备；对大模型、Agent、系统优化及 AI 基础设施的热情或兴趣不作为技能标签。"
+    },
+    "campus-ai-018": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["深度学习", "多模态模型", "Python", "深度学习框架"],
+        "required_skill_groups": [],
+        "preferred_skills": ["多模态学习", "计算机视觉", "NLP"]
+      },
+      "skill_mentions": [
+        "深度学习", "多模态模型", "Transformer", "ViT", "CLIP", "Python",
+        "深度学习框架", "PyTorch", "PaddlePaddle", "多模态学习",
+        "计算机视觉", "NLP"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v10_holdout4_smoke5_human_reviewed", "preferred_research_directions"],
+      "manual_notes": "模型和框架列表作为上位必备能力的示例；多模态、CV 或 NLP 研究项目经历属于优先项，不建立必备组。"
+    }
+  }
+}

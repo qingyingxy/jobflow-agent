@@ -1,0 +1,414 @@
+{
+  "version": "ai-campus-label-overrides-v4-audit-2026-08-31",
+  "extends": [
+    "official_job_sources_full_2026_08_31_overrides.json"
+  ],
+  "label_status": "partial_v4_manual_audit",
+  "policy": {
+    "required_skills": "只标注任职要求中明确要求掌握、熟悉、具备或完成的技术硬技能；不标注职责段技术、优先项、加分项、仅要求了解的技术或示例产品名。",
+    "alternatives": "至少一种、任一或 A/B/C 备选条件优先标注共同的上位技能类别；具体备选项保留在 skill_mentions，不把每个选项伪装成同时必需。",
+    "examples": "如、例如、包括但不限于之后的框架和模型名只保留在 skill_mentions；没有示例信号且明确要求全部掌握的枚举项可以进入 required_skills。",
+    "scope": "本文件只覆盖本轮人工审计字段；未列出的字段沿用 v3，不代表已经按 v4 规则复核。"
+  },
+  "audit_scope": {
+    "required_skills_case_ids": [
+      "campus-ai-152",
+      "campus-ai-087",
+      "campus-ai-109",
+      "campus-ai-103",
+      "campus-ai-165",
+      "campus-ai-108",
+      "campus-ai-153",
+      "campus-ai-106",
+      "campus-ai-089",
+      "campus-ai-077",
+      "campus-ai-092",
+      "campus-ai-158",
+      "campus-ai-059",
+      "campus-ai-073",
+      "campus-ai-105",
+      "campus-ai-156",
+      "campus-ai-100",
+      "campus-ai-159",
+      "campus-ai-088",
+      "campus-ai-061"
+    ],
+    "job_type_case_ids": [
+      "campus-ai-052",
+      "campus-ai-060",
+      "campus-ai-158"
+    ],
+    "locations_case_ids": [
+      "campus-ai-141"
+    ],
+    "systematic_sample_case_ids": [
+      "campus-ai-001",
+      "campus-ai-010",
+      "campus-ai-020",
+      "campus-ai-051",
+      "campus-ai-062",
+      "campus-ai-066",
+      "campus-ai-069",
+      "campus-ai-070",
+      "campus-ai-071",
+      "campus-ai-082",
+      "campus-ai-093",
+      "campus-ai-110"
+    ]
+  },
+  "cases": {
+    "campus-ai-052": {
+      "fields": {
+        "job_type": "internship"
+      },
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "v4_label_audit"
+      ],
+      "manual_notes": "v4 复核：正文明确写有招聘类型“项目实习”，job_type 应为 internship。"
+    },
+    "campus-ai-059": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "大模型训练",
+          "大模型后训练",
+          "Agent系统研发",
+          "SFT",
+          "强化学习",
+          "Reward Model",
+          "数据分析",
+          "数据库",
+          "SQL生成",
+          "实验设计",
+          "因果推断",
+          "多工具协同"
+        ]
+      },
+      "manual_notes": "v4 复核：上述技术均位于课题要求的明确能力条件中，保持 v3 标签；CSIG 不是地点。"
+    },
+    "campus-ai-061": {
+      "fields": {
+        "required_skills": [
+          "Agent",
+          "LLM",
+          "编程能力",
+          "任务规划",
+          "工具调用",
+          "记忆机制",
+          "轨迹建模",
+          "反馈闭环",
+          "数据构建",
+          "模型训练"
+        ]
+      },
+      "manual_notes": "v4 复核：Python/C++ 是至少一种语言的备选项，复杂任务等方向也是备选研究经历，不按全部必需展开。"
+    },
+    "campus-ai-073": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "LangChain",
+          "LlamaIndex",
+          "LLM API",
+          "Prompt Engineering",
+          "前端开发",
+          "AI Coding"
+        ]
+      },
+      "manual_notes": "v4 复核：排除优先条件中的 FastAPI/Flask/Django、Coze/Dify，并把仅要求了解的微调和 RAG 留在 skill_mentions。"
+    },
+    "campus-ai-077": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "Sim-to-Real",
+          "强化学习框架",
+          "机器人学",
+          "运动控制",
+          "机器人运动学",
+          "机器人动力学",
+          "ROS2",
+          "最优化",
+          "数值计算",
+          "机器人仿真平台",
+          "C++",
+          "Python",
+          "Eigen",
+          "NumPy",
+          "传感器",
+          "状态估计",
+          "滤波"
+        ]
+      },
+      "manual_notes": "v4 复核：RLlib 等是“至少一种框架”的示例，PPO/SAC/TD3 只出现在职责段，均不作为同时必需的原子技能。"
+    },
+    "campus-ai-087": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "CUDA",
+          "Python",
+          "推理框架",
+          "模型压缩",
+          "Transformer",
+          "Diffusion",
+          "VLM"
+        ]
+      },
+      "manual_notes": "v4 复核：具体推理框架是至少一种的示例；PagedAttention、Triton、MLIR 等位于加分项。"
+    },
+    "campus-ai-088": {
+      "fields": {
+        "required_skills": [
+          "计算机视觉",
+          "模型压缩",
+          "推理加速"
+        ]
+      },
+      "manual_notes": "v4 复核：目标跟随、分割和增强是图像算法方向示例；大模型与软硬件协同只在职责或优先条件中出现。"
+    },
+    "campus-ai-089": {
+      "fields": {
+        "required_skills": [
+          "深度学习",
+          "3D视觉",
+          "PyTorch",
+          "CUDA",
+          "模型训练",
+          "3D视觉基础模型",
+          "编程能力"
+        ]
+      },
+      "manual_notes": "v4 复核：DUSt3R、3DGS、NeRF 等是至少一个研究分支的示例；世界模型位于加分项。"
+    },
+    "campus-ai-092": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "CUDA",
+          "大规模数据处理",
+          "模型训练",
+          "模型评测"
+        ]
+      },
+      "manual_notes": "v4 复核：3DGS、Diffusion、World Model 等属于至少一个方向的备选项或加分项，不作为全部必需技能。"
+    },
+    "campus-ai-100": {
+      "fields": {
+        "required_skills": [
+          "编程能力",
+          "模块开发",
+          "代码调试",
+          "问题定位",
+          "数据结构与算法",
+          "操作系统",
+          "计算机网络",
+          "数据库"
+        ]
+      },
+      "manual_notes": "v4 复核：LLM 与 Agent 条件只要求了解，知识检索、MLOps 和自动化测试位于加分项。"
+    },
+    "campus-ai-103": {
+      "fields": {
+        "required_skills": [
+          "AI Agent",
+          "Agent Loop",
+          "Tool Use",
+          "Context Engineering",
+          "状态管理",
+          "任务规划",
+          "软件工程",
+          "编程能力",
+          "Python",
+          "系统设计",
+          "异步编程",
+          "并发"
+        ]
+      },
+      "manual_notes": "v4 复核：ROS、VLA、行为树、多模态模型等均在职责段或加分项，移出 required_skills。"
+    },
+    "campus-ai-105": {
+      "fields": {
+        "required_skills": [
+          "机器人算法",
+          "Python",
+          "C++",
+          "PyTorch",
+          "机器人部署"
+        ]
+      },
+      "manual_notes": "v4 复核：VLA、Diffusion Policy、Sim-to-Real 等属于满足一项即可的方向或加分项，以共同的机器人算法能力表示。"
+    },
+    "campus-ai-106": {
+      "fields": {
+        "required_skills": [
+          "深度学习框架",
+          "机器人算法基础",
+          "触觉感知",
+          "实验设计",
+          "实验结果分析",
+          "Linux",
+          "Git",
+          "环境管理",
+          "代码调试"
+        ]
+      },
+      "manual_notes": "v4 复核：机器人学习等是至少一项基础经验；Diffusion Policy、VLA、OpenVLA 等全部位于加分项。"
+    },
+    "campus-ai-108": {
+      "fields": {
+        "required_skills": [
+          "软件工程",
+          "Python",
+          "TypeScript",
+          "JavaScript",
+          "Agent",
+          "LLM",
+          "Prompt Engineering",
+          "Context Engineering",
+          "Tool Calling",
+          "RAG",
+          "Memory",
+          "Skill",
+          "MCP",
+          "Multi-Agent",
+          "Agent Framework",
+          "Agent Runtime",
+          "异步编程",
+          "API服务",
+          "数据库",
+          "缓存",
+          "消息队列",
+          "AI Coding"
+        ]
+      },
+      "manual_notes": "v4 复核：OpenClaw、Hermes、Pi、LangGraph 等只是至少一种 Agent Framework 的示例。"
+    },
+    "campus-ai-109": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "Agent",
+          "Agent Runtime",
+          "Context Engineering",
+          "Tool Calling",
+          "Planning",
+          "Memory",
+          "RAG",
+          "Skill",
+          "Agent Evaluation",
+          "数据分析",
+          "实验设计",
+          "Python"
+        ]
+      },
+      "manual_notes": "v4 复核：Redis、PostgreSQL、消息队列和 LangGraph 等都处于优先条件，移出 required_skills。"
+    },
+    "campus-ai-141": {
+      "fields": {
+        "locations": [
+          "上海",
+          "武汉"
+        ]
+      },
+      "manual_notes": "v4 复核：正文先写武汉，但后文明确写“工作地可选：上海、武汉”，两地都应计入。"
+    },
+    "campus-ai-152": {
+      "fields": {
+        "required_skills": [
+          "VLA",
+          "PPO",
+          "SAC",
+          "RLHF",
+          "GAE",
+          "TD(λ)",
+          "机器人运动学",
+          "机器人动力学",
+          "WBC",
+          "PyTorch",
+          "Isaac Sim",
+          "MuJoCo",
+          "Genesis"
+        ]
+      },
+      "manual_notes": "v4 复核：RT-2 等是 VLA 架构示例；CUDA、vLLM、Triton 处于优先条件，均移出 required_skills。"
+    },
+    "campus-ai-153": {
+      "fields": {
+        "required_skills": [
+          "LLM Agent",
+          "Prompt Engineering",
+          "Function Calling",
+          "Tool Use",
+          "Agent Workflow",
+          "任务与运动规划",
+          "具身 Agent"
+        ]
+      },
+      "manual_notes": "v4 复核：ReAct 等是架构示例，TAMP 等是至少一个规划方向的备选项，以共同上位能力表示。"
+    },
+    "campus-ai-156": {
+      "fields": {
+        "required_skills": [
+          "编程能力",
+          "Python",
+          "实验分析",
+          "工程落地"
+        ]
+      },
+      "manual_notes": "v4 复核：数据处理、分布式计算、NLP、检索和多模态数据均位于优先条件或兴趣描述。"
+    },
+    "campus-ai-158": {
+      "fields": {
+        "job_type": "internship",
+        "required_skills": [
+          "数据结构与算法",
+          "操作系统",
+          "计算机网络",
+          "后端编程语言",
+          "AI Agent"
+        ]
+      },
+      "manual_notes": "v4 复核：正文明确是实习；Go/Java/C++/Rust 是备选语言，LLM 与后端技术栈位于加分项。"
+    },
+    "campus-ai-159": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "策略梯度",
+          "Actor-Critic",
+          "Self-Play",
+          "Meta-RL",
+          "MARL",
+          "大规模训练",
+          "低延迟推理",
+          "系统编程",
+          "分布式架构",
+          "Agent系统"
+        ]
+      },
+      "manual_notes": "v4 复核：Python/C++/Rust 是系统编程备选语言；代码沙箱、程序合成和仿真器安全属于优先项。"
+    },
+    "campus-ai-165": {
+      "fields": {
+        "required_skills": [
+          "机器学习",
+          "深度学习",
+          "PyTorch",
+          "Python"
+        ]
+      },
+      "manual_notes": "v4 复核：Qwen-Omni、Cosmos、DUSt3R、VLA 等只描述研究方向，没有出现在硬性职位要求中。"
+    }
+  }
+}

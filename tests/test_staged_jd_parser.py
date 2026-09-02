@@ -100,3 +100,84 @@ async def test_staged_parser_can_finish_with_core_fields_when_detail_is_empty() 
     assert result.structured_jd.required_skills == ["RAG"]
     assert result.structured_jd.requirements is not None
     assert result.structured_jd.company is None
+
+
+@pytest.mark.asyncio
+async def test_staged_parser_preserves_skill_groups_and_merges_preferred_skills() -> None:
+    raw_content = (
+        "示例公司 2027 校园招聘，工作地点上海。"
+        "任职要求：掌握 Python；熟悉 Go 或 Java 中任一种；"
+        "CUDA 使用经验优先；了解 RAG。"
+    )
+    client = SequenceModelClient(
+        [
+            {
+                "job_type": "campus",
+                "locations": ["上海"],
+                "required_skills": ["Python"],
+                "required_skill_groups": [
+                    {
+                        "name": "后端编程语言",
+                        "any_of": ["Go", "Java"],
+                        "allow_other": False,
+                    }
+                ],
+                "preferred_skills": ["CUDA"],
+                "skill_mentions": ["RAG"],
+            },
+            {
+                "preferred_skills": ["CUDA"],
+                "requirements": [
+                    {
+                        "category": "preferred_skill",
+                        "name": "CUDA",
+                        "description": "CUDA 使用经验优先",
+                        "mandatory": False,
+                    }
+                ],
+            },
+        ]
+    )
+
+    result = await StagedJDParser(client, validation_retries=0).parse(
+        RawJobDocument(raw_content=raw_content)
+    )
+    structured = result.structured_jd
+
+    assert structured.required_skills == ["Python"]
+    assert [group.model_dump() for group in structured.required_skill_groups or []] == [
+        {
+            "name": "编程语言",
+            "any_of": ["Go", "Java"],
+            "allow_other": False,
+        }
+    ]
+    assert structured.preferred_skills == ["CUDA"]
+    assert structured.skill_mentions == ["RAG", "Go", "Java"]
+    assert [item.category for item in structured.requirements or []] == [
+        "required_skill",
+        "preferred_skill",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_staged_parser_preserves_core_warnings() -> None:
+    client = SequenceModelClient(
+        [
+            {
+                "job_type": "internship",
+                "locations": ["北京"],
+                "required_skills": ["RAG", "GhostSkill"],
+            },
+            {},
+        ]
+    )
+
+    result = await StagedJDParser(client, validation_retries=0).parse(
+        RawJobDocument(raw_content="示例公司招聘实习生，要求熟悉 RAG，工作地点北京。")
+    )
+
+    assert result.structured_jd.required_skills == ["RAG"]
+    assert len(result.warnings) == 1
+    assert result.warnings[0].field_path == "required_skills[1]"
+    assert result.warnings[0].value == "GhostSkill"

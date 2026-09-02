@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from src.evaluation.ai_campus_dataset import build_manifest, draft_labels
+import json
+
+from src.evaluation.ai_campus_dataset import (
+    build_manifest,
+    draft_labels,
+    load_overrides,
+)
 
 
 def make_record(
@@ -45,6 +51,34 @@ def test_build_manifest_filters_disabled_records_and_keeps_draft_metadata() -> N
     assert "Python" in case.expected.fields["required_skills"]
     assert review["excluded_record_count"] == 1
     assert review["label_status"] == "draft"
+
+
+def test_build_manifest_filters_case_ids_and_accepts_v5_fields() -> None:
+    manifest, review = build_manifest(
+        [
+            make_record(record_id="case-1"),
+            make_record(record_id="case-2"),
+        ],
+        dataset_version="test-ai-campus-v5",
+        case_ids={"case-2"},
+        fields=[
+            "required_skills",
+            "required_skill_groups",
+            "preferred_skills",
+            "skill_mentions",
+        ],
+        label_status="draft_pending_human_review",
+    )
+
+    assert manifest.manifest_version == "m11-ai-campus-draft-v1"
+    assert [case.id for case in manifest.cases] == ["case-2"]
+    assert manifest.fields == [
+        "required_skills",
+        "required_skill_groups",
+        "preferred_skills",
+        "skill_mentions",
+    ]
+    assert review["included_case_count"] == 1
 
 
 def test_draft_labels_marks_secondary_source_and_metadata_only_cohort() -> None:
@@ -138,3 +172,53 @@ def test_draft_labels_marks_recruitment_metadata_only() -> None:
 
     assert "招聘类型来自外部元数据" in review["source_flags"]
     assert "job_type_metadata_only" in review["tags"]
+
+
+def test_load_overrides_merges_case_fields_in_file_order(tmp_path) -> None:
+    base_path = tmp_path / "base.json"
+    delta_path = tmp_path / "delta.json"
+    base_path.write_text(
+        json.dumps(
+            {
+                "label_status": "base_reviewed",
+                "cases": {
+                    "case-1": {
+                        "fields": {
+                            "job_type": "campus",
+                            "required_skills": ["Python", "可选框架"],
+                        },
+                        "tags": ["base"],
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    delta_path.write_text(
+        json.dumps(
+            {
+                "label_status": "partial_v4_audit",
+                "cases": {
+                    "case-1": {
+                        "fields": {"required_skills": ["Python"]},
+                        "v4_audit_note": "排除可选框架",
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    overrides, label_status = load_overrides(
+        [str(base_path), str(delta_path)]
+    )
+
+    assert label_status == "partial_v4_audit"
+    assert overrides["case-1"]["fields"] == {
+        "job_type": "campus",
+        "required_skills": ["Python"],
+    }
+    assert overrides["case-1"]["tags"] == ["base"]
+    assert overrides["case-1"]["v4_audit_note"] == "排除可选框架"

@@ -5,6 +5,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.domain.eligibility import EligibilityStatus
+from src.domain.job import ParsingWarning
 from src.domain.matching import SupportLevel
 
 EvaluationSplit = Literal["dev", "eval"]
@@ -107,6 +108,7 @@ class PredictionRecord(BaseModel):
     fields: dict[str, Any] = Field(default_factory=dict)
     eligibility: EligibilityStatus | None = None
     matches: list[PredictionMatch] = Field(default_factory=list)
+    warnings: list[ParsingWarning] = Field(default_factory=list)
     failure_code: str | None = Field(default=None, max_length=80)
     failure_details: dict[str, Any] = Field(default_factory=dict)
 

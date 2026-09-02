@@ -202,3 +202,30 @@ async def test_generate_predictions_supports_core_parser_mode() -> None:
     assert prediction.eligibility is None
     assert prediction.matches == []
     assert prediction.failure_code is None
+
+
+@pytest.mark.asyncio
+async def test_core_prediction_keeps_non_fatal_parser_warnings() -> None:
+    prediction_file = await generate_predictions(
+        make_manifest(),
+        parser=CoreJDParser(
+            FakeModelClient(
+                output={
+                    "job_type": "internship",
+                    "locations": ["北京"],
+                    "required_skills": ["RAG", "GhostSkill"],
+                }
+            ),
+            validation_retries=0,
+        ),
+        matcher=EvidenceMatcher(FakeModelClient()),
+        evidence=[],
+        parser_only=True,
+        parser_mode="core",
+    )
+
+    prediction = prediction_file.predictions[0]
+    assert prediction.failure_code is None
+    assert prediction.fields["required_skills"] == ["RAG"]
+    assert len(prediction.warnings) == 1
+    assert prediction.warnings[0].value == "GhostSkill"

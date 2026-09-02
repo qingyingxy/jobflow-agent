@@ -1,0 +1,4132 @@
+{
+  "version": "official-ai-campus-2027-expansion-overrides-v3",
+  "label_status": "human_verified_official_sources",
+  "policy": {
+    "required_skills": "只标注官方详情页任职要求中明确出现的技术或岗位硬技能。",
+    "source_status": "只保留详情可读且投递按钮可用的官方校招及实习岗位，2027届优先。"
+  },
+  "cases": {
+    "campus-ai-062": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "C#",
+          "C++",
+          "OpenCV",
+          "YOLO",
+          "PyTorch",
+          "TensorFlow",
+          "SQL",
+          "Pandas",
+          "NumPy",
+          "Agent API"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "C#",
+        "C++",
+        "OpenCV",
+        "YOLO",
+        "PyTorch",
+        "TensorFlow",
+        "SQL",
+        "Pandas",
+        "NumPy",
+        "Agent API"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-063": {
+      "fields": {
+        "required_skills": [
+          "车辆动力学",
+          "深度学习",
+          "监督学习",
+          "强化学习",
+          "Python",
+          "MATLAB",
+          "Simulink"
+        ]
+      },
+      "skill_mentions": [
+        "车辆动力学",
+        "深度学习",
+        "监督学习",
+        "强化学习",
+        "Python",
+        "MATLAB",
+        "Simulink"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-064": {
+      "fields": {
+        "required_skills": [
+          "CNN",
+          "LSTM",
+          "Transformer",
+          "Python",
+          "C++",
+          "SQL",
+          "TensorFlow",
+          "PyTorch"
+        ]
+      },
+      "skill_mentions": [
+        "CNN",
+        "LSTM",
+        "Transformer",
+        "Python",
+        "C++",
+        "SQL",
+        "TensorFlow",
+        "PyTorch"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-065": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "VLM",
+          "VLA",
+          "强化学习",
+          "多模态训练",
+          "模型评测",
+          "模型部署"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "VLM",
+        "VLA",
+        "强化学习",
+        "多模态训练",
+        "模型评测",
+        "模型部署"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-066": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "VLM",
+          "Diffusion",
+          "Instruction Tuning",
+          "Preference Alignment",
+          "Benchmark"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "VLM",
+        "Diffusion",
+        "Instruction Tuning",
+        "Preference Alignment",
+        "Benchmark"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-067": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "VLM",
+          "视频理解",
+          "多模态学习",
+          "模型微调"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "VLM",
+        "视频理解",
+        "多模态学习",
+        "模型微调"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-068": {
+      "fields": {
+        "required_skills": [
+          "C",
+          "C++",
+          "操作系统",
+          "编译器",
+          "CPU架构",
+          "汇编",
+          "GDB",
+          "LLDB",
+          "IDA"
+        ]
+      },
+      "skill_mentions": [
+        "C",
+        "C++",
+        "操作系统",
+        "编译器",
+        "CPU架构",
+        "汇编",
+        "GDB",
+        "LLDB",
+        "IDA"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-069": {
+      "fields": {
+        "required_skills": [
+          "Java",
+          "Python",
+          "C++",
+          "LangChain",
+          "LlamaIndex",
+          "RAG",
+          "Agent",
+          "信息检索",
+          "Prompt Engineering",
+          "模型微调",
+          "模型对齐"
+        ]
+      },
+      "skill_mentions": [
+        "Java",
+        "Python",
+        "C++",
+        "LangChain",
+        "LlamaIndex",
+        "RAG",
+        "Agent",
+        "信息检索",
+        "Prompt Engineering",
+        "模型微调",
+        "模型对齐"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-070": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "软件架构",
+          "模型部署",
+          "性能优化",
+          "AI Coding"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "软件架构",
+        "模型部署",
+        "性能优化",
+        "AI Coding"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-071": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "TensorFlow",
+          "PyTorch",
+          "C++",
+          "Java",
+          "R",
+          "LLM API",
+          "Prompt Engineering",
+          "向量数据库",
+          "数据预处理",
+          "模型微调"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "TensorFlow",
+        "PyTorch",
+        "C++",
+        "Java",
+        "R",
+        "LLM API",
+        "Prompt Engineering",
+        "向量数据库",
+        "数据预处理",
+        "模型微调"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-072": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "R",
+          "MATLAB",
+          "统计建模",
+          "机器学习",
+          "XGBoost",
+          "LLM",
+          "Prompt Engineering",
+          "RAG",
+          "Agent"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "R",
+        "MATLAB",
+        "统计建模",
+        "机器学习",
+        "XGBoost",
+        "LLM",
+        "Prompt Engineering",
+        "RAG",
+        "Agent"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-073": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "FastAPI",
+          "Flask",
+          "Django",
+          "LangChain",
+          "LangGraph",
+          "LlamaIndex",
+          "Coze",
+          "Dify",
+          "LLM API",
+          "Prompt Engineering",
+          "RAG",
+          "AI Coding"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "FastAPI",
+        "Flask",
+        "Django",
+        "LangChain",
+        "LangGraph",
+        "LlamaIndex",
+        "Coze",
+        "Dify",
+        "LLM API",
+        "Prompt Engineering",
+        "RAG",
+        "AI Coding"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-074": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "VLM",
+          "数据合成",
+          "后训练",
+          "强化学习",
+          "Agent",
+          "Harness Engineering",
+          "模型评测",
+          "RLHF",
+          "RLAIF"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "VLM",
+        "数据合成",
+        "后训练",
+        "强化学习",
+        "Agent",
+        "Harness Engineering",
+        "模型评测",
+        "RLHF",
+        "RLAIF"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-075": {
+      "fields": {
+        "required_skills": [
+          "Java",
+          "Python",
+          "LLM",
+          "多模态Agent",
+          "任务规划",
+          "工具调用",
+          "多轮对话",
+          "Prompt Engineering",
+          "Context Engineering",
+          "Harness Engineering",
+          "RAG"
+        ]
+      },
+      "skill_mentions": [
+        "Java",
+        "Python",
+        "LLM",
+        "多模态Agent",
+        "任务规划",
+        "工具调用",
+        "多轮对话",
+        "Prompt Engineering",
+        "Context Engineering",
+        "Harness Engineering",
+        "RAG"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-076": {
+      "fields": {
+        "required_skills": [
+          "VLA",
+          "VLM",
+          "后训练",
+          "模型微调",
+          "持续学习",
+          "增量微调",
+          "数据治理",
+          "模型评测"
+        ]
+      },
+      "skill_mentions": [
+        "VLA",
+        "VLM",
+        "后训练",
+        "模型微调",
+        "持续学习",
+        "增量微调",
+        "数据治理",
+        "模型评测"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-077": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "Sim-to-Real",
+          "Isaac Gym",
+          "MuJoCo",
+          "RLlib",
+          "Stable-Baselines3",
+          "ROS2",
+          "C++",
+          "Python",
+          "Eigen",
+          "NumPy",
+          "PPO",
+          "SAC",
+          "TD3"
+        ]
+      },
+      "skill_mentions": [
+        "强化学习",
+        "Sim-to-Real",
+        "Isaac Gym",
+        "MuJoCo",
+        "RLlib",
+        "Stable-Baselines3",
+        "ROS2",
+        "C++",
+        "Python",
+        "Eigen",
+        "NumPy",
+        "PPO",
+        "SAC",
+        "TD3"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-078": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "多模态大模型",
+          "视频生成",
+          "世界模型",
+          "VLA",
+          "模仿学习",
+          "强化学习",
+          "机器人学习"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "多模态大模型",
+        "视频生成",
+        "世界模型",
+        "VLA",
+        "模仿学习",
+        "强化学习",
+        "机器人学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-079": {
+      "fields": {
+        "required_skills": [
+          "VLA",
+          "VLM",
+          "Python",
+          "PyTorch",
+          "TensorFlow",
+          "Transformer",
+          "扩散模型",
+          "模型评测",
+          "数据集构建",
+          "Benchmark"
+        ]
+      },
+      "skill_mentions": [
+        "VLA",
+        "VLM",
+        "Python",
+        "PyTorch",
+        "TensorFlow",
+        "Transformer",
+        "扩散模型",
+        "模型评测",
+        "数据集构建",
+        "Benchmark"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-080": {
+      "fields": {
+        "required_skills": [
+          "CUDA",
+          "Triton",
+          "C++",
+          "Python",
+          "PyTorch",
+          "分布式训练",
+          "VLM",
+          "VLA",
+          "vLLM",
+          "SGLang",
+          "TensorRT-LLM",
+          "NVIDIA Dynamo",
+          "模型量化",
+          "模型蒸馏"
+        ]
+      },
+      "skill_mentions": [
+        "CUDA",
+        "Triton",
+        "C++",
+        "Python",
+        "PyTorch",
+        "分布式训练",
+        "VLM",
+        "VLA",
+        "vLLM",
+        "SGLang",
+        "TensorRT-LLM",
+        "NVIDIA Dynamo",
+        "模型量化",
+        "模型蒸馏"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-081": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "TensorFlow",
+          "VLM",
+          "VLA",
+          "多模态数据",
+          "数据清洗",
+          "预标注",
+          "数据挖掘",
+          "AI Coding"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "TensorFlow",
+        "VLM",
+        "VLA",
+        "多模态数据",
+        "数据清洗",
+        "预标注",
+        "数据挖掘",
+        "AI Coding"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-082": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Java",
+          "JavaScript",
+          "Go",
+          "C++",
+          "LLM API",
+          "Agent",
+          "RAG",
+          "MCP",
+          "Prompt Engineering",
+          "Harness Engineering",
+          "自动化测试",
+          "DevOps"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Java",
+        "JavaScript",
+        "Go",
+        "C++",
+        "LLM API",
+        "Agent",
+        "RAG",
+        "MCP",
+        "Prompt Engineering",
+        "Harness Engineering",
+        "自动化测试",
+        "DevOps"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-083": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "C++",
+          "C#",
+          "RAG",
+          "Agent",
+          "Tool Calling",
+          "Unity",
+          "Unreal",
+          "AI Coding",
+          "Spark",
+          "Presto",
+          "Trino",
+          "ClickHouse"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "C++",
+        "C#",
+        "RAG",
+        "Agent",
+        "Tool Calling",
+        "Unity",
+        "Unreal",
+        "AI Coding",
+        "Spark",
+        "Presto",
+        "Trino",
+        "ClickHouse"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-084": {
+      "fields": {
+        "required_skills": [
+          "C#",
+          "C++",
+          "Python",
+          "TypeScript",
+          "Unity",
+          "Unreal",
+          "Prompt Engineering",
+          "RAG",
+          "LLM API",
+          "Agent",
+          "MCP",
+          "LangChain",
+          "AutoGen",
+          "Tool Calling",
+          "Context Engineering",
+          "Harness Engineering"
+        ]
+      },
+      "skill_mentions": [
+        "C#",
+        "C++",
+        "Python",
+        "TypeScript",
+        "Unity",
+        "Unreal",
+        "Prompt Engineering",
+        "RAG",
+        "LLM API",
+        "Agent",
+        "MCP",
+        "LangChain",
+        "AutoGen",
+        "Tool Calling",
+        "Context Engineering",
+        "Harness Engineering"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-085": {
+      "fields": {
+        "required_skills": [
+          "AI Agent",
+          "Prompt Engineering",
+          "RAG",
+          "MCP",
+          "Tool Use",
+          "工作流设计",
+          "产品原型",
+          "数据分析"
+        ]
+      },
+      "skill_mentions": [
+        "AI Agent",
+        "Prompt Engineering",
+        "RAG",
+        "MCP",
+        "Tool Use",
+        "工作流设计",
+        "产品原型",
+        "数据分析"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-086": {
+      "fields": {
+        "required_skills": [
+          "Go",
+          "Python",
+          "HTTP",
+          "gRPC",
+          "数据库",
+          "缓存",
+          "消息队列",
+          "LLM API",
+          "RAG",
+          "Tool Calling",
+          "Agent",
+          "LangChain",
+          "AutoGen",
+          "MCP",
+          "Context Engineering"
+        ]
+      },
+      "skill_mentions": [
+        "Go",
+        "Python",
+        "HTTP",
+        "gRPC",
+        "数据库",
+        "缓存",
+        "消息队列",
+        "LLM API",
+        "RAG",
+        "Tool Calling",
+        "Agent",
+        "LangChain",
+        "AutoGen",
+        "MCP",
+        "Context Engineering"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-087": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "CUDA",
+          "Python",
+          "TensorRT",
+          "TensorRT-LLM",
+          "vLLM",
+          "TVM",
+          "MNN",
+          "NCNN",
+          "llama.cpp",
+          "模型量化",
+          "模型剪枝",
+          "模型蒸馏",
+          "Transformer",
+          "Diffusion",
+          "VLM",
+          "PagedAttention",
+          "FlashAttention",
+          "Speculative Decoding",
+          "KV-Cache",
+          "Triton",
+          "MLIR"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "CUDA",
+        "Python",
+        "TensorRT",
+        "TensorRT-LLM",
+        "vLLM",
+        "TVM",
+        "MNN",
+        "NCNN",
+        "llama.cpp",
+        "模型量化",
+        "模型剪枝",
+        "模型蒸馏",
+        "Transformer",
+        "Diffusion",
+        "VLM",
+        "PagedAttention",
+        "FlashAttention",
+        "Speculative Decoding",
+        "KV-Cache",
+        "Triton",
+        "MLIR"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-088": {
+      "fields": {
+        "required_skills": [
+          "机器学习",
+          "计算机视觉",
+          "多模态模型",
+          "大模型",
+          "模型压缩",
+          "推理加速",
+          "目标跟随",
+          "语义分割",
+          "图像增强",
+          "软硬件协同优化"
+        ]
+      },
+      "skill_mentions": [
+        "机器学习",
+        "计算机视觉",
+        "多模态模型",
+        "大模型",
+        "模型压缩",
+        "推理加速",
+        "目标跟随",
+        "语义分割",
+        "图像增强",
+        "软硬件协同优化"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-089": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "CUDA",
+          "分布式训练",
+          "3D视觉",
+          "多模态模型",
+          "DUSt3R",
+          "MASt3R",
+          "VGGT",
+          "Spann3R",
+          "3DGS",
+          "NeRF",
+          "Occupancy",
+          "BEV",
+          "世界模型"
+        ]
+      },
+      "skill_mentions": [
+        "PyTorch",
+        "CUDA",
+        "分布式训练",
+        "3D视觉",
+        "多模态模型",
+        "DUSt3R",
+        "MASt3R",
+        "VGGT",
+        "Spann3R",
+        "3DGS",
+        "NeRF",
+        "Occupancy",
+        "BEV",
+        "世界模型"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-090": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "机器学习",
+          "半监督学习",
+          "自监督学习",
+          "主动学习",
+          "弱监督学习",
+          "自动标注",
+          "长尾挖掘",
+          "样本选择",
+          "数据质量评估",
+          "Pseudo-labeling"
+        ]
+      },
+      "skill_mentions": [
+        "PyTorch",
+        "机器学习",
+        "半监督学习",
+        "自监督学习",
+        "主动学习",
+        "弱监督学习",
+        "自动标注",
+        "长尾挖掘",
+        "样本选择",
+        "数据质量评估",
+        "Pseudo-labeling"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-091": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "CUDA",
+          "Transformer",
+          "Diffusion",
+          "模仿学习",
+          "强化学习",
+          "VLA",
+          "WAM",
+          "世界模型",
+          "奖励模型",
+          "RLHF",
+          "DPO"
+        ]
+      },
+      "skill_mentions": [
+        "PyTorch",
+        "CUDA",
+        "Transformer",
+        "Diffusion",
+        "模仿学习",
+        "强化学习",
+        "VLA",
+        "WAM",
+        "世界模型",
+        "奖励模型",
+        "RLHF",
+        "DPO"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-092": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "CUDA",
+          "3DGS",
+          "4DGS",
+          "NeRF",
+          "Diffusion",
+          "视频生成",
+          "可控生成",
+          "场景编辑",
+          "世界模型",
+          "神经渲染",
+          "强化学习",
+          "Sim-to-Real"
+        ]
+      },
+      "skill_mentions": [
+        "PyTorch",
+        "CUDA",
+        "3DGS",
+        "4DGS",
+        "NeRF",
+        "Diffusion",
+        "视频生成",
+        "可控生成",
+        "场景编辑",
+        "世界模型",
+        "神经渲染",
+        "强化学习",
+        "Sim-to-Real"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-093": {
+      "fields": {
+        "required_skills": [
+          "Transformer",
+          "PyTorch",
+          "DDP",
+          "FSDP",
+          "DeepSpeed",
+          "Megatron-LM",
+          "vLLM",
+          "SGLang",
+          "CUDA",
+          "Triton",
+          "分布式训练",
+          "推理优化",
+          "GPU Kernel"
+        ]
+      },
+      "skill_mentions": [
+        "Transformer",
+        "PyTorch",
+        "DDP",
+        "FSDP",
+        "DeepSpeed",
+        "Megatron-LM",
+        "vLLM",
+        "SGLang",
+        "CUDA",
+        "Triton",
+        "分布式训练",
+        "推理优化",
+        "GPU Kernel"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-094": {
+      "fields": {
+        "required_skills": [
+          "分布式系统",
+          "GPU性能优化",
+          "强化学习",
+          "推理加速",
+          "PyTorch",
+          "Megatron-LM",
+          "SGLang",
+          "RLHF",
+          "RLVR"
+        ]
+      },
+      "skill_mentions": [
+        "分布式系统",
+        "GPU性能优化",
+        "强化学习",
+        "推理加速",
+        "PyTorch",
+        "Megatron-LM",
+        "SGLang",
+        "RLHF",
+        "RLVR"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-095": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Java",
+          "Scala",
+          "C++",
+          "Go",
+          "Ray",
+          "Spark",
+          "Flink",
+          "Delta",
+          "Iceberg",
+          "Hudi",
+          "Kubernetes",
+          "分布式计算"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Java",
+        "Scala",
+        "C++",
+        "Go",
+        "Ray",
+        "Spark",
+        "Flink",
+        "Delta",
+        "Iceberg",
+        "Hudi",
+        "Kubernetes",
+        "分布式计算"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-096": {
+      "fields": {
+        "required_skills": [
+          "Go",
+          "Java",
+          "Python",
+          "微服务",
+          "数据库",
+          "Kubernetes",
+          "GPU资源管理",
+          "CMDB",
+          "可观测性"
+        ]
+      },
+      "skill_mentions": [
+        "Go",
+        "Java",
+        "Python",
+        "微服务",
+        "数据库",
+        "Kubernetes",
+        "GPU资源管理",
+        "CMDB",
+        "可观测性"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-097": {
+      "fields": {
+        "required_skills": [
+          "Prometheus",
+          "Grafana",
+          "OpenTelemetry",
+          "ClickHouse",
+          "Elasticsearch",
+          "Go",
+          "Python",
+          "Java",
+          "C++",
+          "分布式系统",
+          "可观测性"
+        ]
+      },
+      "skill_mentions": [
+        "Prometheus",
+        "Grafana",
+        "OpenTelemetry",
+        "ClickHouse",
+        "Elasticsearch",
+        "Go",
+        "Python",
+        "Java",
+        "C++",
+        "分布式系统",
+        "可观测性"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-098": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Pandas",
+          "NumPy",
+          "多模态数据",
+          "数据清洗",
+          "自动化标注",
+          "数据质量评估",
+          "Prompt优化",
+          "主动学习"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Pandas",
+        "NumPy",
+        "多模态数据",
+        "数据清洗",
+        "自动化标注",
+        "数据质量评估",
+        "Prompt优化",
+        "主动学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-099": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "运动控制",
+          "模仿学习",
+          "跨本体学习",
+          "灵巧手控制",
+          "C++",
+          "Python",
+          "Linux",
+          "ROS",
+          "ROS2"
+        ]
+      },
+      "skill_mentions": [
+        "强化学习",
+        "运动控制",
+        "模仿学习",
+        "跨本体学习",
+        "灵巧手控制",
+        "C++",
+        "Python",
+        "Linux",
+        "ROS",
+        "ROS2"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-100": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "Agent",
+          "Prompt Engineering",
+          "结构化输出",
+          "Tool Calling",
+          "多轮对话",
+          "任务规划",
+          "Context Engineering",
+          "记忆机制",
+          "知识检索",
+          "MLOps",
+          "自动化测试"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "Agent",
+        "Prompt Engineering",
+        "结构化输出",
+        "Tool Calling",
+        "多轮对话",
+        "任务规划",
+        "Context Engineering",
+        "记忆机制",
+        "知识检索",
+        "MLOps",
+        "自动化测试"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-101": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "Transformer",
+          "Diffusion",
+          "Flow Matching",
+          "行为克隆",
+          "强化学习",
+          "多模态大模型",
+          "VLA",
+          "世界模型",
+          "机器人决策规划",
+          "SFT"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "Transformer",
+        "Diffusion",
+        "Flow Matching",
+        "行为克隆",
+        "强化学习",
+        "多模态大模型",
+        "VLA",
+        "世界模型",
+        "机器人决策规划",
+        "SFT"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-102": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "模仿学习",
+          "深度学习",
+          "PPO",
+          "SAC",
+          "Behavior Cloning",
+          "Diffusion Policy",
+          "MPC",
+          "Python",
+          "Isaac Gym",
+          "MuJoCo",
+          "Isaac Sim",
+          "Sim-to-Real"
+        ]
+      },
+      "skill_mentions": [
+        "强化学习",
+        "模仿学习",
+        "深度学习",
+        "PPO",
+        "SAC",
+        "Behavior Cloning",
+        "Diffusion Policy",
+        "MPC",
+        "Python",
+        "Isaac Gym",
+        "MuJoCo",
+        "Isaac Sim",
+        "Sim-to-Real"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-103": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "AI Agent",
+          "Agent Loop",
+          "Tool Use",
+          "Context Engineering",
+          "状态管理",
+          "任务规划",
+          "ROS",
+          "ROS2",
+          "VLA",
+          "行为树",
+          "有限状态机",
+          "多模态模型",
+          "异步编程",
+          "并发"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "AI Agent",
+        "Agent Loop",
+        "Tool Use",
+        "Context Engineering",
+        "状态管理",
+        "任务规划",
+        "ROS",
+        "ROS2",
+        "VLA",
+        "行为树",
+        "有限状态机",
+        "多模态模型",
+        "异步编程",
+        "并发"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-104": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "C++",
+          "PyTorch",
+          "VLA",
+          "具身大模型",
+          "后训练",
+          "模型微调",
+          "World Action Model",
+          "模仿学习",
+          "强化学习"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "C++",
+        "PyTorch",
+        "VLA",
+        "具身大模型",
+        "后训练",
+        "模型微调",
+        "World Action Model",
+        "模仿学习",
+        "强化学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-105": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "C++",
+          "PyTorch",
+          "Behavior Cloning",
+          "强化学习",
+          "Diffusion Policy",
+          "Flow Matching",
+          "世界模型",
+          "Meta Learning",
+          "VLA",
+          "Sensorimotor",
+          "Sim-to-Real",
+          "力控制",
+          "触觉融合"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "C++",
+        "PyTorch",
+        "Behavior Cloning",
+        "强化学习",
+        "Diffusion Policy",
+        "Flow Matching",
+        "世界模型",
+        "Meta Learning",
+        "VLA",
+        "Sensorimotor",
+        "Sim-to-Real",
+        "力控制",
+        "触觉融合"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-106": {
+      "fields": {
+        "required_skills": [
+          "PyTorch",
+          "机器人学习",
+          "模仿学习",
+          "强化学习",
+          "机器人控制",
+          "多模态学习",
+          "触觉表征",
+          "力控制",
+          "Diffusion Policy",
+          "VLA",
+          "VLM",
+          "ACT",
+          "LeRobot",
+          "OpenVLA",
+          "Octo",
+          "Docker"
+        ]
+      },
+      "skill_mentions": [
+        "PyTorch",
+        "机器人学习",
+        "模仿学习",
+        "强化学习",
+        "机器人控制",
+        "多模态学习",
+        "触觉表征",
+        "力控制",
+        "Diffusion Policy",
+        "VLA",
+        "VLM",
+        "ACT",
+        "LeRobot",
+        "OpenVLA",
+        "Octo",
+        "Docker"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-107": {
+      "fields": {
+        "required_skills": [
+          "大模型预训练",
+          "大模型后训练",
+          "模型量化",
+          "模型蒸馏",
+          "模型稀疏化",
+          "高性能计算",
+          "模型压缩"
+        ]
+      },
+      "skill_mentions": [
+        "大模型预训练",
+        "大模型后训练",
+        "模型量化",
+        "模型蒸馏",
+        "模型稀疏化",
+        "高性能计算",
+        "模型压缩"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-108": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "TypeScript",
+          "JavaScript",
+          "OpenClaw",
+          "Hermes",
+          "Pi",
+          "LangGraph",
+          "OpenAI Agents SDK",
+          "Agent Runtime",
+          "Tool Calling",
+          "Skill",
+          "Context Engineering",
+          "Memory",
+          "RAG",
+          "MCP",
+          "Multi-Agent",
+          "AI Coding"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "TypeScript",
+        "JavaScript",
+        "OpenClaw",
+        "Hermes",
+        "Pi",
+        "LangGraph",
+        "OpenAI Agents SDK",
+        "Agent Runtime",
+        "Tool Calling",
+        "Skill",
+        "Context Engineering",
+        "Memory",
+        "RAG",
+        "MCP",
+        "Multi-Agent",
+        "AI Coding"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-109": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Agent Harness",
+          "Agent Runtime",
+          "Context Engineering",
+          "Tool Calling",
+          "Planning",
+          "Memory",
+          "RAG",
+          "Skill",
+          "Agent Evaluation",
+          "可观测性",
+          "Redis",
+          "向量数据库",
+          "PostgreSQL",
+          "消息队列",
+          "LangGraph",
+          "LangChain",
+          "LlamaIndex"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Agent Harness",
+        "Agent Runtime",
+        "Context Engineering",
+        "Tool Calling",
+        "Planning",
+        "Memory",
+        "RAG",
+        "Skill",
+        "Agent Evaluation",
+        "可观测性",
+        "Redis",
+        "向量数据库",
+        "PostgreSQL",
+        "消息队列",
+        "LangGraph",
+        "LangChain",
+        "LlamaIndex"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-110": {
+      "fields": {
+        "required_skills": [
+          "Node.js",
+          "Go",
+          "React",
+          "LLM",
+          "Agent",
+          "LangChain",
+          "Dify",
+          "LlamaIndex",
+          "自动化工作流",
+          "AIGC"
+        ]
+      },
+      "skill_mentions": [
+        "Node.js",
+        "Go",
+        "React",
+        "LLM",
+        "Agent",
+        "LangChain",
+        "Dify",
+        "LlamaIndex",
+        "自动化工作流",
+        "AIGC"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-111": {
+      "fields": {
+        "required_skills": [
+          "Go",
+          "Python",
+          "LLM",
+          "Agent",
+          "RAG",
+          "Multi-Agent",
+          "Eino",
+          "LangChain"
+        ]
+      },
+      "skill_mentions": [
+        "Go",
+        "Python",
+        "LLM",
+        "Agent",
+        "RAG",
+        "Multi-Agent",
+        "Eino",
+        "LangChain"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-112": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "ROS2",
+          "Gazebo",
+          "Isaac Sim",
+          "MuJoCo"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "ROS2",
+        "Gazebo",
+        "Isaac Sim",
+        "MuJoCo"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-113": {
+      "fields": {
+        "required_skills": [
+          "VLA",
+          "VLM",
+          "World Model",
+          "LLM",
+          "深度学习",
+          "机器学习",
+          "强化学习",
+          "模仿学习",
+          "持续学习",
+          "数据分析"
+        ]
+      },
+      "skill_mentions": [
+        "VLA",
+        "VLM",
+        "World Model",
+        "LLM",
+        "深度学习",
+        "机器学习",
+        "强化学习",
+        "模仿学习",
+        "持续学习",
+        "数据分析"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-114": {
+      "fields": {
+        "required_skills": [
+          "FSDP",
+          "DeepSpeed",
+          "ViT",
+          "DiT",
+          "VLA",
+          "WAM",
+          "World Model",
+          "LLM",
+          "多模态",
+          "深度学习",
+          "分布式训练"
+        ]
+      },
+      "skill_mentions": [
+        "FSDP",
+        "DeepSpeed",
+        "ViT",
+        "DiT",
+        "VLA",
+        "WAM",
+        "World Model",
+        "LLM",
+        "多模态",
+        "深度学习",
+        "分布式训练"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-115": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Java",
+          "Go",
+          "ReAct",
+          "LangChain",
+          "LangGraph",
+          "AutoGen",
+          "设计模式"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Java",
+        "Go",
+        "ReAct",
+        "LangChain",
+        "LangGraph",
+        "AutoGen",
+        "设计模式"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-116": {
+      "fields": {
+        "required_skills": [
+          "ROS2"
+        ]
+      },
+      "skill_mentions": [
+        "ROS2"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-117": {
+      "fields": {
+        "required_skills": [
+          "Java",
+          "Go",
+          "TypeScript",
+          "React",
+          "Node.js",
+          "Linux",
+          "ROS",
+          "HTTP",
+          "WebSocket",
+          "数据结构",
+          "操作系统",
+          "计算机网络"
+        ]
+      },
+      "skill_mentions": [
+        "Java",
+        "Go",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "Linux",
+        "ROS",
+        "HTTP",
+        "WebSocket",
+        "数据结构",
+        "操作系统",
+        "计算机网络"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-118": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "Rust",
+          "Linux",
+          "ROS2",
+          "DDS",
+          "多线程",
+          "网络编程"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "Rust",
+        "Linux",
+        "ROS2",
+        "DDS",
+        "多线程",
+        "网络编程"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-119": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Linux",
+          "ROS2",
+          "VLA",
+          "WAM",
+          "World Model",
+          "强化学习",
+          "运动学",
+          "数据结构"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Linux",
+        "ROS2",
+        "VLA",
+        "WAM",
+        "World Model",
+        "强化学习",
+        "运动学",
+        "数据结构"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-120": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Go",
+          "Rust",
+          "数据结构",
+          "操作系统",
+          "计算机网络"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Go",
+        "Rust",
+        "数据结构",
+        "操作系统",
+        "计算机网络"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-121": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "Go",
+          "Kubernetes",
+          "操作系统"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "Go",
+        "Kubernetes",
+        "操作系统"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-122": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "Go",
+          "Linux",
+          "Kubernetes",
+          "操作系统"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "Go",
+        "Linux",
+        "Kubernetes",
+        "操作系统"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-123": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Go",
+          "Linux",
+          "Kubernetes",
+          "Docker",
+          "CI/CD"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Go",
+        "Linux",
+        "Kubernetes",
+        "Docker",
+        "CI/CD"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-124": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "Python",
+          "MATLAB",
+          "Simulink",
+          "SciPy",
+          "NumPy",
+          "数据分析",
+          "FPGA",
+          "DSP"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "Python",
+        "MATLAB",
+        "Simulink",
+        "SciPy",
+        "NumPy",
+        "数据分析",
+        "FPGA",
+        "DSP"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-125": {
+      "fields": {
+        "required_skills": [
+          "Go",
+          "React",
+          "Node.js",
+          "LLM",
+          "Agent"
+        ]
+      },
+      "skill_mentions": [
+        "Go",
+        "React",
+        "Node.js",
+        "LLM",
+        "Agent"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-126": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "Agent",
+          "RAG"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "Agent",
+        "RAG"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-127": {
+      "fields": {
+        "required_skills": [
+          "SolidWorks",
+          "Creo"
+        ]
+      },
+      "skill_mentions": [
+        "SolidWorks",
+        "Creo"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-128": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "MATLAB",
+          "有限元",
+          "ANSYS",
+          "Abaqus",
+          "Nastran",
+          "CAE"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "MATLAB",
+        "有限元",
+        "ANSYS",
+        "Abaqus",
+        "Nastran",
+        "CAE"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-129": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Linux",
+          "数据分析"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Linux",
+        "数据分析"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-130": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "FOC"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "FOC"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-131": {
+      "fields": {
+        "required_skills": [
+          "MATLAB",
+          "Simulink",
+          "数据分析",
+          "运动学",
+          "动力学",
+          "多体动力学",
+          "ANSYS",
+          "Adams",
+          "CAD"
+        ]
+      },
+      "skill_mentions": [
+        "MATLAB",
+        "Simulink",
+        "数据分析",
+        "运动学",
+        "动力学",
+        "多体动力学",
+        "ANSYS",
+        "Adams",
+        "CAD"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-132": {
+      "fields": {
+        "required_skills": [
+          "CAD"
+        ]
+      },
+      "skill_mentions": [
+        "CAD"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-133": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "FOC"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "FOC"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-134": {
+      "fields": {
+        "required_skills": [
+          "MATLAB",
+          "Simulink",
+          "数据分析",
+          "运动学",
+          "动力学",
+          "Adams",
+          "CAD"
+        ]
+      },
+      "skill_mentions": [
+        "MATLAB",
+        "Simulink",
+        "数据分析",
+        "运动学",
+        "动力学",
+        "Adams",
+        "CAD"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-135": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "Linux",
+          "操作系统"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "Linux",
+        "操作系统"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-136": {
+      "fields": {
+        "required_skills": [
+          "C/C++",
+          "Linux",
+          "ROS2",
+          "数据结构",
+          "操作系统",
+          "计算机网络"
+        ]
+      },
+      "skill_mentions": [
+        "C/C++",
+        "Linux",
+        "ROS2",
+        "数据结构",
+        "操作系统",
+        "计算机网络"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-137": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "Linux",
+          "ROS2",
+          "运动学",
+          "动力学"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "Linux",
+        "ROS2",
+        "运动学",
+        "动力学"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-138": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "多模态",
+          "强化学习",
+          "模仿学习"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "多模态",
+        "强化学习",
+        "模仿学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-139": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "LLM",
+          "Agent",
+          "RAG",
+          "数据分析",
+          "SQL"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "LLM",
+        "Agent",
+        "RAG",
+        "数据分析",
+        "SQL"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-140": {
+      "fields": {
+        "required_skills": [
+          "VLM",
+          "LLM",
+          "Agent",
+          "Prompt Engineering",
+          "数据分析",
+          "产品设计"
+        ]
+      },
+      "skill_mentions": [
+        "VLM",
+        "LLM",
+        "Agent",
+        "Prompt Engineering",
+        "数据分析",
+        "产品设计"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-141": {
+      "fields": {
+        "required_skills": [
+          "Java",
+          "Spring Boot",
+          "LLM",
+          "Agent",
+          "LangChain",
+          "RAG",
+          "数据结构",
+          "操作系统",
+          "MySQL",
+          "Redis"
+        ]
+      },
+      "skill_mentions": [
+        "Java",
+        "Spring Boot",
+        "LLM",
+        "Agent",
+        "LangChain",
+        "RAG",
+        "数据结构",
+        "操作系统",
+        "MySQL",
+        "Redis"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-142": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "Java",
+          "Go",
+          "LLM",
+          "Agent",
+          "LangChain",
+          "RAG",
+          "数据结构"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "Java",
+        "Go",
+        "LLM",
+        "Agent",
+        "LangChain",
+        "RAG",
+        "数据结构"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-143": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "Agent",
+          "RAG",
+          "MCP",
+          "多模态",
+          "产品设计",
+          "原型设计"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "Agent",
+        "RAG",
+        "MCP",
+        "多模态",
+        "产品设计",
+        "原型设计"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-144": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "Java",
+          "Go",
+          "LLM",
+          "Agent",
+          "RAG",
+          "多模态"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "Java",
+        "Go",
+        "LLM",
+        "Agent",
+        "RAG",
+        "多模态"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-145": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "Linux",
+          "CUDA",
+          "TensorRT",
+          "深度学习",
+          "多线程"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "Linux",
+        "CUDA",
+        "TensorRT",
+        "深度学习",
+        "多线程"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-146": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "PyTorch",
+          "CUDA",
+          "TensorRT",
+          "LLM"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "PyTorch",
+        "CUDA",
+        "TensorRT",
+        "LLM"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-147": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "LLM",
+          "Agent",
+          "Prompt Engineering"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "LLM",
+        "Agent",
+        "Prompt Engineering"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-148": {
+      "fields": {
+        "required_skills": [
+          "LLM",
+          "RAG",
+          "知识图谱"
+        ]
+      },
+      "skill_mentions": [
+        "LLM",
+        "RAG",
+        "知识图谱"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-149": {
+      "fields": {
+        "required_skills": [
+          "交互设计",
+          "原型设计",
+          "竞品分析"
+        ]
+      },
+      "skill_mentions": [
+        "交互设计",
+        "原型设计",
+        "竞品分析"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-150": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus"
+      ],
+      "manual_notes": "已按公司官方2027届招聘详情页人工复核。"
+    },
+    "campus-ai-151": {
+      "fields": {
+        "required_skills": [
+          "编程能力",
+          "PyTorch",
+          "Transformer",
+          "DiT",
+          "Diffusion Model",
+          "Flow-Based Model",
+          "模仿学习",
+          "ACT",
+          "Diffusion Policy",
+          "VLA",
+          "WAM"
+        ]
+      },
+      "skill_mentions": [
+        "编程能力",
+        "PyTorch",
+        "Transformer",
+        "DiT",
+        "Diffusion Model",
+        "Flow-Based Model",
+        "模仿学习",
+        "ACT",
+        "Diffusion Policy",
+        "VLA",
+        "WAM"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-152": {
+      "fields": {
+        "required_skills": [
+          "VLA",
+          "RT-2",
+          "OpenVLA",
+          "Octo",
+          "π0",
+          "GR00T",
+          "PPO",
+          "SAC",
+          "RLHF",
+          "GAE",
+          "TD(λ)",
+          "机器人运动学",
+          "机器人动力学",
+          "WBC",
+          "PyTorch",
+          "CUDA",
+          "vLLM",
+          "Triton",
+          "Isaac Sim",
+          "MuJoCo",
+          "Genesis"
+        ]
+      },
+      "skill_mentions": [
+        "VLA",
+        "RT-2",
+        "OpenVLA",
+        "Octo",
+        "π0",
+        "GR00T",
+        "PPO",
+        "SAC",
+        "RLHF",
+        "GAE",
+        "TD(λ)",
+        "机器人运动学",
+        "机器人动力学",
+        "WBC",
+        "PyTorch",
+        "CUDA",
+        "vLLM",
+        "Triton",
+        "Isaac Sim",
+        "MuJoCo",
+        "Genesis"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-153": {
+      "fields": {
+        "required_skills": [
+          "LLM Agent",
+          "ReAct",
+          "Reflexion",
+          "LATS",
+          "AutoGPT",
+          "Prompt Engineering",
+          "Function Calling",
+          "Tool Use",
+          "Agent Workflow",
+          "TAMP",
+          "符号推理",
+          "几何推理",
+          "Learning-based Planning"
+        ]
+      },
+      "skill_mentions": [
+        "LLM Agent",
+        "ReAct",
+        "Reflexion",
+        "LATS",
+        "AutoGPT",
+        "Prompt Engineering",
+        "Function Calling",
+        "Tool Use",
+        "Agent Workflow",
+        "TAMP",
+        "符号推理",
+        "几何推理",
+        "Learning-based Planning"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-154": {
+      "fields": {
+        "required_skills": [
+          "操作系统",
+          "计算机体系结构",
+          "SGLang",
+          "vLLM",
+          "Megatron",
+          "CUDA",
+          "GPU性能优化",
+          "Triton",
+          "CUTLASS"
+        ]
+      },
+      "skill_mentions": [
+        "操作系统",
+        "计算机体系结构",
+        "SGLang",
+        "vLLM",
+        "Megatron",
+        "CUDA",
+        "GPU性能优化",
+        "Triton",
+        "CUTLASS"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-155": {
+      "fields": {
+        "required_skills": [
+          "编程能力",
+          "工程能力",
+          "AI Infra",
+          "大模型预训练"
+        ]
+      },
+      "skill_mentions": [
+        "编程能力",
+        "工程能力",
+        "AI Infra",
+        "大模型预训练"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-156": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "数据处理",
+          "分布式计算",
+          "数据 Pipeline",
+          "大模型数据工程",
+          "预训练数据配比",
+          "数据质量评估",
+          "合成数据",
+          "NLP",
+          "信息检索",
+          "数据挖掘",
+          "多模态数据"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "数据处理",
+        "分布式计算",
+        "数据 Pipeline",
+        "大模型数据工程",
+        "预训练数据配比",
+        "数据质量评估",
+        "合成数据",
+        "NLP",
+        "信息检索",
+        "数据挖掘",
+        "多模态数据"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-157": {
+      "fields": {
+        "required_skills": [
+          "Transformer",
+          "LLM",
+          "模型并行",
+          "PyTorch",
+          "JAX",
+          "高性能计算",
+          "Triton",
+          "CUDA"
+        ]
+      },
+      "skill_mentions": [
+        "Transformer",
+        "LLM",
+        "模型并行",
+        "PyTorch",
+        "JAX",
+        "高性能计算",
+        "Triton",
+        "CUDA"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-158": {
+      "fields": {
+        "required_skills": [
+          "数据结构与算法",
+          "操作系统",
+          "计算机网络",
+          "Go",
+          "Java",
+          "C++",
+          "Rust",
+          "AI Agent",
+          "LLM",
+          "微服务",
+          "gRPC",
+          "PostgreSQL",
+          "MySQL",
+          "Redis",
+          "消息队列",
+          "Kubernetes",
+          "CI/CD"
+        ]
+      },
+      "skill_mentions": [
+        "数据结构与算法",
+        "操作系统",
+        "计算机网络",
+        "Go",
+        "Java",
+        "C++",
+        "Rust",
+        "AI Agent",
+        "LLM",
+        "微服务",
+        "gRPC",
+        "PostgreSQL",
+        "MySQL",
+        "Redis",
+        "消息队列",
+        "Kubernetes",
+        "CI/CD"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "2027_campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-159": {
+      "fields": {
+        "required_skills": [
+          "强化学习",
+          "策略梯度",
+          "Actor-Critic",
+          "Self-Play",
+          "Meta-RL",
+          "MARL",
+          "分布式系统",
+          "Python",
+          "C++",
+          "Rust",
+          "Agentic RL",
+          "工具调用",
+          "多智能体系统"
+        ]
+      },
+      "skill_mentions": [
+        "强化学习",
+        "策略梯度",
+        "Actor-Critic",
+        "Self-Play",
+        "Meta-RL",
+        "MARL",
+        "分布式系统",
+        "Python",
+        "C++",
+        "Rust",
+        "Agentic RL",
+        "工具调用",
+        "多智能体系统"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-160": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "LLM",
+          "Agent",
+          "对话系统",
+          "VLM",
+          "视频理解",
+          "多模态",
+          "视频生成",
+          "Agent框架"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "LLM",
+        "Agent",
+        "对话系统",
+        "VLM",
+        "视频理解",
+        "多模态",
+        "视频生成",
+        "Agent框架"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-161": {
+      "fields": {
+        "required_skills": [
+          "DiT",
+          "视频生成",
+          "图像生成",
+          "Python",
+          "PyTorch",
+          "AIGC",
+          "多模态",
+          "计算机视觉"
+        ]
+      },
+      "skill_mentions": [
+        "DiT",
+        "视频生成",
+        "图像生成",
+        "Python",
+        "PyTorch",
+        "AIGC",
+        "多模态",
+        "计算机视觉"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-162": {
+      "fields": {
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "FFmpeg",
+          "ffprobe",
+          "H.264",
+          "H.265",
+          "CLIP",
+          "DINOv2",
+          "OCR",
+          "VLM",
+          "视频处理"
+        ]
+      },
+      "skill_mentions": [
+        "Python",
+        "PyTorch",
+        "FFmpeg",
+        "ffprobe",
+        "H.264",
+        "H.265",
+        "CLIP",
+        "DINOv2",
+        "OCR",
+        "VLM",
+        "视频处理"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-163": {
+      "fields": {
+        "required_skills": [
+          "机器学习",
+          "深度学习",
+          "计算机视觉",
+          "生成模型",
+          "模仿学习",
+          "强化学习",
+          "Python",
+          "PyTorch",
+          "机器人运动学",
+          "机器人动力学",
+          "机器人控制",
+          "Isaac Sim",
+          "Isaac Lab",
+          "MuJoCo",
+          "SAPIEN",
+          "Genesis"
+        ]
+      },
+      "skill_mentions": [
+        "机器学习",
+        "深度学习",
+        "计算机视觉",
+        "生成模型",
+        "模仿学习",
+        "强化学习",
+        "Python",
+        "PyTorch",
+        "机器人运动学",
+        "机器人动力学",
+        "机器人控制",
+        "Isaac Sim",
+        "Isaac Lab",
+        "MuJoCo",
+        "SAPIEN",
+        "Genesis"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-164": {
+      "fields": {
+        "required_skills": [
+          "C++",
+          "Python",
+          "ROS",
+          "PyTorch",
+          "TensorFlow",
+          "MuJoCo",
+          "Gazebo",
+          "NVIDIA Isaac",
+          "Sim-to-Real",
+          "强化学习"
+        ]
+      },
+      "skill_mentions": [
+        "C++",
+        "Python",
+        "ROS",
+        "PyTorch",
+        "TensorFlow",
+        "MuJoCo",
+        "Gazebo",
+        "NVIDIA Isaac",
+        "Sim-to-Real",
+        "强化学习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    },
+    "campus-ai-165": {
+      "fields": {
+        "required_skills": [
+          "MLLM",
+          "Qwen-Omni",
+          "MiniCPM-Omni",
+          "Cosmos",
+          "Genie",
+          "DUSt3R",
+          "CUT3R",
+          "VGGT",
+          "RayZer",
+          "3DGS",
+          "LRM",
+          "VLA",
+          "π0",
+          "GR00T",
+          "机器学习",
+          "深度学习",
+          "PyTorch",
+          "Python"
+        ]
+      },
+      "skill_mentions": [
+        "MLLM",
+        "Qwen-Omni",
+        "MiniCPM-Omni",
+        "Cosmos",
+        "Genie",
+        "DUSt3R",
+        "CUT3R",
+        "VGGT",
+        "RayZer",
+        "3DGS",
+        "LRM",
+        "VLA",
+        "π0",
+        "GR00T",
+        "机器学习",
+        "深度学习",
+        "PyTorch",
+        "Python"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high"
+      },
+      "reasons": [],
+      "source_flags": [],
+      "tags": [
+        "human_verified",
+        "official_page_verified",
+        "campus_or_internship"
+      ],
+      "manual_notes": "已按公司官网进入的官方招聘详情页人工复核，正文完整且投递按钮可用。"
+    }
+  }
+}

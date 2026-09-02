@@ -1,0 +1,222 @@
+{
+  "version": "ai-campus-label-overrides-v6-disputed-audit-2026-09-01",
+  "extends": [
+    "ai_campus_label_overrides_v5_skill_schema_reviewed.json"
+  ],
+  "label_status": "manual_rule_audited_v6",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "按 v5 字段定义复核 v11 Reviewed-20 剩余差异；只依据岗位原文修订，不以 prediction 是否命中作为标签依据。",
+  "audit_policy": {
+    "required_skills": "补入任职要求中以掌握、熟悉、具备、能够、深入理解或实际经验明确约束的技术能力。",
+    "deduplication": "同一要求已由 any_of 技能组完整表达时，不再重复标注其上位 required_skill。",
+    "canonicalization": "同类岗位使用相同复合标签；LLM Agent 不拆成 LLM 与 Agent，Agent 评测统一为 Agent评测。",
+    "preferred_skills": "原文明示优先或加分的具体技术实践应保留；项目荣誉、论文和泛化兴趣不作为技能。"
+  },
+  "review_decisions": [
+    {
+      "id": "B1",
+      "case_id": "campus-ai-089",
+      "field": "required_skills",
+      "decision": "删除模型训练；原文的大规模模型训练或分布式训练已由封闭 any_of 组完整表达，避免重复计分。"
+    },
+    {
+      "id": "B2",
+      "case_id": "campus-ai-092",
+      "field": "preferred_skills",
+      "decision": "补入 log2world；原文在加分项中明确要求 log2world 或 Sim-to-Real 实战经验。"
+    },
+    {
+      "id": "B3",
+      "case_id": "campus-ai-103",
+      "field": "required_skills / skill_mentions",
+      "decision": "补入代码组织、代码调试、问题定位、系统集成；计算机视觉、NLP、LLM、机器人仍只作相关方向提及，不误标为四项同时必备。"
+    },
+    {
+      "id": "B4",
+      "case_id": "campus-ai-108",
+      "field": "required_skills",
+      "decision": "补入完整开发流程中明确要求的工具集成、Skill 开发、应用部署、源码阅读、二次开发、代码审查、测试和工程化改造。"
+    },
+    {
+      "id": "B5",
+      "case_id": "campus-ai-109",
+      "field": "required_skills",
+      "decision": "LLM Agent 使用复合标签；保留熟悉条款中的七项核心技术，Agent Evaluation 统一为 Agent评测，并补入明确要求的 Bad Case 定位。"
+    },
+    {
+      "id": "B6",
+      "case_id": "campus-ai-152",
+      "field": "required_skills",
+      "decision": "补入理解条款中的动作空间设计、训练目标、推理机制，以及明确要求的连续动作空间训练经验。"
+    }
+  ],
+  "unchanged_cases": {
+    "campus-ai-061": "两个 any_of 组和编程语言组均有原文依据，差异属于 Parser 分组问题。",
+    "campus-ai-073": "Prompt Engineering 为直接必备，具体 Agent 框架为加分项，标签不变。",
+    "campus-ai-077": "传统运控、运控规划统一到运动控制；梯度估计和约束优化视为解释性子概念，标签不变。",
+    "campus-ai-087": "LLM 不是独立必备；GPU/NPU 算子开发、Triton、MLIR 是明确加分项，标签不变。",
+    "campus-ai-088": "沿用用户确认的 A3 开放图像算法组，软硬件协同设计只属于加分项。",
+    "campus-ai-100": "编程基础和前后端开发等标签均由原文直接支持，标签不变。",
+    "campus-ai-106": "评估模型训练代码不建立新的非标准技能标签，工程协作属于通用能力，标签不变。"
+  },
+  "cases": {
+    "campus-ai-089": {
+      "fields": {
+        "required_skills": [
+          "深度学习",
+          "3D视觉",
+          "PyTorch",
+          "CUDA",
+          "工程能力"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：模型训练方式已由 any_of 组表达，删除重复上位标签模型训练。"
+    },
+    "campus-ai-092": {
+      "fields": {
+        "preferred_skills": [
+          "世界模型复现",
+          "开源框架贡献",
+          "log2world",
+          "Sim-to-Real"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：加分项明确出现 log2world 与 Sim-to-Real 实战经验。"
+    },
+    "campus-ai-103": {
+      "fields": {
+        "required_skills": [
+          "Agent",
+          "Agent Loop",
+          "Tool Calling",
+          "Context Engineering",
+          "状态管理",
+          "任务规划",
+          "软件工程",
+          "编程能力",
+          "Python",
+          "系统设计",
+          "代码组织",
+          "代码调试",
+          "问题定位",
+          "异步编程",
+          "并发",
+          "系统集成"
+        ],
+        "skill_mentions": [
+          "计算机视觉",
+          "NLP",
+          "LLM",
+          "机器人",
+          "行为树",
+          "有限状态机",
+          "目标检测",
+          "图像识别",
+          "语义分割",
+          "视觉定位"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：补齐任职要求中的代码组织、调试、问题定位和系统集成；相关研究方向不拆成同时必备技能。"
+    },
+    "campus-ai-108": {
+      "fields": {
+        "required_skills": [
+          "软件工程",
+          "Python",
+          "TypeScript",
+          "JavaScript",
+          "Agent",
+          "LLM",
+          "Prompt Engineering",
+          "Context Engineering",
+          "Tool Calling",
+          "RAG",
+          "Memory",
+          "Skill",
+          "MCP",
+          "Multi-Agent",
+          "Agent Runtime",
+          "工具集成",
+          "Skill 开发",
+          "应用部署",
+          "源码阅读",
+          "二次开发",
+          "异步编程",
+          "API服务",
+          "数据库",
+          "缓存",
+          "消息队列",
+          "AI Coding",
+          "代码审查",
+          "测试",
+          "工程化改造"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：补齐任职要求第 4-7 条明确要求的完整开发、源码二开、部署与代码治理能力。"
+    },
+    "campus-ai-109": {
+      "fields": {
+        "required_skills": [
+          "LLM Agent",
+          "Agent Runtime",
+          "Context Engineering",
+          "Tool Calling",
+          "Planning",
+          "Memory",
+          "RAG",
+          "Skill",
+          "Agent评测",
+          "数据分析",
+          "实验设计",
+          "Bad Case 定位",
+          "Python"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：统一 LLM Agent 与 Agent评测命名；熟悉条款仍按必备技能处理，并补明确的 Bad Case 定位能力。"
+    },
+    "campus-ai-152": {
+      "fields": {
+        "required_skills": [
+          "动作空间设计",
+          "训练目标",
+          "推理机制",
+          "强化学习",
+          "连续动作空间中的训练经验",
+          "机器人运动学",
+          "机器人动力学",
+          "坐标系变换",
+          "关节空间与任务空间映射",
+          "WBC",
+          "PyTorch",
+          "机器人仿真平台",
+          "机器人部署"
+        ]
+      },
+      "tags": [
+        "v5_skill_schema_human_reviewed",
+        "v6_disputed_label_audited"
+      ],
+      "manual_notes": "v6：按理解规则补齐 VLA 架构机制三项，并补连续动作空间训练经验。"
+    }
+  }
+}

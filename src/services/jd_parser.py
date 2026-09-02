@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from src.domain.job import (
+    ParsingWarning,
     RawJobDocument,
     StructuredJobDescription,
     validate_field_evidence,
@@ -20,7 +21,7 @@ from src.infrastructure.llm_client import (
     StructuredModelRequest,
 )
 
-SCHEMA_VERSION = "structured-job-description-v1"
+SCHEMA_VERSION = "structured-job-description-v2"
 SCHEMA_NAME = "job_description"
 DEFAULT_PROMPT_VERSION = "jd-parser-prompt-v4"
 
@@ -61,6 +62,7 @@ class ParsedJobDescription:
     parser_version: str
     prompt_version: str
     model: str
+    warnings: tuple[ParsingWarning, ...] = ()
 
 
 class JDParser:

@@ -1,0 +1,177 @@
+{
+  "version": "ai-campus-label-overrides-v13-holdout7-smoke5-frozen-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout7_smoke5_v13_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据第七批未见候选池中固定种子抽取的 5 条原始 JD 和既定标注规则人工复核；冻结前未读取或生成这些样本的 v19 模型预测。",
+  "annotation_rules": {
+    "required_skills": "只标任职要求中由必须、掌握、熟悉、具备、精通或无弱化修饰的理解等措辞直接约束，且必须同时满足的原子技术能力。",
+    "required_skill_groups": "只在必备条款原文明示至少一种、任一种、A 或 B、从若干项中选择时使用 any_of；弱要求和优先条款中的选择关系不建立必备组。",
+    "preferred_skills": "原文明示优先、加分的原子技术能力或技术项目经验；论文、竞赛、兴趣以及与必备重复的字段不计入。",
+    "skill_mentions": "职责段技术、了解或基础认知、示例名、备选组选项和其他非独立硬门槛技术，仅用于追溯。",
+    "exclusions": "学历、专业、论文、竞赛、兴趣及沟通、学习、责任心等软能力不作为技能标签。"
+  },
+  "case_ids": [
+    "campus-ai-093",
+    "campus-ai-104",
+    "campus-ai-140",
+    "campus-ai-137",
+    "campus-ai-040"
+  ],
+  "cases": {
+    "campus-ai-093": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": [
+          "Transformer", "大模型训练", "模型推理", "PyTorch", "分布式训练",
+          "大规模分布式系统", "性能调优", "计算机体系结构", "操作系统", "计算机网络"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "大模型框架开发", "GPU Kernel优化", "CUDA", "Triton", "大规模训练",
+          "模型部署", "云平台AI负载管理"
+        ]
+      },
+      "skill_mentions": [
+        "Transformer", "大模型训练", "模型推理", "PyTorch", "分布式训练", "DDP",
+        "FSDP", "大规模分布式系统", "性能调优", "Nsight Systems", "Profiler",
+        "计算机体系结构", "操作系统", "计算机网络", "DeepSpeed", "Megatron-LM",
+        "vLLM", "SGLang", "GPU Kernel优化", "CUDA", "Triton", "大规模训练",
+        "模型部署", "云平台AI负载管理"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v13_holdout7_smoke5_human_reviewed", "distributed_llm_systems", "preferred_examples_separated"],
+      "manual_notes": "DDP/FSDP、DeepSpeed 等具体框架名作为括号或等字引出的示例进入 mentions；必备与加分能力按上位技术能力标注。"
+    },
+    "campus-ai-104": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳"],
+        "required_skills": [
+          "Python", "C++", "PyTorch", "工程实现", "VLA", "具身大模型", "模型微调",
+          "大模型后训练", "数据准备", "模型训练", "真机验证", "真机调试", "机器人问题诊断"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "驻场调试", "机器人操作算法落地", "机器人项目交付", "World Action Model",
+          "Imitation Learning", "强化学习", "数据驱动模型迭代", "数据质量", "数据配比", "数据增强"
+        ]
+      },
+      "skill_mentions": [
+        "Python", "C++", "PyTorch", "VLA", "具身大模型", "模型微调", "大模型后训练",
+        "数据准备", "模型训练", "真机验证", "真机调试", "机器人问题诊断", "驻场调试",
+        "机器人操作算法落地", "机器人项目交付", "World Action Model", "OpenVLA", "π系列",
+        "WALL-OSS", "Dream-Zero", "Imitation Learning", "强化学习", "数据驱动模型迭代",
+        "数据质量", "数据配比", "数据增强"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v13_holdout7_smoke5_human_reviewed", "embodied_post_training", "papers_competitions_excluded"],
+      "manual_notes": "VLA/具身大模型后训练及全流程真机验证属于必备；长时间驻场、场景落地、训练范式和数据迭代属于优先；论文与竞赛排除。"
+    },
+    "campus-ai-140": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "合肥"],
+        "required_skills": ["AI技术理解", "AI工具使用", "数据分析", "数据驱动产品决策"],
+        "required_skill_groups": [],
+        "preferred_skills": ["AI产品实践", "Prompt Engineering", "AI Agent产品设计", "产品实习"]
+      },
+      "skill_mentions": [
+        "AI技术理解", "AI工具使用", "AI产品", "LLM", "VLM", "大模型原理",
+        "AI能力边界理解", "大模型应用", "Prompt Engineering", "AI Agent产品设计",
+        "数据分析", "数据驱动产品决策", "产品实习"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v13_holdout7_smoke5_human_reviewed", "ai_product", "weak_understanding_mentions"],
+      "manual_notes": "LLM/VLM 基本原理与能力边界位于了解条款，只作 mentions；明确优先的 AI 产品、Prompt 和 Agent 产品设计经验进入 preferred；hackathon 不作为技能。"
+    },
+    "campus-ai-137": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "控制理论", "机器人运动学", "机器人动力学", "PID", "MPC", "阻抗控制",
+          "力控制", "轨迹规划", "C++", "Python", "Linux"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "ROS", "ROS2", "实时控制", "嵌入式控制", "机器人项目", "开源项目",
+          "真机调试", "工程闭环"
+        ]
+      },
+      "skill_mentions": [
+        "运动控制", "控制理论", "机器人运动学", "机器人动力学", "PID", "MPC",
+        "阻抗控制", "力控制", "轨迹规划", "C++", "Python", "Linux", "ROS", "ROS2",
+        "实时控制", "嵌入式控制", "机器人项目", "机械臂", "足式机器人", "人形机器人",
+        "开源项目", "真机调试", "工程闭环"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v13_holdout7_smoke5_human_reviewed", "robot_control", "competition_papers_excluded"],
+      "manual_notes": "控制基础与编程环境为必备；ROS、实时/嵌入式控制项目和工程成果为优先；竞赛名称与论文不作为技能。"
+    },
+    "campus-ai-040": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "深圳"],
+        "required_skills": [
+          "计算机基础知识", "数据结构", "算法", "计算机网络", "操作系统", "AI Coding",
+          "AI工具使用", "编程规范", "代码管理", "Git", "工程化实践", "系统开发", "性能优化"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "开发领域",
+            "any_of": ["前端开发", "客户端开发", "服务端开发"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["全栈开发", "多端开发", "开源项目贡献"]
+      },
+      "skill_mentions": [
+        "计算机基础知识", "数据结构", "算法", "计算机网络", "操作系统", "前端开发",
+        "客户端开发", "服务端开发", "JavaScript", "TypeScript", "Vue", "React", "Flutter",
+        "iOS", "Android", "Go", "Python", "Java", "全栈开发", "多端开发", "AI Coding",
+        "AI工具使用", "TRAE", "Cursor", "代码管理", "Git", "设计模式", "开发原则",
+        "工程化实践", "系统开发", "性能优化", "开源项目贡献"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v13_holdout7_smoke5_human_reviewed", "nested_development_alternatives", "ai_fullstack"],
+      "manual_notes": "原文要求前端、客户端、服务端至少一个领域，按上位开发领域建立封闭组；括号内技术是各领域示例；全栈、多端和开源贡献属于优先。"
+    }
+  }
+}

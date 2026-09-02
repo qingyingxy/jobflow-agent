@@ -1,0 +1,642 @@
+{
+  "version": "ai-campus-label-overrides-v14-remaining51-dev21-reviewed-2026-09-02",
+  "extends": [],
+  "label_status": "human_reviewed_remaining51_dev21_v1_frozen",
+  "annotation_guide_version": "ai-campus-annotation-guide-v1",
+  "reviewed_at": "2026-09-02",
+  "review_basis": "仅依据固定划分中的 21 条 dev 原始 JD 和标注规范 v1 人工复核；未读取或生成这些样本的 Parser prediction。",
+  "case_ids": [
+    "campus-ai-001", "campus-ai-008", "campus-ai-011", "campus-ai-015",
+    "campus-ai-023", "campus-ai-024", "campus-ai-027", "campus-ai-029",
+    "campus-ai-032", "campus-ai-037", "campus-ai-078", "campus-ai-080",
+    "campus-ai-097", "campus-ai-102", "campus-ai-116", "campus-ai-121",
+    "campus-ai-126", "campus-ai-128", "campus-ai-142", "campus-ai-147",
+    "campus-ai-160"
+  ],
+  "cases": {
+    "campus-ai-001": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "深圳", "成都"],
+        "required_skills": [
+          "LLM", "编程能力", "模型微调", "模型对齐", "算法实现",
+          "AI系统调优", "AI系统集成", "模型调参", "Pipeline优化", "模型部署"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "Agent框架",
+            "any_of": ["LangChain", "AutoGen"],
+            "allow_other": true
+          },
+          {
+            "name": "生成算法方向",
+            "any_of": ["生成式算法", "强化学习"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["分布式机器学习"]
+      },
+      "skill_mentions": [
+        "LLM", "Agent", "Agent框架", "Agent评测", "模型微调", "算法调优",
+        "大模型推理", "规划", "工具使用", "结构化输出", "编程能力",
+        "LangChain", "AutoGen", "模型对齐", "算法实现", "生成式算法",
+        "强化学习", "分布式机器学习", "AI系统调优", "AI系统集成",
+        "模型调参", "Pipeline优化", "模型部署"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "open_agent_framework_group"],
+      "manual_notes": "至少一种智能体框架建立开放 any_of；生成式算法或强化学习建立封闭 any_of；分布式机器学习只属于优先条件。"
+    },
+    "campus-ai-008": {
+      "fields": {
+        "locations": ["深圳"],
+        "required_skills": ["机器学习", "深度学习", "算法实现", "算法创新"],
+        "required_skill_groups": [
+          {
+            "name": "研究方向经验",
+            "any_of": ["LLM方向经验", "穿戴模型方向经验"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["电生理信号", "电生理信号项目"]
+      },
+      "skill_mentions": [
+        "电生理信号处理", "电生理信号分析", "数据可视化", "时序数据",
+        "表征学习", "自监督学习", "模型可解释性", "跨域泛化", "知识抽取",
+        "知识存储", "知识建模", "知识挖掘", "实体链接", "关系抽取",
+        "知识推理", "知识融合", "机器学习", "深度学习", "深度学习框架",
+        "算法实现", "LLM方向经验", "穿戴模型方向经验", "Multi-Agent",
+        "LLM强化学习", "Diffusion Model", "Masked Autoencoder",
+        "Contrastive Learning", "生理时序信号建模", "ECG", "EEG", "PPG",
+        "IMU", "算法创新", "电生理信号", "电生理信号项目"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "nested_direction_alternative", "job_type_metadata_only"],
+      "manual_notes": "原文未披露招聘类型，严格 manifest 排除 job_type。‘任一方向经验均可’按两个上位方向建组；分支内部技术仅作 mentions，避免把条件技能当成全局必备。"
+    },
+    "campus-ai-011": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["机器学习", "深度学习", "Transformer", "LLM", "Python", "深度学习框架"],
+        "required_skill_groups": [],
+        "preferred_skills": ["大模型训练", "NLP项目"]
+      },
+      "skill_mentions": [
+        "LLM", "大模型预训练", "大模型后训练", "SFT", "RLHF", "推理",
+        "代码生成", "多轮对话", "知识问答", "强化学习", "RAG", "CoT",
+        "数据策略", "模型评测", "机器学习", "深度学习", "Transformer",
+        "Python", "深度学习框架", "PyTorch", "PaddlePaddle", "大模型训练", "NLP项目"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "framework_examples_separated"],
+      "manual_notes": "PyTorch/PaddlePaddle 是深度学习框架示例，必备标上位框架能力，具体框架进入 mentions；大模型训练与 NLP 项目经历属于优先。"
+    },
+    "campus-ai-015": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": [
+          "LLM", "大模型预训练", "模型微调", "强化学习", "模型优化策略",
+          "数据分析", "模型效果分析", "训练策略诊断", "数据问题诊断"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": ["工业级基础大模型研发"]
+      },
+      "skill_mentions": [
+        "LLM", "Coding", "Agentic Intelligence", "Reasoning", "大模型预训练",
+        "中训练", "稀疏模型", "长上下文建模", "优化器", "训练算法",
+        "表征学习", "数据策略", "大模型后训练", "模型对齐", "强化学习",
+        "模型合并", "监督学习", "数据去重", "数据质量", "合成数据",
+        "对齐数据", "模型微调", "模型优化策略", "数据分析", "模型效果分析",
+        "训练策略诊断", "数据问题诊断", "工业级基础大模型研发"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "foundation_model"],
+      "manual_notes": "论文和竞赛排除；工业级基础大模型研发经验为优先，其余直接能力要求按原文保留。"
+    },
+    "campus-ai-023": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["杭州", "上海"],
+        "required_skills": ["计算机基础知识", "编程基础", "LLM原理"],
+        "required_skill_groups": [
+          {
+            "name": "Agent技术领域",
+            "any_of": ["Multi-Agent", "任务分解", "自动化规划", "Prompt Engineering"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": [
+          "AI Agent项目", "Prompt优化", "Multi-Agent系统搭建",
+          "Agent落地应用", "AI Driven IDE"
+        ]
+      },
+      "skill_mentions": [
+        "Agent", "任务规划", "任务拆解", "Multi-Agent", "上下文管理", "LLM",
+        "计算机基础知识", "编程基础", "LLM原理", "任务分解", "自动化规划",
+        "Prompt Engineering", "AI Agent项目", "Prompt优化", "Multi-Agent系统搭建",
+        "Agent落地应用", "AI Driven IDE"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "explicit_one_or_more_group"],
+      "manual_notes": "‘技术领域之一或多个’建立开放 any_of；AI Agent 实践以及加分项中的实践经验均进入 preferred。"
+    },
+    "campus-ai-024": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "北京", "深圳", "杭州"],
+        "required_skills": [
+          "LLM", "Agent", "Agent Harness", "Agent Harness优化",
+          "AI Agent工具使用", "AI辅助编程"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "Agent Harness", "Agent Harness优化", "Harness架构设计", "Built-in Tools",
+        "Context Engineering", "Multi-Agent", "Agent调度", "模型选择", "Agent评测",
+        "LLM", "Agent", "AI Agent工具使用", "AI辅助编程", "LLM API", "Reasoning",
+        "KV Cache", "Tool Use", "Skills", "ReAct", "MCP", "A2A",
+        "Function Calling", "Agent构建", "RAG", "OpenClaw", "HermesAgent",
+        "Codex", "Claude Code", "Managed Agent"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "weak_understanding_mentions"],
+      "manual_notes": "第 3-5 条均以‘了解’表述，只进入 mentions；Agent Harness 优化、AI Agent 工具使用和 AI 辅助编程为直接必备。"
+    },
+    "campus-ai-027": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": [
+          "计算机基础知识", "数据结构", "算法", "操作系统", "Prompt Engineering",
+          "RAG", "Function Calling", "Fine-Tuning数据工程", "长文本处理", "LLM应用开发"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "Agent开发经验",
+            "any_of": ["Agent框架使用", "Agent架构设计"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["Agent Skills"]
+      },
+      "skill_mentions": [
+        "Agent架构", "微服务", "Agent应用", "自动化工作流", "推荐系统", "AIGC",
+        "Multi-Agent", "Agent编排", "Agent调度", "任务分解", "消息通信",
+        "可观测性", "流式计算", "NLP", "Embedding", "增量聚类", "高并发",
+        "性能调优", "容量规划", "故障排查", "计算机基础知识", "数据结构",
+        "算法", "操作系统", "Prompt Engineering", "RAG", "Function Calling",
+        "Fine-Tuning数据工程", "长文本处理", "LLM", "Agent Skills", "LLM应用开发",
+        "Agent框架使用", "Agent架构设计", "LangChain", "LlamaIndex", "AutoGen", "CrewAI"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "nested_agent_experience_group"],
+      "manual_notes": "LLM 应用开发是直接要求；Agent 框架使用或自主架构设计建立上位 any_of，具体框架作为示例 mentions；Agent Skills 经验保留为优先。"
+    },
+    "campus-ai-029": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海", "深圳"],
+        "required_skills": [
+          "Python", "Go", "编程能力", "算法设计", "LLM项目开发",
+          "LLM效果调优", "LLM API", "Prompt调试", "Context调试"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "Agent框架",
+            "any_of": ["Eino", "LangGraph"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "Agent", "Agent架构", "LLM", "规划", "推理", "记忆管理", "工具使用",
+        "多模态", "Agent评测", "Prompt优化", "工作流", "模型后训练", "Python",
+        "Go", "编程能力", "算法设计", "Eino", "LangGraph", "LLM项目开发",
+        "LLM效果调优", "LLM API", "Prompt调试", "Context调试"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "open_agent_framework_group"],
+      "manual_notes": "Python/Golang 是未弱化的普通斜杠枚举，按 all_of；‘至少一种主流框架’使用开放 any_of。"
+    },
+    "campus-ai-032": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "杭州"],
+        "required_skills": ["计算机基础知识", "编程基础", "LLM原理"],
+        "required_skill_groups": [
+          {
+            "name": "Agent技术领域",
+            "any_of": ["Multi-Agent", "任务分解", "自动化规划", "Prompt Engineering"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": ["AI Agent项目"]
+      },
+      "skill_mentions": [
+        "Agent", "任务规划", "任务拆解", "Multi-Agent", "上下文管理", "LLM",
+        "计算机基础知识", "编程基础", "LLM原理", "任务分解", "自动化规划",
+        "Prompt Engineering", "AI Agent项目"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "explicit_one_or_more_group"],
+      "manual_notes": "与 023 相同的‘之一或多个’条款使用统一上位技能组；项目实践是优先条件。"
+    },
+    "campus-ai-037": {
+      "fields": {
+        "job_type": "campus",
+        "required_skills": ["编程基础"],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Python", "Go", "Java", "C++"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": ["AI项目", "开源实践"]
+      },
+      "skill_mentions": [
+        "Agent", "LLM", "RAG", "工具使用", "任务编排", "上下文管理",
+        "Agent评测", "可观测性", "Multi-Agent", "代码生成", "编程基础",
+        "Python", "Go", "Java", "C++", "大模型应用开发", "Prompt Engineering",
+        "Tool Calling", "AI项目", "开源实践"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "location_metadata_only", "open_language_group"],
+      "manual_notes": "原文未披露地点，严格 manifest 排除 locations。至少一门语言建立开放 any_of；‘了解’的大模型应用技术只作 mentions。"
+    },
+    "campus-ai-078": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": [
+          "深度学习", "LLM", "Python", "PyTorch", "论文复现", "模型训练",
+          "工程实现", "机器人感知", "机器人动作", "时序决策", "跨场景泛化"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "模型与机器人学习方向",
+            "any_of": [
+              "多模态大模型", "视频生成", "世界模型", "VLA",
+              "模仿学习", "强化学习", "机器人学习"
+            ],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["机器人项目"]
+      },
+      "skill_mentions": [
+        "世界模型", "多模态建模", "视频生成", "动作生成", "机器人策略学习",
+        "动作表示", "多模态数据", "深度学习", "LLM", "Python", "PyTorch",
+        "论文复现", "模型训练", "工程实现", "多模态大模型", "VLA", "模仿学习",
+        "强化学习", "机器人学习", "机器人感知", "机器人动作", "时序决策",
+        "跨场景泛化", "机器人项目"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "explicit_direction_group"],
+      "manual_notes": "‘一个或多个方向’建立封闭 any_of；真实机器人问题的理解为直接要求，机器人经验为优先。"
+    },
+    "campus-ai-080": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": [
+          "GPU体系结构", "CUDA", "Triton", "深度学习框架原理",
+          "大模型分布式训练", "多模态模型结构", "推理引擎底层机制",
+          "推理引擎源码开发", "模型量化", "模型剪枝", "模型蒸馏",
+          "投机推理", "步数蒸馏", "模型小型化"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["C++", "Python"],
+            "allow_other": false
+          },
+          {
+            "name": "推理引擎",
+            "any_of": ["vLLM", "SGLang", "TensorRT-LLM", "NVIDIA Dynamo"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "大模型训练系统", "分布式推理", "VLM", "VLA", "模型加速",
+        "GPU体系结构", "CUDA", "Triton", "C++", "Python", "PyTorch",
+        "深度学习框架原理", "大模型分布式训练", "Tensor Parallel",
+        "Pipeline Parallel", "Sequence Parallel", "多模态模型结构", "ViT", "DiT",
+        "Qwen-VL", "Llama", "vLLM", "SGLang", "TensorRT-LLM", "NVIDIA Dynamo",
+        "推理引擎底层机制", "推理引擎源码开发", "模型量化", "模型剪枝",
+        "模型蒸馏", "投机推理", "步数蒸馏", "模型小型化"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "language_and_engine_groups"],
+      "manual_notes": "C++ 或 Python 建封闭组；至少一种推理引擎建开放组。PyTorch、ViT、DiT 和并行策略是上位要求的示例，进入 mentions。"
+    },
+    "campus-ai-097": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["工程能力"],
+        "required_skill_groups": [
+          {
+            "name": "系统基础",
+            "any_of": ["操作系统", "计算机网络", "数据库", "分布式系统"],
+            "allow_other": false
+          },
+          {
+            "name": "编程语言",
+            "any_of": ["Go", "Python", "Java", "C++"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": ["Prometheus", "Grafana", "OpenTelemetry", "ClickHouse", "Elasticsearch"]
+      },
+      "skill_mentions": [
+        "可观测性", "指标采集", "日志", "Trace", "事件采集", "故障归因",
+        "异常检测", "成本分析", "链路回放", "操作系统", "计算机网络", "数据库",
+        "分布式系统", "Prometheus", "Grafana", "OpenTelemetry", "ClickHouse",
+        "Elasticsearch", "工程能力", "Go", "Python", "Java", "C++",
+        "大模型训练", "模型推理", "Agent可观测性"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "system_and_language_groups"],
+      "manual_notes": "系统基础的‘或’和语言的‘至少一种’分别建组；可观测工具明确受‘优先’支配。"
+    },
+    "campus-ai-102": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "机器人运动学", "机器人动力学", "控制理论", "Python", "代码实现", "实验分析"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "学习方法",
+            "any_of": ["强化学习", "模仿学习", "深度学习"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [
+          "PPO", "SAC", "Behavior Cloning", "Diffusion Policy",
+          "机器人仿真平台", "机器人真机部署", "机器人开源项目"
+        ]
+      },
+      "skill_mentions": [
+        "强化学习", "模仿学习", "Sim-to-Real", "机器人运动控制", "域随机化",
+        "真机调试", "PPO", "SAC", "Behavior Cloning", "Diffusion Policy",
+        "机器人运动学", "机器人动力学", "控制理论", "MPC", "全身控制",
+        "轨迹跟踪", "平衡控制", "Python", "代码实现", "实验分析",
+        "机器人仿真平台", "Isaac Gym", "MuJoCo", "Isaac Sim", "机器人真机部署",
+        "机器人开源项目", "深度学习"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "learning_method_group"],
+      "manual_notes": "一种或多种学习方法建立封闭组；PPO 等基本思想和仿真平台经验为优先，具体仿真器进入 mentions；论文竞赛排除。"
+    },
+    "campus-ai-116": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳"],
+        "required_skills": ["面向对象编程", "软件质量", "代码审查", "AI Coding工具使用"],
+        "required_skill_groups": [],
+        "preferred_skills": ["具身智能项目", "ROS", "ROS2", "通信框架"]
+      },
+      "skill_mentions": [
+        "具身智能系统集成", "自动化验收工具链", "资源分配", "性能优化",
+        "功能验证", "联合调试", "具身智能项目", "面向对象编程", "ROS", "ROS2",
+        "通信框架", "软件质量", "代码审查", "AI Coding工具使用"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "preferred_ros_clause"],
+      "manual_notes": "原文没有列出面向对象语言选项，因此保留上位必备能力，不构造单选组；ROS/ROS2/通信框架受‘优先’支配。"
+    },
+    "campus-ai-121": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["操作系统", "调度算法", "分布式系统", "Kubernetes", "工程能力"],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Go", "Python", "C++"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [
+          "kube-scheduler", "调度队列", "资源模型", "亲和性调度", "反亲和性调度",
+          "Volcano", "Koordinator", "在线离线混部", "资源利用率优化"
+        ]
+      },
+      "skill_mentions": [
+        "CPU资源调度", "Kubernetes", "kube-scheduler", "Volcano", "Koordinator",
+        "在线离线混部", "优先级调度", "弹性伸缩", "负载感知调度", "容量治理",
+        "资源碎片优化", "操作系统", "调度算法", "分布式系统", "调度队列",
+        "资源模型", "亲和性调度", "反亲和性调度", "Go", "Python", "C++",
+        "工程能力", "资源利用率优化"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "language_group_and_scheduler_preferences"],
+      "manual_notes": "Kubernetes 基础原理是必备；后续‘了解……机制优先’和调度项目经历均为 preferred；至少一种语言建立封闭组。"
+    },
+    "campus-ai-126": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州", "重庆"],
+        "required_skills": ["编程基础", "工程能力", "AI Coding工具使用"],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "AI Coding项目", "跨平台开发", "多端开发", "全栈开发",
+          "Agent系统", "RAG", "Multi-Agent", "LLM原理"
+        ]
+      },
+      "skill_mentions": [
+        "iOS", "Android", "HarmonyOS", "性能优化", "AI Native", "AI Coding评测",
+        "编程基础", "工程能力", "AI Coding工具使用", "Trae", "Claude Code", "Codex",
+        "AI Coding项目", "跨平台开发", "KMP", "React Native", "多端开发",
+        "全栈开发", "Agent系统", "RAG", "Multi-Agent", "LLM原理"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "bonus_technologies"],
+      "manual_notes": "Agent/RAG/多智能体和 LLM 原理均位于加分项，不作为硬门槛；KMP/RN 是跨平台技术示例，进入 mentions。"
+    },
+    "campus-ai-128": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": [
+          "材料力学", "结构力学", "有限元", "结构受力分析", "疲劳分析", "失效分析"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "CAE工具使用", "Python", "MATLAB", "数据处理", "仿真自动化", "机器人CAE分析"
+        ]
+      },
+      "skill_mentions": [
+        "有限元建模", "力学仿真", "结构优化", "强度分析", "刚度分析", "模态分析",
+        "疲劳分析", "材料力学", "结构力学", "有限元", "结构受力分析", "失效分析",
+        "CAE工具使用", "Ansys", "Abaqus", "Nastran", "HyperWorks", "LS-DYNA",
+        "Python", "MATLAB", "数据处理", "仿真自动化", "机器人CAE分析"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "preferred_cae_tools"],
+      "manual_notes": "CAE 工具和 Python/MATLAB 均受‘优先’支配；工具名是上位 CAE 能力的示例，保留在 mentions。"
+    },
+    "campus-ai-142": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["编程能力", "数据结构", "Web漏洞"],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "模型微调", "云安全", "DevSecOps", "Physical AI安全", "漏洞挖掘",
+          "LLM项目", "Agent项目", "LangChain", "Garak", "Physical AI安全开源项目"
+        ]
+      },
+      "skill_mentions": [
+        "LLM安全", "Agent安全", "RAG安全", "红队测试", "渗透测试", "Prompt注入",
+        "Web安全", "API安全", "移动端安全", "安全Agent", "SFT", "RLHF", "代码扫描",
+        "SCA", "漏洞研判", "Physical AI安全", "威胁情报", "隐私计算", "对抗防御",
+        "数据安全", "SBOM", "开源合规", "SOTIF", "编程能力", "Python", "Java",
+        "C++", "Go", "数据结构", "LLM", "Agent", "RAG", "OWASP Top 10 for LLM",
+        "Web漏洞", "模型微调", "云安全", "DevSecOps", "漏洞挖掘", "LLM项目",
+        "Agent项目", "LangChain", "Garak", "Physical AI安全开源项目"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "security_preferences"],
+      "manual_notes": "括号中的编程语言是编程能力示例；LLM/Agent/RAG 与 OWASP 使用‘了解’，只作 mentions；Web 漏洞为直接熟悉要求，其余明确优先或加分。"
+    },
+    "campus-ai-147": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳"],
+        "required_skills": ["AI技术理解", "需求分析", "逻辑拆解", "文档撰写"],
+        "required_skill_groups": [],
+        "preferred_skills": ["Python", "低代码平台", "产品实习", "AI项目"]
+      },
+      "skill_mentions": [
+        "AI Agent", "Skill", "AI应用开发", "AI翻译", "AI内容生成", "模型调用",
+        "Prompt Engineering", "Bad Case 定位", "Agent框架", "Agent Harness", "AI技术理解",
+        "LLM", "Python", "低代码平台", "产品实习", "AI项目", "需求分析",
+        "逻辑拆解", "文档撰写"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "ai_product_role"],
+      "manual_notes": "大模型、Prompt 和 Agent 只受‘了解’约束；Python/低代码与项目经历为加分或优先。需求分析等产品工作能力是直接要求。"
+    },
+    "campus-ai-160": {
+      "fields": {
+        "job_type": "internship",
+        "locations": ["北京"],
+        "required_skills": ["工程基础", "系统基础", "Python", "LLM", "Agent", "Agent开发", "模型训练"],
+        "required_skill_groups": [
+          {
+            "name": "应用构建经验",
+            "any_of": ["对话系统", "Agent应用"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [
+          "多模态", "视频生成", "图像生成", "VLM训练", "Agent框架", "实时交互系统"
+        ]
+      },
+      "skill_mentions": [
+        "视频Agent", "VLM训练", "VLM评测", "多轮对话", "意图识别", "上下文管理",
+        "工具调用", "Agent编排", "Agent决策", "流式低延迟", "工程基础", "系统基础",
+        "Python", "LLM", "Agent", "Agent开发", "对话系统", "Agent应用", "VLM",
+        "视频理解", "模型训练", "多模态", "视频生成", "图像生成", "Agent框架",
+        "实时交互系统"
+      ],
+      "field_confidence": {
+        "job_type": "high", "locations": "high", "required_skills": "high",
+        "required_skill_groups": "high", "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v14_remaining51_dev21_reviewed", "internship", "application_experience_group"],
+      "manual_notes": "对话系统或 Agent 应用的实际经验建立封闭 any_of；VLM/视频理解为弱了解，模型训练基础为必备；有经验者优先的方向进入 preferred。"
+    }
+  }
+}

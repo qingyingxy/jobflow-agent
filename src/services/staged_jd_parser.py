@@ -21,7 +21,11 @@ from src.domain.skill_normalizer import (
     normalize_skill_values,
 )
 from src.infrastructure.llm_client import StructuredModelClient
-from src.services.core_jd_parser import CoreJDParser, ParsedCoreJobDescription
+from src.services.core_jd_parser import (
+    DEFAULT_CORE_PROMPT_VERSION,
+    CoreJDParser,
+    ParsedCoreJobDescription,
+)
 from src.services.detail_jd_parser import (
     DEFAULT_DETAIL_PROMPT_VERSION,
     DetailJDParser,
@@ -33,8 +37,8 @@ from src.services.jd_parser import (
     ParsedJobDescription,
 )
 
-DEFAULT_STAGED_PROMPT_VERSION = "jd-staged-parser-prompt-v1"
-DEFAULT_STAGED_PARSER_VERSION = "jd-staged-parser-v1"
+DEFAULT_STAGED_PROMPT_VERSION = "jd-staged-parser-prompt-v2"
+DEFAULT_STAGED_PARSER_VERSION = "jd-staged-parser-v17"
 
 
 class StagedJDParser:
@@ -46,7 +50,7 @@ class StagedJDParser:
         *,
         prompt_version: str = DEFAULT_STAGED_PROMPT_VERSION,
         parser_version: str = DEFAULT_STAGED_PARSER_VERSION,
-        core_prompt_version: str = "jd-core-parser-prompt-v1",
+        core_prompt_version: str = DEFAULT_CORE_PROMPT_VERSION,
         detail_prompt_version: str = DEFAULT_DETAIL_PROMPT_VERSION,
         validation_retries: int = 1,
     ) -> None:
@@ -111,6 +115,7 @@ class StagedJDParser:
             parser_version=self.parser_version,
             prompt_version=self.prompt_version,
             model=detail.model,
+            warnings=core.warnings,
         )
 
     @staticmethod
@@ -243,7 +248,9 @@ def _assemble_structured_jd(
         "education_requirements": education_requirements,
         "major_requirements": major_requirements,
         "required_skills": required_skills,
+        "required_skill_groups": core.fields.required_skill_groups,
         "preferred_skills": preferred_skills,
+        "skill_mentions": core.fields.skill_mentions,
         "internship_duration_months": internship_duration_months,
         "weekly_days": weekly_days,
         "earliest_start_date": earliest_start_date,
@@ -315,6 +322,15 @@ def _build_requirements(
             name=skill,
             description=f"岗位明确要求 {skill}",
             mandatory=True,
+            anchor=skill_sources.get(skill),
+        )
+
+    for skill in core.fields.preferred_skills or []:
+        add_requirement(
+            category="preferred_skill",
+            name=skill,
+            description=f"岗位将 {skill} 作为加分项或优先条件",
+            mandatory=False,
             anchor=skill_sources.get(skill),
         )
 

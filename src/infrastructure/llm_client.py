@@ -240,9 +240,21 @@ def _demo_job_description(request: StructuredModelRequest) -> dict[str, Any]:
 
 def _demo_core_job_fields(request: StructuredModelRequest) -> dict[str, Any]:
     output = _demo_job_description(request)
+    skill_clauses = [
+        {
+            "source_text": requirement["evidence"][0]["source_text"],
+            "strength": "required",
+            "relation": "all_of",
+            "skills": [requirement["name"]],
+        }
+        for requirement in output.get("requirements") or []
+        if requirement.get("category") == "required_skill"
+        and requirement.get("evidence")
+    ]
     return {
-        field_name: output.get(field_name)
-        for field_name in ("job_type", "locations", "required_skills")
+        "job_type": output.get("job_type"),
+        "locations": output.get("locations"),
+        "skill_clauses": skill_clauses or None,
     }
 
 

@@ -80,9 +80,14 @@ def build_manifest(
     split: str = "eval",
     overrides: dict[str, dict[str, Any]] | None = None,
     label_status: str = "draft",
+    case_ids: set[str] | None = None,
+    fields: list[str] | None = None,
 ) -> tuple[EvaluationManifest, dict[str, Any]]:
     enabled_records = [
-        record for record in records if record.get("enabled_for_parser_eval") is True
+        record
+        for record in records
+        if record.get("enabled_for_parser_eval") is True
+        and (case_ids is None or record.get("id") in case_ids)
     ]
     cases: list[EvaluationCase] = []
     reviews: list[dict[str, Any]] = []
@@ -94,7 +99,10 @@ def build_manifest(
         override = (overrides or {}).get(case_id, {})
         _apply_manual_override(labels, review, override)
         skill_mentions = list(
-            override.get("skill_mentions") or review.get("skill_mentions") or []
+            override.get("skill_mentions")
+            or labels.get("skill_mentions")
+            or review.get("skill_mentions")
+            or []
         )
         source_kind = "real_public_source"
         source_notes = override.get("source_notes") or (
@@ -158,9 +166,9 @@ def build_manifest(
 
     manifest = EvaluationManifest(
         manifest_version=(
-            "m11-ai-campus-final-v1"
-            if label_status != "draft"
-            else "m11-ai-campus-draft-v1"
+            "m11-ai-campus-draft-v1"
+            if label_status.startswith("draft")
+            else "m11-ai-campus-final-v1"
         ),
         dataset_version=dataset_version,
         split=split,
@@ -172,7 +180,7 @@ def build_manifest(
             "使用用户提供的公开岗位文本；官方详情与公开转载分开记录。"
             "不执行投递，不写入岗位或申请数据库。"
         ),
-        fields=["job_type", "locations", "required_skills"],
+        fields=fields or ["job_type", "locations", "required_skills"],
         cases=cases,
     )
     review_payload = {
@@ -386,31 +394,15 @@ def main() -> int:
     if not isinstance(payload, list):
         raise SystemExit("输入数据必须是 JSON 数组")
     records = [item for item in payload if isinstance(item, dict)]
-    overrides: dict[str, dict[str, Any]] = {}
-    label_status = "draft"
-    if arguments.overrides:
-        override_payload = json.loads(
-            Path(arguments.overrides).read_text(encoding="utf-8")
-        )
-        if not isinstance(override_payload, dict):
-            raise SystemExit("overrides 必须是 JSON 对象")
-        raw_overrides = override_payload.get("cases", override_payload)
-        if not isinstance(raw_overrides, dict):
-            raise SystemExit("overrides.cases 必须是 JSON 对象")
-        overrides = {
-            str(case_id): value
-            for case_id, value in raw_overrides.items()
-            if isinstance(value, dict)
-        }
-        label_status = str(
-            override_payload.get("label_status", "draft_with_manual_overrides")
-        )
+    overrides, label_status = load_overrides(arguments.overrides)
     manifest, review = build_manifest(
         records,
         dataset_version=arguments.dataset_version,
         split=arguments.split,
         overrides=overrides,
         label_status=label_status,
+        case_ids=set(arguments.case_id) if arguments.case_id else None,
+        fields=arguments.field or None,
     )
     manifest_path = Path(arguments.manifest)
     review_path = Path(arguments.review)
@@ -432,6 +424,36 @@ def main() -> int:
     return 0
 
 
+def load_overrides(paths: list[str]) -> tuple[dict[str, dict[str, Any]], str]:
+    """Merge versioned override files in order, including per-field updates."""
+
+    overrides: dict[str, dict[str, Any]] = {}
+    label_status = "draft"
+    for path in paths:
+        override_payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        if not isinstance(override_payload, dict):
+            raise SystemExit("overrides 必须是 JSON 对象")
+        raw_overrides = override_payload.get("cases", override_payload)
+        if not isinstance(raw_overrides, dict):
+            raise SystemExit("overrides.cases 必须是 JSON 对象")
+        for case_id, value in raw_overrides.items():
+            if not isinstance(value, dict):
+                continue
+            merged = dict(overrides.get(str(case_id), {}))
+            for key, item in value.items():
+                if key == "fields" and isinstance(item, dict):
+                    fields = dict(merged.get("fields") or {})
+                    fields.update(item)
+                    merged["fields"] = fields
+                else:
+                    merged[key] = item
+            overrides[str(case_id)] = merged
+        label_status = str(
+            override_payload.get("label_status", "draft_with_manual_overrides")
+        )
+    return overrides, label_status
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build a draft M11 manifest from the AI campus JD JSON"
@@ -443,7 +465,24 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--split", choices=("dev", "eval"), default="eval")
     parser.add_argument(
         "--overrides",
-        help="可选的人工标签覆盖文件，格式为 {\"cases\": {case_id: {...}}}",
+        action="append",
+        default=[],
+        help=(
+            "可重复指定的人工标签覆盖文件；按命令行顺序合并，后一个文件"
+            "只覆盖其明确提供的 case 字段"
+        ),
+    )
+    parser.add_argument(
+        "--case-id",
+        action="append",
+        default=[],
+        help="只生成指定 case；可重复提供。",
+    )
+    parser.add_argument(
+        "--field",
+        action="append",
+        default=[],
+        help="指定参与指标计算的字段；可重复提供。",
     )
     return parser.parse_args()
 

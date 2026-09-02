@@ -1,0 +1,17 @@
+{
+  "version": "ai-campus-holdout-v7-smoke5-selection-2026-09-01",
+  "source_manifest": "m11-ai-campus-manifest-full-v4-strict-2026-08-31.json",
+  "source_case_count": 154,
+  "exclusion_policy": "排除历史人工复核覆盖和 holdout-v1 至 holdout-v6 选择清单中已出现的 98 条样本。",
+  "excluded_case_count": 98,
+  "candidate_pool_count": 56,
+  "selection_policy": "固定种子 holdout-v7-smoke5，按 SHA-256 排名抽取 5 条，每家公司最多 1 条。",
+  "company_count": 5,
+  "case_ids": [
+    "campus-ai-093",
+    "campus-ai-104",
+    "campus-ai-140",
+    "campus-ai-137",
+    "campus-ai-040"
+  ]
+}

@@ -1,0 +1,514 @@
+{
+  "version": "ai-campus-label-overrides-v7-holdout-30-reviewed-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout_v7_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据 30 条 holdout 的岗位原文和已冻结的 v5/v6 标注规则人工复核；标签冻结前未读取或生成这些样本的模型预测。",
+  "annotation_rules": {
+    "required_skills": "任职要求中明确要求掌握、熟悉、具备或深入理解，且候选人必须同时满足的直接技术能力。",
+    "required_skill_groups": "原文明示至少一种、任一种、A 或 B 时使用 any_of；如、例如、等只决定 allow_other，不单独创建备选组。",
+    "preferred_skills": "原文明示优先、加分的技术能力或技术项目经验；论文、学历、专业和软技能不作为技能标签。",
+    "skill_mentions": "职责段技术、弱要求、示例名、备选组选项及其他非独立硬门槛技术，用于可追溯性，不参与本轮主指标。",
+    "precedence": "同一技能同时是必备和加分项时，以必备为准。",
+    "ordinary_enumerations": "没有选择信号的同类普通枚举优先标上位能力，具体名称保留在 skill_mentions。"
+  },
+  "case_ids": [
+    "campus-ai-004",
+    "campus-ai-006",
+    "campus-ai-010",
+    "campus-ai-016",
+    "campus-ai-026",
+    "campus-ai-053",
+    "campus-ai-055",
+    "campus-ai-058",
+    "campus-ai-064",
+    "campus-ai-066",
+    "campus-ai-069",
+    "campus-ai-070",
+    "campus-ai-079",
+    "campus-ai-084",
+    "campus-ai-090",
+    "campus-ai-091",
+    "campus-ai-094",
+    "campus-ai-098",
+    "campus-ai-111",
+    "campus-ai-119",
+    "campus-ai-122",
+    "campus-ai-124",
+    "campus-ai-125",
+    "campus-ai-127",
+    "campus-ai-145",
+    "campus-ai-146",
+    "campus-ai-155",
+    "campus-ai-157",
+    "campus-ai-162",
+    "campus-ai-164"
+  ],
+  "cases": {
+    "campus-ai-004": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳", "成都"],
+        "required_skills": ["编程基础", "AI产品/方案设计", "AI能力边界理解", "AI产品技术趋势", "AI产品最佳实践", "数据分析"],
+        "required_skill_groups": [],
+        "preferred_skills": [],
+        "skill_mentions": ["编程基础", "AI功能设计", "AI产品/方案设计", "AI能力边界理解", "AI产品技术趋势", "AI产品最佳实践", "数据分析"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "删除仅作为专业名称出现的软件工程；AI 设计、能力边界、行业趋势、最佳实践和数据分析均由任职要求直接支持。"
+    },
+    "campus-ai-006": {
+      "fields": {
+        "job_type": "internship",
+        "locations": ["深圳"],
+        "required_skills": ["数据结构与算法", "AI功能工程化实现", "AI基本原理", "编程能力", "API调用能力", "算法复现"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["C++", "Python"], "allow_other": false},
+          {"name": "机器学习推理训练框架", "any_of": ["TensorFlow", "PyTorch", "MNN"], "allow_other": true}
+        ],
+        "preferred_skills": [],
+        "skill_mentions": ["Agent", "深度学习", "LLM", "端侧模型部署", "C++", "Python", "TensorFlow", "PyTorch", "MNN", "AI功能工程化实现", "AI基本原理", "API调用能力", "算法复现"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed", "job_type_metadata_confirmed"],
+      "manual_notes": "招聘类型沿用已核验来源元数据；专业名称不计技能，编程语言和机器学习框架分别按明确备选关系标注。"
+    },
+    "campus-ai-010": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["AI产品理解"],
+        "required_skill_groups": [],
+        "preferred_skills": ["AI产品实践"],
+        "skill_mentions": ["LLM", "AIGC", "智能助手", "AI产品/方案设计", "数据分析", "AI产品实践"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "产品规划设计来自职责段；任职要求的硬门槛是对 AI 产品的深入理解，AI/大模型产品实习经历为优先项。"
+    },
+    "campus-ai-016": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["计算机视觉", "图像处理", "深度学习", "多模态模型", "多模态训练", "文档多模态", "目标检测", "模型压缩", "Diffusion", "生成模型", "Python", "算法复现"],
+        "required_skill_groups": [
+          {"name": "深度学习框架", "any_of": ["PyTorch", "PaddlePaddle", "TensorFlow"], "allow_other": true}
+        ],
+        "preferred_skills": ["多模态预训练", "模型蒸馏", "视频生成", "模型轻量化"],
+        "skill_mentions": ["计算机视觉", "图像处理", "深度学习", "多模态模型", "多模态训练", "文档多模态", "开放域目标检测", "模型压缩", "Diffusion", "CLIP", "Flamingo", "Qwen-VL", "图像生成", "视频生成", "3D生成", "数字人", "Python", "PyTorch", "PaddlePaddle", "TensorFlow", "多模态预训练", "模型蒸馏", "模型轻量化", "Agent"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "具体模型名只作示例；深度学习框架为开放备选组，Agent 仅出现在部门名称中。"
+    },
+    "campus-ai-026": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "北京", "深圳", "杭州"],
+        "required_skills": ["Agent Harness", "LLM", "Agent", "AI Coding", "编程能力"],
+        "required_skill_groups": [],
+        "preferred_skills": [],
+        "skill_mentions": ["Agent Harness", "LLM", "Agent", "AI Coding", "LLM API", "Reasoning", "KV-Cache", "Tool Calling", "Skill", "ReAct", "Multi-Agent", "MCP", "A2A", "Agent评测", "RAG", "OpenClaw", "HermesAgent", "Codex", "Claude Code", "Managed-Agents"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "职位要求第 2 条为直接硬门槛；第 3 至 5 条均为了解项，只进入 skill_mentions。"
+    },
+    "campus-ai-053": {
+      "fields": {
+        "job_type": "internship",
+        "locations": ["北京", "广州", "杭州", "南京", "上海", "深圳"],
+        "required_skills": ["AI Coding", "Prompt Engineering", "LLM", "Context Engineering", "Agent", "Tool Calling", "Agent框架", "计算机基础知识", "大模型安全"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Java", "Python", "JavaScript"], "allow_other": true}
+        ],
+        "preferred_skills": ["RAG", "多智能体系统", "MCP", "Skill", "AI Infra", "SFT", "强化学习"],
+        "skill_mentions": ["数据挖掘", "Agent", "Memory", "Tool Calling", "RAG", "Context Engineering", "Agent评测", "Prompt Engineering", "LLM", "Agent框架", "Java", "Python", "JavaScript", "多智能体系统", "MCP", "Skill", "AI Infra", "SFT", "强化学习"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "编程语言按至少一种建开放备选组；加分项与硬门槛分离，专业名称不计技能。"
+    },
+    "campus-ai-055": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["编程能力", "数据结构与算法"],
+        "required_skill_groups": [
+          {"name": "算法方向", "any_of": ["NLP", "强化学习"], "allow_other": false},
+          {"name": "深度学习框架", "any_of": ["PyTorch", "TensorFlow", "JAX"], "allow_other": true}
+        ],
+        "preferred_skills": ["LLM", "Agent"],
+        "skill_mentions": ["Agent", "Search Agent", "Coding Agent", "Interpreter", "Tool Calling", "GUI", "Long-horizon Tasks", "Science Discovery", "NLP", "强化学习", "PyTorch", "TensorFlow", "JAX", "LLM"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "NLP 或强化学习、任一深度学习框架分别为两个备选组；大模型和 Agent 项目/论文经历属于优先项。"
+    },
+    "campus-ai-058": {
+      "fields": {
+        "job_type": "campus",
+        "locations": [],
+        "required_skills": ["数据结构与算法", "Agent", "Planning", "Memory", "Tool Calling", "Reflection", "Agent框架", "Prompt Engineering"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Python", "TypeScript", "Go"], "allow_other": true}
+        ],
+        "preferred_skills": ["Agent评测", "RAG", "向量检索", "知识图谱"],
+        "skill_mentions": ["Agent", "Multi-Agent", "Planning", "Memory", "Tool Calling", "Reflection", "Agent框架", "LangGraph", "AutoGen", "CrewAI", "MetaGPT", "LLM", "Prompt Engineering", "Python", "TypeScript", "Go", "Agent评测", "RAG", "向量检索", "知识图谱"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "招聘正文未提供地点，保留空列表；LLM 仅为了解项，评测/RAG/向量检索/知识图谱均为优先项。"
+    },
+    "campus-ai-064": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海", "合肥"],
+        "required_skills": ["深度学习"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Python", "C++", "SQL"], "allow_other": true},
+          {"name": "深度学习框架", "any_of": ["TensorFlow", "PyTorch"], "allow_other": true}
+        ],
+        "preferred_skills": ["时序分析", "NLP"],
+        "skill_mentions": ["CNN", "LSTM", "Transformer", "Python", "C++", "SQL", "TensorFlow", "PyTorch", "时序分析", "NLP", "数据采集", "数据标注", "特征提取", "模型训练", "模型评测", "模型部署"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "神经网络普通枚举按深度学习上位能力标注；语言和框架均明确要求一种或多种，分别建开放备选组。"
+    },
+    "campus-ai-066": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳"],
+        "required_skills": ["深度学习", "Python", "编程能力"],
+        "required_skill_groups": [
+          {"name": "前沿算法方向", "any_of": ["目标检测", "图像分割", "视频理解", "几何感知", "LLM"], "allow_other": true},
+          {"name": "生成模型方向", "any_of": ["VLM", "Diffusion"], "allow_other": false}
+        ],
+        "preferred_skills": ["大模型视频理解"],
+        "skill_mentions": ["深度学习", "目标检测", "图像分割", "视频理解", "几何感知", "LLM", "VLM", "Diffusion", "Python", "大模型视频理解"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "一个或数个前沿算法领域与 VLM/扩散模型二选一分别建组；论文经历不作为技能。"
+    },
+    "campus-ai-069": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["编程基础", "Agent框架", "RAG", "Agent", "检索算法", "Prompt Engineering", "模型微调", "模型对齐"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Java", "Python", "C++"], "allow_other": true}
+        ],
+        "preferred_skills": ["LLM"],
+        "skill_mentions": ["RAG", "Agent", "LLM", "搜索推荐系统", "NLP", "LangChain", "LlamaIndex", "Java", "Python", "C++", "倒排索引", "语义检索", "Prompt Engineering", "模型微调", "模型对齐"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "语言按至少一种建开放组；RAG/Agent 框架、检索、Prompt、微调与对齐均由硬门槛直接支持。"
+    },
+    "campus-ai-070": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "苏州", "上海"],
+        "required_skills": [],
+        "required_skill_groups": [],
+        "preferred_skills": ["C++", "系统设计", "AI模型部署", "AI Coding", "智能驾驶"],
+        "skill_mentions": ["LLM", "C++", "系统设计", "智能驾驶", "AI模型部署", "AI Coding"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "任职要求中的四项技术条件均明确带优先，不设硬技能标签。"
+    },
+    "campus-ai-079": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["深度学习", "Python", "数据分析"],
+        "required_skill_groups": [
+          {"name": "模型项目方向", "any_of": ["计算机视觉", "NLP", "多模态模型"], "allow_other": false},
+          {"name": "深度学习框架", "any_of": ["PyTorch", "TensorFlow"], "allow_other": true}
+        ],
+        "preferred_skills": ["VLA", "VLM", "具身智能", "模型评测", "数据集构建", "Benchmark"],
+        "skill_mentions": ["深度学习", "Transformer", "Diffusion", "计算机视觉", "NLP", "多模态模型", "Python", "PyTorch", "TensorFlow", "VLA", "VLM", "具身智能", "模型评测", "数据集构建", "Benchmark", "数据分析"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "Transformer/扩散模型只是了解项；CV/NLP/多模态项目方向和至少一种框架分别建组。"
+    },
+    "campus-ai-084": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["编程基础"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["C#", "C++", "Python", "TypeScript"], "allow_other": true}
+        ],
+        "preferred_skills": ["游戏开发", "AI Coding", "Prompt Engineering", "RAG", "LLM API", "Agent", "Tool Calling", "Agent框架", "MCP", "Harness Engineering", "Context Engineering", "Skill", "全栈开发", "跨端开发", "自动化测试", "AI产品/方案设计"],
+        "skill_mentions": ["C#", "C++", "Python", "TypeScript", "Unity", "Unreal Engine", "数据结构与算法", "操作系统", "计算机网络", "设计模式", "LLM", "Agent", "AI Coding", "Claude Code", "Cursor", "Copilot", "ChatGPT", "通义灵码", "Prompt Engineering", "RAG", "LLM API", "Agent Workflow", "Tool Calling", "Claude Agent SDK", "LangChain", "AutoGen", "MCP", "Harness Engineering", "Context Engineering", "Skill", "自动化测试", "AI产品/方案设计"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "软件工程基础仅要求了解；相关 AI、Agent、游戏和工具链经验均由优先/加分语句约束。"
+    },
+    "campus-ai-090": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["机器学习", "PyTorch", "半监督学习", "自监督学习", "主动学习", "弱监督学习", "工程能力", "数据管线"],
+        "required_skill_groups": [
+          {"name": "数据算法方向", "any_of": ["自动标注", "长尾挖掘", "样本选择", "数据质量评估"], "allow_other": false}
+        ],
+        "preferred_skills": ["端到端数据闭环", "Pseudo-labeling", "Foundation Model as Annotator", "Scaling Law"],
+        "skill_mentions": ["LLM", "多模型协同", "自动标注", "数据质量评估", "长尾挖掘", "主动学习", "样本选择", "机器学习", "PyTorch", "半监督学习", "自监督学习", "弱监督学习", "数据管线", "端到端数据闭环", "Pseudo-labeling", "Foundation Model as Annotator", "Scaling Law"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "四个实战方向为至少一项；顶会论文不计技能，加分项中的新范式单独标 preferred。"
+    },
+    "campus-ai-091": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["深度学习", "PyTorch", "CUDA", "Transformer", "Diffusion", "Imitation Learning", "强化学习", "工程能力", "模型调优", "问题定位"],
+        "required_skill_groups": [
+          {"name": "端到端决策规划方向", "any_of": ["VLA", "端到端自动驾驶", "机器人策略学习", "World Model"], "allow_other": false}
+        ],
+        "preferred_skills": ["端到端策略", "强化学习工程", "奖励模型", "RLHF", "DPO"],
+        "skill_mentions": ["VLA", "WAM", "PyTorch", "CUDA", "Transformer", "Diffusion", "Imitation Learning", "强化学习", "端到端自动驾驶", "机器人策略学习", "World Model", "OpenVLA", "RT-2", "π0", "RDT", "GR-1", "Sim-to-Real", "奖励模型", "RLHF", "DPO"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "原文明示以下方向至少一项，建封闭备选组；具体 VLA 工作和 RL 工程经验属于加分项。"
+    },
+    "campus-ai-094": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["编程能力", "系统设计"],
+        "required_skill_groups": [
+          {"name": "AI系统方向", "any_of": ["AI训练系统", "强化学习工程"], "allow_other": false}
+        ],
+        "preferred_skills": ["开源框架贡献", "大规模训练", "RLHF", "RLVR"],
+        "skill_mentions": ["分布式系统", "GPU性能优化", "强化学习工程", "推理加速", "AI训练系统", "PyTorch", "Megatron-LM", "SGLang", "大规模训练", "RLHF", "RLVR"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "AI 训练系统或 RL 工程明确二选一；开源框架贡献和大规模训练/RL 实战均为加分项。"
+    },
+    "campus-ai-098": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["Python", "Pandas", "NumPy", "工程化开发"],
+        "required_skill_groups": [
+          {"name": "数据类型", "any_of": ["多模态数据", "时序数据", "机器人数据"], "allow_other": false}
+        ],
+        "preferred_skills": ["数据清洗", "数据标注", "数据质量评估", "数据平台", "自动标注", "Prompt Engineering", "主动学习", "数据闭环"],
+        "skill_mentions": ["具身智能", "多模态数据", "时序数据", "机器人数据", "Python", "Pandas", "NumPy", "数据清洗", "数据标注", "数据质量评估", "数据平台", "自动标注", "Prompt Engineering", "主动学习", "机器人数据闭环", "自动驾驶数据闭环"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "三类数据以或连接，作为备选组；清洗、标注、质量评估和加分项中的项目经验均为 preferred。"
+    },
+    "campus-ai-111": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州"],
+        "required_skills": ["计算机基础知识", "Go", "Python", "LLM"],
+        "required_skill_groups": [],
+        "preferred_skills": ["Agent项目", "RAG", "多智能体系统", "Agent框架"],
+        "skill_mentions": ["Agent", "Go", "Python", "LLM", "Agent项目", "RAG", "多智能体系统", "Eino", "LangChain"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "深入了解 LLM 技术及应用是硬门槛；Agent/RAG/多智能体项目和 AI 应用框架均为优先项。"
+    },
+    "campus-ai-119": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["深圳", "北京"],
+        "required_skills": ["计算机基础知识", "数据结构与算法", "操作系统", "Linux", "Python", "分布式训练", "混合精度训练", "强化学习", "生成式策略模型", "VLA", "World Action Model", "模型预训练", "模型微调", "ROS2", "机器人运动学", "遥操作数据采集", "数据标注", "Isaac Lab", "Sim-to-Real", "机器人仿真平台"],
+        "required_skill_groups": [],
+        "preferred_skills": ["真机调试", "双臂操作", "灵巧手", "多机分布式强化学习", "机器人自主数据采集", "LeRobot", "openpi", "算法复现"],
+        "skill_mentions": ["PPO", "SAC", "TD3", "IQL", "CQL", "offline RL", "residual RL", "diffusion RL", "reward shaping", "课程学习", "UTD", "Diffusion Policy", "Flow Matching", "ACT", "VLA", "WAM", "World Model", "ROS2", "机器人运动学", "遥操作数据采集", "Isaac Lab", "Sim-to-Real", "LeRobot", "openpi", "HIL-SERL", "RLPD", "RLT"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "专业要求中的熟悉/经验项计硬门槛，了解 world model 只作 mention；真机、双臂/灵巧手及开源复现项为加分。"
+    },
+    "campus-ai-122": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["操作系统", "计算机网络", "分布式系统", "Linux", "Kubernetes"],
+        "required_skill_groups": [
+          {"name": "编程语言", "any_of": ["Go", "Python", "C++"], "allow_other": false}
+        ],
+        "preferred_skills": ["Kubernetes机制", "云原生开发", "容器网络"],
+        "skill_mentions": ["Kubernetes", "Pod", "Service", "Controller", "Scheduler", "CRD", "Operator", "Go", "Python", "C++", "云原生开发", "容器网络"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "Go/Python/C++ 明确至少一种；Kubernetes 机制和云原生项目经验带优先标记。"
+    },
+    "campus-ai-124": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["苏州", "上海", "北京", "深圳", "西安"],
+        "required_skills": ["数字信号处理", "随机过程", "概率论", "矩阵论", "最优化", "算法设计", "算法分析", "算法实现"],
+        "required_skill_groups": [
+          {"name": "理论研究方向", "any_of": ["通信原理", "电磁场与微波技术", "控制理论", "测量理论", "数据分析"], "allow_other": false},
+          {"name": "仿真工具", "any_of": ["MATLAB", "Simulink", "Python"], "allow_other": true},
+          {"name": "编程语言", "any_of": ["C", "C++", "Python"], "allow_other": false}
+        ],
+        "preferred_skills": ["算法项目经验"],
+        "skill_mentions": ["数字信号处理", "随机过程", "概率论", "矩阵论", "最优化", "通信原理", "电磁场与微波技术", "控制理论", "测量理论", "数据分析", "MATLAB", "Simulink", "Python", "SciPy", "NumPy", "C", "C++", "FPGA", "ASIC", "嵌入式开发", "算法项目经验"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "理论领域、仿真工具和编程语言的选择关系分别建组；硬件/软件实现流程只是了解项。"
+    },
+    "campus-ai-125": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "杭州", "重庆"],
+        "required_skills": [],
+        "required_skill_groups": [
+          {"name": "主流技术栈", "any_of": ["React", "Node.js", "Go"], "allow_other": true}
+        ],
+        "preferred_skills": ["跨端开发", "完整项目开发", "复杂前端交互", "多端适配", "全栈开发", "AI应用", "Agent", "AIGC"],
+        "skill_mentions": ["LLM", "Agent", "React", "Node.js", "Go", "Lynx", "小程序", "React Native", "跨端开发", "完整项目开发", "复杂前端交互", "多端适配", "全栈开发", "AI应用", "AIGC"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "React/Node.js/Go 为一种或多种主流技术栈；跨端、全栈和 AI 项目经验均为优先/加分项。"
+    },
+    "campus-ai-127": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["机械设计", "材料力学", "加工工艺", "装配设计", "工程制图"],
+        "required_skill_groups": [
+          {"name": "三维设计软件", "any_of": ["NX", "SolidWorks", "Creo"], "allow_other": true}
+        ],
+        "preferred_skills": ["机器人项目", "复杂装配设计", "轻量化设计", "样机闭环", "齿轮传动"],
+        "skill_mentions": ["机械设计", "材料力学", "加工工艺", "装配设计", "工程制图", "NX", "SolidWorks", "Creo", "机器人", "机械臂", "无人车", "RoboMaster", "Robocon", "机械创新设计", "复杂装配设计", "轻量化设计", "样机闭环", "齿轮传动"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed", "negative_model_quantization_case"],
+      "manual_notes": "轻量化设计是机械结构加分项，不是模型量化；三维设计软件明确要求一种或多种。"
+    },
+    "campus-ai-145": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["广州", "北京", "上海"],
+        "required_skills": ["C++", "Python", "多线程编程", "计算机体系结构", "高性能计算", "Linux性能优化", "调试工具"],
+        "required_skill_groups": [],
+        "preferred_skills": ["CUDA", "TensorRT", "模型部署", "性能优化", "自动驾驶", "机器人"],
+        "skill_mentions": ["C++", "Python", "多线程编程", "计算机体系结构", "高性能计算", "Linux", "性能优化", "调试工具", "CUDA", "TensorRT", "深度学习模型部署", "自动驾驶", "机器人"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "CUDA、TensorRT、模型部署/优化和行业经验均位于加分项，不升为必备。"
+    },
+    "campus-ai-146": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["广州", "北京", "上海"],
+        "required_skills": ["PyTorch", "推理框架", "模型部署", "推理优化", "模型量化", "模型压缩"],
+        "required_skill_groups": [],
+        "preferred_skills": ["C++", "CUDA", "算子优化", "Triton", "模型剪枝", "模型蒸馏", "推理成本优化", "性能测试", "可观测性", "LLM推理"],
+        "skill_mentions": ["PyTorch", "C++", "CUDA", "vLLM", "SGLang", "TensorRT-LLM", "模型量化", "模型压缩", "GPTQ", "AWQ", "SmoothQuant", "FP8", "算子优化", "Triton", "模型剪枝", "模型蒸馏", "推理成本优化", "性能测试", "可观测性", "Attention", "KV-Cache", "PagedAttention"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "原文缺失标点但语义为 PyTorch 必备、C++/CUDA 优先；框架和量化算法具体名按示例保留。"
+    },
+    "campus-ai-155": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海"],
+        "required_skills": ["编程基础", "工程能力", "算法实现", "实验设计", "AI Infra"],
+        "required_skill_groups": [],
+        "preferred_skills": ["LLM"],
+        "skill_mentions": ["大模型预训练", "大模型训练", "模型推理", "优化器", "模型量化", "Speculative Decoding", "模型评测", "大规模训练", "编程基础", "工程能力", "算法实现", "实验设计", "AI Infra", "LLM"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "LLM 实习或科研经历明确为优先项；AI Infra、独立算法与实验实现能力为硬门槛。"
+    },
+    "campus-ai-157": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": ["Transformer", "LLM", "编程能力", "数据结构与算法", "深度学习框架"],
+        "required_skill_groups": [],
+        "preferred_skills": ["大模型预训练", "Model Scaling", "高性能计算", "GPU编程与优化"],
+        "skill_mentions": ["LLM", "MLP", "Attention", "Transformer", "大模型预训练", "Model Scaling", "PyTorch", "JAX", "高性能计算", "Triton", "CUDA", "GPU编程与优化"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "PyTorch/JAX 普通同类枚举标为深度学习框架；预训练/Scaling、HPC 和 GPU 优化均为优先项。"
+    },
+    "campus-ai-162": {
+      "fields": {
+        "job_type": "internship",
+        "locations": ["北京"],
+        "required_skills": ["Python", "PyTorch", "模型推理", "Batch处理", "混合精度", "OOM降级", "FFmpeg", "ffprobe", "H.264", "H.265", "PTS/DTS", "视频转码", "视频抽帧"],
+        "required_skill_groups": [
+          {"name": "视觉模型生产化", "any_of": ["CLIP", "DINOv2", "目标检测", "OCR", "质量评估", "VLM"], "allow_other": false}
+        ],
+        "preferred_skills": ["视频理解", "视频处理", "大规模数据生产", "镜头边界检测", "场景分割", "VLM视频标注", "字幕擦除", "视频数据构建"],
+        "skill_mentions": ["FFmpeg", "Decord", "GPU decoder", "视频转码", "HDR to SDR", "黑边检测", "音视频对齐", "镜头边界检测", "场景分割", "jump-cut", "VLM", "视频Caption", "语义标注", "实体提取", "目标检测", "字幕擦除", "Python", "PyTorch", "Batch处理", "混合精度", "OOM降级", "H.264", "H.265", "PTS/DTS", "CLIP", "DINOv2", "OCR", "质量评估"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "专业名称不计技能；至少一类视觉模型生产化经验建封闭组，视频经验项按优先标注。"
+    },
+    "campus-ai-164": {
+      "fields": {
+        "job_type": "internship",
+        "locations": ["深圳"],
+        "required_skills": ["C++", "Python"],
+        "required_skill_groups": [],
+        "preferred_skills": ["机器人操作"],
+        "skill_mentions": ["强化学习", "Sim-to-Real", "C++", "Python", "ROS", "PyTorch", "TensorFlow", "深度学习框架", "MuJoCo", "Gazebo", "NVIDIA Isaac", "电机建模", "通信延时模拟", "噪声模拟", "感知仿真", "机器人操作"]
+      },
+      "field_confidence": {"job_type": "high", "locations": "high", "required_skills": "high", "required_skill_groups": "high", "preferred_skills": "high"},
+      "reasons": [],
+      "tags": ["v7_holdout_human_reviewed"],
+      "manual_notes": "C++ 和 Python 明确要求掌握；ROS、框架、仿真软件和 Sim-to-Real 问题均为了解项，强化学习只在职责/兴趣中出现。"
+    }
+  }
+}

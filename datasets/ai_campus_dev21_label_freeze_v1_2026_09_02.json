@@ -1,0 +1,30 @@
+{
+  "freeze_version": "ai-campus-dev21-label-freeze-v1",
+  "frozen_at": "2026-09-02",
+  "label_status": "human_reviewed_remaining51_dev21_v1_frozen",
+  "case_count": 21,
+  "prediction_status": "not_generated",
+  "sealed_holdout_prediction_status": "not_generated_or_viewed",
+  "files": {
+    "annotation_guide": {
+      "path": "datasets/AI_CAMPUS_ANNOTATION_GUIDE_V1.md",
+      "sha256": "239a0adbb7c589fe5c447afa11ad1d3f1dfc539e201df818c03326982604cb7c"
+    },
+    "fixed_split": {
+      "path": "datasets/ai_campus_remaining_51_split_v1_2026_09_02.json",
+      "sha256": "95faa945e127cf21dfc26a867946b35bce73d64ba4bacddd53d33d2a6411c3e0"
+    },
+    "labels": {
+      "path": "datasets/ai_campus_label_overrides_v14_remaining51_dev21_reviewed.json",
+      "sha256": "9f323bceee3059af513de8753fb08978d6d7d117448da90a963843c8475bc9ea"
+    },
+    "strict_manifest": {
+      "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+      "sha256": "28d1460b1f0d0e61aa9274447b86f8a34f56512666abe2a03d1a0e0afe899e51"
+    },
+    "strict_review": {
+      "path": "artifacts/evaluation/m11-ai-campus-review-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+      "sha256": "eabdd7f88a024a02bcba66216325fb7376ef4e24431ff844634925ef67cae96e"
+    }
+  }
+}

@@ -23,6 +23,7 @@ def make_case(
     *,
     case_id: str = "case-1",
     expected_fields: dict[str, object] | None = None,
+    expected_skill_mentions: list[str] | None = None,
     expected_evidence: dict[str, list[str]] | None = None,
     candidate_evidence_ids: list[str] | None = None,
 ) -> EvaluationCase:
@@ -38,6 +39,7 @@ def make_case(
         candidate_evidence_ids=candidate_evidence_ids or [],
         expected=ExpectedLabels(
             fields=expected_fields or {},
+            skill_mentions=expected_skill_mentions or [],
             eligibility="unknown",
             evidence=expected_evidence or {},
         ),
@@ -123,6 +125,243 @@ def test_field_metrics_use_set_precision_recall_and_null_semantics() -> None:
     assert report["validated"]["supported_claim_count"] == 0
 
 
+def test_skill_group_metric_ignores_display_name_and_any_of_option_order() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skill_groups": [
+                {
+                    "name": "推理框架",
+                    "any_of": ["TensorRT", "vLLM"],
+                    "allow_other": True,
+                }
+            ]
+        }
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skill_groups"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "required_skill_groups": [
+                {
+                    "name": "大模型端侧推理工具",
+                    "any_of": ["vllm", "TensorRT", "vLLM"],
+                    "allow_other": True,
+                }
+            ]
+        },
+    )
+
+    result = evaluate_manifest(manifest, [prediction])["validated"]["fields"]
+
+    assert result["required_skill_groups"]["exact_match_accuracy"] == 1.0
+    assert result["required_skill_groups"]["f1"] == 1.0
+
+
+def test_skill_metrics_share_parser_ontology_for_aliases_and_categories() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skills": ["深度学习框架"],
+            "required_skill_groups": [
+                {
+                    "name": "编程语言",
+                    "any_of": ["TypeScript", "Go"],
+                    "allow_other": False,
+                }
+            ],
+        }
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skills", "required_skill_groups"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "required_skills": ["训练框架"],
+            "required_skill_groups": [
+                {
+                    "name": "开发语言",
+                    "any_of": ["TS", "Golang"],
+                    "allow_other": False,
+                }
+            ],
+        },
+    )
+
+    fields = evaluate_manifest(manifest, [prediction])["validated"]["fields"]
+
+    assert fields["required_skills"]["f1"] == 1.0
+    assert fields["required_skill_groups"]["f1"] == 1.0
+
+
+def test_skill_detection_ignores_strength_but_strength_metric_does_not() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skills": ["Python"],
+            "preferred_skills": ["CUDA"],
+        },
+        expected_skill_mentions=["Python", "CUDA", "RAG"],
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skills", "preferred_skills"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "required_skills": ["CUDA"],
+            "preferred_skills": ["Python"],
+            "skill_mentions": ["RAG"],
+        },
+    )
+
+    metrics = evaluate_manifest(manifest, [prediction])["validated"]
+
+    assert metrics["skill_detection"]["f1"] == 1.0
+    assert metrics["skill_detection"]["exact_match_accuracy"] == 1.0
+    assert metrics["skill_strength"]["classes"]["required"]["f1"] == 0.0
+    assert metrics["skill_strength"]["classes"]["preferred"]["f1"] == 0.0
+    assert metrics["skill_strength"]["classes"]["mention"]["f1"] == 1.0
+    assert metrics["skill_strength"]["macro_f1"] == 1 / 3
+
+
+def test_skill_metrics_fall_back_to_fields_and_exclude_group_options_from_strength() -> None:
+    case = make_case(
+        expected_fields={
+            "required_skills": ["Python"],
+            "required_skill_groups": [
+                {
+                    "name": "训练框架",
+                    "any_of": ["PyTorch", "TensorFlow"],
+                    "allow_other": False,
+                }
+            ],
+            "preferred_skills": ["CUDA"],
+        }
+    )
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skills", "required_skill_groups", "preferred_skills"],
+        cases=[case],
+    )
+    prediction = PredictionRecord(
+        case_id=case.id,
+        fields={
+            "required_skills": ["Python"],
+            "required_skill_groups": [
+                {
+                    "name": "深度学习工具",
+                    "any_of": ["tensorflow", "PyTorch"],
+                    "allow_other": False,
+                }
+            ],
+            "preferred_skills": ["CUDA"],
+            "skill_mentions": ["PyTorch", "TensorFlow"],
+        },
+    )
+
+    metrics = evaluate_manifest(manifest, [prediction])["validated"]
+
+    assert metrics["skill_detection"]["tp"] == 4
+    assert metrics["skill_detection"]["f1"] == 1.0
+    assert metrics["skill_strength"]["classes"]["required"]["tp"] == 1
+    assert metrics["skill_strength"]["classes"]["preferred"]["tp"] == 1
+    assert metrics["skill_strength"]["classes"]["mention"]["tp"] == 0
+    assert metrics["skill_strength"]["classes"]["mention"]["fp"] == 0
+
+
+def test_any_of_relation_metric_splits_conditional_accuracy_and_false_positives() -> None:
+    expected_group = {
+        "name": "编程语言",
+        "any_of": ["TypeScript", "Go"],
+        "allow_other": False,
+    }
+    cases = [
+        make_case(
+            case_id="group-match",
+            expected_fields={"required_skill_groups": [expected_group]},
+        ),
+        make_case(
+            case_id="group-miss",
+            expected_fields={"required_skill_groups": [expected_group]},
+        ),
+        make_case(case_id="false-positive"),
+        make_case(case_id="true-negative"),
+    ]
+    manifest = EvaluationManifest(
+        manifest_version="test-v1",
+        dataset_version="test-data-v1",
+        split="dev",
+        purpose="test",
+        source_policy="test",
+        fields=["required_skill_groups"],
+        cases=cases,
+    )
+    predictions = [
+        PredictionRecord(
+            case_id="group-match",
+            fields={
+                "required_skill_groups": [
+                    {
+                        "name": "开发语言",
+                        "any_of": ["Golang", "TS"],
+                        "allow_other": False,
+                    }
+                ]
+            },
+        ),
+        PredictionRecord(case_id="group-miss"),
+        PredictionRecord(
+            case_id="false-positive",
+            fields={
+                "required_skill_groups": [
+                    {
+                        "name": "推理框架",
+                        "any_of": ["TensorRT", "vLLM"],
+                        "allow_other": True,
+                    }
+                ]
+            },
+        ),
+        PredictionRecord(case_id="true-negative"),
+    ]
+
+    metric = evaluate_manifest(manifest, predictions)["validated"][
+        "any_of_relations"
+    ]
+
+    assert metric == {
+        "expected_positive_case_count": 2,
+        "exact_match_case_count": 1,
+        "conditional_exact_match_accuracy": 0.5,
+        "expected_negative_case_count": 2,
+        "false_positive_case_count": 1,
+        "false_positive_case_rate": 0.5,
+    }
+
+
 def test_report_exposes_failure_codes_and_timeout_rate() -> None:
     cases = [make_case(case_id="case-success"), make_case(case_id="case-timeout")]
     manifest = EvaluationManifest(
@@ -135,7 +374,17 @@ def test_report_exposes_failure_codes_and_timeout_rate() -> None:
         cases=cases,
     )
     predictions = [
-        PredictionRecord(case_id="case-success"),
+        PredictionRecord(
+            case_id="case-success",
+            warnings=[
+                {
+                    "code": "unsupported_field_value",
+                    "field_path": "preferred_skills[0]",
+                    "value": "GhostSkill",
+                    "message": "已删除无原文依据的技能值：GhostSkill",
+                }
+            ],
+        ),
         PredictionRecord(case_id="case-timeout", failure_code="model_timeout"),
     ]
 
@@ -144,6 +393,8 @@ def test_report_exposes_failure_codes_and_timeout_rate() -> None:
     assert report["successful_prediction_count"] == 1
     assert report["success_rate"] == 0.5
     assert report["failure_codes"] == {"model_timeout": 1}
+    assert report["prediction_warning_count"] == 1
+    assert report["warning_codes"] == {"unsupported_field_value": 1}
     assert report["timeout_count"] == 1
     assert report["timeout_rate"] == 0.5
 

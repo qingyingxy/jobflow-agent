@@ -6,6 +6,11 @@ import unicodedata
 from collections import Counter
 from typing import Any
 
+from src.domain.skill_normalizer import (
+    SKILL_ONTOLOGY_VERSION,
+    normalize_atomic_skill_values,
+    normalize_skill_group,
+)
 from src.evaluation.models import (
     EvaluationCase,
     EvaluationManifest,
@@ -56,6 +61,7 @@ def validate_prediction(
         fields=prediction.fields,
         eligibility=prediction.eligibility,
         matches=validated_matches,
+        warnings=prediction.warnings,
         failure_code=prediction.failure_code,
         failure_details=prediction.failure_details,
     )
@@ -103,9 +109,15 @@ def evaluate_manifest(
         prediction.failure_code is None for prediction in scoped_predictions
     )
     timeout_count = failure_codes.get("model_timeout", 0)
+    warning_codes = Counter(
+        warning.code
+        for prediction in scoped_predictions
+        for warning in prediction.warnings
+    )
     report: EvaluationReport = {
         "manifest_version": manifest.manifest_version,
         "dataset_version": manifest.dataset_version,
+        "skill_ontology_version": SKILL_ONTOLOGY_VERSION,
         "split": manifest.split,
         "case_count": len(cases_by_id),
         "prediction_count": len(predictions),
@@ -115,6 +127,8 @@ def evaluate_manifest(
         "successful_prediction_count": successful_prediction_count,
         "success_rate": _ratio(successful_prediction_count, len(cases_by_id)),
         "failure_codes": dict(sorted(failure_codes.items())),
+        "prediction_warning_count": sum(warning_codes.values()),
+        "warning_codes": dict(sorted(warning_codes.items())),
         "timeout_count": timeout_count,
         "timeout_rate": _ratio(timeout_count, len(cases_by_id)),
         "missing_prediction_count": len(missing_ids),
@@ -156,6 +170,18 @@ def _metric_bundle(
     return {
         "fields": field_metrics,
         "macro_f1": _safe_average(macro_values),
+        "skill_detection": _skill_detection_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
+        "skill_strength": _skill_strength_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
+        "any_of_relations": _any_of_relation_metric(
+            cases_by_id,
+            predictions_by_id,
+        ),
         "eligibility_accuracy": _eligibility_accuracy(
             cases_by_id,
             predictions_by_id,
@@ -209,6 +235,187 @@ def _field_metric(
         "precision": precision,
         "recall": recall,
         "f1": f1,
+    }
+
+
+def _skill_detection_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    pairs = [
+        (
+            _expected_detected_skills(case),
+            _predicted_detected_skills(predictions_by_id[case_id]),
+        )
+        for case_id, case in cases_by_id.items()
+    ]
+    return _set_metric(pairs)
+
+
+def _skill_strength_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    pairs_by_strength: dict[str, list[tuple[set[str], set[str]]]] = {
+        "required": [],
+        "preferred": [],
+        "mention": [],
+    }
+    for case_id, case in cases_by_id.items():
+        expected = _skill_strength_sets(
+            case.expected.fields,
+            mentions=case.expected.skill_mentions,
+        )
+        predicted = _skill_strength_sets(predictions_by_id[case_id].fields)
+        for strength, pairs in pairs_by_strength.items():
+            pairs.append(
+                (expected[strength], predicted[strength])
+            )
+
+    class_metrics = {
+        strength: _set_metric(pairs)
+        for strength, pairs in pairs_by_strength.items()
+    }
+    return {
+        "classes": class_metrics,
+        "macro_f1": _safe_average(
+            [
+                metric["f1"]
+                for metric in class_metrics.values()
+                if metric["f1"] is not None
+            ]
+        ),
+    }
+
+
+def _any_of_relation_metric(
+    cases_by_id: dict[str, EvaluationCase],
+    predictions_by_id: dict[str, PredictionRecord],
+) -> dict[str, Any]:
+    expected_positive_cases = 0
+    exact_match_cases = 0
+    expected_negative_cases = 0
+    false_positive_cases = 0
+
+    for case_id, case in cases_by_id.items():
+        expected = _value_set(
+            case.expected.fields.get("required_skill_groups"),
+            field_name="required_skill_groups",
+        )
+        predicted = _value_set(
+            predictions_by_id[case_id].fields.get("required_skill_groups"),
+            field_name="required_skill_groups",
+        )
+        if expected:
+            expected_positive_cases += 1
+            exact_match_cases += expected == predicted
+        else:
+            expected_negative_cases += 1
+            false_positive_cases += bool(predicted)
+
+    return {
+        "expected_positive_case_count": expected_positive_cases,
+        "exact_match_case_count": exact_match_cases,
+        "conditional_exact_match_accuracy": _ratio(
+            exact_match_cases,
+            expected_positive_cases,
+        ),
+        "expected_negative_case_count": expected_negative_cases,
+        "false_positive_case_count": false_positive_cases,
+        "false_positive_case_rate": _ratio(
+            false_positive_cases,
+            expected_negative_cases,
+        ),
+    }
+
+
+def _expected_detected_skills(case: EvaluationCase) -> set[str]:
+    explicit_mentions = _value_set(
+        case.expected.skill_mentions,
+        field_name="skill_mentions",
+    )
+    if explicit_mentions:
+        return explicit_mentions
+    return _detected_skill_union(case.expected.fields)
+
+
+def _predicted_detected_skills(prediction: PredictionRecord) -> set[str]:
+    return _detected_skill_union(prediction.fields)
+
+
+def _detected_skill_union(fields: dict[str, Any]) -> set[str]:
+    return set().union(
+        _skill_field_set(fields, "required_skills"),
+        _required_group_options(fields),
+        _skill_field_set(fields, "preferred_skills"),
+        _skill_field_set(fields, "skill_mentions"),
+    )
+
+
+def _skill_strength_sets(
+    fields: dict[str, Any],
+    *,
+    mentions: list[str] | None = None,
+) -> dict[str, set[str]]:
+    group_options = _required_group_options(fields)
+    required = _skill_field_set(fields, "required_skills") - group_options
+    preferred = _skill_field_set(fields, "preferred_skills") - group_options
+    raw_mentions = _value_set(
+        mentions if mentions is not None else fields.get("skill_mentions"),
+        field_name="skill_mentions",
+    )
+    mention_only = raw_mentions - required - preferred - group_options
+    return {
+        "required": required,
+        "preferred": preferred,
+        "mention": mention_only,
+    }
+
+
+def _skill_field_set(fields: dict[str, Any], field_name: str) -> set[str]:
+    return _value_set(fields.get(field_name), field_name=field_name)
+
+
+def _required_group_options(fields: dict[str, Any]) -> set[str]:
+    raw_groups = fields.get("required_skill_groups")
+    groups = raw_groups if isinstance(raw_groups, list) else [raw_groups]
+    options: set[str] = set()
+    for raw_group in groups:
+        if not isinstance(raw_group, dict):
+            continue
+        normalized_group = normalize_skill_group(
+            raw_group,
+            options_are_atomic=True,
+        )
+        if normalized_group is None:
+            continue
+        options.update(
+            _value_set(
+                normalized_group.get("any_of"),
+                field_name="skill_mentions",
+            )
+        )
+    return options
+
+
+def _set_metric(
+    pairs: list[tuple[set[str], set[str]]],
+) -> dict[str, Any]:
+    true_positive = sum(len(expected & predicted) for expected, predicted in pairs)
+    false_positive = sum(len(predicted - expected) for expected, predicted in pairs)
+    false_negative = sum(len(expected - predicted) for expected, predicted in pairs)
+    exact_match_cases = sum(expected == predicted for expected, predicted in pairs)
+    precision = _ratio(true_positive, true_positive + false_positive)
+    recall = _ratio(true_positive, true_positive + false_negative)
+    return {
+        "labeled_case_count": len(pairs),
+        "exact_match_accuracy": _ratio(exact_match_cases, len(pairs)),
+        "tp": true_positive,
+        "fp": false_positive,
+        "fn": false_negative,
+        "precision": precision,
+        "recall": recall,
+        "f1": _f1(precision, recall),
     }
 
 
@@ -389,12 +596,35 @@ def _threshold_results(
 def _value_set(value: Any, *, field_name: str | None = None) -> set[str]:
     if value is None:
         return set()
+    if field_name in {"required_skills", "preferred_skills", "skill_mentions"}:
+        values = value if isinstance(value, list) else [value]
+        return {
+            _canonical(item)
+            for item in normalize_atomic_skill_values(values)
+        }
     if isinstance(value, list):
         return {_canonical(item, field_name=field_name) for item in value}
     return {_canonical(value, field_name=field_name)}
 
 
 def _canonical(value: Any, *, field_name: str | None = None) -> str:
+    if field_name == "required_skill_groups" and isinstance(value, dict):
+        normalized_group = normalize_skill_group(
+            value,
+            options_are_atomic=True,
+        ) or value
+        raw_options = normalized_group.get("any_of")
+        options = raw_options if isinstance(raw_options, list) else []
+        canonical_group = {
+            "any_of": sorted({_canonical(option) for option in options}),
+            "allow_other": bool(normalized_group.get("allow_other", False)),
+        }
+        return json.dumps(
+            canonical_group,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
     if isinstance(value, str):
         normalized = unicodedata.normalize("NFKC", value).strip().casefold()
         normalized = re.sub(r"\s+", " ", normalized)

@@ -1,0 +1,127 @@
+{
+  "version": "ai-campus-label-overrides-v12-holdout6-smoke3-frozen-2026-09-01",
+  "extends": [],
+  "label_status": "human_reviewed_holdout6_smoke3_v12_frozen",
+  "reviewed_at": "2026-09-01",
+  "review_basis": "仅依据第六批未见候选池中固定种子抽取的 3 条原始 JD 和既定标注规则人工复核；冻结前未读取或生成这些样本的 v18 模型预测。",
+  "annotation_rules": {
+    "required_skills": "只标任职要求中由必须、掌握、熟悉、具备、精通或无弱化修饰的理解等措辞直接约束，且必须同时满足的原子技术能力。",
+    "required_skill_groups": "只在必备条款原文明示至少一种、任一种、A 或 B、从若干项中选择时使用 any_of；弱要求和优先条款中的选择关系不建立必备组。",
+    "preferred_skills": "原文明示优先、加分的原子技术能力或技术项目经验；论文、竞赛、兴趣以及与必备重复的字段不计入。",
+    "skill_mentions": "职责段技术、了解或基础认知、示例名、备选组选项和其他非独立硬门槛技术，仅用于追溯。",
+    "exclusions": "学历、专业、论文、竞赛、兴趣及沟通、学习、责任心等软能力不作为技能标签。"
+  },
+  "case_ids": [
+    "campus-ai-013",
+    "campus-ai-135",
+    "campus-ai-030"
+  ],
+  "cases": {
+    "campus-ai-013": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京"],
+        "required_skills": [
+          "机器学习", "深度学习", "NLP", "语音处理", "计算机视觉", "Python", "工程实践"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "深度学习框架",
+            "any_of": ["PyTorch", "TensorFlow", "PaddlePaddle"],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": []
+      },
+      "skill_mentions": [
+        "机器学习", "深度学习", "NLP", "语音处理", "计算机视觉", "Python",
+        "PyTorch", "TensorFlow", "PaddlePaddle", "工程实践"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v12_holdout6_smoke3_human_reviewed", "required_anyof", "paper_competition_excluded"],
+      "manual_notes": "Python 为独立必备项；三种框架属于“等其中一项”的开放必备组；论文与代码竞赛不计技能。"
+    },
+    "campus-ai-135": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["上海"],
+        "required_skills": ["C++", "嵌入式软件", "操作系统", "计算机组成", "调试能力"],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "MCU", "RTOS", "Linux驱动", "通信协议", "实时控制系统", "示波器",
+          "逻辑分析仪", "机器人项目", "智能硬件项目", "嵌入式开源项目", "量产项目"
+        ]
+      },
+      "skill_mentions": [
+        "C++", "嵌入式软件", "操作系统", "计算机组成", "调试能力", "MCU", "RTOS",
+        "Linux驱动", "通信协议", "实时控制系统", "示波器", "逻辑分析仪", "机器人项目",
+        "智能硬件项目", "嵌入式开源项目", "量产项目"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v12_holdout6_smoke3_human_reviewed", "preferred_tools_and_projects", "competition_excluded"],
+      "manual_notes": "C/C++ 按既定本体统一为 C++；了解且优先的嵌入式方向进入 preferred；RoboMaster 竞赛项排除。"
+    },
+    "campus-ai-030": {
+      "fields": {
+        "job_type": "campus",
+        "locations": ["北京", "上海", "深圳", "杭州"],
+        "required_skills": [
+          "软件开发", "LLM应用研发技术栈", "LLM", "LLM API", "AI能力边界理解",
+          "Agent应用开发", "Agent应用优化", "Agent Loop", "任务分解", "多轮工具调用",
+          "上下文构造", "状态管理", "失败恢复", "结果验证", "Tracing", "实验评测",
+          "Agent效果分析", "Agent效果优化", "AI IDE", "Coding Agent", "代码补全",
+          "代码生成", "代码检索", "测试执行", "PR生成", "开发者工作流",
+          "系统架构设计", "系统优化"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": ["Go", "Java", "Python", "C++"],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [
+          "AI IDE系统建设", "Coding Agent系统建设", "LLM Gateway", "Agent Runtime",
+          "Prompt管理平台", "LLM Tracing", "实验平台", "代码补全系统", "商业化计费",
+          "AI编程产品/框架工程理解"
+        ]
+      },
+      "skill_mentions": [
+        "Go", "Java", "Python", "C++", "软件开发", "LLM应用研发技术栈", "LLM",
+        "LLM API", "AI能力边界理解", "模型路由", "流式输出", "Tool Calling",
+        "Prompt Caching", "Rate Limit", "上下文窗口", "Token计费", "结构化输出",
+        "Agent应用开发", "Agent应用优化", "Agent Loop", "任务分解", "多轮工具调用",
+        "上下文构造", "状态管理", "失败恢复", "结果验证", "Tracing", "实验评测",
+        "Agent效果分析", "Agent效果优化", "AI IDE", "Coding Agent", "代码补全",
+        "代码生成", "代码检索", "测试执行", "PR生成", "开发者工作流",
+        "系统架构设计", "系统优化", "LLM Gateway", "Agent Runtime", "Prompt管理平台",
+        "LLM Tracing", "实验平台", "商业化计费", "Cursor", "Claude Code", "Codex",
+        "GitHub Copilot", "Continue", "Aider", "Cline", "SWE-Agent"
+      ],
+      "field_confidence": {
+        "job_type": "high",
+        "locations": "high",
+        "required_skills": "high",
+        "required_skill_groups": "high",
+        "preferred_skills": "high"
+      },
+      "reasons": [],
+      "tags": ["v12_holdout6_smoke3_human_reviewed", "long_dense_agent_jd", "required_anyof"],
+      "manual_notes": "了解的机制只作提及；至少一种编程语言建立必备组；加分项系统建设经验进入 preferred，列举的产品与框架仅作提及。"
+    }
+  }
+}
