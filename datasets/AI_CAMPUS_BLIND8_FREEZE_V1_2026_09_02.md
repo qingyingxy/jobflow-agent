@@ -24,6 +24,12 @@ commit `219504f674a5752b9dbcdf78cdd0708744037242`. The frozen versions are:
 No v30 prediction was generated or inspected while the eight cases were being
 selected and annotated.
 
+The first-pass labels were independently produced by the Codex coding agent
+under annotation guide v1. They have not been reviewed by a second human
+annotator, so this freeze is suitable for parser development diagnostics but
+must receive independent human review before supporting a public benchmark or
+resume metric claim.
+
 ## Collection
 
 All eight records came from official public job-detail pages for Alibaba,
@@ -39,7 +45,7 @@ metadata-only redistribution policy. Its SHA-256 is
 
 The committed concept-aware labels are in
 `ai_campus_blind8_label_freeze_v1_2026_09_02.json`. Their SHA-256 is
-`9380a242c1cbfc19ce21fe9e5a8a9002a181b1e7c873f0bbb99dda81698f6109`.
+`c943ac8dc71bbfc9b774f41e21622048a3b783338df1b97b1a7d30dcbc628d0a`.
 The machine-readable freeze manifest records every source URL and per-JD text
 hash.
 

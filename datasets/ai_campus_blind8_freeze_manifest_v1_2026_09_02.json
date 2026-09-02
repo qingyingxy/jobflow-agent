@@ -12,12 +12,13 @@
   },
   "annotation": {
     "guide": "ai-campus-annotation-guide-v1",
-    "status": "blind_human_reviewed_before_prediction",
+    "status": "blind_independently_annotated_before_prediction",
+    "annotator": "Codex coding agent",
     "parser_predictions_viewed": false,
     "external_model_calls": false,
     "label_path": "datasets/ai_campus_blind8_label_freeze_v1_2026_09_02.json",
-    "label_sha256": "9380a242c1cbfc19ce21fe9e5a8a9002a181b1e7c873f0bbb99dda81698f6109",
-    "label_size_bytes": 65992
+    "label_sha256": "c943ac8dc71bbfc9b774f41e21622048a3b783338df1b97b1a7d30dcbc628d0a",
+    "label_size_bytes": 66038
   },
   "raw_source": {
     "local_path": "artifacts/evaluation/ai-campus-blind8-raw-v1-2026-09-02.json",
