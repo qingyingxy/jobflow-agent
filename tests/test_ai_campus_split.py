@@ -5,6 +5,10 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from src.domain.skill_normalizer import (
+    normalize_atomic_skill_values,
+    normalize_skill_group,
+)
 from src.evaluation.ai_campus_split import build_split_payload
 from src.evaluation.models import EvaluationManifest
 
@@ -25,6 +29,22 @@ DEV_STRICT_MANIFEST = Path(
 DEV_STRICT_REVIEW = Path(
     "artifacts/evaluation/"
     "m11-ai-campus-review-core-v20-label-v14-remaining51-dev21-strict-"
+    "2026-09-02.json"
+)
+HOLDOUT_LABELS = Path(
+    "datasets/ai_campus_label_overrides_v15_remaining51_holdout30_reviewed.json"
+)
+HOLDOUT_FREEZE = Path(
+    "datasets/ai_campus_holdout30_label_freeze_v1_2026_09_02.json"
+)
+HOLDOUT_STRICT_MANIFEST = Path(
+    "artifacts/evaluation/"
+    "m11-ai-campus-manifest-core-v28-label-v15-remaining51-holdout30-strict-"
+    "2026-09-02.json"
+)
+HOLDOUT_STRICT_REVIEW = Path(
+    "artifacts/evaluation/"
+    "m11-ai-campus-review-core-v28-label-v15-remaining51-holdout30-strict-"
     "2026-09-02.json"
 )
 
@@ -119,6 +139,83 @@ def test_dev21_freeze_hashes_match_the_frozen_files() -> None:
     assert freeze["case_count"] == 21
     assert freeze["prediction_status"] == "not_generated"
     assert freeze["sealed_holdout_prediction_status"] == "not_generated_or_viewed"
+    for frozen_file in freeze["files"].values():
+        path = Path(frozen_file["path"])
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == frozen_file["sha256"]
+
+
+def test_holdout30_labels_are_frozen_against_the_fixed_split() -> None:
+    split = json.loads(SPLIT_ARTIFACT.read_text(encoding="utf-8"))
+    labels = json.loads(HOLDOUT_LABELS.read_text(encoding="utf-8"))
+    manifest = EvaluationManifest.model_validate_json(
+        HOLDOUT_STRICT_MANIFEST.read_text(encoding="utf-8")
+    )
+    review = json.loads(HOLDOUT_STRICT_REVIEW.read_text(encoding="utf-8"))
+
+    holdout_ids = set(split["sealed_holdout"]["case_ids"])
+    assert labels["label_status"] == "human_reviewed_remaining51_holdout30_v1_frozen"
+    assert labels["annotation_guide_version"] == "ai-campus-annotation-guide-v1"
+    assert set(labels["case_ids"]) == holdout_ids
+    assert set(labels["cases"]) == holdout_ids
+    assert {case.id for case in manifest.cases} == holdout_ids
+    assert manifest.split == "eval"
+    assert review["included_case_count"] == 30
+    assert review["review_required_count"] == 0
+    assert review["excluded_field_counts"] == {"job_type": 2, "locations": 3}
+    assert review["field_labeled_case_count"] == {
+        "job_type": 28,
+        "locations": 27,
+        "required_skills": 30,
+        "required_skill_groups": 30,
+        "preferred_skills": 30,
+    }
+
+    cases_by_id = {case.id: case for case in manifest.cases}
+    for case_id in ("campus-ai-005", "campus-ai-007"):
+        assert "job_type" not in cases_by_id[case_id].expected.fields
+    for case_id in ("campus-ai-022", "campus-ai-028", "campus-ai-039"):
+        assert "locations" not in cases_by_id[case_id].expected.fields
+    assert cases_by_id["campus-ai-060"].expected.fields["job_type"] == "campus"
+
+
+def test_holdout30_skill_labels_are_normalized_traceable_and_disjoint() -> None:
+    manifest = EvaluationManifest.model_validate_json(
+        HOLDOUT_STRICT_MANIFEST.read_text(encoding="utf-8")
+    )
+
+    for case in manifest.cases:
+        fields = case.expected.fields
+        required = set(normalize_atomic_skill_values(fields["required_skills"]))
+        preferred = set(normalize_atomic_skill_values(fields["preferred_skills"]))
+        groups = [
+            normalize_skill_group(group, options_are_atomic=True)
+            for group in fields["required_skill_groups"]
+        ]
+        assert all(group is not None for group in groups)
+        normalized_groups = [group for group in groups if group is not None]
+        group_options = {
+            option for group in normalized_groups for option in group["any_of"]
+        }
+        mentions = set(
+            normalize_atomic_skill_values(case.expected.skill_mentions)
+        )
+
+        assert all(len(group["any_of"]) >= 2 for group in normalized_groups)
+        assert not required & preferred
+        assert not required & group_options
+        assert not preferred & group_options
+        assert required | preferred | group_options <= mentions
+
+
+def test_holdout30_freeze_hashes_match_before_prediction() -> None:
+    freeze = json.loads(HOLDOUT_FREEZE.read_text(encoding="utf-8"))
+
+    assert freeze["case_count"] == 30
+    assert freeze["prediction_status"] == "not_generated"
+    assert freeze["parser_version"] == "jd-core-parser-v28"
+    assert freeze["prompt_version"] == "jd-core-parser-prompt-v18"
+    assert freeze["schema_version"] == "core-job-fields-v6"
+    assert freeze["skill_ontology_version"] == "skill-ontology-v3"
     for frozen_file in freeze["files"].values():
         path = Path(frozen_file["path"])
         assert hashlib.sha256(path.read_bytes()).hexdigest() == frozen_file["sha256"]

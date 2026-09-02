@@ -1,0 +1,53 @@
+{
+  "freeze_version": "ai-campus-holdout30-label-freeze-v1",
+  "frozen_at": "2026-09-02",
+  "parser_freeze_commit": "ab77fde71b82dfc42673c80dcba142cf8f4457ab",
+  "parser_version": "jd-core-parser-v28",
+  "prompt_version": "jd-core-parser-prompt-v18",
+  "schema_version": "core-job-fields-v6",
+  "skill_ontology_version": "skill-ontology-v3",
+  "model": "deepseek-v4-flash",
+  "label_status": "human_reviewed_remaining51_holdout30_v1_frozen",
+  "case_count": 30,
+  "prediction_status": "not_generated",
+  "authorization_scope": "用户同意将密封 holdout 中 30 条公开 JD 原文发送给 DeepSeek API 进行一次最终评测；不发送简历、联系方式、投递数据或其他私有材料。",
+  "field_labeled_case_count": {
+    "job_type": 28,
+    "locations": 27,
+    "required_skills": 30,
+    "required_skill_groups": 30,
+    "preferred_skills": 30
+  },
+  "excluded_metadata_only_field_count": {
+    "job_type": 2,
+    "locations": 3
+  },
+  "acceptance_gate": {
+    "five_field_macro_f1_min": 0.9,
+    "required_skills_f1_min": 0.85,
+    "required_skill_groups_f1_min": 0.85,
+    "prediction_success_rate_min": 0.95
+  },
+  "files": {
+    "annotation_guide": {
+      "path": "datasets/AI_CAMPUS_ANNOTATION_GUIDE_V1.md",
+      "sha256": "239a0adbb7c589fe5c447afa11ad1d3f1dfc539e201df818c03326982604cb7c"
+    },
+    "fixed_split": {
+      "path": "datasets/ai_campus_remaining_51_split_v1_2026_09_02.json",
+      "sha256": "95faa945e127cf21dfc26a867946b35bce73d64ba4bacddd53d33d2a6411c3e0"
+    },
+    "labels": {
+      "path": "datasets/ai_campus_label_overrides_v15_remaining51_holdout30_reviewed.json",
+      "sha256": "eee6b2d4406c280913fd0abf69172434c17594470375bc2fc62ed32d0bba59bd"
+    },
+    "strict_manifest": {
+      "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v28-label-v15-remaining51-holdout30-strict-2026-09-02.json",
+      "sha256": "c07f54adcb2302ebcbe0bdc8800e66f688de88d6e5f049d624e1c7573c882d2f"
+    },
+    "strict_review": {
+      "path": "artifacts/evaluation/m11-ai-campus-review-core-v28-label-v15-remaining51-holdout30-strict-2026-09-02.json",
+      "sha256": "5cac7921ca927a21a84f651957b83efae6e77dacae82d4404424e08047c0662e"
+    }
+  }
+}
