@@ -1,0 +1,104 @@
+{
+  "freeze_version": "ai-campus-blind8-freeze-v1-2026-09-02",
+  "frozen_at": "2026-09-02",
+  "purpose": "unseen concept-aware JD parser evaluation after v30 freeze",
+  "frozen_parser": {
+    "code_commit": "219504f674a5752b9dbcdf78cdd0708744037242",
+    "freeze_record_commit": "2fbbc6272584203877a4cfeee413805af744ff74",
+    "parser": "jd-core-parser-v30",
+    "prompt": "jd-core-parser-prompt-v20",
+    "schema": "core-job-fields-v7",
+    "skill_ontology": "skill-ontology-v4"
+  },
+  "annotation": {
+    "guide": "ai-campus-annotation-guide-v1",
+    "status": "blind_human_reviewed_before_prediction",
+    "parser_predictions_viewed": false,
+    "external_model_calls": false,
+    "label_path": "datasets/ai_campus_blind8_label_freeze_v1_2026_09_02.json",
+    "label_sha256": "9380a242c1cbfc19ce21fe9e5a8a9002a181b1e7c873f0bbb99dda81698f6109",
+    "label_size_bytes": 65992
+  },
+  "raw_source": {
+    "local_path": "artifacts/evaluation/ai-campus-blind8-raw-v1-2026-09-02.json",
+    "redistribution_status": "local_only_public_text",
+    "sha256": "d97516c702895aaf5779998b1574e9ebc8086f601d48ca61b7e73ebf5a808047",
+    "size_bytes": 17908,
+    "source_policy": "public_official_job_detail_pages_only"
+  },
+  "deduplication": {
+    "reference_catalog": "datasets/ai_campus_job_catalog_2026_08_31.json",
+    "reference_raw_source": "artifacts/evaluation/m11-ai-campus-source-full-2026-08-31.json",
+    "keys": ["source_url", "company_and_title", "raw_content_sha256"],
+    "duplicate_count": 0
+  },
+  "summary": {
+    "case_count": 8,
+    "company_count": 5,
+    "campus_case_count": 6,
+    "internship_case_count": 2,
+    "concept_count": 202,
+    "qualified_concept_count": 27,
+    "any_of_positive_case_count": 5,
+    "any_of_group_count": 7,
+    "validation_error_count": 0
+  },
+  "cases": [
+    {
+      "id": "blind27-001",
+      "company": "阿里巴巴",
+      "title": "算法工程师-AI Agent",
+      "source_url": "https://campus-talent.alibaba.com/campus/position/199907700028",
+      "raw_content_sha256": "522ac6cadc5d93949b7697a0d3b21040555d2bf3fb0956679fdb1d8faf0aaa31"
+    },
+    {
+      "id": "blind27-002",
+      "company": "面壁智能",
+      "title": "大模型 Agent 算法实习生",
+      "source_url": "https://modelbest.jobs.feishu.cn/campus/position/7680823773248063782/detail",
+      "raw_content_sha256": "cad9af5051346129488df80d7c167146696c90cf17e2ae1bbc4698a2051eaab5"
+    },
+    {
+      "id": "blind27-003",
+      "company": "面壁智能",
+      "title": "VLA后训练算法实习生",
+      "source_url": "https://modelbest.jobs.feishu.cn/campus/position/7680506328330242330/detail",
+      "raw_content_sha256": "11c424c2f85f139a15dcc3ae1b3fbfa5667b63cd971f0f913baa801813da9c56"
+    },
+    {
+      "id": "blind27-004",
+      "company": "Momenta",
+      "title": "2027届-基础组件研发工程师",
+      "source_url": "https://momenta.jobs.feishu.cn/campus/position/7665627382573189439/detail",
+      "raw_content_sha256": "5680c557784a416c687c32d129270e40493ece20157cfabf14da04912ba70365"
+    },
+    {
+      "id": "blind27-005",
+      "company": "Momenta",
+      "title": "2027届-嵌入式软件工程师",
+      "source_url": "https://momenta.jobs.feishu.cn/campus/position/7665627986519296266/detail",
+      "raw_content_sha256": "f749a1cb2162e7c36ace814ae4aedb0dd8b72aea52078ca9bb03dc7e97740614"
+    },
+    {
+      "id": "blind27-006",
+      "company": "阶跃星辰",
+      "title": "27届-Agent 开发工程师（企业信息化方向）",
+      "source_url": "https://app.mokahr.com/campus-recruitment/step/94905#/job/7ba6e0f8-f2dc-47d9-9101-dd2f1c055729",
+      "raw_content_sha256": "67f2e4896c567db87c05e81490b2b99b74e7d224bb6195a2b2f85411135a149e"
+    },
+    {
+      "id": "blind27-007",
+      "company": "蔚来",
+      "title": "校招-车辆控制数学建模与优化算法工程师",
+      "source_url": "https://nio.jobs.feishu.cn/campus/position/7680477498861193514/detail",
+      "raw_content_sha256": "be94e2b3ffa98e35eb4456d5c46352cab175551fa8aafb2687ae8d8e20974221"
+    },
+    {
+      "id": "blind27-008",
+      "company": "蔚来",
+      "title": "校招-firefly萤火虫数字体验产品经理（AI&创新）",
+      "source_url": "https://nio.jobs.feishu.cn/campus/position/7673027398883100979/detail",
+      "raw_content_sha256": "133808018dd9067bd0bc9a6daaf3283f1dfb6a7ab5118c7a6fb3b48575d48044"
+    }
+  ]
+}
