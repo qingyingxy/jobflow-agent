@@ -1,0 +1,44 @@
+{
+  "version": "ai-campus-blind8-human-review-v2-2026-09-02",
+  "reviewed_at": "2026-09-02",
+  "reviewer": "repository owner",
+  "annotation_guide_version": "ai-campus-annotation-guide-v1",
+  "parser_predictions_viewed": false,
+  "external_model_calls": false,
+  "raw_collection": {
+    "version": "ai-campus-blind8-raw-v1-2026-09-02",
+    "path": "artifacts/evaluation/ai-campus-blind8-raw-v1-2026-09-02.json",
+    "size_bytes": 17908,
+    "sha256": "d97516c702895aaf5779998b1574e9ebc8086f601d48ca61b7e73ebf5a808047"
+  },
+  "source_labels": {
+    "version": "ai-campus-blind8-labels-v1-2026-09-02",
+    "path": "datasets/ai_campus_blind8_label_freeze_v1_2026_09_02.json",
+    "size_bytes": 66038,
+    "sha256": "c943ac8dc71bbfc9b774f41e21622048a3b783338df1b97b1a7d30dcbc628d0a"
+  },
+  "reviewed_labels": {
+    "version": "ai-campus-blind8-labels-v2-human-reviewed-2026-09-02",
+    "path": "datasets/ai_campus_blind8_label_human_reviewed_v2_2026_09_02.json",
+    "size_bytes": 80502,
+    "sha256": "e5100aef8dbfd1437791718b0e478414c146e2f23885ee310bac85fdb15e58be"
+  },
+  "summary": {
+    "case_count": 8,
+    "company_count": 5,
+    "concept_count": 246,
+    "qualified_concept_count": 35,
+    "any_of_case_count": 5,
+    "validation_errors": 0
+  },
+  "decisions": {
+    "blind27-001": "A1-A5 kept",
+    "blind27-002": "B1-B5 kept",
+    "blind27-003": "C1-C5 kept",
+    "blind27-004": "D1-D5 kept; D6 added task-scheduling-framework mention",
+    "blind27-005": "E1-E4 kept; E5-E6 changed vendor examples to mentions under preferred parent categories",
+    "blind27-006": "F1-F4 kept; F5-F7 corrected AI-tool granularity and added missing preferred/mention concepts",
+    "blind27-007": "G1-G4 kept; G5-G6 added experience qualifiers and responsibility mentions",
+    "blind27-008": "H1-H2 and H4 kept; H3 and H5-H6 corrected AI-tool granularity and added domain experience/mentions"
+  }
+}
