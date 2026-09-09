@@ -19,19 +19,19 @@ from src.infrastructure.llm_client import (
 )
 from src.services.company_registry import enabled_company_source_hosts
 from src.services.discovery_sources import GreenhouseAdapter
-from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_analysis_service import (
     AnalysisContentChangedError,
     JDAnalysisFailure,
     JDAnalysisService,
 )
+from src.services.job_decision import build_job_decision
 from src.services.job_parse_service import (
     JDParseFailure,
     JobNotFoundError,
     JobParseService,
 )
 from src.services.job_service import JobImportService
-from src.services.staged_jd_parser import StagedJDParser
+from src.services.product_jd_parser import ProductJDParser
 from src.services.url_reader import (
     SafeHTTPReader,
     URLFetchTimeout,
@@ -75,6 +75,8 @@ def _analysis_response(
     parse_result,
     agent_run_ids: list[str],
 ) -> JobAnalysisResponse:
+    eligibility = EligibilityResult.model_validate(analysis.eligibility)
+    matches = [RequirementMatch.model_validate(item) for item in analysis.matches]
     return JobAnalysisResponse(
         analysis_id=analysis.id,
         job=JobPostingRead.model_validate(posting),
@@ -84,8 +86,9 @@ def _analysis_response(
         structured_jd=StructuredJobDescription.model_validate(
             parse_result.structured_jd
         ),
-        eligibility=EligibilityResult.model_validate(analysis.eligibility),
-        matches=[RequirementMatch.model_validate(item) for item in analysis.matches],
+        eligibility=eligibility,
+        matches=matches,
+        decision=build_job_decision(eligibility=eligibility, matches=matches),
         score=MatchScore.model_validate(analysis.score),
         risks=[AnalysisRisk.model_validate(item) for item in analysis.risks],
         missing_information=analysis.missing_information,
@@ -170,12 +173,10 @@ async def parse_job(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = StagedJDParser(
+    parser = ProductJDParser(
         client,
-        prompt_version=settings.staged_prompt_version,
-        parser_version=settings.staged_parser_version,
-        core_prompt_version=settings.core_prompt_version,
-        detail_prompt_version=settings.detail_prompt_version,
+        prompt_version=settings.product_prompt_version,
+        parser_version=settings.product_parser_version,
         validation_retries=settings.parser_validation_retries,
     )
     try:
@@ -227,20 +228,16 @@ async def analyze_job(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = StagedJDParser(
+    parser = ProductJDParser(
         client,
-        prompt_version=settings.staged_prompt_version,
-        parser_version=settings.staged_parser_version,
-        core_prompt_version=settings.core_prompt_version,
-        detail_prompt_version=settings.detail_prompt_version,
+        prompt_version=settings.product_prompt_version,
+        parser_version=settings.product_parser_version,
         validation_retries=settings.parser_validation_retries,
     )
-    matcher = EvidenceMatcher(client)
     try:
         execution = await JDAnalysisService(
             session,
             parser=parser,
-            matcher=matcher,
         ).analyze(user_id=user_id, job_id=job_id)
     except JobNotFoundError as error:
         raise HTTPException(

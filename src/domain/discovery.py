@@ -47,6 +47,7 @@ class LeadNextAction(StrEnum):
 
 
 class DiscoveryTool(StrEnum):
+    WEB_SEARCH = "web_search"
     SOURCE_ADAPTER = "source_adapter"
     GREENHOUSE_PUBLIC_JOB_API = "greenhouse_public_job_api"
     BYTEDANCE_PUBLIC_JOB_ADAPTER = "bytedance_public_job_adapter"

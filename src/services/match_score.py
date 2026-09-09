@@ -20,6 +20,7 @@ GROUP_WEIGHTS = {
 _SUPPORT_VALUES = {
     "supported": 1.0,
     "partial": 0.5,
+    "needs_confirmation": 0.0,
     "unsupported": 0.0,
 }
 

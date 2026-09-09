@@ -75,12 +75,30 @@ from .materials import (
 )
 from .models import EvidenceItem, UserProfile
 from .runs import AgentRun, JobParseResult
+from .simplified_workflow import (
+    ApplicationBoardStatus,
+    ApplicationOutcome,
+    ApplicationRecommendation,
+    InitialJobSearchProfile,
+    ResumeEvidence,
+    ResumeEvidenceDraft,
+    ResumeSourceLocation,
+)
 from .suggestion import (
     ResumeSuggestion,
     ResumeSuggestionModelOutput,
     SuggestionDecision,
     SuggestionStatus,
     SuggestionTargetInput,
+)
+from .unified_jd import (
+    UNIFIED_JD_SCHEMA_VERSION,
+    ExperienceQualifier,
+    UnifiedFactEvidence,
+    UnifiedJDClause,
+    UnifiedJDModelOutput,
+    UnifiedJobFacts,
+    validate_unified_jd_evidence,
 )
 
 __all__ = [
@@ -90,6 +108,7 @@ __all__ = [
     "CANDIDATE_TRANSITIONS",
     "FOLLOW_UP_TRANSITIONS",
     "PACKET_TRANSITIONS",
+    "UNIFIED_JD_SCHEMA_VERSION",
     "AgentRun",
     "AnalysisRisk",
     "AnswerBankEntry",
@@ -98,7 +117,10 @@ __all__ = [
     "Application",
     "ApplicationAttempt",
     "ApplicationBlocker",
+    "ApplicationBoardStatus",
+    "ApplicationOutcome",
     "ApplicationPacket",
+    "ApplicationRecommendation",
     "ApplicationStatus",
     "AtsAssistanceSession",
     "AtsFieldAction",
@@ -120,10 +142,12 @@ __all__ = [
     "EligibilityResult",
     "EvidenceItem",
     "EvidenceRecord",
+    "ExperienceQualifier",
     "FollowUpEffectiveStatus",
     "FollowUpEventType",
     "FollowUpStatus",
     "FollowUpTask",
+    "InitialJobSearchProfile",
     "JobAnalysis",
     "JobAvailabilityCheck",
     "JobAvailabilityEvidenceType",
@@ -144,6 +168,9 @@ __all__ = [
     "PrivateFieldState",
     "RequirementMatch",
     "ResumeAsset",
+    "ResumeEvidence",
+    "ResumeEvidenceDraft",
+    "ResumeSourceLocation",
     "ResumeSuggestion",
     "ResumeSuggestionModelOutput",
     "ResumeVersion",
@@ -152,6 +179,11 @@ __all__ = [
     "SuggestionDecision",
     "SuggestionStatus",
     "SuggestionTargetInput",
+    "UnifiedFactEvidence",
+    "UnifiedJDClause",
+    "UnifiedJDModelOutput",
+    "UnifiedJobFacts",
     "UserProfile",
     "VoluntaryDisclosurePolicy",
+    "validate_unified_jd_evidence",
 ]

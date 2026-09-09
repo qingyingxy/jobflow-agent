@@ -12,12 +12,14 @@ EligibilityStatus = Literal["pass", "fail", "unknown"]
 
 
 class SearchPreferences(BaseModel):
-    """Typed user preferences used by the deterministic eligibility checker."""
+    """Typed preferences; schedule fields are retained for payload compatibility."""
 
     model_config = ConfigDict(extra="forbid")
 
     preferred_locations: list[str] | None = None
     job_types: list[JobType] | None = None
+    # Display-only in the simplified flow. Resumes do not reliably contain
+    # availability, so these values must not gate automatic eligibility.
     earliest_start_date: date | None = None
     weekly_days: int | None = Field(default=None, ge=1, le=7)
     internship_duration_months: int | None = Field(default=None, ge=0)

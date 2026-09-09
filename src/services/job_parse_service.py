@@ -21,6 +21,7 @@ from src.domain.runs import (
     generate_parse_result_id,
 )
 from src.services.jd_parser import JDParser, JDParserError, ParsedJobDescription
+from src.services.product_jd_parser import ProductJDParser
 from src.services.staged_jd_parser import StagedJDParser
 
 
@@ -50,7 +51,11 @@ class JobParseExecution:
 
 
 class JobParseService:
-    def __init__(self, session: Session, parser: JDParser | StagedJDParser) -> None:
+    def __init__(
+        self,
+        session: Session,
+        parser: JDParser | StagedJDParser | ProductJDParser,
+    ) -> None:
         self.session = session
         self.parser = parser
 

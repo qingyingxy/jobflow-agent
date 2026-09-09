@@ -968,9 +968,9 @@ CandidateProfileInput + SearchPreferences + StructuredJobDescription
 → EligibilityCheck[] + EligibilityResult
 ```
 
-检查覆盖毕业年份、学历、专业、地点、岗位类型、实习时长、每周到岗天数和最早到岗时间。每条结果包含 `pass / fail / unknown`、规则名、原因、JD 原文依据和待补充信息；总体结果按 `fail > unknown > pass` 汇总。学历层级、专业族、北京/北京市等地点别名、日期和数值比较均使用确定性规则，无法安全规范化时返回 `unknown`。
+检查覆盖毕业年份、学历、专业、地点和岗位类型。每条结果包含 `pass / fail / unknown`、规则名、原因、JD 原文依据和待补充信息；总体结果按 `fail > unknown > pass` 汇总。学历层级、专业族和北京/北京市等地点别名使用确定性规范化，无法安全规范化时返回 `unknown`。实习时长、每周到岗天数和最早到岗时间只展示，不参与自动资格判断。
 
-`SearchPreferences` 明确以下字段的类型和范围：`preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days(1～7)` 和 `internship_duration_months(>=0)`。`null` 表示信息未提供，相关规则返回 `unknown`；空列表表示明确没有该类限制。M02 旧字段 `target_roles` 和 `locations` 暂时保留兼容，但资格检查只使用规范字段。
+`SearchPreferences` 继续校验 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days(1～7)` 和 `internship_duration_months(>=0)`，以兼容旧载荷；资格检查只读取前两项。`null` 与空列表的资格语义只适用于 `preferred_locations` 和 `job_types`。M02 旧字段 `target_roles` 和 `locations` 暂时保留兼容。
 
 ### M06 证据匹配与确定性评分
 

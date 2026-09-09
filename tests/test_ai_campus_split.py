@@ -17,6 +17,15 @@ SOURCE_MANIFEST = Path(
     "artifacts/evaluation/m11-ai-campus-manifest-full-v4-strict-2026-08-31.json"
 )
 SPLIT_ARTIFACT = Path("datasets/ai_campus_remaining_51_split_v1_2026_09_02.json")
+V31_DEV_SELECTION = Path(
+    "datasets/ai_campus_v31_dev15_selection_2026_09_02.json"
+)
+V32_DEV_SELECTION = Path(
+    "datasets/ai_campus_v32_dev3_selection_2026_09_02.json"
+)
+V33_DEV_SELECTION = Path(
+    "datasets/ai_campus_v33_dev5_selection_2026_09_02.json"
+)
 DEV_LABELS = Path(
     "datasets/ai_campus_label_overrides_v14_remaining51_dev21_reviewed.json"
 )
@@ -85,6 +94,104 @@ def test_remaining_51_split_preserves_company_and_internship_coverage() -> None:
 
     assert payload["dev"]["recruitment_type_counts"]["实习生"] > 0
     assert payload["sealed_holdout"]["recruitment_type_counts"]["实习生"] > 0
+
+
+def test_v31_dev15_selection_uses_only_non_blind_dev_cases() -> None:
+    split = json.loads(SPLIT_ARTIFACT.read_text(encoding="utf-8"))
+    selection = json.loads(V31_DEV_SELECTION.read_text(encoding="utf-8"))
+
+    selected_ids = [case["id"] for case in selection["cases"]]
+    bucket_ids = [
+        case_id
+        for case_ids in selection["buckets"].values()
+        for case_id in case_ids
+    ]
+    dev_ids = set(split["dev"]["case_ids"])
+    holdout_ids = set(split["sealed_holdout"]["case_ids"])
+
+    assert selection["status"] == "development_not_holdout"
+    assert selection["case_count"] == 15
+    assert len(selected_ids) == len(set(selected_ids)) == 15
+    assert set(selected_ids) == set(bucket_ids)
+    assert set(selected_ids) <= dev_ids
+    assert not set(selected_ids) & holdout_ids
+    assert selection["blind_data_policy"] == {
+        "blind8_included": False,
+        "blind8_prediction_reuse": False,
+        "note": "No blind-8 JD or prediction may be used for v31 tuning or replay.",
+    }
+    assert all(case["coverage"] for case in selection["cases"])
+
+
+def test_v32_dev3_selection_uses_new_non_blind_dev_cases() -> None:
+    split = json.loads(SPLIT_ARTIFACT.read_text(encoding="utf-8"))
+    v31 = json.loads(V31_DEV_SELECTION.read_text(encoding="utf-8"))
+    v32 = json.loads(V32_DEV_SELECTION.read_text(encoding="utf-8"))
+
+    selected_ids = {case["id"] for case in v32["cases"]}
+    v31_api_ids = set(v31["buckets"]["v30_regression"])
+
+    assert v32["status"] in {"authorized_not_run", "completed_once"}
+    assert v32["case_count"] == len(selected_ids) == 3
+    assert selected_ids <= set(split["dev"]["case_ids"])
+    assert not selected_ids & set(split["sealed_holdout"]["case_ids"])
+    assert not selected_ids & v31_api_ids
+    assert v32["blind8_included"] is False
+    assert v32["api_policy"]["authorized"] is True
+    assert all(case["coverage"] for case in v32["cases"])
+
+
+def test_v33_dev5_selection_records_one_authorized_non_blind_run() -> None:
+    split = json.loads(SPLIT_ARTIFACT.read_text(encoding="utf-8"))
+    v31 = json.loads(V31_DEV_SELECTION.read_text(encoding="utf-8"))
+    v32 = json.loads(V32_DEV_SELECTION.read_text(encoding="utf-8"))
+    v33 = json.loads(V33_DEV_SELECTION.read_text(encoding="utf-8"))
+
+    selected_ids = {case["id"] for case in v33["cases"]}
+    v31_ids = {case["id"] for case in v31["cases"]}
+    v32_ids = {case["id"] for case in v32["cases"]}
+
+    assert v33["status"] == "completed_once"
+    assert v33["case_count"] == len(selected_ids) == 5
+    assert selected_ids <= set(split["dev"]["case_ids"])
+    assert not selected_ids & set(split["sealed_holdout"]["case_ids"])
+    assert not selected_ids & v31_ids
+    assert not selected_ids & v32_ids
+    assert v33["blind_data_policy"] == {
+        "blind8_included": False,
+        "sealed_holdout_included": False,
+        "prediction_reuse": False,
+    }
+    assert v33["proposed_api_policy"]["authorized"] is True
+    assert v33["proposed_api_policy"]["run_count"] == 1
+    assert v33["execution_result"] == {
+        "completed_at": "2026-09-02T15:00:47.034387+00:00",
+        "run_count": 1,
+        "rerun_performed": False,
+        "generation_duration_ms": 1179437.7,
+        "successful_case_count": 1,
+        "successful_case_ids": ["campus-ai-142"],
+        "failure_count": 4,
+        "failure_counts": {
+            "model_timeout": 2,
+            "structured_output_invalid": 2,
+        },
+    }
+    artifact_keys = (
+        ("manifest_path", "manifest_sha256"),
+        ("review_path", "review_sha256"),
+        ("predictions_path", "predictions_sha256"),
+        ("checkpoint_path", "checkpoint_sha256"),
+        ("full_report_path", "full_report_sha256"),
+        ("successful_only_report_path", "successful_only_report_sha256"),
+    )
+    for path_key, hash_key in artifact_keys:
+        path = Path(v33["local_artifacts"][path_key])
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == v33[
+            "local_artifacts"
+        ][hash_key]
+    assert v33["local_artifacts"]["review_required_count"] == 0
+    assert all(case["coverage"] for case in v33["cases"])
 
 
 def test_dev21_labels_are_frozen_against_the_fixed_split() -> None:

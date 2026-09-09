@@ -25,6 +25,8 @@ from src.domain.application import (
     ApplicationStatus,
     CandidateStatus,
 )
+from src.domain.eligibility import EligibilityResult
+from src.domain.matching import RequirementMatch
 from src.infrastructure.llm_client import (
     ModelClientError,
     create_structured_model_client,
@@ -37,6 +39,7 @@ from src.services.application_service import (
     JobPostingNotFoundError,
     SubmissionReceiptRequiredError,
 )
+from src.services.job_decision import build_job_decision
 from src.services.suggestion_service import (
     InvalidSuggestionDecisionError,
     JobAnalysisNotFoundError,
@@ -86,12 +89,13 @@ def _candidate_analysis(
     )
     if analysis is None:
         return None
-    score = analysis.score or {}
-    eligibility = analysis.eligibility or {}
+    eligibility = EligibilityResult.model_validate(analysis.eligibility)
+    matches = [RequirementMatch.model_validate(item) for item in analysis.matches]
+    decision = build_job_decision(eligibility=eligibility, matches=matches)
     return CandidateAnalysisSummary(
-        score=score.get("score"),
-        recommendation=score.get("recommendation"),
-        eligibility=eligibility.get("eligible"),
+        score=None,
+        recommendation=decision.recommendation,
+        eligibility=eligibility.eligible,
     )
 
 

@@ -17,7 +17,12 @@ from src.api.materials_schemas import (
     ResumeVersionRead,
     ResumeVersionUpdate,
 )
+from src.config import get_settings
 from src.domain.materials import CandidatePrivateProfile, ResumeVersion
+from src.infrastructure.llm_client import (
+    ModelClientError,
+    create_structured_model_client,
+)
 from src.services.candidate_material_service import (
     PROFILE_FIELDS,
     CandidateMaterialConflictError,
@@ -25,8 +30,65 @@ from src.services.candidate_material_service import (
     CandidateMaterialService,
     CandidateMaterialValidationError,
 )
+from src.services.resume_ingestion_service import (
+    ResumeEvidenceExtractor,
+    ResumeIngestionError,
+    ResumeIngestionService,
+    is_current_resume_asset,
+)
 
 router = APIRouter(prefix="/api", tags=["candidate-materials"])
+
+
+async def _ingest_resume_evidence(
+    *,
+    session: DatabaseSession,
+    user_id: str,
+    asset_id: str,
+    media_type: str,
+    content: bytes,
+) -> None:
+    if is_current_resume_asset(
+        session,
+        user_id=user_id,
+        asset_id=asset_id,
+    ):
+        return
+    settings = get_settings()
+    extractor = ResumeEvidenceExtractor(
+        create_structured_model_client(settings),
+        validation_retries=settings.parser_validation_retries,
+    )
+    await ResumeIngestionService(session, extractor).ingest(
+        user_id=user_id,
+        asset_id=asset_id,
+        media_type=media_type,
+        content=content,
+    )
+
+
+def _raise_resume_ingestion_error(exception: Exception) -> None:
+    if isinstance(exception, ResumeIngestionError):
+        response_status = (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+            if exception.code
+            in {"model_timeout", "model_unavailable", "model_error"}
+            else status.HTTP_422_UNPROCESSABLE_CONTENT
+        )
+        raise HTTPException(
+            status_code=response_status,
+            detail={
+                "code": exception.code,
+                "message": str(exception),
+                "details": exception.details,
+            },
+        ) from exception
+    if isinstance(exception, ModelClientError):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": exception.code, "message": str(exception)},
+        ) from exception
+    _raise_api_error(exception)
 
 
 def _raise_api_error(exception: Exception) -> None:
@@ -138,6 +200,7 @@ async def upload_resume_asset(
     service = CandidateMaterialService(session)
     content = await file.read(service.resume_max_bytes + 1)
     await file.close()
+    asset = None
     try:
         asset = service.upload_resume_asset(
             user_id=user_id,
@@ -145,8 +208,20 @@ async def upload_resume_asset(
             media_type=file.content_type or "",
             content=content,
         )
+        await _ingest_resume_evidence(
+            session=session,
+            user_id=user_id,
+            asset_id=asset.id,
+            media_type=asset.media_type,
+            content=content,
+        )
     except Exception as exception:
-        _raise_api_error(exception)
+        if asset is not None:
+            service.discard_unversioned_resume_asset(
+                user_id=user_id,
+                asset_id=asset.id,
+            )
+        _raise_resume_ingestion_error(exception)
         raise
     return ResumeAssetRead.model_validate(asset)
 
@@ -186,19 +261,32 @@ def download_resume_asset(
     response_model=ResumeVersionRead,
     status_code=status.HTTP_201_CREATED,
 )
-def create_resume_version(
+async def create_resume_version(
     payload: ResumeVersionCreate,
     user_id: CurrentUserId,
     session: DatabaseSession,
 ) -> ResumeVersionRead:
     service = CandidateMaterialService(session)
     try:
+        should_activate = payload.is_default or not service.list_resume_versions(user_id)
+        if should_activate:
+            asset, path = service.get_resume_download(
+                user_id=user_id,
+                asset_id=payload.asset_id,
+            )
+            await _ingest_resume_evidence(
+                session=session,
+                user_id=user_id,
+                asset_id=asset.id,
+                media_type=asset.media_type,
+                content=path.read_bytes(),
+            )
         version = service.create_resume_version(
             user_id=user_id,
             **payload.model_dump(),
         )
     except Exception as exception:
-        _raise_api_error(exception)
+        _raise_resume_ingestion_error(exception)
         raise
     return _version_read(service, user_id=user_id, version=version)
 
@@ -218,21 +306,38 @@ def list_resume_versions(
 @router.patch(
     "/resumes/versions/{version_id}", response_model=ResumeVersionRead
 )
-def update_resume_version(
+async def update_resume_version(
     version_id: str,
     payload: ResumeVersionUpdate,
     user_id: CurrentUserId,
     session: DatabaseSession,
 ) -> ResumeVersionRead:
     service = CandidateMaterialService(session)
+    changes = payload.model_dump(exclude_unset=True)
     try:
+        if changes.get("is_default") is True:
+            current = service.get_resume_version(
+                user_id=user_id,
+                version_id=version_id,
+            )
+            asset, path = service.get_resume_download(
+                user_id=user_id,
+                asset_id=current.asset_id,
+            )
+            await _ingest_resume_evidence(
+                session=session,
+                user_id=user_id,
+                asset_id=asset.id,
+                media_type=asset.media_type,
+                content=path.read_bytes(),
+            )
         version = service.update_resume_version(
             user_id=user_id,
             version_id=version_id,
-            changes=payload.model_dump(exclude_unset=True),
+            changes=changes,
         )
     except Exception as exception:
-        _raise_api_error(exception)
+        _raise_resume_ingestion_error(exception)
         raise
     return _version_read(service, user_id=user_id, version=version)
 

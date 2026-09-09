@@ -49,6 +49,12 @@ from src.services.lead_providers import (
 )
 from src.services.official_search_service import execute_official_search_in_worker
 from src.services.url_reader import SafeHTTPReader, URLFetchTimeout
+from src.services.web_search_service import (
+    WEB_SEARCH_RUN_SOURCE_ID,
+    WebSearchConfigurationError,
+    create_web_search_provider,
+    execute_web_search_in_worker,
+)
 
 router = APIRouter(prefix="/api", tags=["discovery"])
 
@@ -471,7 +477,38 @@ async def create_official_search(
     user_id: CurrentUserId,
     session: DatabaseSession,
 ) -> DiscoveryRunRead:
-    """Start one bounded official-site search; parsing runs after discovery."""
+    """Start one bounded search; original job pages are verified before parsing."""
+
+    if payload.source_mode == "web":
+        try:
+            provider = create_web_search_provider(payload.query, payload.company_ids)
+        except WebSearchConfigurationError as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail={"code": error.code, "message": str(error)},
+            ) from error
+        except ValueError as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail={"code": "unknown_company_source", "message": str(error)},
+            ) from error
+        plan = provider.build_search_plan()
+        run = DiscoveryService(session).create_run(
+            user_id=user_id,
+            search_query=payload.query,
+            max_results=plan.budget.max_results,
+            source_id=WEB_SEARCH_RUN_SOURCE_ID,
+            source_url=provider.source_url,
+            search_plan=plan,
+        )
+        background_tasks.add_task(
+            execute_web_search_in_worker,
+            run_id=run.id,
+            user_id=user_id,
+            query=payload.query,
+            company_ids=payload.company_ids,
+        )
+        return DiscoveryRunRead.model_validate(run)
 
     try:
         adapter = create_official_search_adapter(payload.query, payload.company_ids)

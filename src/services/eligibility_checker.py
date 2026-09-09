@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from datetime import date
 
 from src.domain.eligibility import (
     EligibilityCheck,
@@ -500,145 +499,6 @@ def _check_job_type(
     )
 
 
-def _check_duration(
-    available_months: int | None,
-    job: StructuredJobDescription,
-) -> EligibilityCheck | None:
-    if job.job_type != "internship" and job.internship_duration_months is None:
-        return None
-    evidence = _evidence_for(job, "internship_duration_months")
-    required_months = job.internship_duration_months
-    if required_months is None:
-        return _check(
-            rule_name="internship_duration",
-            field="internship_duration_months",
-            result="unknown",
-            reason="实习岗位没有明确实习时长要求",
-            jd_evidence=evidence,
-            missing_information=["确认岗位实习时长要求"],
-        )
-    if required_months == 0:
-        return _check(
-            rule_name="internship_duration",
-            field="internship_duration_months",
-            result="pass",
-            reason="岗位未设置最低实习时长",
-            jd_evidence=evidence,
-        )
-    if available_months is None:
-        return _check(
-            rule_name="internship_duration",
-            field="internship_duration_months",
-            result="unknown",
-            reason=f"岗位要求至少实习 {required_months} 个月，但用户未确认可实习时长",
-            jd_evidence=evidence,
-            missing_information=["补充可实习时长"],
-        )
-    if available_months >= required_months:
-        return _check(
-            rule_name="internship_duration",
-            field="internship_duration_months",
-            result="pass",
-            reason=f"用户可实习 {available_months} 个月，满足岗位要求的 {required_months} 个月",
-            jd_evidence=evidence,
-        )
-    return _check(
-        rule_name="internship_duration",
-        field="internship_duration_months",
-        result="fail",
-        reason=f"用户可实习 {available_months} 个月，少于岗位要求的 {required_months} 个月",
-        jd_evidence=evidence,
-    )
-
-
-def _check_weekly_days(
-    available_days: int | None,
-    job: StructuredJobDescription,
-) -> EligibilityCheck | None:
-    if job.weekly_days is None and job.job_type != "internship":
-        return None
-    evidence = _evidence_for(job, "weekly_days")
-    if job.weekly_days is None:
-        return _check(
-            rule_name="weekly_days",
-            field="weekly_days",
-            result="unknown",
-            reason="实习岗位没有明确每周到岗天数",
-            jd_evidence=evidence,
-            missing_information=["确认岗位每周到岗天数"],
-        )
-    if available_days is None:
-        return _check(
-            rule_name="weekly_days",
-            field="weekly_days",
-            result="unknown",
-            reason=f"岗位要求每周到岗 {job.weekly_days} 天，但用户未确认可到岗天数",
-            jd_evidence=evidence,
-            missing_information=["补充每周可到岗天数"],
-        )
-    if available_days >= job.weekly_days:
-        return _check(
-            rule_name="weekly_days",
-            field="weekly_days",
-            result="pass",
-            reason=f"用户每周可到岗 {available_days} 天，满足岗位要求的 {job.weekly_days} 天",
-            jd_evidence=evidence,
-        )
-    return _check(
-        rule_name="weekly_days",
-        field="weekly_days",
-        result="fail",
-        reason=f"用户每周可到岗 {available_days} 天，少于岗位要求的 {job.weekly_days} 天",
-        jd_evidence=evidence,
-    )
-
-
-def _check_start_date(
-    earliest_start_date: date | None,
-    job: StructuredJobDescription,
-) -> EligibilityCheck:
-    evidence = _evidence_for(job, "earliest_start_date")
-    if job.earliest_start_date is None:
-        return _check(
-            rule_name="earliest_start_date",
-            field="earliest_start_date",
-            result="unknown",
-            reason="岗位没有明确最早到岗时间",
-            jd_evidence=evidence,
-            missing_information=["确认岗位最早到岗时间"],
-        )
-    if earliest_start_date is None:
-        return _check(
-            rule_name="earliest_start_date",
-            field="earliest_start_date",
-            result="unknown",
-            reason="岗位有到岗时间要求，但用户未填写最早可到岗时间",
-            jd_evidence=evidence,
-            missing_information=["补充最早可到岗时间"],
-        )
-    if earliest_start_date <= job.earliest_start_date:
-        return _check(
-            rule_name="earliest_start_date",
-            field="earliest_start_date",
-            result="pass",
-            reason=(
-                f"用户最早可在 {earliest_start_date.isoformat()} 到岗，"
-                f"满足岗位要求的 {job.earliest_start_date.isoformat()}"
-            ),
-            jd_evidence=evidence,
-        )
-    return _check(
-        rule_name="earliest_start_date",
-        field="earliest_start_date",
-        result="fail",
-        reason=(
-            f"用户最早可在 {earliest_start_date.isoformat()} 到岗，"
-            f"晚于岗位要求的 {job.earliest_start_date.isoformat()}"
-        ),
-        jd_evidence=evidence,
-    )
-
-
 def check_eligibility(input_data: EligibilityInput) -> EligibilityResult:
     """Return a deterministic qualification result for one user and one JD."""
 
@@ -652,13 +512,6 @@ def check_eligibility(input_data: EligibilityInput) -> EligibilityResult:
         _check_location(preferences.preferred_locations, job),
         _check_job_type(preferences.job_types, job),
     ]
-    for optional_check in (
-        _check_duration(preferences.internship_duration_months, job),
-        _check_weekly_days(preferences.weekly_days, job),
-    ):
-        if optional_check is not None:
-            checks.append(optional_check)
-    checks.append(_check_start_date(preferences.earliest_start_date, job))
 
     if any(check.result == "fail" for check in checks):
         eligible = "fail"

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from itertools import pairwise
 from typing import Any, Literal
 
-SKILL_ONTOLOGY_VERSION = "skill-ontology-v4"
+SKILL_ONTOLOGY_VERSION = "skill-ontology-v5"
 
 SkillQualifier = Literal[
     "project_experience",
@@ -502,6 +502,9 @@ _SKILL_CATEGORY_ALIASES: dict[str, str] = {
     "推理框架": "推理框架",
     "大模型推理框架": "推理框架",
     "模型推理框架": "推理框架",
+    "推理引擎": "推理框架",
+    "开源推理引擎": "推理框架",
+    "大模型推理引擎": "推理框架",
     "强化学习框架": "强化学习框架",
     "rl框架": "强化学习框架",
     "机器人仿真平台": "机器人仿真平台",

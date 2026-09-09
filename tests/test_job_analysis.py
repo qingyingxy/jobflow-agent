@@ -251,14 +251,12 @@ async def test_latest_rejects_analysis_when_job_content_changed(db_session) -> N
 async def test_analysis_failure_does_not_save_half_finished_job_analysis(db_session) -> None:
     posting = create_posting(db_session)
     add_profile_and_evidence(db_session)
-    parser = JDParser(FakeModelClient(output=valid_jd_output()))
-    matcher = EvidenceMatcher(FakeModelClient(error=ModelTimeoutError("timeout")))
+    parser = JDParser(FakeModelClient(error=ModelTimeoutError("timeout")))
 
     with pytest.raises(JDAnalysisFailure) as error:
         await JDAnalysisService(
             db_session,
             parser=parser,
-            matcher=matcher,
         ).analyze(user_id="user-a", job_id=posting.id)
 
     assert error.value.code == "model_timeout"
@@ -296,7 +294,10 @@ async def test_analysis_and_latest_endpoints_return_user_scoped_result() -> None
     assert analyze_response.status_code == 200
     assert analyze_response.json()["analysis_id"].startswith("analysis_")
     assert analyze_response.json()["structured_jd"]["requirements"][0]["name"] == "RAG"
-    assert analyze_response.json()["matches"][0]["support_level"] == "unsupported"
+    assert analyze_response.json()["matches"][0]["support_level"] == "needs_confirmation"
+    assert analyze_response.json()["decision"]["recommendation"] == (
+        "insufficient_information"
+    )
     assert latest_response.status_code == 200
     assert latest_response.json()["analysis_id"] == analyze_response.json()["analysis_id"]
     assert other_response.status_code == 404
@@ -347,6 +348,7 @@ async def test_demo_api_matches_current_user_evidence() -> None:
     body = analysis_response.json()
     assert body["matches"][0]["support_level"] == "supported"
     assert body["matches"][0]["evidence_ids"] == [evidence_response.json()["id"]]
+    assert body["decision"]["recommendation"] == "insufficient_information"
     assert body["score"]["score"] == 100.0
     assert body["score"]["recommendation"] == "needs_confirmation"
 

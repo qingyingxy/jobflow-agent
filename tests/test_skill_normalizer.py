@@ -33,6 +33,7 @@ def test_shared_ontology_normalizes_categories_and_short_aliases() -> None:
         "图像生成",
         "CPU架构",
     ]
+    assert normalize_skill_category("开源推理引擎") == "推理框架"
 
 
 def test_skill_concepts_use_stable_ids_for_surface_aliases() -> None:

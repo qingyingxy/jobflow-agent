@@ -9,7 +9,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from src.domain.eligibility import EligibilityStatus
 from src.domain.job import JobRequirement
 
-SupportLevel = Literal["supported", "partial", "unsupported"]
+SupportLevel = Literal[
+    "supported",
+    "partial",
+    "needs_confirmation",
+    "unsupported",
+]
 ValidationStatus = Literal["passed", "failed"]
 ScoreGroupName = Literal["required_skill", "preferred_skill", "preferences"]
 ScoreGroupStatus = Literal["applicable", "not_applicable", "insufficient_data"]

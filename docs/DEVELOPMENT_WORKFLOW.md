@@ -202,7 +202,7 @@ jobflow-agent/
 | `AgentRun` | 从 M04 开始保存的必要技术轨迹 | user_id、run_type、target、status、model、prompt_version、input_hash、output、validation_result、started_at、finished_at、error |
 | `DiscoveryRun` | 用户手动发现运行 | user_id、source、status、discovered_count、new_count、duplicate_count、failure_summary、started_at、finished_at |
 
-求职偏好直接保存在 `UserProfile.search_preferences`，但写入和读取必须经过 `SearchPreferences` Schema。参与资格判断的字段至少包括 `preferred_locations`、`job_types`、`earliest_start_date`、`weekly_days` 和 `internship_duration_months`，并明确类型、范围和 `null` 语义；其他纯展示偏好仍可保留在 JSON 中。`RawJobDocument` 是导入和后续解析之间传递的 Schema，不单独建表；岗位原文、内容指纹和读取时间直接保存在 `JobPosting`。审批状态和最终文本直接保存在 `ResumeSuggestion`。
+求职偏好直接保存在 `UserProfile.search_preferences`，但写入和读取必须经过 `SearchPreferences` Schema。自动资格判断只读取 `preferred_locations` 和 `job_types`；`earliest_start_date`、`weekly_days` 和 `internship_duration_months` 仅为旧载荷兼容与展示保留，不影响资格结论。`RawJobDocument` 是导入和后续解析之间传递的 Schema，不单独建表；岗位原文、内容指纹和读取时间直接保存在 `JobPosting`。审批状态和最终文本直接保存在 `ResumeSuggestion`。
 
 `JobParseResult` 只缓存与用户无关的结构化 JD，可按 `content_hash + schema_version + parser_version + prompt_version + model` 复用。`JobAnalysis` 必须包含 `user_id`、`analysis_version` 和可选 `invalidated_at`，每次分析都使用当前画像和当前证据重新计算资格、匹配与分数，不允许仅凭岗位 `content_hash` 跨用户复用完整结果。
 
@@ -325,7 +325,7 @@ weekly_days: int(1..7) | null
 internship_duration_months: int(>=0) | null
 ```
 
-`null` 表示没有提供足够信息，参与相关规则时返回 `unknown`；空列表表示用户明确没有设置该类限制。用户可提供的实习月数和每周到岗天数分别按“可提供时长”和“可到岗天数”解释，必须达到岗位要求。用户最早可到岗日期必须早于或等于岗位要求日期。
+`preferred_locations` 和 `job_types` 的 `null` 表示没有提供足够信息，参与相关规则时返回 `unknown`；空列表表示用户明确没有设置该类限制。`earliest_start_date`、`weekly_days` 和 `internship_duration_months` 可继续从旧载荷读取，但只作展示，不生成 `pass / fail / unknown` 检查，也不影响总体资格结果。
 
 输入输出保持显式边界：
 

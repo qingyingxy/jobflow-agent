@@ -739,6 +739,21 @@ async def test_bytedance_adapter_uses_real_ids_and_bounded_location_fallback() -
     assert "任职要求" in jobs[0].raw_content
 
 
+def test_bytedance_adapter_preserves_all_detail_page_locations() -> None:
+    payload = bytedance_payload()
+    item = payload["data"]["job_post_list"][0]
+    item["city_list"] = [
+        {"i18n_name": "北京"},
+        {"i18n_name": "深圳"},
+    ]
+    adapter = ByteDanceAdapter(query="AI Agent 校招岗位")
+
+    jobs = adapter._payload_jobs(payload)
+
+    assert jobs[0].locations == ["北京", "深圳"]
+    assert "工作地点：北京、深圳" in jobs[0].raw_content
+
+
 @pytest.mark.asyncio
 async def test_tencent_adapter_reads_campus_jobs_and_official_details() -> None:
     class TencentReader:

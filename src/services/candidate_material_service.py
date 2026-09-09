@@ -358,6 +358,28 @@ class CandidateMaterialService:
             raise CandidateMaterialNotFoundError("简历文件不存在")
         return asset, path
 
+    def discard_unversioned_resume_asset(
+        self,
+        *,
+        user_id: str,
+        asset_id: str,
+    ) -> None:
+        """Remove a just-uploaded asset when synchronous evidence ingestion fails."""
+
+        asset = self.get_resume_asset(user_id=user_id, asset_id=asset_id)
+        referenced = self.session.scalar(
+            select(ResumeVersion.id).where(
+                ResumeVersion.user_id == user_id,
+                ResumeVersion.asset_id == asset_id,
+            )
+        )
+        if referenced is not None:
+            raise CandidateMaterialConflictError("已创建简历版本的文件不能被丢弃")
+        path = self._resolve_storage_key(asset.storage_key)
+        self.session.delete(asset)
+        self.session.commit()
+        path.unlink(missing_ok=True)
+
     def create_resume_version(
         self,
         *,

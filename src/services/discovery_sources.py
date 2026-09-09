@@ -413,10 +413,9 @@ class ByteDanceAdapter:
         if len(raw_content) < 20:
             raise SourcePayloadError("字节岗位正文过短")
 
-        city = item.get("city_info")
-        locations = _location_names(city)
+        locations = _location_names(item.get("city_list"))
         if not locations:
-            locations = _location_names(item.get("city_list"))
+            locations = _location_names(item.get("city_info"))
         recruit_type = item.get("recruit_type")
         recruit_id = (
             _clean_text(recruit_type.get("id"))

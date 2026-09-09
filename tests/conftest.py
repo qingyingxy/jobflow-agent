@@ -8,6 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from src.api import applications as applications_api
 from src.api import jobs as jobs_api
+from src.api import materials as materials_api
 from src.config import Settings
 from src.infrastructure.database import Base, get_session
 from src.main import app
@@ -55,3 +56,4 @@ def override_api_model_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     monkeypatch.setattr(jobs_api, "get_settings", lambda: settings)
     monkeypatch.setattr(applications_api, "get_settings", lambda: settings)
+    monkeypatch.setattr(materials_api, "get_settings", lambda: settings)

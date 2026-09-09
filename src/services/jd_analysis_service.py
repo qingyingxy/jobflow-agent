@@ -26,18 +26,15 @@ from src.domain.matching import EvidenceRecord, RequirementMatch
 from src.domain.models import EvidenceItem, UserProfile
 from src.domain.runs import JobParseResult
 from src.services.eligibility_checker import check_eligibility
-from src.services.evidence_match_service import (
-    EvidenceMatchFailure,
-    EvidenceMatchService,
-)
-from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_parser import JDParser
 from src.services.job_parse_service import (
     JDParseFailure,
     JobNotFoundError,
     JobParseService,
 )
+from src.services.local_evidence_matcher import match_requirements_locally
 from src.services.match_score import calculate_match_score
+from src.services.product_jd_parser import ProductJDParser
 from src.services.staged_jd_parser import StagedJDParser
 
 
@@ -132,22 +129,24 @@ def delete_analyses_referencing_evidence(
 
 
 class JDAnalysisService:
-    """Run the complete synchronous M7 analysis pipeline for one user and JD."""
+    """Parse once, then make a conservative decision from local user evidence."""
 
     def __init__(
         self,
         session: Session,
         *,
-        parser: JDParser | StagedJDParser | None = None,
-        matcher: EvidenceMatcher | None = None,
+        parser: JDParser | StagedJDParser | ProductJDParser | None = None,
+        matcher: object | None = None,
     ) -> None:
         self.session = session
         self.parser = parser
-        self.matcher = matcher
+        # Kept as a no-op keyword during the product-v1 migration so callers that
+        # construct the old service do not break. Runtime analysis never uses it.
+        self.legacy_matcher = matcher
 
     async def analyze(self, *, user_id: str, job_id: str) -> JobAnalysisExecution:
-        if self.parser is None or self.matcher is None:
-            raise ValueError("分析服务需要同时配置 parser 和 matcher")
+        if self.parser is None:
+            raise ValueError("分析服务需要配置 parser")
 
         try:
             parse_execution = await JobParseService(self.session, self.parser).parse(
@@ -190,26 +189,12 @@ class JDAnalysisService:
             )
         )
         evidence = self._evidence_records(user_id)
-        matches: list[RequirementMatch] = []
+        matches = match_requirements_locally(
+            user_id=user_id,
+            requirements=structured.requirements,
+            evidence=evidence,
+        )
         agent_run_ids = [parse_execution.agent_run.id]
-        match_service = EvidenceMatchService(self.session, self.matcher)
-
-        for index, requirement in enumerate(structured.requirements or []):
-            try:
-                execution = await match_service.match(
-                    user_id=user_id,
-                    requirement=requirement,
-                    target_id=f"{job_id}:{index}",
-                )
-            except EvidenceMatchFailure as error:
-                raise JDAnalysisFailure(
-                    stage="evidence_match",
-                    agent_run_id=error.agent_run_id,
-                    code=error.code,
-                    message=str(error),
-                ) from error
-            matches.append(execution.match)
-            agent_run_ids.append(execution.agent_run.id)
 
         score = calculate_match_score(
             requirements=structured.requirements,
@@ -399,14 +384,24 @@ def _build_risks(
                     requirement_name=requirement_name,
                 )
             )
+        elif match.support_level in {"partial", "needs_confirmation"}:
+            add(
+                AnalysisRisk(
+                    code=f"evidence_confirmation:{requirement_name}",
+                    severity="medium" if match.requirement.mandatory else "low",
+                    title="经历证据待确认",
+                    detail=match.explanation,
+                    requirement_name=requirement_name,
+                )
+            )
 
     if score.score is None:
         add(
-            AnalysisRisk(
-                code="score_insufficient_data",
-                severity="medium",
-                title="匹配分数暂不可计算",
-                detail="岗位要求或用户偏好信息不足，请补充后重新分析。",
+                AnalysisRisk(
+                    code="score_insufficient_data",
+                    severity="medium",
+                    title="申请建议暂不可判断",
+                    detail="岗位要求或用户资料不足，请补充后重新分析。",
+                )
             )
-        )
     return risks

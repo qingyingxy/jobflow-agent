@@ -8,6 +8,8 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 import httpx
 import pytest
+from pypdf import PdfWriter
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
@@ -31,7 +33,29 @@ def private_storage(
 
 
 def pdf_bytes(marker: bytes = b"resume") -> bytes:
-    return b"%PDF-1.7\n" + marker + b"\n%%EOF"
+    target = BytesIO()
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=612, height=792)
+    font = DictionaryObject(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+        }
+    )
+    page[NameObject("/Resources")] = DictionaryObject(
+        {
+            NameObject("/Font"): DictionaryObject(
+                {NameObject("/F1"): writer._add_object(font)}
+            )
+        }
+    )
+    escaped = marker.replace(b"\\", b"\\\\").replace(b"(", b"\\(").replace(b")", b"\\)")
+    stream = DecodedStreamObject()
+    stream.set_data(b"BT /F1 12 Tf 72 720 Td (" + escaped + b") Tj ET")
+    page[NameObject("/Contents")] = writer._add_object(stream)
+    writer.write(target)
+    return target.getvalue()
 
 
 def docx_bytes() -> bytes:
@@ -194,6 +218,149 @@ async def test_resume_upload_hash_duplicate_version_and_owner_boundaries(
     stored_files = [item for item in private_storage.rglob("*") if item.is_file()]
     assert len(stored_files) == 1
     assert "resume-owner" not in str(stored_files[0])
+
+
+@pytest.mark.asyncio
+async def test_resume_upload_replaces_only_prior_api_extracted_evidence(
+    private_storage: Path,
+) -> None:
+    headers = {"X-User-ID": "resume-evidence-owner"}
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        manual = await client.post(
+            "/api/evidence",
+            headers=headers,
+            json={
+                "type": "project",
+                "title": "手工经历",
+                "claim": "这条经历由用户手工维护",
+                "skills": [],
+                "source": "manual",
+            },
+        )
+        first = await client.post(
+            "/api/resumes/assets",
+            headers=headers,
+            files={
+                "file": (
+                    "resume-one.pdf",
+                    pdf_bytes(b"Built a Python Agent project"),
+                    "application/pdf",
+                )
+            },
+        )
+        after_first = await client.get("/api/evidence", headers=headers)
+        second = await client.post(
+            "/api/resumes/assets",
+            headers=headers,
+            files={
+                "file": (
+                    "resume-two.pdf",
+                    pdf_bytes(b"Built a TypeScript web project"),
+                    "application/pdf",
+                )
+            },
+        )
+        after_second = await client.get("/api/evidence", headers=headers)
+
+    assert manual.status_code == 201
+    assert first.status_code == 201
+    assert second.status_code == 201
+    first_evidence = after_first.json()
+    assert len(first_evidence) == 2
+    assert any("Python Agent" in item["claim"] for item in first_evidence)
+    final_evidence = after_second.json()
+    assert len(final_evidence) == 2
+    assert any(item["source"] == "manual" for item in final_evidence)
+    extracted = [
+        item for item in final_evidence if item["source"].startswith("resume_asset:")
+    ]
+    assert len(extracted) == 1
+    assert "TypeScript web" in extracted[0]["claim"]
+    assert extracted[0]["skills"] == ["TypeScript"]
+
+
+@pytest.mark.asyncio
+async def test_resume_ingestion_failure_removes_new_asset(
+    private_storage: Path,
+) -> None:
+    headers = {"X-User-ID": "empty-resume-owner"}
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/resumes/assets",
+            headers=headers,
+            files={
+                "file": (
+                    "empty.pdf",
+                    pdf_bytes(b""),
+                    "application/pdf",
+                )
+            },
+        )
+        assets = await client.get("/api/resumes/assets", headers=headers)
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "resume_text_empty"
+    assert assets.json() == []
+    assert list(private_storage.rglob("*.pdf")) == []
+
+
+@pytest.mark.asyncio
+async def test_existing_asset_is_backfilled_when_activated_as_resume_version(
+    private_storage: Path,
+    db_session,
+) -> None:
+    user_id = "existing-resume-owner"
+    headers = {"X-User-ID": user_id}
+    material_service = CandidateMaterialService(
+        db_session,
+        storage_root=private_storage,
+    )
+    first_asset = material_service.upload_resume_asset(
+        user_id=user_id,
+        filename="existing-one.pdf",
+        media_type="application/pdf",
+        content=pdf_bytes(b"Existing Python Agent work"),
+    )
+    second_asset = material_service.upload_resume_asset(
+        user_id=user_id,
+        filename="existing-two.pdf",
+        media_type="application/pdf",
+        content=pdf_bytes(b"Existing TypeScript web work"),
+    )
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        first_version = await client.post(
+            "/api/resumes/versions",
+            headers=headers,
+            json={"asset_id": first_asset.id, "label": "旧文件一"},
+        )
+        second_version = await client.post(
+            "/api/resumes/versions",
+            headers=headers,
+            json={
+                "asset_id": second_asset.id,
+                "label": "旧文件二",
+                "is_default": False,
+            },
+        )
+        before_switch = await client.get("/api/evidence", headers=headers)
+        activated = await client.patch(
+            f"/api/resumes/versions/{second_version.json()['id']}",
+            headers=headers,
+            json={"is_default": True},
+        )
+        after_switch = await client.get("/api/evidence", headers=headers)
+
+    assert first_version.status_code == 201
+    assert second_version.status_code == 201
+    assert activated.status_code == 200
+    assert len(before_switch.json()) == 1
+    assert "Python Agent" in before_switch.json()[0]["claim"]
+    assert len(after_switch.json()) == 1
+    assert "TypeScript web" in after_switch.json()[0]["claim"]
+    assert after_switch.json()[0]["source"] == f"resume_asset:{second_asset.id}"
 
 
 @pytest.mark.asyncio

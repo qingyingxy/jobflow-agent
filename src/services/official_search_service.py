@@ -18,9 +18,8 @@ from src.services.company_registry import (
 )
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
 from src.services.discovery_sources import OfficialCompanyRegistryAdapter
-from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_analysis_service import JDAnalysisService
-from src.services.staged_jd_parser import StagedJDParser
+from src.services.product_jd_parser import ProductJDParser
 from src.services.url_reader import SafeHTTPReader
 
 OFFICIAL_SEARCH_MAX_RESULTS = 20
@@ -84,79 +83,93 @@ async def execute_official_search(
             _finish_run_with_failure(session, run_id, f"发现阶段：{str(error)[:500]}")
             return
 
-        job_ids = result.analysis_job_posting_ids[:OFFICIAL_SEARCH_ANALYSIS_LIMIT]
+        await analyze_discovery_jobs(
+            session,
+            run_id=run_id,
+            user_id=user_id,
+            job_ids=result.analysis_job_posting_ids,
+        )
+
+
+async def analyze_discovery_jobs(
+    session: Session,
+    *,
+    run_id: str,
+    user_id: str,
+    job_ids: list[str],
+    analysis_limit: int = OFFICIAL_SEARCH_ANALYSIS_LIMIT,
+) -> None:
+    """Analyze the verified strict matches selected by a discovery worker."""
+
+    selected_job_ids = job_ids[:analysis_limit]
+    run = session.get(DiscoveryRun, run_id)
+    if run is None:
+        return
+    run.analysis_target_count = len(selected_job_ids)
+    if not selected_job_ids:
+        run.analysis_status = "NOT_REQUESTED"
+        run.status = (
+            DiscoveryRunStatus.PARTIAL.value
+            if run.failure_summary
+            else DiscoveryRunStatus.SUCCEEDED.value
+        )
+        run.finished_at = datetime.now(UTC)
+        session.commit()
+        return
+
+    run.analysis_status = "RUNNING"
+    _append_agent_trace(
+        run,
+        phase="act",
+        tool="product_jd_parser → eligibility_checker → local_evidence_matcher",
+        outcome="selected",
+        observation=f"准备分析排序靠前的 {len(selected_job_ids)} 条岗位。",
+        decision="每份 JD 只解析一次，资格、证据和建议由本地代码计算。",
+        details={"analysis_target_count": len(selected_job_ids)},
+    )
+    session.commit()
+
+    try:
+        parser = _analysis_dependencies()
+    except ModelClientError as error:
+        _finish_analysis_with_failure(
+            session,
+            run_id,
+            len(selected_job_ids),
+            f"分析阶段：{str(error)[:500]}",
+            failed_all=True,
+        )
+        return
+
+    for job_id in selected_job_ids:
+        try:
+            await JDAnalysisService(
+                session,
+                parser=parser,
+            ).analyze(user_id=user_id, job_id=job_id)
+        except Exception as error:  # noqa: BLE001 - continue with remaining jobs
+            session.rollback()
+            _record_analysis_failure(session, run_id, job_id, error)
+            continue
+
         run = session.get(DiscoveryRun, run_id)
         if run is None:
             return
-        run.analysis_target_count = len(job_ids)
-        if not job_ids:
-            run.analysis_status = "NOT_REQUESTED"
-            run.status = (
-                DiscoveryRunStatus.PARTIAL.value
-                if run.failure_summary
-                else DiscoveryRunStatus.SUCCEEDED.value
-            )
-            run.finished_at = datetime.now(UTC)
-            session.commit()
-            return
-
-        run.analysis_status = "RUNNING"
-        _append_agent_trace(
-            run,
-            phase="act",
-            tool="staged_jd_parser → eligibility_checker → evidence_matcher",
-            outcome="selected",
-            observation=f"准备分析排序靠前的 {len(job_ids)} 条岗位。",
-            decision="语义抽取交给模型，资格、证据和评分交给确定性代码。",
-            details={"analysis_target_count": len(job_ids)},
-        )
+        run.analysis_completed_count += 1
         session.commit()
 
-        try:
-            parser, matcher = _analysis_dependencies()
-        except ModelClientError as error:
-            _finish_analysis_with_failure(
-                session,
-                run_id,
-                len(job_ids),
-                f"分析阶段：{str(error)[:500]}",
-                failed_all=True,
-            )
-            return
-
-        for job_id in job_ids:
-            try:
-                await JDAnalysisService(
-                    session,
-                    parser=parser,
-                    matcher=matcher,
-                ).analyze(user_id=user_id, job_id=job_id)
-            except Exception as error:  # noqa: BLE001 - continue with remaining jobs
-                session.rollback()
-                _record_analysis_failure(session, run_id, job_id, error)
-                continue
-
-            run = session.get(DiscoveryRun, run_id)
-            if run is None:
-                return
-            run.analysis_completed_count += 1
-            session.commit()
-
-        _finish_analysis(session, run_id)
+    _finish_analysis(session, run_id)
 
 
-def _analysis_dependencies() -> tuple[StagedJDParser, EvidenceMatcher]:
+def _analysis_dependencies() -> ProductJDParser:
     settings = get_settings()
     client = create_structured_model_client(settings)
-    parser = StagedJDParser(
+    return ProductJDParser(
         client,
-        prompt_version=settings.staged_prompt_version,
-        parser_version=settings.staged_parser_version,
-        core_prompt_version=settings.core_prompt_version,
-        detail_prompt_version=settings.detail_prompt_version,
+        prompt_version=settings.product_prompt_version,
+        parser_version=settings.product_parser_version,
         validation_retries=settings.parser_validation_retries,
     )
-    return parser, EvidenceMatcher(client)
 
 
 def _record_analysis_failure(

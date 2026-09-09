@@ -71,19 +71,27 @@ class DiscoveryService:
         user_id: str,
         search_query: str | None = None,
         max_results: int = 20,
+        source_id: str | None = None,
+        source_url: str | None = None,
+        search_plan: DiscoverySearchPlan | None = None,
     ) -> DiscoveryRun:
-        if self.adapter is None:
-            raise RuntimeError("发现运行缺少来源适配器")
-        search_plan = self._build_search_plan(
-            search_query=search_query,
-            max_results=max_results,
-        )
+        if search_plan is None:
+            if self.adapter is None:
+                raise RuntimeError("发现运行缺少来源适配器或搜索计划")
+            search_plan = self._build_search_plan(
+                search_query=search_query,
+                max_results=max_results,
+            )
+        resolved_source_id = source_id or getattr(self.adapter, "source_id", None)
+        resolved_source_url = source_url or getattr(self.adapter, "source_url", None)
+        if not resolved_source_id or not resolved_source_url:
+            raise RuntimeError("发现运行缺少来源标识")
         started_at = datetime.now(UTC)
         run = DiscoveryRun(
             id=generate_discovery_run_id(),
             user_id=user_id,
-            source=self.adapter.source_id,
-            source_url=self.adapter.source_url,
+            source=resolved_source_id,
+            source_url=resolved_source_url,
             search_query=search_query,
             max_results=max_results,
             status=DiscoveryRunStatus.RUNNING.value,
@@ -102,6 +110,7 @@ class DiscoveryService:
         *,
         user_id: str,
         run: DiscoveryRun | None = None,
+        finalize: bool = True,
     ) -> DiscoveryRunResult:
         if self.adapter is None:
             raise RuntimeError("发现运行缺少来源适配器")
@@ -182,7 +191,7 @@ class DiscoveryService:
             *adapter_trace[:55],
             result_trace,
         ]
-        if not candidates:
+        if not candidates and finalize:
             run.agent_trace = [
                 *run.agent_trace,
                 {
@@ -203,7 +212,7 @@ class DiscoveryService:
         should_analyze = bool(getattr(self.adapter, "auto_analyze_top", False))
         run.analysis_target_count = min(5, len(self.analysis_job_ids)) if should_analyze else 0
         run.analysis_status = "PENDING" if run.analysis_target_count else "NOT_REQUESTED"
-        if run.analysis_target_count:
+        if not finalize or run.analysis_target_count:
             run.status = DiscoveryRunStatus.RUNNING.value
             run.finished_at = None
         else:
@@ -370,6 +379,10 @@ class DiscoveryService:
         *,
         occurred_at: datetime,
     ) -> dict[str, object]:
+        is_web_search = any(
+            route.tool_sequence and route.tool_sequence[0] == "web_search"
+            for route in plan.routes
+        )
         dedicated_count = sum(
             route.tool_sequence[0]
             in {"bytedance_public_job_adapter", "tencent_public_job_adapter"}
@@ -381,13 +394,21 @@ class DiscoveryService:
             "tool": "bounded_discovery_planner",
             "outcome": "selected",
             "observation": (
-                f"已将 {len(plan.allowed_source_ids)} 个用户选择的官方来源锁定为"
-                "本次访问白名单。"
+                "已锁定联网搜索和原始岗位页核验工具。"
+                if is_web_search
+                else (
+                    f"已将 {len(plan.allowed_source_ids)} 个用户选择的官方来源锁定为"
+                    "本次访问白名单。"
+                )
             ),
             "decision": (
-                f"{dedicated_count} 个来源优先使用专用 Adapter，"
-                f"{static_count} 个来源直接使用受控页面验证；"
-                "失败时只按计划内后续工具回退，并严格执行结果上限和停止条件。"
+                "搜索结果只保存为线索；读取到具体岗位原文后，才允许进入匹配。"
+                if is_web_search
+                else (
+                    f"{dedicated_count} 个来源优先使用专用 Adapter，"
+                    f"{static_count} 个来源直接使用受控页面验证；"
+                    "失败时只按计划内后续工具回退，并严格执行结果上限和停止条件。"
+                )
             ),
             "source_id": None,
             "company": None,

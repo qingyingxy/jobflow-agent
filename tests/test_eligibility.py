@@ -131,18 +131,6 @@ def test_eligibility_is_deterministic_for_identical_inputs() -> None:
             passing_input(preferences=SearchPreferences(preferred_locations=["北京"], job_types=["full_time"], earliest_start_date=date(2026, 6, 1), weekly_days=5, internship_duration_months=6)),
             "job_type",
         ),
-        (
-            passing_input(preferences=SearchPreferences(preferred_locations=["北京"], job_types=["internship"], earliest_start_date=date(2026, 6, 1), weekly_days=5, internship_duration_months=3)),
-            "internship_duration_months",
-        ),
-        (
-            passing_input(preferences=SearchPreferences(preferred_locations=["北京"], job_types=["internship"], earliest_start_date=date(2026, 6, 1), weekly_days=4, internship_duration_months=6)),
-            "weekly_days",
-        ),
-        (
-            passing_input(preferences=SearchPreferences(preferred_locations=["北京"], job_types=["internship"], earliest_start_date=date(2026, 7, 2), weekly_days=5, internship_duration_months=6)),
-            "earliest_start_date",
-        ),
     ],
 )
 def test_each_hard_rule_can_fail_deterministically(
@@ -155,6 +143,26 @@ def test_each_hard_rule_can_fail_deterministically(
     failed = [check for check in result.checks if check.field == field]
     assert len(failed) == 1
     assert failed[0].result == "fail"
+
+
+def test_internship_schedule_is_display_only_and_does_not_gate_eligibility() -> None:
+    result = check_eligibility(
+        passing_input(
+            preferences=SearchPreferences(
+                preferred_locations=["北京"],
+                job_types=["internship"],
+                earliest_start_date=date(2026, 7, 2),
+                weekly_days=1,
+                internship_duration_months=1,
+            )
+        )
+    )
+
+    assert result.eligible == "pass"
+    checked_fields = {check.field for check in result.checks}
+    assert "earliest_start_date" not in checked_fields
+    assert "weekly_days" not in checked_fields
+    assert "internship_duration_months" not in checked_fields
 
 
 def test_missing_profile_or_jd_information_is_unknown() -> None:

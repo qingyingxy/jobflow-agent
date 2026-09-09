@@ -234,6 +234,9 @@ class ParsingWarning(BaseModel):
         "unsupported_field_value",
         "empty_skill_group",
         "unsupported_clause_evidence",
+        "unsupported_any_of_relation",
+        "recovered_any_of_relation",
+        "uncovered_requirement_clause",
     ]
     field_path: str = Field(min_length=1, max_length=160)
     value: Any | None = None
@@ -272,7 +275,20 @@ class JobRequirement(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     description: str = Field(min_length=1)
     mandatory: bool = True
+    relation: Literal["all_of", "any_of", "uncertain"] = "all_of"
+    items: list[str] | None = None
+    relation_reason: str | None = Field(default=None, max_length=500)
     evidence: list[FieldEvidence] | None = None
+
+    @model_validator(mode="after")
+    def validate_relation(self) -> JobRequirement:
+        if self.items is not None:
+            self.items = list(dict.fromkeys(item.strip() for item in self.items if item.strip()))
+            if not self.items:
+                raise ValueError("岗位要求 items 不能为空")
+        if self.relation == "any_of" and (self.items is None or len(self.items) < 2):
+            raise ValueError("any_of 岗位要求至少需要两个选项")
+        return self
 
 
 class SkillRequirementGroup(BaseModel):
@@ -329,6 +345,7 @@ class StructuredJobDescription(BaseModel):
     application_url: str | None = None
     qualification_conditions: list[QualificationCondition] | None = None
     requirements: list[JobRequirement] | None = None
+    responsibilities: list[str] | None = None
     field_evidence: list[FieldEvidence] | None = None
 
     @model_validator(mode="after")
@@ -396,6 +413,7 @@ def validate_field_evidence(
         "application_url",
         "qualification_conditions",
         "requirements",
+        "responsibilities",
     )
     for field_name in top_level_fields:
         value = getattr(structured, field_name)

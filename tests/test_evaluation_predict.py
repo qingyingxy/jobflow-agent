@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 from src.domain.eligibility import CandidateProfileInput, SearchPreferences
@@ -12,12 +14,28 @@ from src.evaluation.models import (
     SourceMetadata,
 )
 from src.evaluation.predict import generate_predictions
-from src.infrastructure.llm_client import FakeModelClient
+from src.infrastructure.llm_client import (
+    FakeModelClient,
+    StructuredModelRequest,
+    StructuredModelResponse,
+)
 from src.services.core_jd_parser import CoreJDParser
 from src.services.evidence_matcher import EvidenceMatcher
 from src.services.jd_parser import JDParser
 
 RAW_CONTENT = "示例公司招聘 AI 应用开发实习生，熟悉 RAG，工作地点为北京。"
+
+
+class HangingModelClient:
+    model_name = "hanging-model"
+    provider = "fake"
+
+    async def generate(
+        self,
+        request: StructuredModelRequest,
+    ) -> StructuredModelResponse:
+        await asyncio.sleep(1)
+        raise AssertionError("case timeout should cancel the model request")
 
 
 def make_manifest() -> EvaluationManifest:
@@ -244,3 +262,24 @@ async def test_core_prediction_keeps_non_fatal_parser_warnings() -> None:
     assert prediction.fields["required_skills"] == ["RAG"]
     assert len(prediction.warnings) == 1
     assert prediction.warnings[0].value == "GhostSkill"
+
+
+@pytest.mark.asyncio
+async def test_generate_predictions_distinguishes_outer_case_timeout() -> None:
+    prediction_file = await generate_predictions(
+        make_manifest(),
+        parser=CoreJDParser(HangingModelClient(), validation_retries=0),
+        matcher=EvidenceMatcher(FakeModelClient()),
+        evidence=[],
+        parser_only=True,
+        parser_mode="core",
+        case_timeout_seconds=0.01,
+    )
+
+    prediction = prediction_file.predictions[0]
+    assert prediction.failure_code == "model_timeout"
+    assert prediction.failure_details == {
+        "timeout_seconds": 0.01,
+        "timeout_scope": "case_total",
+    }
+    assert prediction.diagnostics["case_duration_ms"] >= 0

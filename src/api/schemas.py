@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from src.domain.analysis import AnalysisRisk
+from src.domain.analysis import AnalysisRisk, JobDecision
 from src.domain.application import (
     ApplicationStatus,
     CandidateStatus,
@@ -94,6 +94,7 @@ class DiscoveryRunCreateRequest(BaseModel):
 
 class DiscoverySearchRequest(BaseModel):
     query: str = Field(min_length=2, max_length=500)
+    source_mode: Literal["official", "web"] = "official"
     company_ids: list[str] | None = Field(default=None, min_length=1, max_length=40)
 
     @field_validator("query")
@@ -431,6 +432,7 @@ class JobAnalysisResponse(BaseModel):
     structured_jd: StructuredJobDescription
     eligibility: EligibilityResult
     matches: list[RequirementMatch]
+    decision: JobDecision
     score: MatchScore
     risks: list[AnalysisRisk]
     missing_information: list[str]

@@ -75,6 +75,7 @@ async def generate_predictions(
 
     async def run_case(case: Any) -> PredictionRecord:
         async with semaphore:
+            case_started = perf_counter()
             operation = _predict_case(
                 case_id=case.id,
                 raw_content=case.input.raw_content,
@@ -90,16 +91,32 @@ async def generate_predictions(
             )
             try:
                 if case_timeout_seconds is None:
-                    return await operation
-                return await asyncio.wait_for(operation, timeout=case_timeout_seconds)
+                    prediction = await operation
+                else:
+                    prediction = await asyncio.wait_for(
+                        operation,
+                        timeout=case_timeout_seconds,
+                    )
             except TimeoutError:
-                return PredictionRecord(
+                prediction = PredictionRecord(
                     case_id=case.id,
                     failure_code="model_timeout",
                     failure_details={
                         "timeout_seconds": case_timeout_seconds,
+                        "timeout_scope": "case_total",
                     },
                 )
+            return prediction.model_copy(
+                update={
+                    "diagnostics": {
+                        **prediction.diagnostics,
+                        "case_duration_ms": round(
+                            (perf_counter() - case_started) * 1000,
+                            2,
+                        ),
+                    }
+                }
+            )
 
     tasks = [asyncio.create_task(run_case(case)) for case in pending_cases]
     for task in asyncio.as_completed(tasks):
@@ -187,6 +204,7 @@ async def _predict_case(
             case_id=case_id,
             fields=_prediction_core_fields(parsed_core.fields),
             warnings=list(parsed_core.warnings),
+            diagnostics=parsed_core.model_diagnostics or {},
         )
 
     if parser_mode == "staged":

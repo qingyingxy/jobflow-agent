@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from itertools import pairwise
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -44,6 +45,14 @@ class CoreSkillClause(BaseModel):
         min_length=1,
         description="Atomic skills that share this clause's strength and relation.",
     )
+    examples: list[str] | None = Field(
+        default=None,
+        min_length=1,
+        description=(
+            "Named examples that explain a parent skill but do not inherit its "
+            "required or preferred strength."
+        ),
+    )
     group_name: str | None = Field(
         default=None,
         description="Shared category for skills when relation is any_of.",
@@ -58,6 +67,41 @@ class CoreSkillClause(BaseModel):
     def require_skill_content(self) -> CoreSkillClause:
         if self.relation == "any_of" and len(self.skills) < 2:
             raise ValueError("any_of relation must contain at least two skills")
+        if self.relation == "any_of" and self.strength != "required":
+            raise ValueError("any_of relation is only valid for required clauses")
+        if self.relation == "all_of" and self.group_name is not None:
+            raise ValueError("group_name requires any_of relation")
+        if self.relation == "all_of" and self.allow_other:
+            raise ValueError("allow_other requires any_of relation")
+        return self
+
+
+class IndexedCoreSkillClause(BaseModel):
+    """Compact model clause referencing source text supplied by the caller."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_clause_id: str = Field(
+        pattern=r"^SC\d{3,}$",
+        description="ID of one indexed source clause from the user message.",
+    )
+    strength: SkillStrength
+    relation: SkillRelation
+    skills: list[str] = Field(
+        min_length=1,
+        description="Atomic skills sharing this strength and relation.",
+    )
+    examples: list[str] | None = Field(default=None, min_length=1)
+    group_name: str | None = None
+    allow_other: bool = False
+    qualifier: SkillQualifier | None = None
+
+    @model_validator(mode="after")
+    def require_skill_content(self) -> IndexedCoreSkillClause:
+        if self.relation == "any_of" and len(self.skills) < 2:
+            raise ValueError("any_of relation must contain at least two skills")
+        if self.relation == "any_of" and self.strength != "required":
+            raise ValueError("any_of relation is only valid for required clauses")
         if self.relation == "all_of" and self.group_name is not None:
             raise ValueError("group_name requires any_of relation")
         if self.relation == "all_of" and self.allow_other:
@@ -88,6 +132,109 @@ class CoreModelOutput(BaseModel):
     job_type: CoreJobType | None = None
     locations: list[str] | None = None
     skill_clauses: list[CoreSkillClause] | None = None
+
+
+class IndexedCoreModelOutput(BaseModel):
+    """V33 contract using source IDs instead of repeated evidence text."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    job_type: CoreJobType | None = None
+    locations: list[str] | None = None
+    skill_clauses: list[IndexedCoreSkillClause] | None = None
+
+
+class CompactIndexedCoreSkillClause(BaseModel):
+    """Compact wire contract used to reduce model output tokens."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(pattern=r"^SC\d{3,}$")
+    level: SkillStrength
+    skills: list[str] = Field(min_length=1)
+    relation: SkillRelation = "all_of"
+    examples: list[str] | None = Field(default=None, min_length=1)
+    group: str | None = None
+    open: bool = False
+    qualifier: SkillQualifier | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_compatible_keys(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        normalized = dict(value)
+        aliases = {
+            "id": ("source_clause_id",),
+            "level": ("strength", "requirement_type"),
+            "group": ("group_name",),
+            "open": ("allow_other",),
+        }
+        for target, candidates in aliases.items():
+            present = [candidate for candidate in candidates if candidate in normalized]
+            if target in normalized and present:
+                raise ValueError(f"conflicting keys for {target}: {present}")
+            if len(present) > 1:
+                raise ValueError(f"ambiguous aliases for {target}: {present}")
+            if present:
+                normalized[target] = normalized.pop(present[0])
+        if normalized.get("examples") == []:
+            normalized["examples"] = None
+        return normalized
+
+    @model_validator(mode="after")
+    def require_skill_content(self) -> CompactIndexedCoreSkillClause:
+        if self.relation == "any_of" and len(self.skills) < 2:
+            raise ValueError("any_of relation must contain at least two skills")
+        if self.relation == "any_of" and self.level != "required":
+            raise ValueError("any_of relation is only valid for required clauses")
+        if self.relation == "all_of" and self.group is not None:
+            raise ValueError("group requires any_of relation")
+        if self.relation == "all_of" and self.open:
+            raise ValueError("open requires any_of relation")
+        return self
+
+    def to_indexed(self) -> IndexedCoreSkillClause:
+        return IndexedCoreSkillClause(
+            source_clause_id=self.id,
+            strength=self.level,
+            relation=self.relation,
+            skills=self.skills,
+            examples=self.examples,
+            group_name=self.group,
+            allow_other=self.open,
+            qualifier=self.qualifier,
+        )
+
+
+class CompactIndexedCoreModelOutput(BaseModel):
+    """V34 response shape with defaults omitted from ordinary clauses."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    job_type: CoreJobType | None = None
+    locations: list[str] | None = None
+    clauses: list[CompactIndexedCoreSkillClause] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_compatible_keys(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        normalized = dict(value)
+        if "clauses" in normalized and "skill_clauses" in normalized:
+            raise ValueError("conflicting keys for clauses")
+        if "clauses" not in normalized and "skill_clauses" in normalized:
+            normalized["clauses"] = normalized.pop("skill_clauses")
+        return normalized
+
+    def to_indexed(self) -> IndexedCoreModelOutput:
+        return IndexedCoreModelOutput(
+            job_type=self.job_type,
+            locations=self.locations,
+            skill_clauses=[clause.to_indexed() for clause in self.clauses or []]
+            or None,
+        )
 
 
 @dataclass(frozen=True)
@@ -130,7 +277,29 @@ def compile_core_model_output(
             clause.skills,
             source_text=source_text,
         )
+        examples = normalize_atomic_skill_values(
+            clause.examples or [],
+            source_text=source_text,
+        )
         skills = expand_tool_capability_compounds(skills, source_text)
+        example_keys = {example.casefold() for example in examples}
+        skills = [
+            skill for skill in skills if skill.casefold() not in example_keys
+        ]
+        relation = clause.relation
+        if relation == "any_of" and not has_explicit_choice_signal(
+            source_text,
+            clause.skills,
+        ):
+            relation = "all_of"
+            warnings.append(
+                ParsingWarning(
+                    code="unsupported_any_of_relation",
+                    field_path=f"skill_clauses[{index}].relation",
+                    value=clause.relation,
+                    message="原文没有明确任选信号，已将 any_of 按普通并列处理",
+                )
+            )
         category_mentions: list[str] = []
         if clause.strength == "preferred":
             skills = collapse_shared_experience_suffixes(skills, source_text)
@@ -138,7 +307,7 @@ def compile_core_model_output(
             skills = drop_redundant_practice_skills(skills)
             skills = collapse_shared_cae_contexts(skills, source_text)
             skills = collapse_shared_robotics_contexts(skills, source_text)
-        if clause.relation == "all_of" and clause.strength in {
+        if relation == "all_of" and clause.strength in {
             "required",
             "preferred",
         }:
@@ -157,12 +326,12 @@ def compile_core_model_output(
                     source_text,
                 )
                 category_mentions.extend(parenthetical_mentions)
-        for skill in [*skills, *category_mentions]:
+        for skill in [*skills, *examples, *category_mentions]:
             skill_sources.setdefault(skill, source_text)
-        mentions.extend(category_mentions)
+        mentions.extend([*examples, *category_mentions])
         concept_candidates.extend(
             _concepts_for_labels(
-                category_mentions,
+                [*examples, *category_mentions],
                 strength="mention",
                 relation="all_of",
                 source_text=source_text,
@@ -170,7 +339,7 @@ def compile_core_model_output(
         )
 
         if clause.strength == "required":
-            if clause.relation == "all_of":
+            if relation == "all_of":
                 required.extend(skills)
                 concept_candidates.extend(
                     _concepts_for_labels(
@@ -221,10 +390,10 @@ def compile_core_model_output(
                 _concepts_for_labels(
                     skills,
                     strength="preferred",
-                    relation=clause.relation,
+                    relation=relation,
                     qualifier=clause.qualifier,
-                    group_name=clause.group_name,
-                    allow_other=clause.allow_other,
+                    group_name=clause.group_name if relation == "any_of" else None,
+                    allow_other=clause.allow_other if relation == "any_of" else False,
                     source_text=source_text,
                 )
             )
@@ -234,10 +403,10 @@ def compile_core_model_output(
                 _concepts_for_labels(
                     skills,
                     strength="mention",
-                    relation=clause.relation,
+                    relation=relation,
                     qualifier=clause.qualifier,
-                    group_name=clause.group_name,
-                    allow_other=clause.allow_other,
+                    group_name=clause.group_name if relation == "any_of" else None,
+                    allow_other=clause.allow_other if relation == "any_of" else False,
                     source_text=source_text,
                 )
             )
@@ -262,6 +431,33 @@ def compile_core_model_output(
         fields=fields,
         skill_sources=skill_sources,
         warnings=tuple(warnings),
+    )
+
+
+_EXPLICIT_CHOICE_SIGNAL = re.compile(
+    r"至少[^。；;\n]{0,40}(?:一|1)(?:种|项|个|门)|"
+    r"任(?:一|意一)(?:种|项|个|门)|任意|任选|二选一|"
+    r"某一(?:方向|方面|领域|类别)|"
+    r"满足其中|其中[^。；;\n]{0,12}即可|"
+    r"(?:一|1)(?:种|项|个|门)或多(?:种|项|个|门)|之一",
+    flags=re.IGNORECASE,
+)
+
+
+def has_explicit_choice_signal(source_text: str, skills: list[str]) -> bool:
+    """Require a source-backed choice cue; a slash alone is enumeration."""
+
+    if _EXPLICIT_CHOICE_SIGNAL.search(source_text):
+        return True
+    spans: list[tuple[int, int]] = []
+    for skill in skills:
+        match = re.search(re.escape(skill), source_text, flags=re.IGNORECASE)
+        if match is not None:
+            spans.append(match.span())
+    spans.sort()
+    return any(
+        re.search(r"或(?:者)?", source_text[left[1] : right[0]])
+        for left, right in pairwise(spans)
     )
 
 

@@ -10,8 +10,14 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
 
-ANALYSIS_VERSION = "job-analysis-v1"
+ANALYSIS_VERSION = "job-analysis-v2-local-matching"
 RiskSeverity = Literal["high", "medium", "low"]
+ApplicationRecommendation = Literal[
+    "recommended_application",
+    "consider",
+    "not_recommended",
+    "insufficient_information",
+]
 
 
 class AnalysisRisk(BaseModel):
@@ -24,6 +30,19 @@ class AnalysisRisk(BaseModel):
     title: str = Field(min_length=1, max_length=160)
     detail: str = Field(min_length=1)
     requirement_name: str | None = Field(default=None, max_length=120)
+
+
+class JobDecision(BaseModel):
+    """Small deterministic decision shown instead of a synthetic score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommendation: ApplicationRecommendation
+    summary: str = Field(min_length=1, max_length=300)
+    reasons: list[str] = Field(default_factory=list)
+    required_supported: int = Field(ge=0)
+    required_total: int = Field(ge=0)
+    needs_confirmation: int = Field(ge=0)
 
 
 def generate_job_analysis_id() -> str:

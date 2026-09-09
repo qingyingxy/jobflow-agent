@@ -111,6 +111,7 @@ class PredictionRecord(BaseModel):
     warnings: list[ParsingWarning] = Field(default_factory=list)
     failure_code: str | None = Field(default=None, max_length=80)
     failure_details: dict[str, Any] = Field(default_factory=dict)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
 
 
 class PredictionFile(BaseModel):
