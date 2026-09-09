@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import AttemptWorkspace from "./attempt-workspace";
+import AtsWorkspace from "./ats-workspace";
+import FollowUpWorkspace from "./follow-up-workspace";
 import MaterialsWorkspace from "./materials-workspace";
+import PacketWorkspace from "./packet-workspace";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:18001";
 const userId = "local-user";
@@ -95,6 +99,7 @@ type AnalysisResponse = {
 };
 
 type WorkspaceMode = "profile" | "discover" | "analysis" | "board";
+type ApplicationTool = "packet" | "attempt" | "assisted" | "followup";
 type ProfileSummaryState = "loading" | "ready" | "missing_resume" | "missing_evidence" | "error";
 
 type ProfileSummary = {
@@ -2838,7 +2843,22 @@ function ApplicationBoard({
   onTransition: (applicationId: string, status: ApplicationStatus) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState<ApplicationTool | null>(null);
   const selected = applications.find((item) => item.id === selectedId) ?? applications[0] ?? null;
+  const toolTitle = activeTool === "packet"
+    ? "准备并审核申请材料"
+    : activeTool === "attempt"
+      ? "记录投递过程"
+      : activeTool === "assisted"
+        ? "浏览器辅助填写"
+        : "安排后续跟进";
+  const toolDescription = activeTool === "packet"
+    ? "冻结本次使用的岗位、简历和回答，确认无误后再批准。"
+    : activeTool === "attempt"
+      ? "记录官网填写、人工接管和提交回执，不自动替你确认投递。"
+      : activeTool === "assisted"
+        ? "检查受支持的申请表单；敏感字段和最终提交仍由你确认。"
+        : "集中管理面试、补充材料和联系招聘方等后续任务。";
 
   return (
     <section className="board-shell">
@@ -2906,9 +2926,45 @@ function ApplicationBoard({
               );
             })}
           </div>
+          <section className="application-next-actions" aria-label="所选申请的后续操作">
+            <div className="application-next-heading">
+              <div>
+                <span>所选申请</span>
+                <strong>{selected ? `${selected.job.company ?? "未命名公司"} / ${selected.job.title ?? "未命名岗位"}` : "请选择一条申请"}</strong>
+              </div>
+              <p>按当前进度选择下一步；每一步都需要你核对后才会继续。</p>
+            </div>
+            <div className="application-tool-grid">
+              <button aria-label="准备申请材料" onClick={() => setActiveTool("packet")} type="button">
+                <span>01</span><strong>准备申请材料</strong><small>冻结并审核本次材料</small>
+              </button>
+              <button aria-label="记录投递过程" onClick={() => setActiveTool("attempt")} type="button">
+                <span>02</span><strong>记录投递过程</strong><small>处理阻塞并保存回执</small>
+              </button>
+              <button aria-label="浏览器辅助填写" onClick={() => setActiveTool("assisted")} type="button">
+                <span>03</span><strong>浏览器辅助填写</strong><small>敏感内容仍需确认</small>
+              </button>
+              <button aria-label="安排后续跟进" onClick={() => setActiveTool("followup")} type="button">
+                <span>04</span><strong>安排后续跟进</strong><small>管理面试和待办</small>
+              </button>
+            </div>
+          </section>
           <TimelinePanel application={selected} />
           <SuggestionPanel application={selected} />
         </>
+      ) : null}
+      {activeTool ? (
+        <ModalShell
+          title={toolTitle}
+          description={toolDescription}
+          onClose={() => setActiveTool(null)}
+          wide
+        >
+          {activeTool === "packet" ? <PacketWorkspace apiUrl={apiUrl} userId={userId} /> : null}
+          {activeTool === "attempt" ? <AttemptWorkspace apiUrl={apiUrl} userId={userId} /> : null}
+          {activeTool === "assisted" ? <AtsWorkspace apiUrl={apiUrl} userId={userId} /> : null}
+          {activeTool === "followup" ? <FollowUpWorkspace apiUrl={apiUrl} userId={userId} /> : null}
+        </ModalShell>
       ) : null}
     </section>
   );

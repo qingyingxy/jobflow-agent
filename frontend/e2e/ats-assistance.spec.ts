@@ -14,13 +14,21 @@ async function installAtsFixture(page: Page) {
   };
   const application = {
     id: "application_ats_demo",
+    candidate_job_id: "candidate_ats_demo",
     job_posting_id: "job_ats_demo",
     status: "PREPARING",
+    candidate_status: "CONVERTED",
+    next_action: null,
+    available_transitions: ["WITHDRAWN"],
     job: {
+      id: "job_ats_demo",
       company: "Signal Foundry",
       title: "AI Platform Engineer",
       source_url: "https://boards.greenhouse.io/signal-foundry/jobs/1001",
     },
+    events: [],
+    created_at: now,
+    updated_at: now,
   };
   const fieldPlan = [
     {
@@ -157,24 +165,26 @@ test("limited ATS assistance keeps sensitive fields and submit under user contro
   });
   await installAtsFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /浏览器辅助/ }).click();
+  await page.getByRole("button", { name: /申请进度/ }).click();
+  await page.getByRole("button", { name: "浏览器辅助填写" }).click();
+  const dialog = page.getByRole("dialog");
 
-  await expect(page.getByRole("heading", { name: /Signal Foundry \/ AI Platform Engineer/ })).toBeVisible();
-  await page.getByRole("button", { name: "检测并检查 ATS" }).click();
-  await expect(page.getByText("I agree to the privacy terms", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("法律确认", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: /Signal Foundry \/ AI Platform Engineer/ })).toBeVisible();
+  await dialog.getByRole("button", { name: "检测并检查 ATS" }).click();
+  await expect(dialog.getByText("I agree to the privacy terms", { exact: true }).first()).toBeVisible();
+  await expect(dialog.getByText("法律确认", { exact: true })).toBeVisible();
 
-  await page.getByRole("checkbox").first().check();
-  await page.getByRole("button", { name: "确认所选高影响字段" }).click();
-  await expect(page.locator(".ats-session-status")).toHaveText("等待最终授权");
+  await dialog.getByRole("checkbox").first().check();
+  await dialog.getByRole("button", { name: "确认所选高影响字段" }).click();
+  await expect(dialog.locator(".ats-session-status")).toHaveText("等待最终授权");
 
-  await page.getByText("我已核对公司、岗位、简历版本、关键答案和风险", { exact: false }).click();
-  await page.getByRole("button", { name: "签发一次性提交授权" }).click();
-  await expect(page.getByText("ONE-TIME TOKEN IN MEMORY", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "提交并捕获凭证" }).click();
+  await dialog.getByText("我已核对公司、岗位、简历版本、关键答案和风险", { exact: false }).click();
+  await dialog.getByRole("button", { name: "签发一次性提交授权" }).click();
+  await expect(dialog.getByText("ONE-TIME TOKEN IN MEMORY", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "提交并捕获凭证" }).click();
 
-  await expect(page.getByText("RECEIPT VERIFIED", { exact: true })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("Application 已进入 SUBMITTED");
+  await expect(dialog.getByText("RECEIPT VERIFIED", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("status")).toContainText("Application 已进入 SUBMITTED");
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBe(false);
   expect(consoleErrors).toEqual([]);

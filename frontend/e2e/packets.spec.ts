@@ -216,19 +216,21 @@ async function installPacketFixture(page: Page) {
 test("frozen packet can be reviewed and explicitly approved", async ({ page }) => {
   await installPacketFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /投递审核/ }).click();
+  await page.getByRole("button", { name: /申请进度/ }).click();
+  await page.getByRole("button", { name: "准备申请材料" }).click();
+  const dialog = page.getByRole("dialog");
 
-  await expect(page.getByRole("heading", { name: /Evidence Labs \/ AI Product Engineer/ })).toBeVisible();
-  await page.getByRole("button", { name: /生成冻结草稿/ }).click();
-  await expect(page.getByText("岗位事实与 JD 快照", { exact: true })).toBeVisible();
-  await expect(page.locator(".packet-resume-diff").getByText("V2 · AI Product Engineer 定向版", { exact: true })).toBeVisible();
-  await expect(page.getByText("Agent 评测工作台", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: /Evidence Labs \/ AI Product Engineer/ })).toBeVisible();
+  await dialog.getByRole("button", { name: /生成冻结草稿/ }).click();
+  await expect(dialog.getByText("岗位事实与 JD 快照", { exact: true })).toBeVisible();
+  await expect(dialog.locator(".packet-resume-diff").getByText("V2 · AI Product Engineer 定向版", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("Agent 评测工作台", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "提交审核", exact: true }).click();
-  await expect(page.getByText("待审核", { exact: true }).last()).toBeVisible();
-  await page.getByRole("button", { name: "批准此冻结版本", exact: true }).click();
+  await dialog.getByRole("button", { name: "提交审核", exact: true }).click();
+  await expect(dialog.getByText("待审核", { exact: true }).last()).toBeVisible();
+  await dialog.getByRole("button", { name: "批准此冻结版本", exact: true }).click();
 
-  await expect(page.getByText("已批准", { exact: true }).last()).toBeVisible();
-  await expect(page.getByText("I build evidence-first AI products.", { exact: true })).toBeVisible();
-  await expect(page.getByText("批准仅绑定这一个修订号和内容哈希，不改变申请提交状态。", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("已批准", { exact: true }).last()).toBeVisible();
+  await expect(dialog.getByText("I build evidence-first AI products.", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("批准仅绑定这一个修订号和内容哈希，不改变申请提交状态。", { exact: true })).toBeVisible();
 });

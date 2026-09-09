@@ -235,41 +235,43 @@ test("follow-up center manages the full manual task lifecycle", async ({ page })
   });
   await installFollowUpFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /跟进中心/ }).click();
+  await page.getByRole("button", { name: /申请进度/ }).click();
+  await page.getByRole("button", { name: "安排后续跟进" }).click();
+  const dialog = page.getByRole("dialog");
 
-  await expect(page.getByRole("heading", { name: "今日任务" })).toBeVisible();
-  await expect(page.getByText("技术一面", { exact: true })).toBeVisible();
-  await expect(page.getByText("补发感谢邮件", { exact: true })).toBeHidden();
+  await expect(dialog.getByRole("heading", { name: "今日任务" })).toBeVisible();
+  await expect(dialog.getByText("技术一面", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("补发感谢邮件", { exact: true })).toBeHidden();
 
-  await page.getByRole("tab", { name: /逾期/ }).click();
-  await expect(page.getByText("补发感谢邮件", { exact: true })).toBeVisible();
-  await expect(page.getByText("已逾期", { exact: true })).toBeVisible();
+  await dialog.getByRole("tab", { name: /逾期/ }).click();
+  await expect(dialog.getByText("补发感谢邮件", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("已逾期", { exact: true })).toBeVisible();
 
-  await page.getByLabel("标题").fill("HR 终面");
-  await page.getByLabel("日期与时间").fill(`${localDate(2)}T14:30`);
-  await page.getByLabel("下一步动作").fill("准备薪资沟通问题清单");
-  await page.getByLabel("渠道").fill("视频会议");
-  await page.getByRole("button", { name: "创建跟进任务" }).click();
-  await expect(page.getByRole("status")).toContainText("跟进任务已创建");
+  await dialog.getByLabel("标题").fill("HR 终面");
+  await dialog.getByLabel("日期与时间").fill(`${localDate(2)}T14:30`);
+  await dialog.getByLabel("下一步动作").fill("准备薪资沟通问题清单");
+  await dialog.getByLabel("渠道").fill("视频会议");
+  await dialog.getByRole("button", { name: "创建跟进任务" }).click();
+  await expect(dialog.getByRole("status")).toContainText("跟进任务已创建");
 
-  await page.getByRole("tab", { name: /未来 30 天/ }).click();
-  await page.getByRole("button", { name: new RegExp(localDate(2)) }).click();
-  await expect(page.getByText("HR 终面", { exact: true })).toBeVisible();
-  await expect(page.getByText("招聘经理沟通", { exact: true })).toBeHidden();
+  await dialog.getByRole("tab", { name: /未来 30 天/ }).click();
+  await dialog.getByRole("button", { name: new RegExp(localDate(2)) }).click();
+  await expect(dialog.getByText("HR 终面", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("招聘经理沟通", { exact: true })).toBeHidden();
 
-  await page.getByLabel("编辑 HR 终面").click();
-  await page.getByLabel("标题").fill("HR 终面（已确认）");
-  await page.getByLabel("下一步动作").fill("确认会议链接并准备薪资沟通问题清单");
-  await page.getByRole("button", { name: "保存修改" }).click();
-  await expect(page.getByText("HR 终面（已确认）", { exact: true })).toBeVisible();
+  await dialog.getByLabel("编辑 HR 终面").click();
+  await dialog.getByLabel("标题").fill("HR 终面（已确认）");
+  await dialog.getByLabel("下一步动作").fill("确认会议链接并准备薪资沟通问题清单");
+  await dialog.getByRole("button", { name: "保存修改" }).click();
+  await expect(dialog.getByText("HR 终面（已确认）", { exact: true })).toBeVisible();
 
-  await page.getByLabel("完成 HR 终面（已确认）").click();
-  await page.getByRole("tab", { name: /全部记录/ }).click();
-  await expect(page.getByText("HR 终面（已确认）", { exact: true })).toBeVisible();
-  await expect(page.getByText("已完成", { exact: true })).toBeVisible();
+  await dialog.getByLabel("完成 HR 终面（已确认）").click();
+  await dialog.getByRole("tab", { name: /全部记录/ }).click();
+  await expect(dialog.getByText("HR 终面（已确认）", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("已完成", { exact: true })).toBeVisible();
 
-  await page.getByLabel("取消 招聘经理沟通").click();
-  await expect(page.getByText("已取消", { exact: true })).toBeVisible();
+  await dialog.getByLabel("取消 招聘经理沟通").click();
+  await expect(dialog.getByText("已取消", { exact: true })).toBeVisible();
 
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBe(false);

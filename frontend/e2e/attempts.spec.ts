@@ -172,31 +172,33 @@ test("manual application execution requires a verified receipt", async ({ page }
   });
   await installAttemptFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /投递执行/ }).click();
+  await page.getByRole("button", { name: /申请进度/ }).click();
+  await page.getByRole("button", { name: "记录投递过程" }).click();
+  const dialog = page.getByRole("dialog");
 
-  await expect(page.getByRole("heading", { name: /Evidence Labs \/ AI Product Engineer/ })).toBeVisible();
-  await page.getByRole("button", { name: /创建投递尝试/ }).click();
-  await expect(page.getByText("待打开", { exact: true }).last()).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: /Evidence Labs \/ AI Product Engineer/ })).toBeVisible();
+  await dialog.getByRole("button", { name: /创建投递尝试/ }).click();
+  await expect(dialog.getByText("待打开", { exact: true }).last()).toBeVisible();
 
-  await page.getByRole("button", { name: "已打开，开始填写" }).click();
-  await page.getByLabel("页面观察").fill("招聘门户要求短信验证");
-  await page.getByLabel("停止原因").fill("需要候选人本人完成登录");
-  await page.getByLabel("下一策略").fill("验证后继续填写");
-  await page.getByLabel("需要你的动作").fill("完成短信验证");
-  await page.getByRole("button", { name: "记录并暂停" }).click();
+  await dialog.getByRole("button", { name: "已打开，开始填写" }).click();
+  await dialog.getByLabel("页面观察").fill("招聘门户要求短信验证");
+  await dialog.getByLabel("停止原因").fill("需要候选人本人完成登录");
+  await dialog.getByLabel("下一策略").fill("验证后继续填写");
+  await dialog.getByLabel("需要你的动作").fill("完成短信验证");
+  await dialog.getByRole("button", { name: "记录并暂停" }).click();
 
-  await expect(page.getByText("招聘门户要求短信验证", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "标记已解决" }).click();
-  await page.getByRole("button", { name: "表单检查完成，进入待提交" }).click();
+  await expect(dialog.getByText("招聘门户要求短信验证", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "标记已解决" }).click();
+  await dialog.getByRole("button", { name: "表单检查完成，进入待提交" }).click();
 
-  await page.getByLabel("确认文本").fill("Your application was submitted successfully.");
-  await page.getByLabel("申请 / Reference 编号").fill("APP-2026-001");
-  await page.getByText("我确认官网已经显示提交成功", { exact: false }).click();
-  await page.getByRole("button", { name: "验证并冻结凭证" }).click();
+  await dialog.getByLabel("确认文本").fill("Your application was submitted successfully.");
+  await dialog.getByLabel("申请 / Reference 编号").fill("APP-2026-001");
+  await dialog.getByText("我确认官网已经显示提交成功", { exact: false }).click();
+  await dialog.getByRole("button", { name: "验证并冻结凭证" }).click();
 
-  await expect(page.getByText("RECEIPT VERIFIED", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "确认真实投递并更新申请" }).click();
-  await expect(page.getByText("Application 已进入 SUBMITTED", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("RECEIPT VERIFIED", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "确认真实投递并更新申请" }).click();
+  await expect(dialog.getByText("Application 已进入 SUBMITTED", { exact: true })).toBeVisible();
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBe(false);
   expect(consoleErrors).toEqual([]);
