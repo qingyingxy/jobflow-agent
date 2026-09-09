@@ -173,8 +173,18 @@ function fieldPayload<T>(field: PrivateField<T>): PrivateField<T> {
   };
 }
 
-export default function MaterialsWorkspace({ apiUrl, userId }: { apiUrl: string; userId: string }) {
-  const [step, setStep] = useState<MaterialStep>("profile");
+export default function MaterialsWorkspace({
+  apiUrl,
+  userId,
+  onResumeChange,
+  variant = "full",
+}: {
+  apiUrl: string;
+  userId: string;
+  onResumeChange?: () => void;
+  variant?: "full" | "resume-only";
+}) {
+  const [step, setStep] = useState<MaterialStep>(variant === "resume-only" ? "resumes" : "profile");
   const [state, setState] = useState<"loading" | "ready" | "saving" | "error">("loading");
   const [message, setMessage] = useState("");
   const [profile, setProfile] = useState<PrivateProfile | null>(null);
@@ -330,6 +340,7 @@ export default function MaterialsWorkspace({ apiUrl, userId }: { apiUrl: string;
       if (fileInputRef.current) fileInputRef.current.value = "";
       setState("ready");
       setMessage(`简历 v${created.version_number} 已入库${created.is_default ? "并设为默认" : ""}。`);
+      onResumeChange?.();
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "简历版本创建失败。");
@@ -453,18 +464,95 @@ export default function MaterialsWorkspace({ apiUrl, userId }: { apiUrl: string;
     { key: "salary_strategy", label: "薪资策略", placeholder: "例如：按岗位预算协商" },
   ];
 
+  const resumeWorkspace = state !== "loading" ? (
+    <div className={`resume-workspace ${variant === "resume-only" ? "resume-workspace-compact" : ""}`}>
+      <section className="resume-composer">
+        <div className="materials-subheading">
+          <span>{variant === "resume-only" ? "上传简历" : "新建版本"}</span>
+          <strong>{variant === "resume-only" ? "添加一份 PDF 或 DOCX 简历" : "登记一份可追踪简历"}</strong>
+        </div>
+        <div className="resume-form-grid">
+          <label className="resume-file-field">
+            <span>选择简历文件</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                setSelectedFile(file);
+                if (file) {
+                  setVersionLabel((current) => current.trim() || file.name.replace(/\.(pdf|docx)$/i, ""));
+                }
+              }}
+            />
+            <small>{selectedFile ? `${selectedFile.name} · ${formatBytes(selectedFile.size)}` : "PDF / DOCX · 最大 5 MB"}</small>
+          </label>
+          {variant === "full" ? (
+            <label>
+              <span>或使用已上传文件</span>
+              <select value={selectedAssetId} disabled={Boolean(selectedFile)} onChange={(event) => setSelectedAssetId(event.target.value)}>
+                <option value="">选择文件</option>
+                {assets.map((asset) => <option value={asset.id} key={asset.id}>{asset.original_filename} · {asset.sha256.slice(0, 8)}</option>)}
+              </select>
+            </label>
+          ) : null}
+          <label>
+            <span>版本名称</span>
+            <input value={versionLabel} onChange={(event) => setVersionLabel(event.target.value)} placeholder="例如：AI Agent 中文简历" />
+          </label>
+          {variant === "full" ? (
+            <>
+              <label><span>适用岗位族</span><input value={jobFamily} onChange={(event) => setJobFamily(event.target.value)} placeholder="例如：AI Agent / LLM 应用" /></label>
+              <label className="resume-reason-field"><span>生成原因</span><input value={generationReason} onChange={(event) => setGenerationReason(event.target.value)} placeholder="例如：针对 Agent 工程岗位调整" /></label>
+            </>
+          ) : null}
+          <label className="resume-default-check"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} /><span>设为默认投递版本</span></label>
+        </div>
+        <div className="materials-action-row">
+          <span>{variant === "resume-only" ? "上传后会自动解析经历，你可以在“我的经历”中逐条核对。" : "文件内容保存在非公开目录；界面和 API 只暴露受控元数据。"}</span>
+          <button className="materials-primary" disabled={state === "saving"} onClick={() => void createResumeVersion()} type="button">
+            {state === "saving" ? "处理中…" : variant === "resume-only" ? "上传并解析" : "创建简历版本"}
+          </button>
+        </div>
+      </section>
+      <section className="version-library">
+        <div className="materials-subheading"><span>已有简历</span><strong>{versions.length} 个版本</strong></div>
+        {versions.length === 0 ? <div className="materials-empty">还没有上传简历。</div> : (
+          <div className="version-list">{versions.map((version) => (
+            <article className={`version-row ${version.is_default ? "is-default" : ""}`} key={version.id}>
+              <div className="version-number">V{version.version_number.toString().padStart(2, "0")}</div>
+              <div className="version-main"><div><h3>{version.label}</h3>{version.is_default ? <span>默认</span> : null}</div><p>{version.job_family || "通用岗位"} · {version.generation_reason}</p><small>{version.asset.original_filename} · {formatBytes(version.asset.size_bytes)}</small></div>
+              <div className="version-actions"><button onClick={() => void downloadAsset(version.asset)} type="button" aria-label={`下载 ${version.label}`}>↓</button>{!version.is_default ? <button onClick={() => void setDefaultVersion(version.id)} disabled={state === "saving"} type="button">设为默认</button> : <span>当前默认</span>}</div>
+            </article>
+          ))}</div>
+        )}
+      </section>
+    </div>
+  ) : null;
+
+  if (variant === "resume-only") {
+    return (
+      <section className="materials-resume-only" aria-live="polite">
+        {message ? <div className={`materials-message ${state === "error" ? "materials-message-error" : ""}`}>{message}</div> : null}
+        {state === "loading" ? <div className="materials-loading"><span />正在读取简历…</div> : null}
+        {resumeWorkspace}
+      </section>
+    );
+  }
+
   return (
     <section className="materials-layout">
       <aside className="materials-rail">
-        <div className="section-kicker"><span>M14</span> 投递资料</div>
-        <h2>一份申请，<em>从已确认事实开始。</em></h2>
+        <div className="section-kicker">高级申请资料</div>
+        <h2>只使用你确认过的资料</h2>
         <div className="materials-steps" role="tablist" aria-label="投递资料步骤">
           <StepButton index="01" label="私密档案" detail={profile?.readiness === "ready" ? "已确认" : `${profile?.needs_confirmation.length ?? 8} 项待确认`} active={step === "profile"} complete={profile?.readiness === "ready"} onClick={() => setStep("profile")} />
           <StepButton index="02" label="简历版本" detail={`${versions.length} 个版本`} active={step === "resumes"} complete={versions.length > 0} onClick={() => setStep("resumes")} />
           <StepButton index="03" label="答案库" detail={`${answers.length} 条确认答案`} active={step === "answers"} complete={answers.length > 0} onClick={() => setStep("answers")} />
         </div>
         <div className="materials-privacy-note">
-          <span>PRIVATE BY DESIGN</span>
+          <span>隐私保护</span>
           <p>联系方式、简历正文和敏感答案不会写入普通日志或申请事件。身份披露这里只保存处理策略。</p>
         </div>
       </aside>
@@ -472,7 +560,7 @@ export default function MaterialsWorkspace({ apiUrl, userId }: { apiUrl: string;
       <section className="materials-surface" aria-live="polite">
         <header className="materials-heading">
           <div>
-            <span className="materials-step-index">STEP / {step === "profile" ? "01" : step === "resumes" ? "02" : "03"}</span>
+            <span className="materials-step-index">{step === "profile" ? "私密档案" : step === "resumes" ? "简历版本" : "答案库"}</span>
             <h2>{step === "profile" ? "确认申请事实" : step === "resumes" ? "管理简历身份与版本" : "只复用你确认过的答案"}</h2>
           </div>
           <button className="materials-refresh" onClick={() => void loadMaterials()} disabled={state === "loading" || state === "saving"} type="button" aria-label="刷新投递资料">↻</button>
@@ -540,34 +628,7 @@ export default function MaterialsWorkspace({ apiUrl, userId }: { apiUrl: string;
           </div>
         ) : null}
 
-        {state !== "loading" && step === "resumes" ? (
-          <div className="resume-workspace">
-            <section className="resume-composer">
-              <div className="materials-subheading"><span>NEW VERSION</span><strong>登记一份可追踪简历</strong></div>
-              <div className="resume-form-grid">
-                <label className="resume-file-field"><span>上传新文件</span><input ref={fileInputRef} type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} /><small>{selectedFile ? `${selectedFile.name} · ${formatBytes(selectedFile.size)}` : "PDF / DOCX · 最大 5 MB"}</small></label>
-                <label><span>或使用已上传文件</span><select value={selectedAssetId} disabled={Boolean(selectedFile)} onChange={(event) => setSelectedAssetId(event.target.value)}><option value="">选择文件</option>{assets.map((asset) => <option value={asset.id} key={asset.id}>{asset.original_filename} · {asset.sha256.slice(0, 8)}</option>)}</select></label>
-                <label><span>版本名称</span><input value={versionLabel} onChange={(event) => setVersionLabel(event.target.value)} placeholder="例如：AI Agent 中文简历" /></label>
-                <label><span>适用岗位族</span><input value={jobFamily} onChange={(event) => setJobFamily(event.target.value)} placeholder="例如：AI Agent / LLM 应用" /></label>
-                <label className="resume-reason-field"><span>生成原因</span><input value={generationReason} onChange={(event) => setGenerationReason(event.target.value)} placeholder="例如：针对 Agent 工程岗位调整" /></label>
-                <label className="resume-default-check"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} /><span>设为默认投递版本</span></label>
-              </div>
-              <div className="materials-action-row"><span>文件内容保存在非公开目录；界面和 API 只暴露受控元数据。</span><button className="materials-primary" disabled={state === "saving"} onClick={() => void createResumeVersion()} type="button">{state === "saving" ? "入库中…" : "创建简历版本 ↗"}</button></div>
-            </section>
-            <section className="version-library">
-              <div className="materials-subheading"><span>VERSION REGISTER</span><strong>{versions.length.toString().padStart(2, "0")} 个版本</strong></div>
-              {versions.length === 0 ? <div className="materials-empty">还没有简历版本。</div> : (
-                <div className="version-list">{versions.map((version) => (
-                  <article className={`version-row ${version.is_default ? "is-default" : ""}`} key={version.id}>
-                    <div className="version-number">V{version.version_number.toString().padStart(2, "0")}</div>
-                    <div className="version-main"><div><h3>{version.label}</h3>{version.is_default ? <span>DEFAULT</span> : null}</div><p>{version.job_family || "通用岗位"} · {version.generation_reason}</p><small>{version.asset.original_filename} · SHA {version.asset.sha256.slice(0, 12)} · {formatBytes(version.asset.size_bytes)}</small></div>
-                    <div className="version-actions"><button onClick={() => void downloadAsset(version.asset)} type="button" aria-label={`下载 ${version.label}`}>↓</button>{!version.is_default ? <button onClick={() => void setDefaultVersion(version.id)} disabled={state === "saving"} type="button">设为默认</button> : <span>当前默认</span>}</div>
-                  </article>
-                ))}</div>
-              )}
-            </section>
-          </div>
-        ) : null}
+        {step === "resumes" ? resumeWorkspace : null}
 
         {state !== "loading" && step === "answers" ? (
           <div className="answer-workspace">

@@ -133,7 +133,9 @@ async function installMaterialsFixture(page: Page) {
 test("private profile keeps missing fields visible and never guesses", async ({ page }) => {
   await installMaterialsFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /投递资料/ }).click();
+  await page.getByRole("button", { name: /尚未上传简历/ }).click();
+  await page.getByRole("button", { name: "高级申请资料" }).click();
+  await page.getByRole("tab", { name: /私密档案/ }).click();
 
   await expect(page.getByRole("heading", { name: "确认申请事实" })).toBeVisible();
   await expect(page.getByText("8 项待确认", { exact: true })).toBeVisible();
@@ -148,20 +150,19 @@ test("private profile keeps missing fields visible and never guesses", async ({ 
 test("resume and confirmed answer become versioned library records", async ({ page }) => {
   await installMaterialsFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /投递资料/ }).click();
+  await page.getByRole("button", { name: /尚未上传简历/ }).click();
 
-  await page.getByRole("tab", { name: /简历版本/ }).click();
-  await page.getByLabel("上传新文件").setInputFiles({
+  await page.getByLabel("选择简历文件").setInputFiles({
     name: "agent-resume.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from("%PDF-1.7 demo"),
   });
   await page.getByLabel("版本名称").fill("AI Agent 中文简历");
-  await page.getByLabel("适用岗位族").fill("AI Agent");
-  await page.getByRole("button", { name: /创建简历版本/ }).click();
+  await page.getByRole("button", { name: "上传并解析" }).click();
   await expect(page.getByText("AI Agent 中文简历", { exact: true })).toBeVisible();
-  await expect(page.getByText("DEFAULT", { exact: true })).toBeVisible();
+  await expect(page.getByText("默认", { exact: true })).toBeVisible();
 
+  await page.getByRole("button", { name: "高级申请资料" }).click();
   await page.getByRole("tab", { name: /答案库/ }).click();
   await page.getByLabel("问题模式").fill("Why do you want to join us?");
   await page.getByLabel("已确认答案").fill("I value evidence-first product work.");

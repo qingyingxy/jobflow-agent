@@ -363,6 +363,34 @@ async function installApiFixture(page: Page) {
       await route.fulfill({ headers: jsonHeaders, json: handoffAnalysis });
       return;
     }
+    if (url.pathname === "/api/jobs/job-strict/analysis" && request.method() === "GET") {
+      await route.fulfill({
+        headers: jsonHeaders,
+        json: {
+          ...handoffAnalysis,
+          analysis_id: "analysis-strict",
+          job: {
+            id: "job-strict",
+            company: "腾讯",
+            title: "混元 AI Agent 工程师 - 校园招聘",
+            source_url: "https://careers.tencent.com/jobdesc.html?postId=1001",
+          },
+        },
+      });
+      return;
+    }
+    if (url.pathname === "/api/jobs/job-strict" && request.method() === "GET") {
+      await route.fulfill({
+        headers: jsonHeaders,
+        json: {
+          id: "job-strict",
+          company: "腾讯",
+          title: "混元 AI Agent 工程师 - 校园招聘",
+          raw_content: "岗位职责：负责 AI Agent 产品研发。任职要求：熟悉 Python、LLM 和软件工程。",
+        },
+      });
+      return;
+    }
     if (url.pathname === "/api/discovery/search" && request.method() === "POST") {
       searchStarted = true;
       await route.fulfill({
@@ -394,9 +422,9 @@ async function installApiFixture(page: Page) {
 test("strict and expanded discovery results stay visibly separated", async ({ page }) => {
   await installApiFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /岗位发现/ }).click();
-  await expect(page.getByRole("heading", { name: /把模糊目标交给/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "搜索岗位" })).toBeVisible();
 
+  await page.getByText("优先公司（可选）", { exact: true }).click();
   await page.getByRole("checkbox", { name: /腾讯/ }).check();
   await page.getByLabel("你想找什么").fill("北京的 AI Agent 校招岗位");
   if (process.env.UPDATE_DEMO_ASSETS === "1") {
@@ -420,9 +448,10 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   await expect(expanded.getByText("非校招", { exact: true })).toBeVisible();
   await expect(expanded.getByRole("button", { name: "手动分析 ↗" })).toBeVisible();
 
+  await page.locator("summary.discovery-history-heading").click();
   const trace = page.locator("details.discovery-agent-trace");
   await trace.locator("summary").click();
-  await expect(trace.getByText("白名单 2 · 岗位上限 20 · 自动分析 5")).toBeVisible();
+  await expect(trace.getByText("来源 2 · 岗位上限 20 · 自动分析 5")).toBeVisible();
   await expect(trace.getByText("tencent_public_job_adapter", { exact: false })).toBeVisible();
   await expect(trace.getByText("无事实时人工接管")).toBeVisible();
 
@@ -435,10 +464,35 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   }
 });
 
+test("existing analysis opens as a discovery detail and returns to the list", async ({ page }) => {
+  await installApiFixture(page);
+  await page.goto("/");
+  const searchRequestPromise = page.waitForRequest((request) => (
+    new URL(request.url()).pathname === "/api/discovery/search"
+  ));
+  await page.getByRole("button", { name: "搜索并分析" }).click();
+  const searchRequest = await searchRequestPromise;
+  expect(searchRequest.postDataJSON()).toEqual({
+    query: "北京 / 上海的 AI Agent、LLM、算法校招岗位",
+    source_mode: "web",
+    company_ids: null,
+  });
+
+  const strictCard = page.locator(".discovery-card").filter({ hasText: "混元 AI Agent 工程师 - 校园招聘" });
+  await strictCard.getByRole("button", { name: /查看.*分析/ }).click();
+
+  await expect(page.getByRole("heading", { name: "岗位匹配详情" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
+  await page.getByRole("button", { name: "返回岗位列表" }).click();
+
+  await expect(page.getByRole("heading", { name: "发现适合你的岗位" })).toBeVisible();
+  await expect(page.getByText("混元 AI Agent 工程师 - 校园招聘", { exact: true })).toBeVisible();
+});
+
 test("submitted job lead stays untrusted until verification succeeds", async ({ page }, testInfo) => {
   await installApiFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /岗位发现/ }).click();
+  await page.locator("summary.job-lead-heading").click();
 
   await page.getByLabel("具体岗位 URL").fill("https://careers.example.com/jobs/123");
   await page.getByLabel("公司提示（可选）").fill("示例科技");
@@ -472,7 +526,7 @@ test("submitted job lead stays untrusted until verification succeeds", async ({ 
 test("dynamic lead manual handoff remains linked through analysis", async ({ page }) => {
   await installApiFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /岗位发现/ }).click();
+  await page.locator("summary.job-lead-heading").click();
   await page.getByLabel("具体岗位 URL").fill("https://careers.example.com/jobs/dynamic-123");
   await page.getByLabel("公司提示（可选）").fill("示例科技");
   await page.getByLabel("岗位提示（可选）").fill("AI Agent 工程师");
@@ -483,12 +537,12 @@ test("dynamic lead manual handoff remains linked through analysis", async ({ pag
   await expect(page.getByText("页面依赖 JavaScript", { exact: false }).first()).toBeVisible();
   await page.getByRole("button", { name: "粘贴 JD 接管" }).click();
 
-  await expect(page.getByText("USER-PROVIDED JD", { exact: true })).toBeVisible();
-  await expect(page.getByText("正在完成线索 12345678", { exact: true })).toBeVisible();
-  await page.getByLabel("岗位原文 / JD").fill(
+  await expect(page.getByRole("heading", { name: "补充岗位原文" })).toBeVisible();
+  await expect(page.getByText("正在补充一条无法自动读取的岗位", { exact: true })).toBeVisible();
+  await page.getByLabel("岗位描述").fill(
     "岗位职责：负责 AI Agent 产品研发和评测平台建设。任职要求：熟悉 Python、LLM 和软件工程。",
   );
-  await page.getByRole("button", { name: /完成接管并分析/ }).click();
+  await page.getByRole("button", { name: "补充并分析" }).click();
 
   await expect(page.getByText("示例科技 · AI Agent 工程师", { exact: true })).toBeVisible();
   await expect(page.getByText("信息不足", { exact: true }).first()).toBeVisible();
@@ -497,7 +551,7 @@ test("dynamic lead manual handoff remains linked through analysis", async ({ pag
 test("dynamic lead can use read-only browser verification", async ({ page }) => {
   await installApiFixture(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /岗位发现/ }).click();
+  await page.locator("summary.job-lead-heading").click();
   await page.getByLabel("具体岗位 URL").fill("https://careers.example.com/jobs/dynamic-123");
   await page.getByLabel("公司提示（可选）").fill("示例科技");
   await page.getByLabel("岗位提示（可选）").fill("AI Agent 工程师");
