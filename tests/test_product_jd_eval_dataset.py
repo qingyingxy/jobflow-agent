@@ -18,7 +18,10 @@ from scripts.revise_product_jd_development_v2 import (
 from src.domain.product_jd import ProductJDModelOutput, validate_product_jd_output
 
 MANIFEST_PATH = Path("datasets/product_jd_eval_split_v2_2026_09_06.json")
-LOCAL_INPUTS_AVAILABLE = SOURCE_MANIFEST.exists() and SOURCE_DEVELOPMENT.exists()
+LOCAL_INPUTS_AVAILABLE = all(
+    path.exists()
+    for path in (PRIOR_SPLIT_PATH, SOURCE_MANIFEST, SOURCE_DEVELOPMENT)
+)
 
 
 def test_product_jd_manifest_freezes_100_unique_cases_without_content() -> None:
@@ -48,6 +51,7 @@ def test_product_jd_manifest_freezes_100_unique_cases_without_content() -> None:
     assert summary["unsupported_metric_fields"] == ["deadline"]
 
 
+@pytest.mark.skipif(not LOCAL_INPUTS_AVAILABLE, reason="local source artifacts missing")
 def test_product_jd_manifest_preserves_prior_dev50_and_sealed30() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     prior = json.loads(PRIOR_SPLIT_PATH.read_text(encoding="utf-8"))

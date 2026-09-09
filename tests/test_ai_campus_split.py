@@ -5,6 +5,8 @@ import json
 from collections import Counter
 from pathlib import Path
 
+import pytest
+
 from src.domain.skill_normalizer import (
     normalize_atomic_skill_values,
     normalize_skill_group,
@@ -55,6 +57,31 @@ HOLDOUT_STRICT_REVIEW = Path(
     "artifacts/evaluation/"
     "m11-ai-campus-review-core-v28-label-v15-remaining51-holdout30-strict-"
     "2026-09-02.json"
+)
+
+LOCAL_EVALUATION_FIXTURES_AVAILABLE = all(
+    path.exists()
+    for path in (
+        SOURCE_DATA,
+        SOURCE_MANIFEST,
+        SPLIT_ARTIFACT,
+        V31_DEV_SELECTION,
+        V32_DEV_SELECTION,
+        V33_DEV_SELECTION,
+        DEV_LABELS,
+        DEV_FREEZE,
+        DEV_STRICT_MANIFEST,
+        DEV_STRICT_REVIEW,
+        HOLDOUT_LABELS,
+        HOLDOUT_FREEZE,
+        HOLDOUT_STRICT_MANIFEST,
+        HOLDOUT_STRICT_REVIEW,
+    )
+)
+
+pytestmark = pytest.mark.skipif(
+    not LOCAL_EVALUATION_FIXTURES_AVAILABLE,
+    reason="complete local historical evaluation fixtures are missing",
 )
 
 

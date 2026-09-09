@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.build_product_jd_sealed_label_draft import LABELS, build_dataset
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,6 +17,7 @@ SOURCE = (
 )
 
 
+@pytest.mark.skipif(not SOURCE.exists(), reason="local sealed source artifact missing")
 def test_blind_sealed_label_draft_is_complete_and_reproducible(tmp_path: Path) -> None:
     source_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
     output = tmp_path / "sealed-label-draft.json"
