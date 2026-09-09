@@ -1,0 +1,76 @@
+{
+  "receipt_version": "product-jd-test100-evaluation-receipt-v1-2026-09-09",
+  "status": "formal_evaluation_complete",
+  "evaluated_at": "2026-09-09",
+  "protocol": {
+    "formal_run_count": 1,
+    "labels_frozen_before_prediction": true,
+    "predictions_used_to_edit_labels": false,
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "response_format": "json_object",
+    "validation_retries_per_stage": 1
+  },
+  "counts": {
+    "case_count": 100,
+    "prediction_count": 100,
+    "parse_success_count": 100,
+    "parse_failure_count": 0,
+    "schema_valid_count": 100,
+    "evidence_valid_count": 100,
+    "model_call_count": 201,
+    "model_call_count_distribution": {
+      "2": 99,
+      "3": 1
+    },
+    "failure_codes": {},
+    "expected_any_of_group_count": 183,
+    "expected_any_of_item_count": 633
+  },
+  "primary_metrics": {
+    "parse_success_rate": 1.0,
+    "schema_valid_rate": 1.0,
+    "evidence_valid_rate": 1.0,
+    "facts_value_macro_f1": 0.873282389384784,
+    "hard_major_presence_f1": 0.98989898989899,
+    "requirement_source_character_f1": 0.9720583376598859,
+    "any_of_aligned_exact_group_f1": 0.5691489361702128,
+    "any_of_aligned_relation_group_f1": 0.8563829787234042,
+    "responsibility_source_character_f1": 0.9681015504239074
+  },
+  "artifacts": {
+    "freeze_receipt": {
+      "path": "datasets/product_jd_test100_label_freeze_v1_2026_09_09.json",
+      "sha256": "ba6ba3b483282058434bde0f34285f8ced43eb7cbdf29530d1352859b1ae5cea",
+      "version": "product-jd-test100-label-freeze-v1-2026-09-09"
+    },
+    "labels": {
+      "path": "artifacts/evaluation/product-jd-test100-human-reviewed-v1-2026-09-09.json",
+      "sha256": "e3bbf8f99f9ce3a96834e53b656191f1192b3c70acb50d141adbfe60e9cfae9a",
+      "version": "product-jd-test100-human-reviewed-v1-2026-09-09"
+    },
+    "predictions": {
+      "path": "artifacts/evaluation/product-jd-test100-terra-medium-two-stage-v1-predictions.json",
+      "sha256": "8a9f020ad787be051d6dd4a08dcb59e77f5978a8b69366e2ab4a54c6c95cad57",
+      "version": "product-jd-test100-terra-medium-two-stage-v1"
+    },
+    "report": {
+      "path": "artifacts/evaluation/product-jd-test100-terra-medium-two-stage-v1-report.json",
+      "sha256": "979bc288faba2e7f8ad1d37a9aecdc7d5a396ae5650654468ca68e7767b74e75",
+      "version": "product-jd-evaluator-v3"
+    }
+  },
+  "interpretation": {
+    "recommended_resume_metrics": [
+      "parse_success_rate",
+      "schema_valid_rate",
+      "evidence_valid_rate",
+      "facts_value_macro_f1",
+      "requirement_source_character_f1",
+      "any_of_aligned_relation_group_f1",
+      "responsibility_source_character_f1"
+    ],
+    "strict_boundary_metric": "any_of_aligned_exact_group_f1",
+    "strict_boundary_note": "This lower exact-item score reflects item-boundary disagreement and must not be presented as the relation-classification score."
+  }
+}

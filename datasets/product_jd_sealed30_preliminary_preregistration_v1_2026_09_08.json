@@ -1,0 +1,70 @@
+{
+  "preregistration_version": "product-jd-sealed30-preliminary-v1-2026-09-08",
+  "status": "frozen_before_first_product_prediction",
+  "purpose": "Preliminary sealed evaluation against a blind Codex label draft. Results are not resume-ready until explicit human review freezes a new gold label version.",
+  "split": "sealed_test",
+  "case_count": 30,
+  "independence": {
+    "product_predictions_existed_before_label_draft": false,
+    "product_predictions_read_before_label_draft": false,
+    "label_author": "codex_blind_draft",
+    "human_reviewed": false,
+    "post_prediction_prompt_tuning_allowed": false,
+    "post_prediction_label_changes_require_adjudication_log": true
+  },
+  "frozen_inputs": {
+    "source": {
+      "path": "artifacts/evaluation/product-jd-sealed30-sources-v1-2026-09-06.json",
+      "sha256": "9b1dd204b8225aa70fc64d9e07d5ac70dcbeec9920f9f9bd570388426084e81e"
+    },
+    "blind_label_draft": {
+      "path": "artifacts/evaluation/product-jd-sealed30-codex-blind-draft-v1-2026-09-08.json",
+      "sha256": "c602badc9a29194186def0a6f0dd2980873dbff9dee9c7c5cf27ef01b70f4ea6"
+    },
+    "label_builder": {
+      "path": "scripts/build_product_jd_sealed_label_draft.py",
+      "sha256": "0cf76c3c6dd6a46f48b168a4cf663869944b7cc2b69572d0ce721ed6a392af95"
+    },
+    "parser": {
+      "path": "src/services/product_jd_parser.py",
+      "sha256": "4b78eb19409cd8f88f6457b711f00c27ae989e7e5a23b4d0b9ab9f312434effb",
+      "parser_version": "product-jd-parser-v3",
+      "prompt_version": "product-jd-two-stage-v6",
+      "extraction_prompt_version": "product-jd-extraction-v5",
+      "relation_prompt_version": "product-jd-relation-v5"
+    },
+    "evaluator": {
+      "path": "src/evaluation/product_metrics.py",
+      "sha256": "e7a2adac43d9ce10a515ad04243c6926906fa27d9ab728d24c0e6413c5db6bff",
+      "evaluation_version": "product-jd-evaluator-v3"
+    },
+    "runner": {
+      "path": "scripts/run_product_jd_baseline.py",
+      "sha256": "547836f84e62f0fe9836a1138c2f469ff69394d20df01f64da917e700324a3c5"
+    }
+  },
+  "model_configuration": {
+    "provider": "openai_compatible",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "response_format": "json_object",
+    "validation_retries": 1,
+    "concurrency": 2,
+    "maximum_model_calls": 120
+  },
+  "pre_registered_thresholds": {
+    "parse_success_rate_min": 0.95,
+    "schema_valid_rate_min": 0.95,
+    "evidence_valid_rate_min": 0.95,
+    "facts_value_macro_f1_min": 0.8,
+    "hard_major_presence_f1_min": 0.9,
+    "requirement_source_character_f1_min": 0.85,
+    "any_of_aligned_relation_group_f1_min": 0.85,
+    "any_of_aligned_exact_group_f1_min": 0.7,
+    "responsibility_source_character_f1_min": 0.85
+  },
+  "planned_outputs": {
+    "predictions": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+    "report": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-report.json"
+  }
+}

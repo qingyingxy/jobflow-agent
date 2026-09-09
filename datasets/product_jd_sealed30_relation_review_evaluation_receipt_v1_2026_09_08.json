@@ -1,0 +1,93 @@
+{
+  "receipt_version": "product-jd-sealed30-relation-review-evaluation-v1-2026-09-08",
+  "status": "relation_scope_pass_item_boundary_review_pending",
+  "review_scope": {
+    "relation_disagreement_count": 10,
+    "confirmed_count": 10,
+    "modified_count": 6,
+    "kept_count": 4,
+    "human_reviewed_relation_scope": true,
+    "fully_human_reviewed_all_fields": false,
+    "remaining_item_boundary_groups": 11
+  },
+  "evaluation": {
+    "mode": "evaluate_only_saved_predictions",
+    "additional_model_calls": 0,
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "case_count": 30,
+    "prediction_count": 30
+  },
+  "artifacts": {
+    "blind_label_draft": {
+      "path": "artifacts/evaluation/product-jd-sealed30-codex-blind-draft-v1-2026-09-08.json",
+      "sha256": "c602badc9a29194186def0a6f0dd2980873dbff9dee9c7c5cf27ef01b70f4ea6"
+    },
+    "adjudication_decisions": {
+      "path": "datasets/product_jd_sealed30_relation_adjudication_round1_decisions_v1_2026_09_08.json",
+      "sha256": "c38e839954f0f9718c6e3b63b39634f200cab983fa8604162367462f2fd282c6"
+    },
+    "relation_reviewed_labels": {
+      "path": "artifacts/evaluation/product-jd-sealed30-relation-reviewed-v1-2026-09-08.json",
+      "sha256": "529573268c7755fd5632cd34bd456aaf6aea0e99aa08daa088e0ea57163b5eae"
+    },
+    "saved_predictions": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+      "sha256": "52b5e2d9760097ab6eb0774c38b78ba0fcfa52a43c5ed197215111e8e6a8c0bb"
+    },
+    "reviewed_report": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-relation-reviewed-v1-report.json",
+      "sha256": "47a009197decf92bb82af295fd8e84fa84f0eac22c986f2bdeb259a57c9f1872"
+    },
+    "application_script": {
+      "path": "scripts/apply_product_jd_sealed30_relation_review.py",
+      "sha256": "b1ac049d5dcfa162b0c5a0a868fb3db614ac29061adf3aa55b036c72df482736"
+    }
+  },
+  "application_summary": {
+    "removed_requirement_count": 7,
+    "inserted_requirement_count": 9,
+    "expected_requirement_count_after_review": 188,
+    "expected_any_of_group_count_after_review": 56
+  },
+  "metrics": {
+    "parse_success_rate": 1.0,
+    "schema_valid_rate": 1.0,
+    "evidence_valid_rate": 1.0,
+    "facts_value_macro_f1": 0.88672889067309,
+    "hard_major_presence_f1": 1.0,
+    "requirement_source_character_f1": 0.961688673981774,
+    "any_of_aligned_relation_group_f1": 0.963636363636364,
+    "any_of_aligned_exact_group_f1": 0.763636363636364,
+    "responsibility_source_character_f1": 0.957589285714286,
+    "required_preferred_confusion_count": 0
+  },
+  "metric_delta_from_blind_draft": {
+    "requirement_source_character_f1": 0.000364761746742,
+    "any_of_aligned_relation_group_f1": 0.056228956228957,
+    "any_of_aligned_exact_group_f1": 0.05993265993266
+  },
+  "relation_confusion": {
+    "expected_any_of_groups": 56,
+    "predicted_any_of_groups": 54,
+    "true_positive_groups": 53,
+    "false_positive_groups": 1,
+    "false_negative_groups": 3,
+    "precision": 0.981481481481482,
+    "recall": 0.946428571428571,
+    "f1": 0.963636363636364
+  },
+  "threshold_results": {
+    "parse_success_rate": true,
+    "schema_valid_rate": true,
+    "evidence_valid_rate": true,
+    "facts_value_macro_f1": true,
+    "hard_major_presence_f1": true,
+    "requirement_source_character_f1": true,
+    "any_of_aligned_relation_group_f1": true,
+    "any_of_aligned_exact_group_f1": true,
+    "responsibility_source_character_f1": true,
+    "all_pre_registered_thresholds_passed": true
+  },
+  "reporting_policy": "The 0.9636 any_of relation F1 may be described as a 30-case sealed evaluation with post-prediction project-owner adjudication of all relation disagreements. Do not describe the whole label set as independently or fully human annotated. The 0.7636 exact-items F1 remains provisional until the 11 item-boundary groups are reviewed."
+}

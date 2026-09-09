@@ -1,0 +1,45 @@
+{
+  "freeze_version": "product-jd-test100-label-freeze-v1-2026-09-09",
+  "status": "frozen",
+  "frozen_at": "2026-09-09",
+  "prediction_status": "not_generated_or_viewed",
+  "case_count": 100,
+  "model_call_count": 0,
+  "labels": {
+    "path": "artifacts/evaluation/product-jd-test100-human-reviewed-v1-2026-09-09.json",
+    "sha256": "e3bbf8f99f9ce3a96834e53b656191f1192b3c70acb50d141adbfe60e9cfae9a",
+    "version": "product-jd-test100-human-reviewed-v1-2026-09-09",
+    "status": "frozen_api_labels_with_human_dispute_review"
+  },
+  "preregistration": {
+    "path": "datasets/product_jd_test100_preregistration_v1_2026_09_08.json",
+    "sha256": "3bbb5ed9a192fb9dd3dbd490957c4265b030937cc711f50d11cc41743bf19889",
+    "version": "product-jd-test100-v1-2026-09-08"
+  },
+  "runtime": {
+    "provider": "openai_compatible",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "product_prompt_version": "product-jd-two-stage-v6",
+    "product_parser_version": "product-jd-parser-v3",
+    "files": {
+      "parser_implementation": {
+        "path": "src/services/product_jd_parser.py",
+        "sha256": "4b78eb19409cd8f88f6457b711f00c27ae989e7e5a23b4d0b9ab9f312434effb"
+      },
+      "output_contract": {
+        "path": "src/domain/product_jd.py",
+        "sha256": "47469369d5e5e95bc0d595ee877ce862d575dd98bbe6b63e759924839fed4cac"
+      },
+      "evaluation_metrics": {
+        "path": "src/evaluation/product_metrics.py",
+        "sha256": "e7a2adac43d9ce10a515ad04243c6926906fa27d9ab728d24c0e6413c5db6bff"
+      },
+      "evaluation_runner": {
+        "path": "scripts/run_product_jd_baseline.py",
+        "sha256": "61e028a864fc4f296c679490d20911aac1b45a10f5d812da6b3399ceebf7f922"
+      }
+    }
+  },
+  "immutability_policy": "Any change to labels, parser prompts or implementation, output contract, metrics, or runner requires a new versioned freeze and a new evaluation. Test predictions must not be used to revise this frozen version."
+}

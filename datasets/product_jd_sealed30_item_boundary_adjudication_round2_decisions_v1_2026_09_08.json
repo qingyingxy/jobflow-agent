@@ -1,0 +1,200 @@
+{
+  "review_version": "product-jd-sealed30-item-boundary-adjudication-round2-decisions-v1-2026-09-08",
+  "review_scope": "11 aligned any_of groups with item-boundary differences",
+  "reviewer_role": "project_owner",
+  "status": "complete",
+  "policy": "Apply only the explicitly reviewed items arrays. Preserve source_text, level, and relation from the relation-reviewed labels. Do not modify predictions or call the model again.",
+  "source_relation_reviewed_labels": {
+    "path": "artifacts/evaluation/product-jd-sealed30-relation-reviewed-v1-2026-09-08.json",
+    "sha256": "529573268c7755fd5632cd34bd456aaf6aea0e99aa08daa088e0ea57163b5eae"
+  },
+  "source_predictions": {
+    "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+    "sha256": "52b5e2d9760097ab6eb0774c38b78ba0fcfa52a43c5ed197215111e8e6a8c0bb",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium"
+  },
+  "review_checklist": {
+    "path": "docs/PRODUCT_JD_SEALED30_ITEM_BOUNDARY_REVIEW_CHECKLIST_V1.md",
+    "sha256": "99e2ddc9204cd227e9644d98a2190e368abe8d69dd630c57010957e325cacd22"
+  },
+  "confirmed_count": 11,
+  "pending_count": 0,
+  "selection_summary": {
+    "api": 10,
+    "draft": 1
+  },
+  "decisions": [
+    {
+      "review_index": 1,
+      "case_id": "campus-ai-005",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟练C/C++或Python",
+      "draft_items": ["C/C++", "Python"],
+      "final_items": ["C", "C++", "Python"],
+      "confirmation_message": "1 api"
+    },
+    {
+      "review_index": 2,
+      "case_id": "campus-ai-007",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟练掌握Java/Python/C/C++等至少一门编程语言",
+      "draft_items": ["Java", "Python", "C/C++"],
+      "final_items": ["Java", "Python", "C", "C++"],
+      "confirmation_message": "2 api"
+    },
+    {
+      "review_index": 3,
+      "case_id": "campus-ai-021",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "有开源贡献、技术竞赛、科研经历或较强的工程作品积累者优先",
+      "draft_items": ["开源贡献", "技术竞赛", "科研经历", "工程作品积累"],
+      "final_items": ["开源贡献", "技术竞赛", "科研经历", "较强的工程作品积累"],
+      "confirmation_message": "3 api"
+    },
+    {
+      "review_index": 4,
+      "case_id": "campus-ai-034",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "做过基于大模型API、Agent框架、Prompt/评测相关的项目；或者有数据产品相关项目经验",
+      "draft_items": [
+        "做过基于大模型API、Agent框架、Prompt/评测相关的项目",
+        "有数据产品相关项目经验"
+      ],
+      "final_items": [
+        "基于大模型API、Agent框架、Prompt/评测相关的项目",
+        "数据产品相关项目"
+      ],
+      "confirmation_message": "4 api"
+    },
+    {
+      "review_index": 5,
+      "case_id": "campus-ai-096",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "对可观测性（监控/日志）有初步了解或有开源/社区参与经历",
+      "draft_items": [
+        "对可观测性（监控/日志）有初步了解",
+        "有开源/社区参与经历"
+      ],
+      "final_items": ["可观测性", "开源", "社区参与"],
+      "confirmation_message": "5 api"
+    },
+    {
+      "review_index": 6,
+      "case_id": "campus-ai-115",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "有过校级学生会、技术社团负责人经历，或组织过黑客松、技术沙龙者优先（我们需要你在面对客户提问时也能从容应对）",
+      "draft_items": [
+        "校级学生会",
+        "技术社团负责人经历",
+        "组织过黑客松",
+        "技术沙龙"
+      ],
+      "final_items": [
+        "校级学生会、技术社团负责人经历",
+        "组织过黑客松、技术沙龙"
+      ],
+      "confirmation_message": "6 api"
+    },
+    {
+      "review_index": 7,
+      "case_id": "campus-ai-118",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟悉一种或多种机器人中间件或通信框架，如 ROS/ROS2、DDS（Cyclone DDS/FastDDS）、Zenoh、iceoryx2、dora-rs、copper-rs 等",
+      "draft_items": [
+        "ROS/ROS2",
+        "DDS",
+        "Zenoh",
+        "iceoryx2",
+        "dora-rs",
+        "copper-rs"
+      ],
+      "final_items": [
+        "ROS",
+        "ROS2",
+        "Cyclone DDS",
+        "FastDDS",
+        "Zenoh",
+        "iceoryx2",
+        "dora-rs",
+        "copper-rs"
+      ],
+      "confirmation_message": "7 api"
+    },
+    {
+      "review_index": 8,
+      "case_id": "campus-ai-131",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "有机器人整机、机械臂、移动平台、关节模组或竞赛项目仿真经验",
+      "draft_items": [
+        "机器人整机",
+        "机械臂",
+        "移动平台",
+        "关节模组",
+        "竞赛项目仿真经验"
+      ],
+      "final_items": ["机器人整机", "机械臂", "移动平台", "关节模组", "竞赛项目"],
+      "confirmation_message": "8 api"
+    },
+    {
+      "review_index": 9,
+      "case_id": "campus-ai-133",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "具备C/C++或嵌入式开发能力",
+      "draft_items": ["C/C++", "嵌入式开发"],
+      "final_items": ["C", "C++", "嵌入式开发"],
+      "confirmation_message": "9 api"
+    },
+    {
+      "review_index": 10,
+      "case_id": "campus-ai-133",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "有真实硬件闭环控制、驱动器调试、力控/触觉控制或竞赛获奖经历",
+      "draft_items": [
+        "真实硬件闭环控制",
+        "驱动器调试",
+        "力控/触觉控制",
+        "竞赛获奖经历"
+      ],
+      "final_items": ["真实硬件闭环控制", "驱动器调试", "力控", "触觉控制", "竞赛获奖"],
+      "confirmation_message": "10 api"
+    },
+    {
+      "review_index": 11,
+      "case_id": "campus-ai-149",
+      "status": "confirmed",
+      "choice": "draft",
+      "source_text": "做过自己的小工具、小程序、插件、AI 工作流、App Demo、低代码/无代码产品，或长期深度使用影像、剪辑、效率工具类软件",
+      "draft_items": [
+        "小工具",
+        "小程序",
+        "插件",
+        "AI 工作流",
+        "App Demo",
+        "低代码/无代码产品",
+        "长期深度使用影像、剪辑、效率工具类软件"
+      ],
+      "final_items": [
+        "小工具",
+        "小程序",
+        "插件",
+        "AI 工作流",
+        "App Demo",
+        "低代码/无代码产品",
+        "长期深度使用影像、剪辑、效率工具类软件"
+      ],
+      "confirmation_message": "11 草案"
+    }
+  ],
+  "next_step": "Apply the completed item-boundary review to the relation-reviewed labels and recompute metrics from the saved predictions only."
+}

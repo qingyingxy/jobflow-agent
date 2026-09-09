@@ -1,0 +1,113 @@
+{
+  "receipt_version": "product-jd-sealed30-relation-items-review-evaluation-v2-2026-09-08",
+  "status": "relation_and_items_scope_review_complete_pass",
+  "review_scope": {
+    "relation_disagreement_count": 10,
+    "relation_confirmed_count": 10,
+    "item_boundary_disagreement_count": 11,
+    "item_boundary_confirmed_count": 11,
+    "human_reviewed_relation_and_items_scope": true,
+    "fully_human_reviewed_all_fields": false
+  },
+  "item_boundary_selection": {
+    "api": 10,
+    "draft": 1,
+    "changed_item_group_count": 10,
+    "kept_item_group_count": 1
+  },
+  "evaluation": {
+    "mode": "evaluate_only_saved_predictions",
+    "additional_model_calls": 0,
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "parser_version": "product-jd-parser-v3",
+    "prompt_version": "product-jd-two-stage-v6",
+    "extraction_prompt_version": "product-jd-extraction-v5",
+    "relation_prompt_version": "product-jd-relation-v5",
+    "evaluator_version": "product-jd-evaluator-v3",
+    "case_count": 30,
+    "prediction_count": 30
+  },
+  "artifacts": {
+    "relation_reviewed_labels": {
+      "path": "artifacts/evaluation/product-jd-sealed30-relation-reviewed-v1-2026-09-08.json",
+      "sha256": "529573268c7755fd5632cd34bd456aaf6aea0e99aa08daa088e0ea57163b5eae"
+    },
+    "item_boundary_decisions": {
+      "path": "datasets/product_jd_sealed30_item_boundary_adjudication_round2_decisions_v1_2026_09_08.json",
+      "sha256": "7df6a914199934ee3dc9b80196e42b5c3ef866f1a0f86e886b7c8d85127e9850"
+    },
+    "relation_items_reviewed_labels": {
+      "path": "artifacts/evaluation/product-jd-sealed30-relation-items-reviewed-v2-2026-09-08.json",
+      "sha256": "037114aadaca23fa29097140072fbdb190163b0c2ab5b31313b04bef4d611ef9"
+    },
+    "saved_predictions": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+      "sha256": "52b5e2d9760097ab6eb0774c38b78ba0fcfa52a43c5ed197215111e8e6a8c0bb"
+    },
+    "reviewed_report": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-relation-items-reviewed-v2-report.json",
+      "sha256": "0632422f056e23e69c7c015767535448e36ae5bcc72c70353745057a0083f257"
+    },
+    "application_script": {
+      "path": "scripts/apply_product_jd_sealed30_item_review.py",
+      "sha256": "e24b5358cc884d84148895d96a473966a4c40bc5dae94c11c0723c0956c046e5"
+    },
+    "review_checklist": {
+      "path": "docs/PRODUCT_JD_SEALED30_ITEM_BOUNDARY_REVIEW_CHECKLIST_V1.md",
+      "sha256": "99e2ddc9204cd227e9644d98a2190e368abe8d69dd630c57010957e325cacd22"
+    }
+  },
+  "metrics": {
+    "parse_success_rate": 1.0,
+    "schema_valid_rate": 1.0,
+    "evidence_valid_rate": 1.0,
+    "facts_value_macro_f1": 0.88672889067309,
+    "hard_major_presence_f1": 1.0,
+    "requirement_source_character_f1": 0.961688673981774,
+    "any_of_aligned_relation_group_f1": 0.963636363636364,
+    "any_of_aligned_exact_group_f1": 0.945454545454545,
+    "any_of_item_coverage_f1": 0.956043956043956,
+    "any_of_source_character_f1": 0.934062769939534,
+    "responsibility_source_character_f1": 0.957589285714286,
+    "required_preferred_confusion_count": 0
+  },
+  "metric_delta_from_relation_only_review": {
+    "any_of_aligned_relation_group_f1": 0.0,
+    "any_of_aligned_exact_group_f1": 0.181818181818182,
+    "any_of_item_coverage_f1": 0.106043956043956
+  },
+  "relation_confusion": {
+    "expected_any_of_groups": 56,
+    "predicted_any_of_groups": 54,
+    "true_positive_groups": 53,
+    "false_positive_groups": 1,
+    "false_negative_groups": 3,
+    "precision": 0.981481481481482,
+    "recall": 0.946428571428571,
+    "f1": 0.963636363636364
+  },
+  "relation_and_exact_items_confusion": {
+    "expected_any_of_groups": 56,
+    "predicted_any_of_groups": 54,
+    "true_positive_groups": 52,
+    "false_positive_groups": 2,
+    "false_negative_groups": 4,
+    "precision": 0.962962962962963,
+    "recall": 0.928571428571429,
+    "f1": 0.945454545454545
+  },
+  "threshold_results": {
+    "parse_success_rate": true,
+    "schema_valid_rate": true,
+    "evidence_valid_rate": true,
+    "facts_value_macro_f1": true,
+    "hard_major_presence_f1": true,
+    "requirement_source_character_f1": true,
+    "any_of_aligned_relation_group_f1": true,
+    "any_of_aligned_exact_group_f1": true,
+    "responsibility_source_character_f1": true,
+    "all_pre_registered_thresholds_passed": true
+  },
+  "reporting_policy": "The 0.9636 any_of relation F1 and 0.9455 relation-plus-exact-items F1 may be described as results on a 30-case sealed set with transparent post-prediction project-owner adjudication of all relation and item-boundary disagreements. Do not describe the entire label set as independently or fully human annotated."
+}

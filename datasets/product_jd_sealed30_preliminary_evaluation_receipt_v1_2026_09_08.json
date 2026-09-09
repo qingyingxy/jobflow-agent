@@ -1,0 +1,79 @@
+{
+  "receipt_version": "product-jd-sealed30-preliminary-evaluation-v1-2026-09-08",
+  "status": "preliminary_pass_requires_human_label_review",
+  "preregistration": {
+    "path": "datasets/product_jd_sealed30_preliminary_preregistration_v1_2026_09_08.json",
+    "sha256": "1739d500c69b6dd52500763fc16006f386504be0b7f121b000e3c6229b5c4aac"
+  },
+  "execution": {
+    "case_count": 30,
+    "prediction_count": 30,
+    "successful_count": 30,
+    "failed_count": 0,
+    "model_call_count": 60,
+    "validation_retry_count": 0,
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "response_format": "json_object"
+  },
+  "artifacts": {
+    "labels": {
+      "path": "artifacts/evaluation/product-jd-sealed30-codex-blind-draft-v1-2026-09-08.json",
+      "sha256": "c602badc9a29194186def0a6f0dd2980873dbff9dee9c7c5cf27ef01b70f4ea6"
+    },
+    "predictions": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+      "sha256": "52b5e2d9760097ab6eb0774c38b78ba0fcfa52a43c5ed197215111e8e6a8c0bb"
+    },
+    "report": {
+      "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-report.json",
+      "sha256": "786472a7731c8202e5a824cad88db9cf117086c0944f9f5bf83d6039b944fc03"
+    },
+    "relation_review_candidates": {
+      "path": "artifacts/evaluation/product-jd-sealed30-any-of-review-candidates-v1-2026-09-08.json",
+      "sha256": "85b97f2bde8bc651fe790fabc8ce6b4d609794a46583cc1660bd3007a4af7cfd"
+    }
+  },
+  "metrics": {
+    "parse_success_rate": 1.0,
+    "schema_valid_rate": 1.0,
+    "evidence_valid_rate": 1.0,
+    "facts_value_macro_f1": 0.88672889067309,
+    "hard_major_presence_f1": 1.0,
+    "requirement_source_character_f1": 0.961323912235032,
+    "any_of_aligned_relation_group_f1": 0.907407407407407,
+    "any_of_aligned_exact_group_f1": 0.703703703703704,
+    "responsibility_source_character_f1": 0.957589285714286,
+    "required_preferred_confusion_count": 0
+  },
+  "threshold_results": {
+    "parse_success_rate": true,
+    "schema_valid_rate": true,
+    "evidence_valid_rate": true,
+    "facts_value_macro_f1": true,
+    "hard_major_presence_f1": true,
+    "requirement_source_character_f1": true,
+    "any_of_aligned_relation_group_f1": true,
+    "any_of_aligned_exact_group_f1": true,
+    "responsibility_source_character_f1": true,
+    "all_pre_registered_thresholds_passed": true
+  },
+  "relation_confusion": {
+    "expected_any_of_groups": 54,
+    "predicted_any_of_groups": 54,
+    "true_positive_groups": 49,
+    "false_positive_groups": 5,
+    "false_negative_groups": 5,
+    "exact_item_true_positive_groups": 38,
+    "exact_item_false_positive_groups": 16,
+    "exact_item_false_negative_groups": 16
+  },
+  "post_run_nonsemantic_changes": {
+    "label_builder_change": "Ruff import sorting only",
+    "frozen_label_builder_sha256": "0cf76c3c6dd6a46f48b168a4cf663869944b7cc2b69572d0ce721ed6a392af95",
+    "current_label_builder_sha256": "6fd0728723474bf174ea60a49ff67739a636e0c52bae704c2b20393a9f14d538",
+    "label_artifact_sha256_unchanged": true,
+    "parser_evaluator_runner_sha256_unchanged": true
+  },
+  "resume_policy": "Do not use these sealed metrics in a resume until the blind label draft receives explicit human review and a new frozen gold receipt is produced."
+}

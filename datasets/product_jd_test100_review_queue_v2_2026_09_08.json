@@ -1,0 +1,4700 @@
+{
+  "review_queue_version": "product-jd-test100-review-queue-v2-2026-09-08",
+  "draft_dataset_version": "product-jd-test100-api-label-draft-v2-2026-09-08",
+  "draft_status": "api_draft_complete",
+  "review_status": "human_review_complete",
+  "generated_at": "2026-09-08T11:00:34.019799+00:00",
+  "policy": "Heuristics only select cases for human review; they never change API labels.",
+  "api_annotated_case_count": 70,
+  "api_relation_counts": {
+    "all_of": 330,
+    "any_of": 97,
+    "uncertain": 27
+  },
+  "review_case_count": 28,
+  "confirmed_decision_count": 28,
+  "pending_review_case_count": 0,
+  "high_priority_case_count": 26,
+  "medium_priority_case_count": 2,
+  "issue_counts": {
+    "empty_responsibilities": 1,
+    "long_requirement_boundary": 1,
+    "possible_generic_soft_skill": 1,
+    "possible_missed_alternative": 6,
+    "relation_uncertain": 27
+  },
+  "cases": [
+    {
+      "id": "campus-ai-017",
+      "source": {
+        "company": "百度",
+        "title": "北京-智能体算法工程师(J101017)",
+        "source_url": "https://talent.baidu.com/jobs/detail/GRADUATE/02f73086-be71-4d09-8d6e-f1c6981b8b48",
+        "verified_at": "2026-08-04"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[2]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有智能体产品从早期搭建经历，顶级会议论文（CVPR/ACL/ICML等），ACM、IOI、IMO等竞赛获奖，知名开源项目核心贡献者优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "校招"
+          },
+          "locations": {
+            "values": [
+              "北京市"
+            ],
+            "source_text": "工作地点：北京市"
+          },
+          "graduation_years": null,
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "本科及以上学历，包含但不限于计算机、信息工程、人工智能、软件工程、电子工程、统计学、应用数学等相关专业"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "信息工程",
+              "人工智能",
+              "软件工程",
+              "电子工程",
+              "统计学",
+              "应用数学"
+            ],
+            "source_text": "本科及以上学历，包含但不限于计算机、信息工程、人工智能、软件工程、电子工程、统计学、应用数学等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "深入理解 ReAct、CoT、Plan-and-Execute 等主流 Agent 原理，熟练使用 PyTorch、LangChain、AutoGen等框架，具备 Agent 系统从算法设计到工程落地的完整能力",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "深入理解 ReAct、CoT、Plan-and-Execute 等主流 Agent 原理，熟练使用 PyTorch、LangChain、AutoGen等框架，具备 Agent 系统从算法设计到工程落地的完整能力"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "深入理解大模型技术原理，追踪大模型、智能体、强化学习等领域前沿技术，具备快速将学术成果落地为商业化产品的实战能力",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "深入理解大模型技术原理，追踪大模型、智能体、强化学习等领域前沿技术，具备快速将学术成果落地为商业化产品的实战能力"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有智能体产品从早期搭建经历，顶级会议论文（CVPR/ACL/ICML等），ACM、IOI、IMO等竞赛获奖，知名开源项目核心贡献者优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有智能体产品从早期搭建经历，顶级会议论文（CVPR/ACL/ICML等），ACM、IOI、IMO等竞赛获奖，知名开源项目核心贡献者优先"
+            ],
+            "relation_reason": "多个独立经历并列，末尾“优先”对各项的组合关系不明确"
+          }
+        ],
+        "responsibilities": [
+          "负责大模型智能体（Agent）系统全链路设计与开发，搭建具备自主规划、复杂推理、动态决策能力的智能体架构，推动智能体在实际业务场景的规模化落地",
+          "主导智能体核心算法研发与迭代优化，深耕意图理解、多步任务规划、工具调用、长短期记忆管理、多智能体协同等核心模块，持续提升任务完成准确率与系统鲁棒性",
+          "搭建多维度智能体评估体系，建立效果、效率、资源成本一体化量化指标，驱动产品与算法持续迭代与自进化",
+          "推进基于智能体驱动的业务创新，挖掘并孵化高价值应用场景，实现从技术验证到产品落地的闭环，构建差异化业务模式与增长飞轮"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京"
+        ],
+        "required_skills": [
+          "Agent",
+          "PyTorch",
+          "LangChain",
+          "AutoGen",
+          "LLM",
+          "强化学习"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有智能体产品从早期搭建经历，顶级会议论文（CVPR/ACL/ICML等），ACM、IOI、IMO等竞赛获奖，知名开源项目核心贡献者优先",
+        "final_requirement": {
+          "source_text": "有智能体产品从早期搭建经历，顶级会议论文（CVPR/ACL/ICML等），ACM、IOI、IMO等竞赛获奖，知名开源项目核心贡献者优先",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": [
+            "有智能体产品从早期搭建经历",
+            "顶级会议论文（CVPR/ACL/ICML等）",
+            "ACM、IOI、IMO等竞赛获奖",
+            "知名开源项目核心贡献者"
+          ],
+          "relation_reason": "四类优秀经历是相互独立的加分方式，具备任意一类即可。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：四类优秀经历按任选其一处理。",
+      "review_number": 1
+    },
+    {
+      "id": "campus-ai-018",
+      "source": {
+        "company": "百度",
+        "title": "上海-多模态算法工程师(J100767)",
+        "source_url": "https://talent.baidu.com/jobs/detail/GRADUATE/2df21b8d-b533-40e4-ad89-6dea847a44c8",
+        "verified_at": "2026-08-04"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有多模态学习、计算机视觉或NLP相关研究/项目经历者优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：校招"
+          },
+          "locations": {
+            "values": [
+              "上海市"
+            ],
+            "source_text": "工作地点：上海市"
+          },
+          "graduation_years": null,
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "本科及以上学历，计算机、人工智能等相关专业优先"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、人工智能等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、人工智能等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "扎实的深度学习基础，熟悉Transformer、ViT、CLIP等多模态模型结构",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "扎实的深度学习基础，熟悉Transformer、ViT、CLIP等多模态模型结构"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练掌握Python及深度学习框架（PyTorch/PaddlePaddle）",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟练掌握Python及深度学习框架（PyTorch/PaddlePaddle）"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有多模态学习、计算机视觉或NLP相关研究/项目经历者优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有多模态学习、计算机视觉或NLP相关研究/项目经历者优先"
+            ],
+            "relation_reason": "“相关研究/项目经历”对并列领域的适用范围无法逐字拆分为自足候选项"
+          },
+          {
+            "source_text": "在顶级学术会议（CVPR、ECCV、ACL等）发表过论文者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "在顶级学术会议（CVPR、ECCV、ACL等）发表过论文者优先"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "从事多模态大模型（视觉-语言、音频-语言、跨模态生成等）的算法研究与工程实现",
+          "探索多模态理解与生成能力的提升方法，包括图文对齐、跨模态检索、多模态推理等",
+          "结合最新多模态大模型进展，推动技术快速迭代",
+          "设计高质量多模态训练数据方案与评估体系",
+          "紧跟多模态前沿研究，将论文成果高效转化为工程实践"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "深度学习",
+          "Transformer",
+          "Python",
+          "PyTorch",
+          "PaddlePaddle",
+          "多模态学习",
+          "计算机视觉",
+          "NLP"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有多模态学习、计算机视觉或NLP相关研究/项目经历者优先",
+        "final_requirement": {
+          "source_text": "有多模态学习、计算机视觉或NLP相关研究/项目经历者优先",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": [
+            "多模态学习",
+            "计算机视觉",
+            "NLP"
+          ],
+          "relation_reason": "整体是一条研究或项目经历加分条件，三个相关方向任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：整体保留为一条相关研究或项目经历加分项，三个方向按任选其一处理。",
+      "review_number": 2
+    },
+    {
+      "id": "campus-ai-025",
+      "source": {
+        "company": "字节跳动",
+        "title": "Agent研发工程师 - 抖音",
+        "source_url": "https://jobs.bytedance.com/campus/position/7667174318011484469/detail",
+        "verified_at": "2026-08-04"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[0]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "计算机、软件工程等相关专业优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘类型：校招"
+          },
+          "locations": null,
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、软件工程等相关专业优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "计算机、软件工程等相关专业优先"
+            ],
+            "relation_reason": "列举专业并含“等相关专业”，无法确定并列专业是否需共同满足"
+          },
+          {
+            "source_text": "熟练掌握Python/Java/Go至少一门编程语言",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "Python",
+              "Java",
+              "Go"
+            ],
+            "relation_reason": "“至少一门”明确允许任选其一"
+          },
+          {
+            "source_text": "熟悉主流Agent编排框架与开源生态",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉主流Agent编排框架与开源生态"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉Agent范式并有实际的项目经验",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉Agent范式并有实际的项目经验"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有开源项目贡献、技术博客或优秀的AI Agent个人项目",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "开源项目贡献",
+              "技术博客",
+              "优秀的AI Agent个人项目"
+            ],
+            "relation_reason": "加分项中列出可选成果，且使用“或”连接"
+          },
+          {
+            "source_text": "有程序分析、质量保障相关领域的研究经验",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有程序分析、质量保障相关领域的研究经验"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "发表过AI或软件工程领域顶级会议/期刊论文",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "发表过AI或软件工程领域顶级会议/期刊论文"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "参与面向业务场景的Agent系统设计与研发，构建覆盖需求理解、测试生成、代码评审、缺陷发现等核心场景的端到端Agent工作流；持续跟进前沿技术，推动新技术在质量场景中的落地应用，形成可验证的业务价值；",
+          "参与Agent核心链路建设，包括任务规划、上下文构建、多工具调用编排、结果汇总验证等关键环节，持续提升Agent的分析深度、稳定性与可靠性；",
+          "参与可复用Agent框架的设计与沉淀，包括通用任务模板、工具协议规范、执行管控机制、调试与评测能力，提升多场景下的复用效率与工程化水平。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "required_skills": [
+          "Python",
+          "Java",
+          "Go",
+          "Agent"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "计算机、软件工程等相关专业优先",
+        "final_requirement": {
+          "source_text": "计算机、软件工程等相关专业优先",
+          "level": "preferred",
+          "relation": "all_of",
+          "items": [
+            "计算机、软件工程等相关专业优先"
+          ],
+          "relation_reason": "整体是一条相关专业优先条件，不构成硬性专业限制。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：整体保留为一条相关专业加分项。",
+      "review_number": 3
+    },
+    {
+      "id": "campus-ai-033",
+      "source": {
+        "company": "字节跳动",
+        "title": "AI Agent研发工程师 - AI算力基础设施",
+        "source_url": "https://jobs.bytedance.com/campus/position/7664440558144833845/detail",
+        "verified_at": "2026-08-04"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[1]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "掌握扎实的计算机基础与算法功底，熟练掌握至少一门编程语言（Go/Python/C++/Java等）"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘类型：校招"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "上海",
+              "杭州",
+              "西安"
+            ],
+            "source_text": "工作地点：北京、上海、杭州、西安"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、软件工程、人工智能等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、软件工程、人工智能等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "掌握扎实的计算机基础与算法功底，熟练掌握至少一门编程语言（Go/Python/C++/Java等）",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "掌握扎实的计算机基础与算法功底，熟练掌握至少一门编程语言（Go/Python/C++/Java等）"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解主流大模型能力边界、Agent基本机制（工具调用、上下文与记忆、任务编排等）",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解主流大模型能力边界、Agent基本机制（工具调用、上下文与记忆、任务编排等）"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉Prompt Engineering、RAG、LangChain/LangGraph/AutoGen、MCP等其中一种技术栈者优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "Prompt Engineering",
+              "RAG",
+              "LangChain",
+              "LangGraph",
+              "AutoGen",
+              "MCP"
+            ],
+            "relation_reason": "“其中一种”明确表示列举技术栈任选其一。"
+          },
+          {
+            "source_text": "能够在复杂协作场景下拆解问题、设计可演进的方案",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能够在复杂协作场景下拆解问题、设计可演进的方案"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有Agent、LLM应用、RAG、知识库、Plugin/MCP等相关项目经验或开源贡献",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "有Agent、LLM应用、RAG、知识库、Plugin/MCP等相关项目经验",
+              "开源贡献"
+            ],
+            "relation_reason": "“或”明确表示项目经验与开源贡献任选其一。"
+          },
+          {
+            "source_text": "使用或研究过LangGraph、Claude Code、Codex、Hermes、Computer Use、Agent Skills等前沿框架或工具",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "使用或研究过LangGraph、Claude Code、Codex、Hermes、Computer Use、Agent Skills等前沿框架或工具"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有大规模在线系统、工作流引擎、平台化产品或高并发服务的研发经验",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有大规模在线系统、工作流引擎、平台化产品或高并发服务的研发经验"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备强化学习、规划算法实践经验，对Agentic AI研发范式有深入理解者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "具备强化学习、规划算法实践经验，对Agentic AI研发范式有深入理解者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "参与过学术论文、竞赛或社区分享",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "学术论文",
+              "竞赛",
+              "社区分享"
+            ],
+            "relation_reason": "“或”明确表示列举经历可任选。"
+          },
+          {
+            "source_text": "具备良好的技术表达与写作能力",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "具备良好的技术表达与写作能力"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "参与企业级AI Agent Infra的核心建设，打造Agent的身份、权限、记忆、工具、观测与治理等运行时能力，让Agent真正成为可在生产环境运行的新型“应用形态”；",
+          "参与IaaS AI Agent套件研发，构建稳定可靠的Agent Infra，涵盖Agent相关云服务基础能力开发，探索技术创新，助力AI原生能力规模化实施；",
+          "参与高性能Agent开发框架的设计与实现，支撑多Agent协作、任务编排、长任务执行、复杂工作流等真实企业场景；",
+          "参与企业级AI Agent架构设计与实现，包括Agent架构演进、上下文工程、评测和观测等技术方向；",
+          "参与并迭代Agent链路与模型的评估体系，通过Prompt Engineering、SFT、RL等方法提升Agent能力上限；探索Agent Skills、MCP、Computer Use、Plugin等业界前沿方向，把底层AI能力包装为可复用、可分发、可持续成长的平台能力。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "上海",
+          "杭州",
+          "西安"
+        ],
+        "required_skills": [
+          "计算机基础知识",
+          "Go",
+          "Python",
+          "C++",
+          "Java",
+          "LLM",
+          "Agent",
+          "Prompt Engineering",
+          "RAG",
+          "LangChain",
+          "AutoGen",
+          "强化学习"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "掌握扎实的计算机基础与算法功底，熟练掌握至少一门编程语言（Go/Python/C++/Java等）",
+        "final_requirements": [
+          {
+            "source_text": "掌握扎实的计算机基础与算法功底",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "掌握扎实的计算机基础与算法功底"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练掌握至少一门编程语言（Go/Python/C++/Java等）",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "Go",
+              "Python",
+              "C++",
+              "Java"
+            ],
+            "relation_reason": "原文明确要求至少掌握一门，四种语言任选其一。"
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：拆为计算机基础要求和编程语言四选一要求。",
+      "review_number": 4
+    },
+    {
+      "id": "campus-ai-036",
+      "source": {
+        "company": "字节跳动",
+        "title": "Agent开发工程师 - 数据平台",
+        "source_url": "https://jobs.bytedance.com/campus/position/7667086494969530629/detail",
+        "verified_at": "2026-08-04"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[0]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "具备扎实的编程基础，熟悉Python、Java、Go等至少一种编程语言，有良好的代码习惯；"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘类型：校招"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "上海",
+              "杭州",
+              "南京",
+              "深圳"
+            ],
+            "source_text": "工作地点：北京、上海、杭州、南京、深圳"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届获得本科及以上学历，计算机等相关专业优先；"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届获得本科及以上学历，计算机等相关专业优先；"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备扎实的编程基础，熟悉Python、Java、Go等至少一种编程语言，有良好的代码习惯；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的编程基础，熟悉Python、Java、Go等至少一种编程语言，有良好的代码习惯；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解大模型应用开发相关技术，包括Prompt Engineering、RAG、Agent、Workflow、工具调用、向量检索等，",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解大模型应用开发相关技术，包括Prompt Engineering、RAG、Agent、Workflow、工具调用、向量检索等，"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有相关项目经验优先；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有相关项目经验优先；"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "负责数据平台通用或垂类Agent能力的研发工作，参与Agent Framework、任务编排、工具调用、RAG、Workflow等核心能力建设；",
+          "参与面向内部或To B业务场景的Agent平台设计与开发，提升Agent能力的复用性、扩展性和易用性；",
+          "参与大模型应用后端服务建设，包括Prompt优化、知识库构建、检索增强、工具接入、效果评估与链路优化；",
+          "支撑业务快速迭代，保障Agent服务的稳定性、可用性与响应效率；",
+          "关注大模型、AI Agent、数据平台等方向的前沿技术，并探索在实际业务中的应用。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "上海",
+          "杭州",
+          "南京",
+          "深圳"
+        ],
+        "required_skills": [
+          "编程基础",
+          "Python",
+          "Java",
+          "Go",
+          "LLM",
+          "Prompt Engineering",
+          "RAG",
+          "Agent"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "具备扎实的编程基础，熟悉Python、Java、Go等至少一种编程语言，有良好的代码习惯；",
+        "final_requirements": [
+          {
+            "source_text": "具备扎实的编程基础",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的编程基础"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉Python、Java、Go等至少一种编程语言",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "Python",
+              "Java",
+              "Go"
+            ],
+            "relation_reason": "原文明确要求至少熟悉一种，三种语言任选其一。"
+          }
+        ],
+        "omitted_segments": [
+          {
+            "source_text": "有良好的代码习惯",
+            "reason": "仅凭简历无法稳定、客观地核验，不纳入自动匹配。"
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：编程基础为硬性条件，语言三选一，代码习惯不参与自动匹配。",
+      "review_number": 5
+    },
+    {
+      "id": "campus-ai-079",
+      "source": {
+        "company": "千寻智能",
+        "title": "【2027 届校招】模型评测工程师",
+        "source_url": "https://nwd4iy9rd2s.jobs.feishu.cn/campusofSpiritAI/position/7672030471317211428/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[1]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "熟练使用Python，掌握PyTorch/TensorFlow等至少一种深度学习框架；"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "【2027 届校招】"
+          },
+          "locations": {
+            "values": [
+              "北京"
+            ],
+            "source_text": "工作地点：北京"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届应届生"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "本科及以上学历"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机科学",
+              "人工智能",
+              "机器人",
+              "自动化"
+            ],
+            "source_text": "计算机科学、人工智能、机器人、自动化等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "熟悉深度学习基础，了解Transformer、扩散模型等常见架构，有CV/NLP/多模态模型相关项目经验；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉深度学习基础，了解Transformer、扩散模型等常见架构，有CV/NLP/多模态模型相关项目经验；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练使用Python，掌握PyTorch/TensorFlow等至少一种深度学习框架；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟练使用Python，掌握PyTorch/TensorFlow等至少一种深度学习框架；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解VLA、VLM、具身智能等相关概念",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解VLA、VLM、具身智能等相关概念"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有相关科研或项目经验者优先；",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "相关科研",
+              "项目经验"
+            ],
+            "relation_reason": "“或”明确表示科研或项目经验任选其一"
+          },
+          {
+            "source_text": "有模型评测、数据集构建、Benchmark相关经验者优先；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有模型评测、数据集构建、Benchmark相关经验者优先；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备良好的英文文献阅读能力",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备良好的英文文献阅读能力"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "善于数据分析与总结。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "善于数据分析与总结。"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "负责公司视觉-语言-动作（Vision-Language-Action, VLA）模型的质量评测，构建评测体系与评测指标；",
+          "设计并搭建模型评测数据集，覆盖指令理解、视觉感知、动作生成等核心能力维度；",
+          "开发自动化评测工具与评测Pipeline，实现模型版本的高效回归评测；",
+          "分析模型Bad Case，定位模型能力短板，输出评测报告与优化建议，推动模型迭代；",
+          "跟踪业界VLA/大模型评测前沿方法，引入先进评测技术与基准。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京"
+        ],
+        "required_skills": [
+          "VLA",
+          "VLM",
+          "Python",
+          "PyTorch",
+          "TensorFlow",
+          "Transformer",
+          "扩散模型",
+          "模型评测",
+          "数据集构建",
+          "Benchmark"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "熟练使用Python，掌握PyTorch/TensorFlow等至少一种深度学习框架；",
+        "final_requirements": [
+          {
+            "source_text": "熟练使用Python",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["熟练使用Python"],
+            "relation_reason": null
+          },
+          {
+            "source_text": "掌握PyTorch/TensorFlow等至少一种深度学习框架；",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["PyTorch", "TensorFlow"],
+            "relation_reason": "原文明确要求至少掌握一种深度学习框架。"
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：Python为硬性条件，PyTorch与TensorFlow任选其一。",
+      "review_number": 6
+    },
+    {
+      "id": "campus-ai-082",
+      "source": {
+        "company": "沐瞳科技",
+        "title": "【2027届秋招】AI测试工程师（web平台）",
+        "source_url": "https://moonton.jobs.feishu.cn/campus/position/7668238439854967049/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[2]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "掌握至少一门编程语言，如 Python、Java、JavaScript、Go、C++ 等，能够独立完成基础编码和问题调试；"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：沐瞳科技2027届秋季校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届本科及以上学历，计算机、软件工程、人工智能、信息安全、数学等相关专业优先；"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届本科及以上学历，计算机、软件工程、人工智能、信息安全、数学等相关专业优先；"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、软件工程、人工智能、信息安全、数学等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、软件工程、人工智能、信息安全、数学等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备扎实的计算机基础，了解数据结构、计算机网络、操作系统、数据库及软件工程基本知识；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的计算机基础，了解数据结构、计算机网络、操作系统、数据库及软件工程基本知识；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "掌握至少一门编程语言，如 Python、Java、JavaScript、Go、C++ 等，能够独立完成基础编码和问题调试；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "掌握至少一门编程语言，如 Python、Java、JavaScript、Go、C++ 等，能够独立完成基础编码和问题调试；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备良好的逻辑分析能力，能够将复杂问题进行拆解、定位和验证；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备良好的逻辑分析能力，能够将复杂问题进行拆解、定位和验证；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有测试开发、软件开发、AI 应用、数据分析或开源项目实践；",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "测试开发",
+              "软件开发",
+              "AI 应用",
+              "数据分析",
+              "开源项目实践"
+            ],
+            "relation_reason": "“或”明确表示候选实践方向可任选。"
+          },
+          {
+            "source_text": "熟悉接口测试、自动化测试、持续集成、性能测试或稳定性测试中的一种或多种；",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "接口测试",
+              "自动化测试",
+              "持续集成",
+              "性能测试",
+              "稳定性测试"
+            ],
+            "relation_reason": "“一种或多种”明确表示可任选一个或多个方向。"
+          },
+          {
+            "source_text": "使用过大模型 API、Agent、RAG、MCP、Prompt Engineering 等相关技术，并有实际项目经验；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "使用过大模型 API、Agent、RAG、MCP、Prompt Engineering 等相关技术，并有实际项目经验；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解软件研发流程、DevOps、可观测性、微服务或云原生相关技术；",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "软件研发流程",
+              "DevOps",
+              "可观测性",
+              "微服务",
+              "云原生相关技术"
+            ],
+            "relation_reason": "“或”明确表示技术方向可任选。"
+          },
+          {
+            "source_text": "参加过程序设计、软件测试、人工智能、数学建模、CTF 等竞赛；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "参加过程序设计、软件测试、人工智能、数学建模、CTF 等竞赛；"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "参与产品需求分析、技术方案评审和测试方案设计，识别需求中的缺失、歧义、冲突及潜在质量风险；",
+          "负责功能、接口、兼容性、性能、稳定性等测试工作，保障需求按计划、高质量交付；",
+          "结合业务链路、系统架构和用户场景，设计有效的测试策略，而非简单执行既定用例。",
+          "参与接口自动化、UI 自动化、测试数据构造、流量回放、质量巡检等测试工具或平台的建设；",
+          "通过脚本、工具和工程化方法减少重复劳动，提升测试覆盖率、执行效率和结果可信度；",
+          "参与测试资产、测试标准和工程实践的沉淀，使测试能力能够被复用和持续演进。",
+          "探索大模型及 Agent 在需求分析、测试设计、自动化生成、测试执行、缺陷分析等场景中的应用；",
+          "参与 AI 测试工具、Skill、Agent 或 Harness 能力的设计、开发、评测和优化；",
+          "建立对 AI 生成结果的准确性、稳定性、采纳率、误报率等效果评估意识，推动 AI 能力从 Demo 走向实际业务应用。",
+          "参与交付质量、线上问题、缺陷分布和研发过程数据的分析，识别质量问题的共性规律和根因；",
+          "协同产品、研发及相关团队，通过流程、规范、工具和技术方案推动问题解决；",
+          "逐步参与质量指标、风险识别机制和质量治理体系建设，推动质量保障从交付末端向研发全流程延伸。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "Python",
+          "Java",
+          "JavaScript",
+          "Go",
+          "C++",
+          "LLM API",
+          "Agent",
+          "RAG",
+          "MCP",
+          "Prompt Engineering",
+          "Harness Engineering",
+          "自动化测试",
+          "DevOps"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "掌握至少一门编程语言，如 Python、Java、JavaScript、Go、C++ 等，能够独立完成基础编码和问题调试；",
+        "final_requirements": [
+          {
+            "source_text": "掌握至少一门编程语言，如 Python、Java、JavaScript、Go、C++ 等",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Python", "Java", "JavaScript", "Go", "C++"],
+            "relation_reason": "原文明确要求至少掌握一门，列出的语言任选其一。"
+          },
+          {
+            "source_text": "能够独立完成基础编码和问题调试；",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["能够独立完成基础编码和问题调试；"],
+            "relation_reason": null
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：语言任选其一，独立编码和问题调试能力单列。",
+      "review_number": 7
+    },
+    {
+      "id": "campus-ai-083",
+      "source": {
+        "company": "沐瞳科技",
+        "title": "【2027届秋招】AI 应用开发工程师（游戏性能与研发效能方向）",
+        "source_url": "https://moonton.jobs.feishu.cn/campus/position/7669699688718911785/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有 AI 应用、代码分析或研发工具相关项目、实习或竞赛经历。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：沐瞳科技2027届秋季校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "【2027届秋招】"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "计算机、软件工程、人工智能等相关专业，本科及以上学历。"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "软件工程",
+              "人工智能"
+            ],
+            "source_text": "计算机、软件工程、人工智能等相关专业，本科及以上学历。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备良好的 Python 以及 C++、C# 中至少一种语言的编程和系统集成能力。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "C++",
+              "C#"
+            ],
+            "relation_reason": "明确要求C++、C#中至少一种。"
+          },
+          {
+            "source_text": "熟悉游戏研发流程和 Unity、Unreal 等主流游戏引擎，有实际游戏开发经历。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉游戏研发流程和 Unity、Unreal 等主流游戏引擎，有实际游戏开发经历。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有 Agent、LLM 应用或研发效能工具实践，理解 Prompt、Tool Calling、RAG 等技术。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "有 Agent、LLM 应用或研发效能工具实践，理解 Prompt、Tool Calling、RAG 等技术。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练使用 Codex、Claude Code 等 AI 编程工具，能够独立完成原型或工具开发。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟练使用 Codex、Claude Code 等 AI 编程工具，能够独立完成原型或工具开发。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有 AI 应用、代码分析或研发工具相关项目、实习或竞赛经历。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有 AI 应用、代码分析或研发工具相关项目、实习或竞赛经历。"
+            ],
+            "relation_reason": "原文包含多层并列及备选关系，无法可靠拆分为独立候选项。"
+          },
+          {
+            "source_text": "接触过 Spark、Presto/Trino、ClickHouse 等数据工具，或有大规模日志分析经验。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "接触过 Spark、Presto/Trino、ClickHouse 等数据工具",
+              "有大规模日志分析经验"
+            ],
+            "relation_reason": "“或”明确表示两种经历任选其一。"
+          },
+          {
+            "source_text": "了解 Android、iOS 移动端开发，有完整游戏项目或 Game Jam 经历。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "了解 Android、iOS 移动端开发，有完整游戏项目或 Game Jam 经历。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "使用过 Unity Profiler、Memory Profiler、Perfetto、Simpleperf 等性能工具。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "使用过 Unity Profiler、Memory Profiler、Perfetto、Simpleperf 等性能工具。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有大规模日志分析经验，或在 GC、内存、渲染、资源、帧率、功耗等方向有实践。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "有大规模日志分析经验",
+              "在 GC、内存、渲染、资源、帧率、功耗等方向有实践"
+            ],
+            "relation_reason": "“或”明确表示两种经历任选其一。"
+          }
+        ],
+        "responsibilities": [
+          "参与游戏性能分析平台建设，将 RAG、Agent、Tool Calling 等能力接入代码、性能数据、测试任务和研发知识库。",
+          "建设提交、每日巡检、版本准入和线上灰度等性能防线，实现风险识别、测试推荐、异常检测、回归归因和告警自动化。",
+          "分析性能指标、Profiler、调用堆栈、日志和版本变更，辅助定位代码、资源、配置、SDK 或引擎问题。",
+          "从线上数据和历史案例中挖掘高收益优化点，围绕 GC、资源生命周期、渲染、脚本和线程耗时开展实验与收益验证。",
+          "建设可评估、可观测、可回溯的 AI 工作流，并将分析经验沉淀为规则、工具和知识。",
+          "与客户端、引擎、测试、数据及业务团队协作，推动分析结论落地和同类经验复用。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "Python",
+          "C++",
+          "C#",
+          "RAG",
+          "Agent",
+          "Tool Calling",
+          "Unity",
+          "Unreal",
+          "AI Coding",
+          "Spark",
+          "Presto",
+          "Trino",
+          "ClickHouse"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有 AI 应用、代码分析或研发工具相关项目、实习或竞赛经历。",
+        "final_requirement": {
+          "source_text": "有 AI 应用、代码分析或研发工具相关项目、实习或竞赛经历。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["AI 应用", "代码分析", "研发工具"],
+          "relation_reason": "三个技术方向任选其一，项目、实习或竞赛是共享的经历形式。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：三个技术方向按任选其一处理。",
+      "review_number": 8
+    },
+    {
+      "id": "campus-ai-092",
+      "source": {
+        "company": "大疆创新",
+        "title": "世界模型算法工程师（北京）",
+        "source_url": "https://apply.careers.dji.com/campus-recruitment/dji/143359?locale=zh-CN#/job/e6526e0a-a65a-43c3-883d-52ae29182798",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[0]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "扎实的三维视觉、神经渲染或生成模型基础，熟练 PyTorch/CUDA；"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：DJI 大疆2027“拓疆者”校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京"
+            ],
+            "source_text": "工作地点：北京"
+          },
+          "graduation_years": null,
+          "education_requirements": {
+            "values": [
+              "硕士及以上学历"
+            ],
+            "source_text": "计算机、电子、自动化、图形学等相关专业，硕士及以上学历；"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "电子",
+              "自动化",
+              "图形学"
+            ],
+            "source_text": "计算机、电子、自动化、图形学等相关专业，硕士及以上学历；"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "扎实的三维视觉、神经渲染或生成模型基础，熟练 PyTorch/CUDA；",
+            "level": "required",
+            "relation": "uncertain",
+            "items": [
+              "扎实的三维视觉、神经渲染或生成模型基础，熟练 PyTorch/CUDA；"
+            ],
+            "relation_reason": "“、”与“或”并列，无法可靠判断基础方向需共同满足还是可任选。"
+          },
+          {
+            "source_text": "在以下方向至少一项有深入实践：3DGS/4DGS/NeRF/神经隐式表征、Diffusion/视频生成、可控生成与场景编辑、Driving/Embodied World Model；",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "3DGS/4DGS/NeRF/神经隐式表征",
+              "Diffusion/视频生成",
+              "可控生成与场景编辑",
+              "Driving/Embodied World Model"
+            ],
+            "relation_reason": "明确“至少一项”表示各方向任选其一。"
+          },
+          {
+            "source_text": "具备大规模数据处理与训练能力，能独立完成“重建-生成-评测”链路。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备大规模数据处理与训练能力，能独立完成“重建-生成-评测”链路。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "SIGGRAPH/CVPR/ICCV/ECCV/NeurIPS/ICLR 等顶会一作论文；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "SIGGRAPH/CVPR/ICCV/ECCV/NeurIPS/ICLR 等顶会一作论文；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "复现或主导过 Sora/Cosmos/GAIA/DriveDreamer/Vista/WorldDreamer/Genie 等世界模型类工作；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "复现或主导过 Sora/Cosmos/GAIA/DriveDreamer/Vista/WorldDreamer/Genie 等世界模型类工作；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉 Nerfstudio/gsplat/Threestudio/Diffusers 等开源框架并有核心贡献；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "熟悉 Nerfstudio/gsplat/Threestudio/Diffusers 等开源框架并有核心贡献；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有真实机器人、自动驾驶或无人机数据的 log2world、sim-to-real 实战经验。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有真实机器人、自动驾驶或无人机数据的 log2world、sim-to-real 实战经验。"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "负责基于多视图/时序传感器的大规模 3D/4D 场景重建与新视角合成算法研发；",
+          "负责可控视频生成与场景编辑算法，支撑长尾场景仿真与真实数据的可控扩展；",
+          "负责仿真平台与训练链路的算法侧集成，支撑数据合成与强化学习训练闭环；",
+          "跟进世界模型/神经渲染/生成式仿真方向的前沿进展并在业务中落地。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京"
+        ],
+        "required_skills": [
+          "PyTorch",
+          "CUDA",
+          "大规模数据处理",
+          "模型训练",
+          "模型评测"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "扎实的三维视觉、神经渲染或生成模型基础，熟练 PyTorch/CUDA；",
+        "final_requirements": [
+          {
+            "source_text": "扎实的三维视觉、神经渲染或生成模型基础",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["三维视觉", "神经渲染", "生成模型"],
+            "relation_reason": "三个基础方向任选其一。"
+          },
+          {
+            "source_text": "熟练 PyTorch/CUDA；",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["熟练 PyTorch/CUDA；"],
+            "relation_reason": null
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：基础方向任选其一，PyTorch/CUDA整体单列。",
+      "review_number": 9
+    },
+    {
+      "id": "campus-ai-098",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-数据智能算法工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7668566314080176410/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有数据平台、自动化标注、Prompt优化、主动学习或机器人/自动驾驶数据闭环项目经验。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "2027校招-数据智能算法工程师"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士研究生及以上学历"
+            ],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "人工智能",
+              "数据科学",
+              "机器人"
+            ],
+            "source_text": "计算机、人工智能、数据科学、机器人等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "熟练使用Python，熟悉Pandas、NumPy等数据处理工具，具备良好的工程化编码习惯。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟练使用Python，熟悉Pandas、NumPy等数据处理工具，具备良好的工程化编码习惯。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "理解多模态数据、时序数据或机器人数据的基本特点",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "多模态数据",
+              "时序数据",
+              "机器人数据"
+            ],
+            "relation_reason": "“或”明确表示数据类型可任选其一。"
+          },
+          {
+            "source_text": "有数据清洗、标注、质量评估经验者优先。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有数据清洗、标注、质量评估经验者优先。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有数据平台、自动化标注、Prompt优化、主动学习或机器人/自动驾驶数据闭环项目经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有数据平台、自动化标注、Prompt优化、主动学习或机器人/自动驾驶数据闭环项目经验。"
+            ],
+            "relation_reason": "逗号并列项与“或”连接的项目经验之间，无法可靠判断前述项目需共同满足还是可任选。"
+          }
+        ],
+        "responsibilities": [
+          "参与机器人多模态数据生产、质量评估和数据工具链建设。",
+          "参与具身智能数据生产体系建设，覆盖采集、清洗、标注、存储、分发和评测等环节。",
+          "参与机器人操作任务、动作标注、多模态对齐和数据质量规范建设。",
+          "参与自动化质检、难例挖掘、数据分析和数据集管理工具开发，提升数据生产效率。",
+          "与算法、平台、产品和测试团队协作，将数据分析结论转化为模型训练和产品迭代输入。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "Python",
+          "Pandas",
+          "NumPy",
+          "多模态数据",
+          "数据清洗",
+          "自动化标注",
+          "数据质量评估",
+          "Prompt优化",
+          "主动学习"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有数据平台、自动化标注、Prompt优化、主动学习或机器人/自动驾驶数据闭环项目经验。",
+        "final_requirement": {
+          "source_text": "有数据平台、自动化标注、Prompt优化、主动学习或机器人/自动驾驶数据闭环项目经验。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": [
+            "数据平台",
+            "自动化标注",
+            "Prompt优化",
+            "主动学习",
+            "机器人/自动驾驶数据闭环"
+          ],
+          "relation_reason": "五类项目方向任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：五类项目方向按任选其一处理。",
+      "review_number": 10
+    },
+    {
+      "id": "campus-ai-100",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-AI Infra工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7668214572231117106/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[0]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "具备扎实的编程基础，熟悉至少一门主流编程语言，能够独立完成模块开发、调试和问题定位。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "2027校招-AI Infra工程师"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届应届毕业生"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届应届毕业生，计算机、人工智能、软件工程、数学、自动化等相关专业，本科及以上学历。"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "人工智能",
+              "软件工程",
+              "数学",
+              "自动化"
+            ],
+            "source_text": "2027届应届毕业生，计算机、人工智能、软件工程、数学、自动化等相关专业，本科及以上学历。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备扎实的编程基础，熟悉至少一门主流编程语言，能够独立完成模块开发、调试和问题定位。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的编程基础，熟悉至少一门主流编程语言，能够独立完成模块开发、调试和问题定位。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解大模型应用开发，对提示词设计、结构化输出、工具调用、多轮对话等基本机制有一定理解。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解大模型应用开发，对提示词设计、结构化输出、工具调用、多轮对话等基本机制有一定理解。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解 Agent 的基本组成和运行方式，对任务规划、上下文管理、记忆机制、工具系统等概念有基础认知。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解 Agent 的基本组成和运行方式，对任务规划、上下文管理、记忆机制、工具系统等概念有基础认知。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "掌握数据结构、操作系统、计算机网络、数据库等基础知识，具备良好的工程实践意识。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "掌握数据结构、操作系统、计算机网络、数据库等基础知识，具备良好的工程实践意识。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有完整的 Agent、大模型应用或复杂软件系统项目经验",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "完整的 Agent",
+              "大模型应用",
+              "复杂软件系统"
+            ],
+            "relation_reason": "“或”明确表示项目经验领域可任选。"
+          },
+          {
+            "source_text": "有知识检索、文档理解、长期记忆、上下文优化等相关实践经验",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有知识检索、文档理解、长期记忆、上下文优化等相关实践经验"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解前后端开发、数据库、任务调度、日志监控等基础工程能力",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "了解前后端开发、数据库、任务调度、日志监控等基础工程能力"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有数据平台、模型训练平台、MLOps、自动化测试或智能体评测相关项目经历",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "数据平台",
+              "模型训练平台",
+              "MLOps",
+              "自动化测试",
+              "智能体评测"
+            ],
+            "relation_reason": "“或”明确表示项目经历领域可任选。"
+          },
+          {
+            "source_text": "有开源项目、科研项目、技术竞赛或高质量个人项目经验",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "开源项目",
+              "科研项目",
+              "技术竞赛",
+              "高质量个人项目"
+            ],
+            "relation_reason": "“或”明确表示经历类型可任选。"
+          }
+        ],
+        "responsibilities": [
+          "参与公司级 Agent 平台核心模块研发，包括会话管理、上下文管理、任务状态管理、记忆机制、权限控制和异常恢复等能力。",
+          "参与 Agent 执行框架与工具体系建设，支持任务规划、工具调用、插件扩展、技能编排及多步骤任务执行。",
+          "面向机器人数据构建、模型训练、评测分析和任务调度等场景，设计并实现可执行的 Agent 工作流。",
+          "参与 Agent 评测与可观测体系建设，对任务完成率、工具调用准确率、响应质量、稳定性和运行成本进行分析与优化。",
+          "参与技术方案设计、代码开发、自动化测试和问题排查，持续提升平台的可维护性、扩展性和交付质量。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "编程能力",
+          "模块开发",
+          "代码调试",
+          "问题定位",
+          "数据结构与算法",
+          "操作系统",
+          "计算机网络",
+          "数据库"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "split_requirement",
+        "target_source_text": "具备扎实的编程基础，熟悉至少一门主流编程语言，能够独立完成模块开发、调试和问题定位。",
+        "final_requirements": [
+          {
+            "source_text": "具备扎实的编程基础",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["具备扎实的编程基础"],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉至少一门主流编程语言",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["熟悉至少一门主流编程语言"],
+            "relation_reason": "原文未列出具体语言，不能虚构任选项。"
+          },
+          {
+            "source_text": "能够独立完成模块开发、调试和问题定位。",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["能够独立完成模块开发、调试和问题定位。"],
+            "relation_reason": null
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：拆为三项硬性条件，不虚构未列出的语言选项。",
+      "review_number": 11
+    },
+    {
+      "id": "campus-ai-101",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-端到端大模型算法工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7667940429404391734/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[7]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "加分项：有端到端操作/导航、VLA、机器人后训练、强化学习、决策规划、真实机器人项目、顶会论文或高质量开源项目经验。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：它石智航2027校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届硕士研究生及以上学历，人工智能、计算机、机器人、自动化、计算机视觉、多模态学习、强化学习等相关专业。"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士研究生及以上学历"
+            ],
+            "source_text": "2027届硕士研究生及以上学历，人工智能、计算机、机器人、自动化、计算机视觉、多模态学习、强化学习等相关专业。"
+          },
+          "major_requirements": {
+            "values": [
+              "人工智能",
+              "计算机",
+              "机器人",
+              "自动化",
+              "计算机视觉",
+              "多模态学习",
+              "强化学习"
+            ],
+            "source_text": "2027届硕士研究生及以上学历，人工智能、计算机、机器人、自动化、计算机视觉、多模态学习、强化学习等相关专业。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "熟悉深度学习基础",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉深度学习基础"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解Transformer、Diffusion/flow-matching、行为克隆、强化学习、多模态大模型、VLA、世界模型或机器人决策规划中的一种或多种方向。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "Transformer",
+              "Diffusion/flow-matching",
+              "行为克隆",
+              "强化学习",
+              "多模态大模型",
+              "VLA",
+              "世界模型",
+              "机器人决策规划"
+            ],
+            "relation_reason": "“一种或多种方向”明确表示所列方向可任选其一或多个。"
+          },
+          {
+            "source_text": "具备较好的Python开发能力和实验复现能力，熟悉PyTorch等深度学习框架，能够独立完成模型训练、调试、评估和结果分析。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备较好的Python开发能力和实验复现能力，熟悉PyTorch等深度学习框架，能够独立完成模型训练、调试、评估和结果分析。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解机器人感知、规划、控制、状态估计或多传感器数据特性，理解模型输出与真实机器人动作执行之间的约束关系。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解机器人感知、规划、控制、状态估计或多传感器数据特性，理解模型输出与真实机器人动作执行之间的约束关系。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "能够围绕真实任务效果进行数据分析、失败归因和模型迭代。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能够围绕真实任务效果进行数据分析、失败归因和模型迭代。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解灵巧手操作、抓取与精细操作任务中的基本问题",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解灵巧手操作、抓取与精细操作任务中的基本问题"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉多指操作、触觉/力觉反馈、手眼协同、双臂协同或操作策略学习中的一种或多种方向。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "多指操作",
+              "触觉/力觉反馈",
+              "手眼协同",
+              "双臂协同",
+              "操作策略学习"
+            ],
+            "relation_reason": "“一种或多种方向”明确表示所列方向可任选其一或多个。"
+          },
+          {
+            "source_text": "加分项：有端到端操作/导航、VLA、机器人后训练、强化学习、决策规划、真实机器人项目、顶会论文或高质量开源项目经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "加分项：有端到端操作/导航、VLA、机器人后训练、强化学习、决策规划、真实机器人项目、顶会论文或高质量开源项目经验。"
+            ],
+            "relation_reason": "列举多项加分经历，但未明确要求共同具备或任选其一。"
+          }
+        ],
+        "responsibilities": [
+          "参与具身智能多模态大模型研发，围绕视觉、语言、动作、状态、传感器信息等多模态输入，构建机器人任务理解、行为生成与决策执行能力。",
+          "参与具身基模预训练、后训练(SFT/Value/RL)、世界模型等方向的模型训练、评估、优化与迭代。",
+          "参与机器人从感知到规划、从决策到控制接口的端到端算法闭环建设，提升模型在复杂任务中的成功率、泛化性、安全性与稳定性。",
+          "参与真实机器人数据体系建设，包括多源/跨形态数据的采集、清洗、标注、训练样本构造、评测集设计和失败案例分析，推动数据驱动的模型持续进化。",
+          "参与模型在仿真与真机平台上的部署验证、策略微调和效果评估，推动算法能力从实验环境落地到真实机器人任务。",
+          "参与灵巧手操作相关算法研发与落地，包括抓取、放置、精细操作、手内操作、多指协同、双臂协同及触觉/力觉反馈相关策略优化，提升复杂操作任务中的稳定性与成功率。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "Python",
+          "PyTorch",
+          "Transformer",
+          "Diffusion",
+          "Flow Matching",
+          "行为克隆",
+          "强化学习",
+          "多模态大模型",
+          "VLA",
+          "世界模型",
+          "机器人决策规划",
+          "SFT"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "加分项：有端到端操作/导航、VLA、机器人后训练、强化学习、决策规划、真实机器人项目、顶会论文或高质量开源项目经验。",
+        "final_requirement": {
+          "source_text": "加分项：有端到端操作/导航、VLA、机器人后训练、强化学习、决策规划、真实机器人项目、顶会论文或高质量开源项目经验。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": [
+            "端到端操作/导航",
+            "VLA",
+            "机器人后训练",
+            "强化学习",
+            "决策规划",
+            "真实机器人项目",
+            "顶会论文",
+            "高质量开源项目"
+          ],
+          "relation_reason": "列出的八类加分经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：八类加分经历按任选其一处理。",
+      "review_number": 12
+    },
+    {
+      "id": "campus-ai-106",
+      "source": {
+        "company": "自变量机器人",
+        "title": "【27届】VLA/WAM触觉操作算法工程师",
+        "source_url": "https://x2-robot.jobs.feishu.cn/912130/position/7672316359728040228/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[7]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "熟悉 GelSight、DIGIT、TacTip、ReSkin、BioTac、六维力/力矩传感器等触觉或力觉设备。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[8]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有 imitation learning、diffusion policy、VLA/VLM、ACT、Diffusion Policy、LeRobot、OpenVLA、Octo 等相关经验。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[10]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有抓取、插孔装配、线缆操作、旋拧、工具使用等接触丰富任务的真机实验经验。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[12]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有机器人数据采集系统、传感器标定、时间同步、benchmark 设计或实验报告写作经验。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：自变量机器人27届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "深圳",
+              "北京"
+            ],
+            "source_text": "工作地点：深圳/北京"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "【27届】VLA/WAM触觉操作算法工程师"
+          },
+          "education_requirements": null,
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "熟悉 PyTorch 或其他深度学习框架，能够独立运行、调试和评估模型训练代码。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉 PyTorch 或其他深度学习框架，能够独立运行、调试和评估模型训练代码。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备机器人学习、模仿学习、强化学习、机器人控制、多模态学习或计算机视觉中的至少一项基础经验。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "机器人学习",
+              "模仿学习",
+              "强化学习",
+              "机器人控制",
+              "多模态学习",
+              "计算机视觉"
+            ],
+            "relation_reason": "明确要求“至少一项”"
+          },
+          {
+            "source_text": "对机器人触觉感知或接触操作有基本理解，了解力、力矩、接触、摩擦、滑移、形变等基本概念。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "对机器人触觉感知或接触操作有基本理解，了解力、力矩、接触、摩擦、滑移、形变等基本概念。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "能够设计基本的 ablation 实验，理解 baseline、control group、变量控制和指标对比。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能够设计基本的 ablation 实验，理解 baseline、control group、变量控制和指标对比。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "能够分析训练及真机实验结果，例如 loss、success rate、force curve、slip rate、contact state、evaluation curve 和 overfitting。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能够分析训练及真机实验结果，例如 loss、success rate、force curve、slip rate、contact state、evaluation curve 和 overfitting。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉 Linux、Git、conda/docker 和服务器训练环境，具备基本的代码调试与工程协作能力。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉 Linux、Git、conda/docker 和服务器训练环境，具备基本的代码调试与工程协作能力。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有视觉—触觉融合、触觉表征学习、接触状态估计、滑移检测、抓取稳定性预测或力控制经验。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "视觉—触觉融合",
+              "触觉表征学习",
+              "接触状态估计",
+              "滑移检测",
+              "抓取稳定性预测",
+              "力控制"
+            ],
+            "relation_reason": "明确以“或”连接候选经验"
+          },
+          {
+            "source_text": "熟悉 GelSight、DIGIT、TacTip、ReSkin、BioTac、六维力/力矩传感器等触觉或力觉设备。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "熟悉 GelSight、DIGIT、TacTip、ReSkin、BioTac、六维力/力矩传感器等触觉或力觉设备。"
+            ],
+            "relation_reason": "设备列表未明确要求全部熟悉或任选其一"
+          },
+          {
+            "source_text": "有 imitation learning、diffusion policy、VLA/VLM、ACT、Diffusion Policy、LeRobot、OpenVLA、Octo 等相关经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有 imitation learning、diffusion policy、VLA/VLM、ACT、Diffusion Policy、LeRobot、OpenVLA、Octo 等相关经验。"
+            ],
+            "relation_reason": "相关经验列表未明确要求全部具备或任选其一"
+          },
+          {
+            "source_text": "有阻抗控制、导纳控制、混合位置—力控制、模型预测控制或强化学习控制经验。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "阻抗控制",
+              "导纳控制",
+              "混合位置—力控制",
+              "模型预测控制",
+              "强化学习控制"
+            ],
+            "relation_reason": "明确以“或”连接候选经验"
+          },
+          {
+            "source_text": "有抓取、插孔装配、线缆操作、旋拧、工具使用等接触丰富任务的真机实验经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有抓取、插孔装配、线缆操作、旋拧、工具使用等接触丰富任务的真机实验经验。"
+            ],
+            "relation_reason": "任务列表未明确要求全部具备或任选其一"
+          },
+          {
+            "source_text": "有多模态、多传感器或多数据源混合训练经验，例如 vision + tactile、tactile + force/torque、teleop + autonomous data。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "多模态",
+              "多传感器",
+              "多数据源混合训练经验"
+            ],
+            "relation_reason": "明确以“或”连接候选训练经验"
+          },
+          {
+            "source_text": "有机器人数据采集系统、传感器标定、时间同步、benchmark 设计或实验报告写作经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有机器人数据采集系统、传感器标定、时间同步、benchmark 设计或实验报告写作经验。"
+            ],
+            "relation_reason": "并列经验与“或”连接范围不明确"
+          }
+        ],
+        "responsibilities": [
+          "负责基于视觉、触觉与机器人本体感知数据开展操作算法研究和训练实验，评估触觉信息能否提升机器人在精细操作、接触丰富任务中的成功率、鲁棒性与泛化能力，并降低策略对高精度视觉和大量真机数据的依赖。",
+          "开展触觉表征学习、接触状态估计、滑移检测、力控制、抓取稳定性预测及操作策略训练等相关实验。",
+          "比较不同传感器配置、数据规模、数据比例和训练方法下的效果，分析成功率、接触稳定性、操作精度、收敛速度和泛化能力。",
+          "配合模型与硬件团队整理可用于训练的视觉数据、触觉数据、力/力矩数据、本体感知数据、遥操作数据和真机操作数据。",
+          "设计并执行视觉—触觉融合、纯视觉、纯触觉等对照实验，研究不同感知模态和融合方式对机器人操作表现的影响。",
+          "维护训练配置、实验日志、模型 checkpoint、评估结果、数据版本和 ablation 表格，保证实验可复现。",
+          "协助建立触觉操作 benchmark 和真机评估体系，覆盖抓取、插拔、旋拧、滑动、开合、工具使用等接触丰富任务。",
+          "输出阶段性实验报告，分析触觉信息在感知、控制和策略学习中的价值，为传感器选型及算法路线提供依据。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "深圳",
+          "北京"
+        ],
+        "required_skills": [
+          "深度学习框架",
+          "机器人算法基础",
+          "触觉感知",
+          "实验设计",
+          "实验结果分析",
+          "Linux",
+          "Git",
+          "环境管理",
+          "代码调试"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "set_all_flagged_relations_any_of",
+        "flagged_requirement_count": 4,
+        "deduplicate_casefold_items": true
+      },
+      "review_notes": "项目所有者确认采用建议：四项争议要求均按任选其一处理，重复的 Diffusion Policy 只保留一次。",
+      "review_number": 13
+    },
+    {
+      "id": "campus-ai-111",
+      "source": {
+        "company": "懂车帝",
+        "title": "大模型Agent架构工程师-懂车帝（2027届校招）",
+        "source_url": "https://dcar.jobs.feishu.cn/campus/position/7659803499363076415/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[5]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有开源项目、技术竞赛、科研项目或相关实习经历者优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：懂车帝2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "杭州"
+            ],
+            "source_text": "工作地点：北京/杭州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、软件工程、人工智能等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、软件工程、人工智能等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备扎实的计算机基础知识，熟悉Golang、Python及相应框架环境和常用技术组件",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的计算机基础知识，熟悉Golang、Python及相应框架环境和常用技术组件"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "深入了解大语言模型相关技术及应用",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "深入了解大语言模型相关技术及应用"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有Agent系统、RAG、多智能体等相关项目经验者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有Agent系统、RAG、多智能体等相关项目经验者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "对Eino、LangChain等AI应用框架熟悉者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "对Eino、LangChain等AI应用框架熟悉者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有开源项目、技术竞赛、科研项目或相关实习经历者优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有开源项目、技术竞赛、科研项目或相关实习经历者优先"
+            ],
+            "relation_reason": "并列经历的满足关系未明确"
+          }
+        ],
+        "responsibilities": [
+          "负责AI智能化产品的后端研发，参与Agent智能体架构设计，快速搭建应用，持续优化产品体验及稳定性；",
+          "持续探索在各种场景下，利用AI能力增强产品体验，提升工程效率。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "杭州"
+        ],
+        "required_skills": [
+          "Go",
+          "Python",
+          "LLM",
+          "Agent",
+          "RAG",
+          "Multi-Agent",
+          "Eino",
+          "LangChain"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有开源项目、技术竞赛、科研项目或相关实习经历者优先",
+        "final_requirement": {
+          "source_text": "有开源项目、技术竞赛、科研项目或相关实习经历者优先",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["开源项目", "技术竞赛", "科研项目", "相关实习经历"],
+          "relation_reason": "四类加分经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：四类加分经历按任选其一处理。",
+      "review_number": 14
+    },
+    {
+      "id": "campus-ai-113",
+      "source": {
+        "company": "千寻智能",
+        "title": "【2027 届校招】后训练算法工程师",
+        "source_url": "https://nwd4iy9rd2s.jobs.feishu.cn/campusofSpiritAI/position/7672017285582833962/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有真实机器人落地、大规模训练、顶会论文或高质量开源项目经验者优先。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "【2027 届校招】"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "杭州"
+            ],
+            "source_text": "工作地点：北京/杭州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "【2027 届校招】"
+          },
+          "education_requirements": null,
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "人工智能",
+              "自动化",
+              "机器人"
+            ],
+            "source_text": "计算机、人工智能、自动化或机器人等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备扎实的机器学习、深度学习及大模型基础。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的机器学习、深度学习及大模型基础。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉 VLA、VLM、World Model 或机器人策略模型中的至少一个方向",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "VLA",
+              "VLM",
+              "World Model",
+              "机器人策略模型"
+            ],
+            "relation_reason": "“或”和“至少一个方向”明确表示任选其一。"
+          },
+          {
+            "source_text": "具备模仿学习、SFT、偏好优化、强化学习或持续学习等相关经验。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备模仿学习、SFT、偏好优化、强化学习或持续学习等相关经验。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备大模型、自动驾驶或机器人相关项目经验，能够独立完成数据分析、模型训练、实验评测、问题定位及方案迭代。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备大模型、自动驾驶或机器人相关项目经验，能够独立完成数据分析、模型训练、实验评测、问题定位及方案迭代。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有真实机器人落地、大规模训练、顶会论文或高质量开源项目经验者优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有真实机器人落地、大规模训练、顶会论文或高质量开源项目经验者优先。"
+            ],
+            "relation_reason": "并列经历与“或”的组合无法可靠判断是否需要共同满足。"
+          }
+        ],
+        "responsibilities": [
+          "1.参与公司核心具身基础模型（VLA/VLM/World Model）建设，负责模仿学习、偏好优化、强化学习及持续学习等后训练算法研发。",
+          "2.建设数据、训练、评测、部署的自动化数据闭环体系，持续提升模型的任务成功率、泛化能力、精细操作水平和动作流畅度。",
+          "3.攻克长尾场景、分布偏移、灾难性遗忘及长时序任务等关键问题，并与预训练、数据、仿真、真机和工程团队协作，推动前沿算法从研究探索走向真实机器人落地。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "杭州"
+        ],
+        "required_skills": [
+          "VLA",
+          "VLM",
+          "World Model",
+          "LLM",
+          "深度学习",
+          "机器学习",
+          "强化学习",
+          "模仿学习",
+          "持续学习",
+          "数据分析"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有真实机器人落地、大规模训练、顶会论文或高质量开源项目经验者优先。",
+        "final_requirement": {
+          "source_text": "有真实机器人落地、大规模训练、顶会论文或高质量开源项目经验者优先。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["真实机器人落地", "大规模训练", "顶会论文", "高质量开源项目"],
+          "relation_reason": "四类加分经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者在核对准确原文后确认：四类加分经历按任选其一处理。",
+      "review_number": 15
+    },
+    {
+      "id": "campus-ai-114",
+      "source": {
+        "company": "千寻智能",
+        "title": "【2027 届校招】预训练算法工程师",
+        "source_url": "https://nwd4iy9rd2s.jobs.feishu.cn/campusofSpiritAI/position/7672014405404395827/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[6]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有顶会 / 顶刊审稿、开源项目或竞赛经历。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：千寻智能2027届秋季校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "杭州"
+            ],
+            "source_text": "工作地点：北京/杭州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "【2027 届校招】预训练算法工程师"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士及以上学历"
+            ],
+            "source_text": "1、计算机、人工智能、自动化、软件等相关专业，硕士及以上学历。"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "人工智能",
+              "自动化",
+              "软件"
+            ],
+            "source_text": "1、计算机、人工智能、自动化、软件等相关专业，硕士及以上学历。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "2、深度学习基础理论扎实，对模型架构设计有较深理解，持续关注领域前沿进展（如 ViT、DiT、VLA、WAM 等）。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "2、深度学习基础理论扎实，对模型架构设计有较深理解，持续关注领域前沿进展（如 ViT、DiT、VLA、WAM 等）。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "3、熟悉大规模分布式训练，了解 FSDP、DeepSpeed 等训练框架，具备良好的工程与代码能力。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "3、熟悉大规模分布式训练，了解 FSDP、DeepSpeed 等训练框架，具备良好的工程与代码能力。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "4、具备较强的科研能力与创新思维，能够独立复现并改进前沿论文。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "4、具备较强的科研能力与创新思维，能够独立复现并改进前沿论文。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "在 CVPR、ICCV、ICML、NeurIPS、ICLR、RSS、CoRL 等顶会以第一作者身份发表过论文；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "在 CVPR、ICCV、ICML、NeurIPS、ICLR、RSS、CoRL 等顶会以第一作者身份发表过论文；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有大规模数据集（如大规模机器人 / 视频数据）上的预训练经验；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有大规模数据集（如大规模机器人 / 视频数据）上的预训练经验；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有具身智能、机器人、多模态大模型、世界模型等相关研究或项目经验；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有具身智能、机器人、多模态大模型、世界模型等相关研究或项目经验；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有顶会 / 顶刊审稿、开源项目或竞赛经历。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有顶会 / 顶刊审稿、开源项目或竞赛经历。"
+            ],
+            "relation_reason": "条目中并列经历与“或”混用，无法可靠判断是否需共同满足。"
+          }
+        ],
+        "responsibilities": [
+          "1、参与人形机器人专属基础模型（VLA，WAM，Unified Model）的预训练与前沿研究，探索更适合具身任务的模型架构与训练范式。",
+          "2、研究大规模具身数据上的预训练方法，探索数据规模与下游性能之间的 Scaling Law，持续提升模型的泛化与迁移能力。",
+          "3、推动基础模型在机器人各类下游任务（如长程任务、精细操作）上的迁移与落地。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "杭州"
+        ],
+        "required_skills": [
+          "FSDP",
+          "DeepSpeed",
+          "ViT",
+          "DiT",
+          "VLA",
+          "WAM",
+          "World Model",
+          "LLM",
+          "多模态",
+          "深度学习",
+          "分布式训练"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有顶会 / 顶刊审稿、开源项目或竞赛经历。",
+        "final_requirement": {
+          "source_text": "有顶会 / 顶刊审稿、开源项目或竞赛经历。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["顶会 / 顶刊审稿", "开源项目", "竞赛经历"],
+          "relation_reason": "三类加分经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：三类加分经历按任选其一处理。",
+      "review_number": 16
+    },
+    {
+      "id": "campus-ai-122",
+      "source": {
+        "company": "MiniMax",
+        "title": "K8S 研发工程师-2027届",
+        "source_url": "https://vrfi1sk8a0.jobs.feishu.cn/379481/position/7662375990618556691/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[6]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有 Kubernetes、容器网络、开源云原生项目贡献、课程项目或实习经验优先。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：MiniMax 2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "上海"
+            ],
+            "source_text": "工作地点：北京/上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届本科及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届本科及以上学历"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、软件工程、云计算等相关专业优先。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、软件工程、云计算等相关专业优先。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "操作系统、网络、分布式系统基础扎实，熟悉 Linux 基础能力。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "操作系统、网络、分布式系统基础扎实，熟悉 Linux 基础能力。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉 Kubernetes 基本原理",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉 Kubernetes 基本原理"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解 Pod、Service、Controller、Scheduler、CRD / Operator 等机制优先。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "了解 Pod、Service、Controller、Scheduler、CRD / Operator 等机制优先。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉 Go / Python / C++ 中至少一种语言",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "Go",
+              "Python",
+              "C++"
+            ],
+            "relation_reason": "“中至少一种”明确表示语言任选其一。"
+          },
+          {
+            "source_text": "有云原生项目经验优先。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有云原生项目经验优先。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有 Kubernetes、容器网络、开源云原生项目贡献、课程项目或实习经验优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有 Kubernetes、容器网络、开源云原生项目贡献、课程项目或实习经验优先。"
+            ],
+            "relation_reason": "并列经历范围与“或”仅局部出现，无法可靠判断各项是否任选。"
+          }
+        ],
+        "responsibilities": [
+          "参与 MiniMax 大规模 Kubernetes 集群平台建设，支撑训练、推理和在线业务运行。",
+          "参与 Kubernetes 控制器、Operator、调度、网络、存储、资源隔离等核心能力研发。",
+          "建设多集群管理、集群稳定性、故障自愈、容量治理和可观测能力。",
+          "深入生产环境复杂问题，持续提升集群稳定性、资源效率和平台易用性。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "上海"
+        ],
+        "required_skills": [
+          "C++",
+          "Python",
+          "Go",
+          "Linux",
+          "Kubernetes",
+          "操作系统"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有 Kubernetes、容器网络、开源云原生项目贡献、课程项目或实习经验优先。",
+        "final_requirement": {
+          "source_text": "有 Kubernetes、容器网络、开源云原生项目贡献、课程项目或实习经验优先。",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["Kubernetes", "容器网络", "开源云原生项目贡献", "课程项目", "实习经验"],
+          "relation_reason": "五类加分经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：五类加分经历按任选其一处理。",
+      "review_number": 17
+    },
+    {
+      "id": "campus-ai-127",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-机器人结构设计工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7668533063265290539/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[2]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "4. 有机器人、机械臂、无人车、RoboMaster/Robocon、机械创新设计等项目经验者优先。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有结构作品集、复杂装配设计、轻量化设计或真实样机闭环经验"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：它石智航2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "1. 2027届硕士研究生及以上学历，机械设计制造、机械电子、车辆工程、机器人工程等相关专业。"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士研究生及以上学历"
+            ],
+            "source_text": "1. 2027届硕士研究生及以上学历，机械设计制造、机械电子、车辆工程、机器人工程等相关专业。"
+          },
+          "major_requirements": {
+            "values": [
+              "机械设计制造",
+              "机械电子",
+              "车辆工程",
+              "机器人工程"
+            ],
+            "source_text": "1. 2027届硕士研究生及以上学历，机械设计制造、机械电子、车辆工程、机器人工程等相关专业。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "2. 掌握机械设计、材料力学、加工工艺、装配设计基础，熟悉工程图规范。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "2. 掌握机械设计、材料力学、加工工艺、装配设计基础，熟悉工程图规范。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "3. 熟练使用NX、SolidWorks、Creo等三维设计软件中的一种或多种。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "NX",
+              "SolidWorks",
+              "Creo"
+            ],
+            "relation_reason": "“一种或多种”明确允许所列软件任选其一或多种。"
+          },
+          {
+            "source_text": "4. 有机器人、机械臂、无人车、RoboMaster/Robocon、机械创新设计等项目经验者优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "4. 有机器人、机械臂、无人车、RoboMaster/Robocon、机械创新设计等项目经验者优先。"
+            ],
+            "relation_reason": "列举多类项目经验，但未明确各项之间的满足关系。"
+          },
+          {
+            "source_text": "有结构作品集、复杂装配设计、轻量化设计或真实样机闭环经验",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有结构作品集、复杂装配设计、轻量化设计或真实样机闭环经验"
+            ],
+            "relation_reason": "条件中包含并列项和“或”，但各并列项的整体满足关系不够明确。"
+          },
+          {
+            "source_text": "了解齿轮传动基础以及相关设计软件。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "了解齿轮传动基础以及相关设计软件。"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "1. 参与机器人结构件、传动机构、外壳、支架和整机装配方案设计。",
+          "2. 参与结构强度、刚度、空间布局、装配可达性和可制造性评估。",
+          "3. 参与样机装配调试、测试问题定位和结构迭代，提升稳定性、可靠性和维护便利性。",
+          "4. 与电子硬件、电气、工艺、测试和算法团队协作，推动整机系统集成。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "SolidWorks",
+          "Creo"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirements",
+        "requirement_changes": [
+          {
+            "target_source_text": "4. 有机器人、机械臂、无人车、RoboMaster/Robocon、机械创新设计等项目经验者优先。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["机器人", "机械臂", "无人车", "RoboMaster/Robocon", "机械创新设计"]
+          },
+          {
+            "target_source_text": "有结构作品集、复杂装配设计、轻量化设计或真实样机闭环经验",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["结构作品集", "复杂装配设计", "轻量化设计", "真实样机闭环经验"]
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：两项加分条件分别按任选其一处理。",
+      "review_number": 18
+    },
+    {
+      "id": "campus-ai-132",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-灵巧手系统集成工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7668221926657771819/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_generic_soft_skill",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "该条件可能只是泛化软素质，不一定适合进入简历证据匹配。",
+          "source_text": "动手能力及主动学习能力强，细致严谨，能够深入一线参与样机装配、调试和问题复盘。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有机器人、智能硬件、可靠性测试、RoboMaster/Robocon或复杂工程项目经验。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "2027校招-灵巧手系统集成工程师"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届硕士研究生及以上学历，机械、自动化、电子信息、测控、机器人工程等相关专业。"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士研究生及以上学历"
+            ],
+            "source_text": "2027届硕士研究生及以上学历，机械、自动化、电子信息、测控、机器人工程等相关专业。"
+          },
+          "major_requirements": {
+            "values": [
+              "机械",
+              "自动化",
+              "电子信息",
+              "测控",
+              "机器人工程"
+            ],
+            "source_text": "2027届硕士研究生及以上学历，机械、自动化、电子信息、测控、机器人工程等相关专业。"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备基本的机械、电气、控制及统计理论基础，具有基础的CAD、电路、编程能力，能理解复杂机电系统的联调逻辑。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备基本的机械、电气、控制及统计理论基础，具有基础的CAD、电路、编程能力，能理解复杂机电系统的联调逻辑。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉常用测试仪器、数据采集工具或脚本分析方法者优先。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "常用测试仪器",
+              "数据采集工具",
+              "脚本分析方法"
+            ],
+            "relation_reason": "“或”明确表示任选其一"
+          },
+          {
+            "source_text": "熟悉嵌入式开发者优先。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "熟悉嵌入式开发者优先。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "动手能力及主动学习能力强，细致严谨，能够深入一线参与样机装配、调试和问题复盘。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "动手能力及主动学习能力强，细致严谨，能够深入一线参与样机装配、调试和问题复盘。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有机器人、智能硬件、可靠性测试、RoboMaster/Robocon或复杂工程项目经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有机器人、智能硬件、可靠性测试、RoboMaster/Robocon或复杂工程项目经验。"
+            ],
+            "relation_reason": "多个经验类型并列且仅末项使用“或”，无法可靠确定全部或任选关系"
+          }
+        ],
+        "responsibilities": [
+          "面向灵巧手研发验证，参与系统集成、测试验证、问题定位和可靠性闭环。",
+          "参与灵巧手样机集成，覆盖结构、电机、传感器、驱动、控制和软件链路。",
+          "参与集成测试方案设计与执行，包括功能、性能、耐久、可靠性测试。",
+          "参与问题复现、数据采集、故障定位和跨团队闭环，推动设计优化及工艺持续改进。",
+          "沉淀测试规范、测试用例、数据记录和复盘报告，提升研发验证效率，支持产品量产。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "CAD"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirements",
+        "requirement_changes": [
+          {
+            "target_source_text": "动手能力及主动学习能力强，细致严谨，能够深入一线参与样机装配、调试和问题复盘。",
+            "final_requirement": {
+              "source_text": "能够深入一线参与样机装配、调试和问题复盘。",
+              "level": "required",
+              "relation": "all_of",
+              "items": ["能够深入一线参与样机装配、调试和问题复盘。"],
+              "relation_reason": null
+            },
+            "omitted_segments": [
+              {
+                "source_text": "动手能力及主动学习能力强，细致严谨",
+                "reason": "主观描述无法仅凭简历稳定核验。"
+              }
+            ]
+          },
+          {
+            "target_source_text": "有机器人、智能硬件、可靠性测试、RoboMaster/Robocon或复杂工程项目经验。",
+            "final_requirement": {
+              "source_text": "有机器人、智能硬件、可靠性测试、RoboMaster/Robocon或复杂工程项目经验。",
+              "level": "preferred",
+              "relation": "any_of",
+              "items": ["机器人", "智能硬件", "可靠性测试", "RoboMaster/Robocon", "复杂工程项目"],
+              "relation_reason": "五类项目经历任选其一。"
+            }
+          }
+        ]
+      },
+      "review_notes": "项目所有者确认采用建议：排除主观软描述，保留样机工作；项目经历按任选其一处理。",
+      "review_number": 19
+    },
+    {
+      "id": "campus-ai-136",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-机器人通用软件开发工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7667936622214220068/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有机器人、自动驾驶、嵌入式系统项目经验者优先。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[5]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有高质量工程代码、开源项目、机器人系统联调或竞赛项目经验。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "2027校招"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届本科及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "2027届本科及以上学历"
+          },
+          "major_requirements": {
+            "values": [
+              "计算机",
+              "软件工程",
+              "自动化",
+              "电子信息",
+              "机器人"
+            ],
+            "source_text": "计算机、软件工程、自动化、电子信息、机器人等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "熟悉C/C++，具备扎实的数据结构、操作系统和计算机网络基础。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉C/C++，具备扎实的数据结构、操作系统和计算机网络基础。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟悉Linux开发环境",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟悉Linux开发环境"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有驱动开发、进程通信、网络通信或嵌入式软件经验者优先。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "驱动开发",
+              "进程通信",
+              "网络通信",
+              "嵌入式软件经验"
+            ],
+            "relation_reason": "“或”明确表示经验方向可任选。"
+          },
+          {
+            "source_text": "了解ROS/ROS2、Apollo或机器人中间件",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "ROS/ROS2",
+              "Apollo",
+              "机器人中间件"
+            ],
+            "relation_reason": "“或”明确表示可了解其中一种。"
+          },
+          {
+            "source_text": "有机器人、自动驾驶、嵌入式系统项目经验者优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有机器人、自动驾驶、嵌入式系统项目经验者优先。"
+            ],
+            "relation_reason": "并列项目领域未明确是共同要求还是任选其一。"
+          },
+          {
+            "source_text": "有高质量工程代码、开源项目、机器人系统联调或竞赛项目经验。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有高质量工程代码、开源项目、机器人系统联调或竞赛项目经验。"
+            ],
+            "relation_reason": "并列加分经历的整体满足关系不明确。"
+          }
+        ],
+        "responsibilities": [
+          "参与机器人Linux平台软件开发，包括模块设计、编码、测试、调试和性能优化。",
+          "参与BSP、驱动、通信、中间件和机器人通用软件模块集成，支持机器人系统稳定运行。",
+          "参与ROS/ROS2等机器人软件框架的集成与二次开发，支持感知、规划、控制等模块协同。",
+          "参与问题定位、代码评审、测试报告和技术文档整理，提升系统软件质量和可维护性。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "C/C++",
+          "Linux",
+          "ROS2",
+          "数据结构",
+          "操作系统",
+          "计算机网络"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "set_all_flagged_relations_to_any_of"
+      },
+      "review_notes": "项目所有者确认采用建议：两项加分条件分别按任选其一处理。",
+      "review_number": 20
+    },
+    {
+      "id": "campus-ai-137",
+      "source": {
+        "company": "它石智航",
+        "title": "2027校招-运动控制算法工程师",
+        "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7667920014846855460/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[2]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有ROS/ROS2、实时控制或嵌入式控制项目经验者优先。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有机器人、机械臂、足式机器人、人形机器人、RoboMaster/Robocon等竞赛或科研项目经验者优先。"
+        },
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "在机器人控制相关论文、开源项目、真实机器人调试或工程闭环中有可复盘成果。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：它石智航2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士研究生及以上学历"
+            ],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          "major_requirements": {
+            "values": [
+              "自动化",
+              "机器人",
+              "控制科学",
+              "机械电子",
+              "计算机"
+            ],
+            "source_text": "自动化、机器人、控制科学、机械电子、计算机等相关专业"
+          },
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "具备扎实的控制理论、机器人运动学/动力学基础，理解PID、MPC、阻抗控制、力控、轨迹规划等基本方法。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的控制理论、机器人运动学/动力学基础，理解PID、MPC、阻抗控制、力控、轨迹规划等基本方法。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备C++/Python编程能力，熟悉Linux开发环境；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备C++/Python编程能力，熟悉Linux开发环境；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有ROS/ROS2、实时控制或嵌入式控制项目经验者优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有ROS/ROS2、实时控制或嵌入式控制项目经验者优先。"
+            ],
+            "relation_reason": "“或”连接的项目经验范围未明确为独立资格分支。"
+          },
+          {
+            "source_text": "有机器人、机械臂、足式机器人、人形机器人、RoboMaster/Robocon等竞赛或科研项目经验者优先。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有机器人、机械臂、足式机器人、人形机器人、RoboMaster/Robocon等竞赛或科研项目经验者优先。"
+            ],
+            "relation_reason": "“等”列举经验类型，无法可靠拆分为独立资格分支。"
+          },
+          {
+            "source_text": "在机器人控制相关论文、开源项目、真实机器人调试或工程闭环中有可复盘成果。",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "在机器人控制相关论文、开源项目、真实机器人调试或工程闭环中有可复盘成果。"
+            ],
+            "relation_reason": "“或”连接的成果场景未明确为独立资格分支。"
+          }
+        ],
+        "responsibilities": [
+          "1. 参与机器人全身/多自由度运动控制算法开发，包括力位混合控制、阻抗/导纳控制、轨迹规划与任务空间控制等方向。",
+          "2. 参与机器人运动学、动力学建模与参数辨识，协助完成负载、摩擦、柔性关节等关键因素的建模与补偿。",
+          "3. 参与控制算法在实时系统和真机平台上的部署、调试与性能评估，支持关节控制、零力拖动、碰撞检测等功能验证。",
+          "4. 与机械、电子硬件、嵌入式和测试团队协同，定位运动控制链路中的问题并推动闭环优化。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "C++",
+          "Python",
+          "Linux",
+          "ROS2",
+          "运动学",
+          "动力学"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "set_all_flagged_relations_to_any_of"
+      },
+      "review_notes": "项目所有者确认采用建议：三项加分条件分别按任选其一处理。",
+      "review_number": 21
+    },
+    {
+      "id": "campus-ai-139",
+      "source": {
+        "company": "蔚来",
+        "title": "校招-AI产品运营",
+        "source_url": "https://nio.jobs.feishu.cn/campus/position/7673027258017679654/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "possible_missed_alternative",
+          "priority": "high",
+          "field": "requirements[3]",
+          "message": "原文明确含任选数量提示，但 API 判为共同满足，需要确认。",
+          "source_text": "熟练使用至少一种AI工具（如ChatGPT、Claude、Midjourney、Copilot等）解决实际问题；"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：蔚来2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海"
+            ],
+            "source_text": "工作地点：上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届本科或硕士毕业生"
+          },
+          "education_requirements": {
+            "values": [
+              "本科",
+              "硕士"
+            ],
+            "source_text": "2027届本科或硕士毕业生"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "2027届本科或硕士毕业生，计算机科学、软件工程、人工智能、电子信息、数据科学等信息类/AI相关工科专业优先；",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "计算机科学",
+              "软件工程",
+              "人工智能",
+              "电子信息",
+              "数据科学"
+            ],
+            "relation_reason": "列举的专业均由“等信息类/AI相关工科专业优先”修饰，表示相关专业任选其一。"
+          },
+          {
+            "source_text": "具备基础的数据分析能力，善于从数据中发现问题、验证假设、优化策略；",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备基础的数据分析能力，善于从数据中发现问题、验证假设、优化策略；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有AI产品/数字化产品相关的实习、项目或竞赛经验；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有AI产品/数字化产品相关的实习、项目或竞赛经验；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练使用至少一种AI工具（如ChatGPT、Claude、Midjourney、Copilot等）解决实际问题；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "熟练使用至少一种AI工具（如ChatGPT、Claude、Midjourney、Copilot等）解决实际问题；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有个人AI相关实践作品（如AI项目、博客、开源贡献、自媒体内容等）；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有个人AI相关实践作品（如AI项目、博客、开源贡献、自媒体内容等）；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "对AIGC、LLM应用、AI Agent、RAG等技术方向有深入理解和探索；",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "对AIGC、LLM应用、AI Agent、RAG等技术方向有深入理解和探索；"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备SQL、Python等数据分析基础，或使用过数据分析工具（如Tableau、Power BI）。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "具备SQL、Python等数据分析基础",
+              "使用过数据分析工具（如Tableau、Power BI）"
+            ],
+            "relation_reason": "“或”明确表示两项资格满足其一即可。"
+          }
+        ],
+        "responsibilities": [
+          "1. 产品运营与增长：参与数字化/AI产品的全生命周期运营，包括用户调研、需求分析、功能推广、用户增长与活跃度提升，协助打造高用户价值的产品体验。",
+          "2. AI运营探索：深入探索AI工具在产品运营场景中的创新应用，包括但不限于智能内容生成、用户行为预测、自动化运营流程设计，推动\"AI+运营\"新范式在业务中的落地。",
+          "3. 用户洞察与数据驱动：参与用户访谈、问卷调研与数据分析，提炼用户痛点与核心需求，输出可落地的运营策略建议，用数据驱动产品迭代。",
+          "4. 内容策划与传播：策划并执行数字化/AI产品的内部推广活动，设计用户触达路径（如图文、短视频教程、互动活动），提升产品渗透率与使用深度。",
+          "5. 跨团队协作：作为产品、技术、业务团队的桥梁，协调资源推动运营需求落地，确保项目高效推进。",
+          "6. 前沿趋势跟踪：持续关注AIGC、Agent、多模态交互等AI技术趋势，结合业务场景提出创新性的产品运营思路。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "上海"
+        ],
+        "required_skills": [
+          "Python",
+          "LLM",
+          "Agent",
+          "RAG",
+          "数据分析",
+          "SQL"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "熟练使用至少一种AI工具（如ChatGPT、Claude、Midjourney、Copilot等）解决实际问题；",
+        "final_requirement": {
+          "source_text": "熟练使用至少一种AI工具（如ChatGPT、Claude、Midjourney、Copilot等）解决实际问题；",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["ChatGPT", "Claude", "Midjourney", "Copilot"],
+          "relation_reason": "原文明确要求至少熟练使用一种AI工具。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：列出的AI工具按任选其一处理。",
+      "review_number": 22
+    },
+    {
+      "id": "campus-ai-143",
+      "source": {
+        "company": "小鹏汽车",
+        "title": "【27届校招】AI产品经理",
+        "source_url": "https://xiaopeng.jobs.feishu.cn/campus/position/7676001949858957604/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[10]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有 GitHub、开源项目、技术博客或可展示的产品作品"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "【27届校招】"
+          },
+          "locations": {
+            "values": [
+              "广州"
+            ],
+            "source_text": "工作地点：广州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届本科及以上应届生"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上"
+            ],
+            "source_text": "2027届本科及以上应届生"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、人工智能、软件工程、自动化、数学等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机、人工智能、软件工程、自动化、数学等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备较好的产品 Sense 和用户同理心，能够从用户和业务视角发现问题、拆解需求并形成解决方案",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备较好的产品 Sense 和用户同理心，能够从用户和业务视角发现问题、拆解需求并形成解决方案"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有产品实习、个人产品或项目经历优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "产品实习",
+              "个人产品",
+              "项目经历"
+            ],
+            "relation_reason": "“或”明确表示经历类别可任选。"
+          },
+          {
+            "source_text": "对大模型、Agent、RAG、多模态等 AI 技术有兴趣，了解基本原理和应用方式",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "对大模型、Agent、RAG、多模态等 AI 技术有兴趣，了解基本原理和应用方式"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有实际 AI 产品使用、AI 应用搭建或 Agent 项目经验优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "实际 AI 产品使用",
+              "AI 应用搭建",
+              "Agent 项目经验"
+            ],
+            "relation_reason": "“或”明确表示经验类别可任选。"
+          },
+          {
+            "source_text": "具备一定技术基础，能够理解基本的前后端、API、数据等概念，并与研发、算法团队进行有效沟通",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备一定技术基础，能够理解基本的前后端、API、数据等概念，并与研发、算法团队进行有效沟通"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有编程或技术项目经历优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "编程",
+              "技术项目经历"
+            ],
+            "relation_reason": "“或”明确表示经历类别可任选。"
+          },
+          {
+            "source_text": "善于使用 AI 工具辅助产品分析、原型设计和问题解决",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "善于使用 AI 工具辅助产品分析、原型设计和问题解决"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有使用 AI Coding 或亲手搭建 AI 应用经验优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "使用 AI Coding",
+              "亲手搭建 AI 应用"
+            ],
+            "relation_reason": "“或”明确表示经验方式可任选。"
+          },
+          {
+            "source_text": "独立搭建过 AI 应用、Agent、智能工作流或个人产品",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "独立搭建过 AI 应用",
+              "Agent",
+              "智能工作流",
+              "个人产品"
+            ],
+            "relation_reason": "“或”明确表示搭建对象可任选。"
+          },
+          {
+            "source_text": "有 GitHub、开源项目、技术博客或可展示的产品作品",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有 GitHub、开源项目、技术博客或可展示的产品作品"
+            ],
+            "relation_reason": "并列列举与“或”的范围无法可靠判断。"
+          },
+          {
+            "source_text": "有 AI Coding、MCP、Skill 等实践经验",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有 AI Coding、MCP、Skill 等实践经验"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "同时具备产品设计和代码开发能力",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "同时具备产品设计和代码开发能力"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "1、业务洞察与产品定义： 深入真实业务场景，理解用户需求与业务目标，挖掘 AI 能够创造增量价值的机会，将业务痛点转化为产品方案与落地目标；",
+          "2、AI产品设计与落地： 参与 AI 产品、Agent、智能工作流等产品的规划与设计，探索对话式、智能体等 AI Native 交互方式，完成需求分析、产品方案、PRD及原型设计，并推动产品上线；",
+          "3、AI效果与体验优化： 结合用户反馈、业务数据和 AI 效果持续迭代产品，关注准确性、可用性、效率等核心指标，推动 AI 能力从“能用”走向“好用、真正解决问题”；",
+          "4、AI创新与场景探索： 关注大模型、Agent、多模态等前沿技术发展，探索 AI 在产品、设计、营销、研发等场景中的应用，将新技术转化为真实的产品体验与业务价值；",
+          "5、跨团队项目推进： 与研发、算法、设计及业务团队协作，推动产品从需求定义、方案设计到开发上线的完整闭环，并持续沉淀产品方法和可复用能力。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "广州"
+        ],
+        "required_skills": [
+          "LLM",
+          "Agent",
+          "RAG",
+          "MCP",
+          "多模态",
+          "产品设计",
+          "原型设计"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有 GitHub、开源项目、技术博客或可展示的产品作品",
+        "final_requirement": {
+          "source_text": "有 GitHub、开源项目、技术博客或可展示的产品作品",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["GitHub", "开源项目", "技术博客", "可展示的产品作品"],
+          "relation_reason": "四类可展示成果任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：四类可展示成果按任选其一处理。",
+      "review_number": 23
+    },
+    {
+      "id": "campus-ai-148",
+      "source": {
+        "company": "影石创新",
+        "title": "AI知识库运营管培生-2027校招",
+        "source_url": "https://arashivision.jobs.feishu.cn/campus/position/7664585038919764260/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[4]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有知识库或内容平台运营实习经历者加分"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "2027校招"
+          },
+          "locations": {
+            "values": [
+              "深圳"
+            ],
+            "source_text": "工作地点：深圳"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "影石创新2027届秋季校园招聘"
+          },
+          "education_requirements": {
+            "values": [
+              "本科及以上学历"
+            ],
+            "source_text": "本科及以上学历，专业不限"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "英语专八（TEM-8）或同等水平",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "英语专八（TEM-8）",
+              "同等水平"
+            ],
+            "relation_reason": "“或”明确表示两种语言水平任选其一"
+          },
+          {
+            "source_text": "熟练掌握德、意、西、法、日、韩中的1-2种（优先）",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "熟练掌握德、意、西、法、日、韩中的1-2种（优先）"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "可作为工作语言进行知识撰写、翻译与质量把控",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "可作为工作语言进行知识撰写、翻译与质量把控"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具备良好的结构化思维与信息素养，了解大模型、RAG、知识图谱等AI基础概念，对文字质量与语义准确性有高敏感度",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备良好的结构化思维与信息素养，了解大模型、RAG、知识图谱等AI基础概念，对文字质量与语义准确性有高敏感度"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有知识库或内容平台运营实习经历者加分",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有知识库或内容平台运营实习经历者加分"
+            ],
+            "relation_reason": "“或”连接两类运营实习经历，但共享后缀导致无法逐字提取两个自足候选项"
+          }
+        ],
+        "responsibilities": [
+          "1、参与AI知识体系的顶层设计与架构搭建，梳理知识分类、标签体系与关联关系，确保知识库结构清晰、覆盖完整，支撑AI应用（Agent、Skill等）的高效调用；",
+          "2、主导AI知识的生产与适配，制定知识采集、撰写、结构化标注的标准流程与质量规范，推动知识内容向AI可理解、可检索、可推理的方向转化，提升知识入库效率与可用性；",
+          "3、负责知识库的日常运营与分发，监控知识调用量、召回率、用户反馈等核心指标，分析知识缺口与冗余，制定知识更新与下线策略，持续优化知识覆盖度与精准度；",
+          "4、统筹多语种知识运营，建立多语言知识的翻译、校对与同步机制，确保各语种知识在准确性、时效性与表达习惯上的一致性，支持全球化业务场景的知识需求；",
+          "5、跟踪AI知识管理、RAG、知识图谱等领域的前沿技术与最佳实践，探索新技术在知识生产与运营中的应用，推动知识库能力持续升级。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "深圳"
+        ],
+        "required_skills": [
+          "LLM",
+          "RAG",
+          "知识图谱"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有知识库或内容平台运营实习经历者加分",
+        "final_requirement": {
+          "source_text": "有知识库或内容平台运营实习经历者加分",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["知识库", "内容平台"],
+          "relation_reason": "两类运营实习经历任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：两类运营实习经历按任选其一处理。",
+      "review_number": 24
+    },
+    {
+      "id": "campus-ai-169",
+      "source": {
+        "company": "字节跳动",
+        "title": "豆包大模型多模态算法工程师 - 火山方舟",
+        "source_url": "https://jobs.bytedance.com/campus/position/7668630538194471221/detail",
+        "verified_at": "2026-09-08"
+      },
+      "selection_origin": "new_official_extension16",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[0]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "计算机、数学等相关专业优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "校园招聘"
+          },
+          "locations": {
+            "values": [
+              "上海",
+              "北京",
+              "深圳",
+              "杭州"
+            ],
+            "source_text": "上海、北京、深圳、杭州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士及以上学位"
+            ],
+            "source_text": "硕士及以上学位"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、数学等相关专业优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "计算机、数学等相关专业优先"
+            ],
+            "relation_reason": "列举专业并含“等相关专业”，无法穷尽备选范围"
+          },
+          {
+            "source_text": "具有优秀的基础算法、代码能力",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具有优秀的基础算法、代码能力"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练掌握C/C++或Python编程语言",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "C/C++",
+              "Python编程语言"
+            ],
+            "relation_reason": "“或”明确表示编程语言可任选其一"
+          },
+          {
+            "source_text": "ACM/ICPC、NOI/IOI、Top Coder、Kaggle等比赛获奖者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "ACM/ICPC、NOI/IOI、Top Coder、Kaggle等比赛获奖者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "具有扎实的计算机视觉、机器学习基础，熟悉CV、AIGC、NLP、RL等技术领域",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具有扎实的计算机视觉、机器学习基础，熟悉CV、AIGC、NLP、RL等技术领域"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "在CVPR、ECCV、ICCV、NeurIPS、ICLR、SIGGRAPH或SIGGRAPH Asia等顶级会议上发表论文者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "在CVPR、ECCV、ICCV、NeurIPS、ICLR、SIGGRAPH或SIGGRAPH Asia等顶级会议上发表论文者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "在大模型领域或者RL领域，主导过大影响力的项目者优先",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "大模型领域",
+              "RL领域"
+            ],
+            "relation_reason": "“或者”明确表示项目领域可任选其一"
+          },
+          {
+            "source_text": "能深入解决大模型训练和应用存在的问题",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能深入解决大模型训练和应用存在的问题"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "探索研究多模态理解、强化学习、计算机视觉、Agent等前沿技术；对多模态模型能力和理想态的差距保持敏感，评测和优化提升多模态模型的能力极限；",
+          "专注提升多模态大模型在现实世界复杂任务的效果，追求通用可规模化的方法，优化领域包括但不限于视觉推理、Streaming video交互、多模态Agent、大规模数据合成、Mid-training等方向；",
+          "推动多模态大模型在成本/效率方面的极致优化，包括但不限于大规模蒸馏/自蒸馏、Efficient reasoning、极致的Video压缩等方向；",
+          "依托公司和业界的大模型和基础CV技术，构建面向To B业务应用的多模态算法能力，帮助业务取得成功。"
+        ]
+      },
+      "old_core": null,
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "计算机、数学等相关专业优先",
+        "final_requirement": {
+          "source_text": "计算机、数学等相关专业优先",
+          "level": "preferred",
+          "relation": "all_of",
+          "items": ["计算机、数学等相关专业优先"],
+          "relation_reason": "整体是一条相关专业优先条件，不构成硬性专业限制。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：整体保留为一条相关专业加分条件。",
+      "review_number": 25
+    },
+    {
+      "id": "campus-ai-173",
+      "source": {
+        "company": "字节跳动",
+        "title": "大模型算法工程师（语音） - 火山方舟",
+        "source_url": "https://jobs.bytedance.com/campus/position/7675611979327490357/detail",
+        "verified_at": "2026-09-08"
+      },
+      "selection_origin": "new_official_extension16",
+      "priority": "high",
+      "issues": [
+        {
+          "code": "relation_uncertain",
+          "priority": "high",
+          "field": "requirements[6]",
+          "message": "API 无法确定这是共同满足还是任选其一。",
+          "source_text": "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)、有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）优先"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘类型：校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "深圳",
+              "上海",
+              "杭州"
+            ],
+            "source_text": "工作地点：北京、深圳、上海、杭州"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "2027届获得硕士及以上学位"
+          },
+          "education_requirements": {
+            "values": [
+              "硕士及以上学位"
+            ],
+            "source_text": "2027届获得硕士及以上学位"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机科学/计算机工程/电子信息技术等相关专业优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "计算机科学/计算机工程/电子信息技术等相关专业优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有自然语言处理、语音合成与识别、音乐生成等研究或者技术背景优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有自然语言处理、语音合成与识别、音乐生成等研究或者技术背景优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有预训练技术，包括但不限于高效训练、强化学习",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "有预训练技术，包括但不限于高效训练、强化学习"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "参与过研发音频、NLP相关的预训练模型及其下游应用者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "参与过研发音频、NLP相关的预训练模型及其下游应用者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "优秀的代码能力、数据结构和基础算法功底",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "优秀的代码能力、数据结构和基础算法功底"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "C/C++或Python熟练",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "C/C++",
+              "Python"
+            ],
+            "relation_reason": "“或”明确表示两种语言任选其一。"
+          },
+          {
+            "source_text": "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)、有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）优先",
+            "level": "preferred",
+            "relation": "uncertain",
+            "items": [
+              "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)、有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）优先"
+            ],
+            "relation_reason": "并列列举两类优先经历，但未明确要求同时具备或任选其一。"
+          },
+          {
+            "source_text": "了解大模型相关前沿方向（SeedTTS、CosyVoice、Qwen-omni、Veo3）",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "了解大模型相关前沿方向（SeedTTS、CosyVoice、Qwen-omni、Veo3）"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "在相关领域有过研究者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "在相关领域有过研究者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "了解业界前沿评估方法者优先",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "了解业界前沿评估方法者优先"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "能解决大模型评估优化和应用存在的问题",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "能解决大模型评估优化和应用存在的问题"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "参与研发多模态模型等下一代人工智能核心技术",
+          "关注和推进技术在业务场景中的广泛应用，包括但不限于语言、音乐、语音、音频的生成与多模态理解等",
+          "深入调研和关注音频/NLP/多模态等方向的前沿技术"
+        ]
+      },
+      "old_core": null,
+      "decision": {
+        "status": "confirmed",
+        "choice": "modify",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "replace_requirement",
+        "target_source_text": "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)、有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）优先",
+        "final_requirement": {
+          "source_text": "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)、有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）优先",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": [
+            "有领域顶级会议文章(NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD等)",
+            "有编程/AI比赛获奖（ACM/ICPC、NOI/IOI、Top Coder、Kaggle等）"
+          ],
+          "relation_reason": "顶级会议文章与编程或AI比赛获奖是两类独立加分成果，任选其一。"
+        }
+      },
+      "review_notes": "项目所有者确认采用建议：两类加分成果按任选其一处理。",
+      "review_number": 26
+    },
+    {
+      "id": "campus-ai-094",
+      "source": {
+        "company": "MiniMax",
+        "title": "大模型训练框架工程师（训练框架 & RL 方向）- 2027届",
+        "source_url": "https://vrfi1sk8a0.jobs.feishu.cn/379481/position/7636617057124403492/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "medium",
+      "issues": [
+        {
+          "code": "empty_responsibilities",
+          "priority": "medium",
+          "field": "responsibilities",
+          "message": "API 未提取任何岗位职责，需要确认是否确实为空。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：MiniMax 2027届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "北京",
+              "上海"
+            ],
+            "source_text": "工作地点：北京/上海"
+          },
+          "graduation_years": {
+            "values": [
+              2027
+            ],
+            "source_text": "岗位名称：大模型训练框架工程师（训练框架 & RL 方向）- 2027届"
+          },
+          "education_requirements": null,
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "编程能力扎实，有清晰的系统设计思路",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "编程能力扎实，有清晰的系统设计思路"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "对 AI 训练系统或 RL 工程某一方向有深入理解，能独立发现问题、提出方案并推动落地",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "对 AI 训练系统或 RL 工程某一方向有深入理解，能独立发现问题、提出方案并推动落地"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "主动追踪算法与系统前沿，能将论文洞见转化为工程判断",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "主动追踪算法与系统前沿，能将论文洞见转化为工程判断"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "对主流开源框架（PyTorch、Megatron-LM、SGLang 等）有深入了解，并有实质性贡献",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "对主流开源框架（PyTorch、Megatron-LM、SGLang 等）有深入了解，并有实质性贡献"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有万卡规模训练系统或大规模 RLHF/RLVR 工程的实战经验",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有万卡规模训练系统或大规模 RLHF/RLVR 工程的实战经验"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": []
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "上海"
+        ],
+        "required_skills": [
+          "分布式系统",
+          "GPU性能优化",
+          "强化学习",
+          "推理加速",
+          "PyTorch",
+          "Megatron-LM",
+          "SGLang",
+          "RLHF",
+          "RLVR"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "api",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-08",
+        "operation": "keep_api",
+        "confirmed_responsibilities": []
+      },
+      "review_notes": "项目所有者确认采用建议：原文没有明确的候选人岗位职责，不从团队和方向介绍中推断职责。",
+      "review_number": 27
+    },
+    {
+      "id": "campus-ai-105",
+      "source": {
+        "company": "自变量机器人",
+        "title": "【27届】具身算法工程师",
+        "source_url": "https://x2-robot.jobs.feishu.cn/912130/position/7672742764949768475/detail",
+        "verified_at": "2026-08-31"
+      },
+      "selection_origin": "original_strict_unused54",
+      "priority": "medium",
+      "issues": [
+        {
+          "code": "long_requirement_boundary",
+          "priority": "medium",
+          "field": "requirements[4]",
+          "message": "条件原文较长或跨行，需要确认边界没有合并过多内容。",
+          "source_text": "我们重点寻找以下方向的人才，以下方向满足其中一项或多项即可：\n1. 具身策略 / VLA / Robot Policy：Behavior Cloning、Diffusion Policy、Flow Matching、RL、World Model等。\n2. Sensorimotor / 灵巧操作：视觉-力觉-触觉融合、接触丰富型操作、灵巧手控制与策略学习。\n3. System 0 / 高频控制：高频策略、力控、阻抗控制、实时控制、低延迟行为生成。\n4. 机器人学习 / Sim2Real：仿真环境、系统辨识、域随机化、Sim-to-Real。\n5. 具身数据：机器人数据采集、数据治理、动作重定向、跨具身数据对齐、数据Scaling。\n6. 机器人系统：机械臂、灵巧手、多传感器系统、实时推理与机器人部署。"
+        }
+      ],
+      "api_proposal": {
+        "facts": {
+          "job_type": {
+            "value": "campus",
+            "source_text": "招聘项目：自变量机器人27届校园招聘"
+          },
+          "locations": {
+            "values": [
+              "深圳"
+            ],
+            "source_text": "工作地点：深圳"
+          },
+          "graduation_years": {
+            "values": [
+              2026,
+              2027
+            ],
+            "source_text": "毕业时间介于2026年9月至2027年8月的国内外高校的本科生、硕士生、博士生"
+          },
+          "education_requirements": {
+            "values": [
+              "本科生",
+              "硕士生",
+              "博士生"
+            ],
+            "source_text": "毕业时间介于2026年9月至2027年8月的国内外高校的本科生、硕士生、博士生"
+          },
+          "major_requirements": null,
+          "deadline": null
+        },
+        "requirements": [
+          {
+            "source_text": "计算机、机器人、自动化、电子工程、机械、数学等相关专业优先。",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": [
+              "计算机",
+              "机器人",
+              "自动化",
+              "电子工程",
+              "机械",
+              "数学"
+            ],
+            "relation_reason": "列举相关专业并明确优先"
+          },
+          {
+            "source_text": "具备扎实的机器学习、深度学习、机器人学或控制理论基础。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "具备扎实的机器学习、深度学习、机器人学或控制理论基础。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "熟练掌握 Python / C++ / PyTorch，具备较强的算法实现与工程能力。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "熟练掌握 Python / C++ / PyTorch，具备较强的算法实现与工程能力。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有真实机器人项目经验，能够完成从算法研究、模型训练到真机部署和问题定位的完整闭环。",
+            "level": "required",
+            "relation": "all_of",
+            "items": [
+              "有真实机器人项目经验，能够完成从算法研究、模型训练到真机部署和问题定位的完整闭环。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "我们重点寻找以下方向的人才，以下方向满足其中一项或多项即可：\n1. 具身策略 / VLA / Robot Policy：Behavior Cloning、Diffusion Policy、Flow Matching、RL、World Model等。\n2. Sensorimotor / 灵巧操作：视觉-力觉-触觉融合、接触丰富型操作、灵巧手控制与策略学习。\n3. System 0 / 高频控制：高频策略、力控、阻抗控制、实时控制、低延迟行为生成。\n4. 机器人学习 / Sim2Real：仿真环境、系统辨识、域随机化、Sim-to-Real。\n5. 具身数据：机器人数据采集、数据治理、动作重定向、跨具身数据对齐、数据Scaling。\n6. 机器人系统：机械臂、灵巧手、多传感器系统、实时推理与机器人部署。",
+            "level": "required",
+            "relation": "any_of",
+            "items": [
+              "具身策略 / VLA / Robot Policy：Behavior Cloning、Diffusion Policy、Flow Matching、RL、World Model等。",
+              "Sensorimotor / 灵巧操作：视觉-力觉-触觉融合、接触丰富型操作、灵巧手控制与策略学习。",
+              "System 0 / 高频控制：高频策略、力控、阻抗控制、实时控制、低延迟行为生成。",
+              "机器人学习 / Sim2Real：仿真环境、系统辨识、域随机化、Sim-to-Real。",
+              "具身数据：机器人数据采集、数据治理、动作重定向、跨具身数据对齐、数据Scaling。",
+              "机器人系统：机械臂、灵巧手、多传感器系统、实时推理与机器人部署。"
+            ],
+            "relation_reason": "明确满足其中一项或多项即可"
+          },
+          {
+            "source_text": "在 CoRL、RSS、ICRA、IROS、NeurIPS、ICML、CVPR、ICCV、AAAI 等会议发表机器人/具身智能相关论文。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "在 CoRL、RSS、ICRA、IROS、NeurIPS、ICML、CVPR、ICCV、AAAI 等会议发表机器人/具身智能相关论文。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有VLA、World Model、Robot Foundation Model或大规模机器人策略训练经验。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有VLA、World Model、Robot Foundation Model或大规模机器人策略训练经验。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有大规模真实机器人数据采集、训练和评测经验。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有大规模真实机器人数据采集、训练和评测经验。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有灵巧手、力觉/触觉、双臂协作或Contact-rich manipulation经验。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有灵巧手、力觉/触觉、双臂协作或Contact-rich manipulation经验。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有真实商业机器人项目从0到1落地经验。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有真实商业机器人项目从0到1落地经验。"
+            ],
+            "relation_reason": null
+          },
+          {
+            "source_text": "有开源项目、竞赛/Benchmark领先成绩或较强技术影响力。",
+            "level": "preferred",
+            "relation": "all_of",
+            "items": [
+              "有开源项目、竞赛/Benchmark领先成绩或较强技术影响力。"
+            ],
+            "relation_reason": null
+          }
+        ],
+        "responsibilities": [
+          "设计并研发System 1低频语义策略与System 0高频行为/控制策略，建立长短时序协同的分层具身智能架构。",
+          "面向抱扶、护理、人机协作、精细操作等复杂任务，研究策略生成、行为反馈与稳定闭环控制。",
+          "探索Behavior Cloning、强化学习、Diffusion / Flow Matching、World Model、Meta Learning等方法在机器人操作中的应用。",
+          "研究异常检测、失败恢复、实时适应与持续学习等能力。",
+          "融合视觉、语言、六维力/力矩、指尖触觉、关节状态等多模态信息，构建统一的感知—动作策略。",
+          "研究末端位姿、关节位置/力矩、刚度、接触力、触觉目标等异构动作空间的表示、对齐与协同生成。",
+          "构建从环境感知、接触状态估计、动作生成到执行反馈的完整Sensorimotor闭环。",
+          "攻克接触建立/解除、滑移、碰撞、遮挡、手指协同及人机交互状态变化等复杂问题。",
+          "研发手臂及灵巧手的高频行为生成与控制策略，实现稳定、连续、可控的操作行为。",
+          "研究力控制、刚度调节、接触稳定、局部避障及快速反射等能力。",
+          "解决真实机器人部署中的延迟、抖动、动作不连续、接触振荡、执行器差异及跨本体适配等问题。",
+          "构建低延迟推理与执行架构，实现低频智能决策与高频控制的稳定协同。",
+          "围绕机器人技能建立多源数据体系，覆盖真机遥操作、自主执行、人工接管、失败恢复、Ego数据、互联网数据以及仿真数据。",
+          "建设数据清洗、标注、动作重定向、抓取姿态生成、接触标注、质量评估等数据生产能力。",
+          "研究跨来源、跨机器人、跨灵巧手构型的数据对齐与知识迁移。",
+          "建立“数据采集 → 训练 → 仿真/离线评测 → 真机验证 → 失败回流”的完整闭环，通过Hard Case Mining和主动数据采集持续提升模型能力。",
+          "分析数据规模、质量、配比、模型结构和训练策略对最终能力的影响，开展Scaling、消融及数据效率研究。",
+          "搭建面向灵巧手及手臂—灵巧手系统的高精度仿真环境，覆盖动力学、摩擦、传动、柔顺性及复杂接触建模。",
+          "建立视觉、力/力矩、触觉等多模态传感器仿真能力。",
+          "研究系统辨识、参数校准、域随机化、动力学随机化及在线参数估计，缩小Sim-to-Real Gap。",
+          "面向稀有接触状态、危险操作及长尾失败构建仿真补充数据。",
+          "推动策略模型在真实机器人上的部署与优化，参与机械臂、灵巧手、传感器及整机系统联调。",
+          "定位并解决推理超时、通信阻塞、触觉漂移、力信号噪声、执行抖动及接触不稳定等问题。",
+          "建立覆盖离线、仿真和真机的自动化评测与回归体系，推动模型能力持续迭代。",
+          "建立线上数据回流、风险事件捕获、失败归因及持续学习机制，让真实世界成为模型持续进化的数据源。"
+        ]
+      },
+      "old_core": {
+        "job_type": "campus",
+        "locations": [
+          "深圳"
+        ],
+        "required_skills": [
+          "机器人算法",
+          "Python",
+          "C++",
+          "PyTorch",
+          "机器人部署"
+        ]
+      },
+      "decision": {
+        "status": "confirmed",
+        "choice": "api",
+        "confirmed_by": "project_owner",
+        "confirmed_at": "2026-09-09",
+        "operation": "keep_api"
+      },
+      "review_notes": "项目所有者确认保留 API：六个方向作为同一个任选其一条件组。",
+      "review_number": 28
+    }
+  ]
+}

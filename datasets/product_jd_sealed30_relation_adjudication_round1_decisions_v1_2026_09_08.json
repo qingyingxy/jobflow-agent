@@ -1,0 +1,221 @@
+{
+  "review_version": "product-jd-sealed30-relation-adjudication-round1-decisions-v1-2026-09-08",
+  "review_scope": "10 relation disagreements that affect any_of relation F1",
+  "reviewer_role": "project_owner",
+  "status": "complete",
+  "policy": "Record the project owner's semantic decisions after predictions were revealed. Do not modify the blind draft or prediction artifact. Apply only the explicitly reviewed relation scope, then recompute metrics from saved predictions without another model call.",
+  "source_blind_draft": {
+    "path": "artifacts/evaluation/product-jd-sealed30-codex-blind-draft-v1-2026-09-08.json",
+    "sha256": "c602badc9a29194186def0a6f0dd2980873dbff9dee9c7c5cf27ef01b70f4ea6"
+  },
+  "source_predictions": {
+    "path": "artifacts/evaluation/product-jd-sealed30-terra-medium-v1-predictions.json",
+    "sha256": "52b5e2d9760097ab6eb0774c38b78ba0fcfa52a43c5ed197215111e8e6a8c0bb",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "medium"
+  },
+  "confirmed_count": 10,
+  "pending_count": 0,
+  "decisions": [
+    {
+      "review_index": 1,
+      "case_id": "campus-ai-005",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "能够提出新算法、新架构或新范式",
+      "confirmed_interpretation": "新算法、新架构、新范式是可替代的创新成果分支，采用 any_of。",
+      "planned_label_change": "将完整创新条件拆分；本局部条件标为 any_of，另外两个共同条件各自保留为 all_of。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": [
+        "从事 AI前沿研究与创新突破，能够提出新算法、新架构或新范式，具备顶会 / 顶刊论文等原创性科研成果"
+      ],
+      "final_requirements": [
+        {
+          "source_text": "从事 AI前沿研究与创新突破",
+          "level": "required",
+          "relation": "all_of",
+          "items": ["从事 AI前沿研究与创新突破"],
+          "relation_reason": null
+        },
+        {
+          "source_text": "能够提出新算法、新架构或新范式",
+          "level": "required",
+          "relation": "any_of",
+          "items": ["新算法", "新架构", "新范式"],
+          "relation_reason": null
+        },
+        {
+          "source_text": "具备顶会 / 顶刊论文等原创性科研成果",
+          "level": "required",
+          "relation": "all_of",
+          "items": ["具备顶会 / 顶刊论文等原创性科研成果"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "1 api"
+    },
+    {
+      "review_index": 2,
+      "case_id": "campus-ai-034",
+      "status": "confirmed",
+      "choice": "draft",
+      "source_text": "扎实的Web前端基础，熟悉HTML、CSS、JavaScript/TypeScript与HTTP协议，了解浏览器渲染与常见性能问题",
+      "draft_interpretation": "整句是共同要求，仅 JavaScript/TypeScript 为局部二选一；当前扁平结构用 all_of 近似表达。",
+      "api_interpretation": "把整句标为 any_of，items 仅为 JavaScript 和 TypeScript。",
+      "recommended_resolution": "draft",
+      "recommendation_reason": "当前 schema 每条 requirement 只能有一个关系。整句标 any_of 会错误表达为只会 JavaScript 或 TypeScript 就满足整条要求；all_of 虽损失局部替代关系，但更能保留 Web 基础、HTML、CSS、HTTP、浏览器渲染和性能知识这些共同要求。",
+      "operation": "keep_draft",
+      "draft_source_texts": [
+        "扎实的Web前端基础，熟悉HTML、CSS、JavaScript/TypeScript与HTTP协议，了解浏览器渲染与常见性能问题"
+      ],
+      "confirmation_message": "2 草案"
+    },
+    {
+      "review_index": 3,
+      "case_id": "campus-ai-038",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟悉SQL/HQL及数据分析工具",
+      "confirmed_interpretation": "SQL 和 HQL 是可替代的查询语言分支，采用 any_of。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": ["熟悉SQL/HQL及数据分析工具"],
+      "final_requirements": [
+        {
+          "source_text": "熟悉SQL/HQL及数据分析工具",
+          "level": "required",
+          "relation": "any_of",
+          "items": ["SQL", "HQL"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "3 api"
+    },
+    {
+      "review_index": 4,
+      "case_id": "campus-ai-096",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "有项目/开源经验（Web开发、系统设计、自动化工具）",
+      "confirmed_interpretation": "项目经验或开源经验满足其一即可，采用 any_of。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": ["有项目/开源经验（Web开发、系统设计、自动化工具）"],
+      "final_requirements": [
+        {
+          "source_text": "有项目/开源经验（Web开发、系统设计、自动化工具）",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["项目", "开源"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "4 api"
+    },
+    {
+      "review_index": 5,
+      "case_id": "campus-ai-154",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟悉 SGLang、vLLM、Megatron 等框架，有开源项目贡献或相关经验者优先",
+      "confirmed_interpretation": "框架熟悉度与优先经历分开；后半句的开源项目贡献或相关经验采用 any_of。",
+      "planned_label_change": "拆出“有开源项目贡献或相关经验者优先”为独立 preferred any_of requirement。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": [
+        "熟悉 SGLang、vLLM、Megatron 等框架，有开源项目贡献或相关经验者优先"
+      ],
+      "final_requirements": [
+        {
+          "source_text": "熟悉 SGLang、vLLM、Megatron 等框架",
+          "level": "required",
+          "relation": "all_of",
+          "items": ["熟悉 SGLang、vLLM、Megatron 等框架"],
+          "relation_reason": null
+        },
+        {
+          "source_text": "有开源项目贡献或相关经验者优先",
+          "level": "preferred",
+          "relation": "any_of",
+          "items": ["开源项目贡献", "相关经验"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "5 api"
+    },
+    {
+      "review_index": 6,
+      "case_id": "campus-ai-014",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "熟练掌握Python及PyTorch/TensorFlow/PaddlePaddle等深度学习框架",
+      "confirmed_interpretation": "按当前简单 schema 保留整句并采用 all_of，不单独标注框架局部 any_of。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": [
+        "熟练掌握Python",
+        "PyTorch/TensorFlow/PaddlePaddle等深度学习框架"
+      ],
+      "final_requirements": [
+        {
+          "source_text": "熟练掌握Python及PyTorch/TensorFlow/PaddlePaddle等深度学习框架",
+          "level": "required",
+          "relation": "all_of",
+          "items": ["熟练掌握Python及PyTorch/TensorFlow/PaddlePaddle等深度学习框架"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "6 api"
+    },
+    {
+      "review_index": 7,
+      "case_id": "campus-ai-062",
+      "status": "confirmed",
+      "choice": "draft",
+      "source_text": "熟练使用Python，了解C#/C++等工业开发语言",
+      "confirmed_interpretation": "Python 是共同条件；C# 与 C++ 是局部替代分支，保留拆分后的 any_of。",
+      "operation": "keep_draft",
+      "draft_source_texts": ["熟练使用Python", "了解C#/C++等工业开发语言"],
+      "confirmation_message": "7 草案"
+    },
+    {
+      "review_index": 8,
+      "case_id": "campus-ai-074",
+      "status": "confirmed",
+      "choice": "draft",
+      "source_text": "熟悉 LLM/VLM 相关技术",
+      "confirmed_interpretation": "该句应作为申请条件保留，LLM 与 VLM 采用 any_of。",
+      "operation": "keep_draft",
+      "draft_source_texts": ["熟悉 LLM/VLM 相关技术"],
+      "confirmation_message": "8 草案"
+    },
+    {
+      "review_index": 9,
+      "case_id": "campus-ai-081",
+      "status": "confirmed",
+      "choice": "draft",
+      "source_text": "有相关论文产出，数据竞赛获奖经历或开源数据集贡献优先",
+      "confirmed_interpretation": "论文产出、数据竞赛获奖、开源数据集贡献是三个可替代的优先成果分支，采用 any_of。",
+      "operation": "keep_draft",
+      "draft_source_texts": ["有相关论文产出，数据竞赛获奖经历或开源数据集贡献优先"],
+      "confirmation_message": "9 草案"
+    },
+    {
+      "review_index": 10,
+      "case_id": "campus-ai-095",
+      "status": "confirmed",
+      "choice": "api",
+      "source_text": "扎实的 Python/Java/Scala/C++/Go 等高级语言编程功底",
+      "confirmed_interpretation": "原文没有明确“至少一种”等数量词；按当前标注规范保留整句 all_of。",
+      "operation": "replace_draft_requirements",
+      "draft_source_texts": ["扎实的 Python/Java/Scala/C++/Go 等高级语言编程功底"],
+      "final_requirements": [
+        {
+          "source_text": "扎实的 Python/Java/Scala/C++/Go 等高级语言编程功底",
+          "level": "required",
+          "relation": "all_of",
+          "items": ["扎实的 Python/Java/Scala/C++/Go 等高级语言编程功底"],
+          "relation_reason": null
+        }
+      ],
+      "confirmation_message": "10 api"
+    }
+  ],
+  "next_step": "Create a relation-scope human-reviewed label artifact and recompute metrics from saved predictions only, without another model call."
+}
