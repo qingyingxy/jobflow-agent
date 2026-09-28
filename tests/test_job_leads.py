@@ -154,8 +154,8 @@ async def test_external_official_url_is_verified_before_job_creation(db_session)
     assert result.posting.verification_status == (
         JobVerificationStatus.VERIFIED_OFFICIAL.value
     )
-    assert result.posting.availability_status == JobAvailabilityStatus.ACTIVE.value
-    assert db_session.scalar(select(func.count(LeadVerification.id))) == 1
+    assert result.posting.availability_status == JobAvailabilityStatus.UNKNOWN.value
+    assert db_session.scalar(select(func.count(LeadVerification.id))) == 2
     assert db_session.scalar(select(func.count(CandidateJob.id))) == 1
 
 
@@ -188,7 +188,7 @@ async def test_repeated_verification_is_idempotent(db_session) -> None:
     assert second.lead.status == JobLeadStatus.VERIFIED.value
     assert second.posting.id == first.posting.id
     assert second.posting_created is False
-    assert db_session.scalar(select(func.count(LeadVerification.id))) == 1
+    assert db_session.scalar(select(func.count(LeadVerification.id))) == 2
     assert db_session.scalar(select(func.count(JobPosting.id))) == 1
     assert db_session.scalar(select(func.count(CandidateJob.id))) == 1
 
@@ -219,7 +219,7 @@ async def test_non_job_page_is_rejected_without_formal_job(db_session) -> None:
     assert rejected.failure_code == "lead_not_job_page"
     assert db_session.scalar(select(func.count(JobPosting.id))) == 0
     assert db_session.scalar(select(func.count(CandidateJob.id))) == 0
-    assert db_session.scalar(select(func.count(LeadVerification.id))) == 1
+    assert db_session.scalar(select(func.count(LeadVerification.id))) == 2
 
 
 def test_manual_handoff_completes_lead_without_claiming_source_verification(
@@ -359,7 +359,7 @@ def test_job_lead_api_verifies_url_and_returns_audit_history(
     assert verified.status_code == 200
     assert verified.json()["status"] == "VERIFIED"
     assert verified.json()["job_posting_id"]
-    assert len(verified.json()["verifications"]) == 1
+    assert {item["result"] for item in verified.json()["verifications"]} == {"SNAPSHOT", "VERIFIED"}
     posting = db_session.get(JobPosting, verified.json()["job_posting_id"])
     assert posting.verification_status == JobVerificationStatus.VERIFIED_OFFICIAL.value
 

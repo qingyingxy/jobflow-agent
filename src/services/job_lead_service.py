@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -32,8 +33,10 @@ from src.services.discovery_sources import (
     looks_like_job_page,
 )
 from src.services.jd_analysis_service import invalidate_analyses_for_job
+from src.services.job_detail_scope import DetailScopeError, scope_job_document
 from src.services.job_fact_verifier import verified_stub_evidence, verify_page_facts
 from src.services.job_service import JobImportService
+from src.services.job_url import route_fragment
 from src.services.lead_providers import (
     LeadCandidate,
     ManualImportProvider,
@@ -71,6 +74,32 @@ class JobLeadService:
 
     def __init__(self, session: Session) -> None:
         self.session = session
+
+    def record_official_link(self, *, user_id, lead_id, source_url, entry_url, from_url):
+        self.session.add(LeadVerification(
+            id=generate_lead_verification_id(), lead_id=lead_id, user_id=user_id,
+            result="OFFICIAL_LINK", source_url=normalize_lead_url(source_url),
+            source_type="official_outbound_link", checked_at=datetime.now(UTC),
+            field_evidence={"entry_url": entry_url, "from_url": from_url},
+        ))
+        self.session.commit()
+
+    def _official_target(self, lead, url, official_hosts):
+        if (urlsplit(url).hostname or "").lower() in official_hosts:
+            return True
+        # Exact observed detail URL only, never authorise a whole shared ATS host.
+        records = self.session.scalars(select(LeadVerification).where(
+            LeadVerification.lead_id == lead.id, LeadVerification.user_id == lead.user_id,
+            LeadVerification.result == "OFFICIAL_LINK",
+            LeadVerification.source_url == normalize_lead_url(url),
+        ))
+        return any(urlsplit(r.field_evidence.get("entry_url", "")).hostname in official_hosts for r in records)
+
+    def _prepare_official_transport(self, lead, reader, official_hosts):
+        if self._official_target(lead, lead.normalized_url, official_hosts):
+            checker = getattr(reader, "safety_checker", None)
+            if checker is not None and hasattr(checker, "proxy_allowed_hosts"):
+                checker.proxy_allowed_hosts = checker.proxy_allowed_hosts | {urlsplit(lead.normalized_url).hostname}
 
     def create_lead(
         self,
@@ -114,9 +143,24 @@ class JobLeadService:
             )
         existing = self.session.scalar(statement.limit(1))
         if existing is not None:
+            # Rediscovery can add evidence; never replace or truncate old snippets.
+            if search_snippet and search_snippet.strip() not in (existing.search_snippet or ""):
+                existing.search_snippet = "\n\n".join(filter(None, [existing.search_snippet, search_snippet.strip()]))
+            if not existing.title_hint and title_hint:
+                existing.title_hint = _clean_hint(title_hint)
+            if not existing.company_hint and company_hint:
+                existing.company_hint = _clean_hint(company_hint)
+            self.session.commit()
             return existing
 
+        previous_selection = self.session.scalar(
+            select(JobLead.selection_status).where(JobLead.user_id == user_id, JobLead.normalized_url == normalized_url)
+            .order_by(JobLead.updated_at.desc(), JobLead.id.desc()).limit(1)
+        )
+        from src.services.lead_extraction import extract_lead_preview
         lead = JobLead(
+            extracted_fields=extract_lead_preview(source_url, title=title_hint, snippet=search_snippet),
+            selection_status=previous_selection or "DISCOVERED",
             id=generate_job_lead_id(),
             discovery_run_id=discovery_run_id,
             user_id=user_id,
@@ -320,7 +364,7 @@ class JobLeadService:
             ApplicationService(self.session).create_candidate(
                 user_id=user_id,
                 job_posting_id=posting.id,
-                initial_status=CandidateStatus.DISCOVERED,
+                initial_status=CandidateStatus(lead.selection_status or "DISCOVERED"),
                 commit=False,
             )
             self.session.commit()
@@ -349,11 +393,13 @@ class JobLeadService:
         lead_id: str,
         reader: SafeHTTPReader,
         official_hosts: set[str],
+        official_only: bool = False,
     ) -> VerifiedLeadResult:
         existing = self._existing_verified_result(user_id=user_id, lead_id=lead_id)
         if existing is not None:
             return existing
         lead = self._start_verification(user_id=user_id, lead_id=lead_id)
+        self._prepare_official_transport(lead, reader, official_hosts)
         try:
             response = await reader.fetch(lead.normalized_url)
         except URLReaderError as error:
@@ -371,9 +417,16 @@ class JobLeadService:
             ) from error
 
         raw_html = response.body.decode("utf-8", errors="replace")
+        snapshot_id = self._save_page_snapshot(
+            user_id=user_id, lead_id=lead.id, url=response.final_url,
+            raw_html=raw_html, raw_text=None, raw_bytes=response.body,
+        )
         document = parse_html_document(raw_html)
         if not looks_like_job_page(document, url=response.final_url):
-            if looks_like_dynamic_shell(raw_html):
+            if looks_like_dynamic_shell(raw_html) or (
+                any(tag in raw_html.lower() for tag in ("<img", "<canvas", "<svg"))
+                and len(document.text.strip()) < 200
+            ):
                 lead_status = JobLeadStatus.NEEDS_BROWSER
                 code = "lead_requires_browser"
                 message = "页面依赖 JavaScript，静态读取无法验证具体岗位"
@@ -397,16 +450,56 @@ class JobLeadService:
 
         final_url = normalize_lead_url(response.final_url)
         host = (urlsplit(final_url).hostname or "").rstrip(".").casefold()
+        is_official = self._official_target(lead, final_url, official_hosts)
+        if official_only and not is_official:
+            self._record_failure(
+                user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
+                code="official_source_unconfirmed",
+                reason="跳转后的页面尚未确认官网归属，保留为待核验线索",
+                source_url=final_url,
+            )
+            raise LeadVerificationFailure(
+                code="official_source_unconfirmed", message="最终页面并非已确认官网", lead_id=lead.id,
+            )
         verification_status = (
             JobVerificationStatus.VERIFIED_OFFICIAL
-            if host in official_hosts
+            if is_official
             else JobVerificationStatus.VERIFIED_SOURCE
         )
         source_id = lead.source_id or f"{lead.provider}:{host}"
         source_job_id = lead.source_job_id or hashlib.sha256(
             final_url.encode("utf-8")
         ).hexdigest()[:24]
+        try:
+            document, closed = scope_job_document(
+                raw_html, document, url=final_url,
+            )
+            if not document.title or document.title.strip().endswith(("招聘", "招聘官网", "Careers")):
+                raise DetailScopeError("未提取到具体岗位名称，不能将招聘网站标题作为职位")
+        except DetailScopeError as error:
+            self._record_failure(
+                user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
+                code="job_detail_unconfirmed", reason=str(error), source_url=final_url,
+            )
+            raise LeadVerificationFailure(
+                code="job_detail_unconfirmed", message=str(error), lead_id=lead.id,
+            ) from error
         facts = verify_page_facts(document)
+        if not document.json_ld:
+            for key in ("company", "job_type"):
+                item = facts.evidence.get(key)
+                if item and item.get("source_kind") == "json_ld":
+                    item["source_kind"] = "company_registry" if key == "company" else "page_scope_or_url"
+            for item in facts.evidence.get("locations", []):
+                if item and item.get("source_kind") == "json_ld":
+                    item["source_kind"] = "page_scope"
+        facts.evidence["page_scope"] = {
+            "source_url": final_url,
+            "closed": closed,
+            "status_source_text": "已结束" if closed else None,
+            "extractor": "generic-job-scope-v3",
+            "snapshot_id": snapshot_id,
+        }
         stub = JobStub(
             source_id=source_id,
             source_job_id=source_job_id,
@@ -424,6 +517,7 @@ class JobLeadService:
             stub=stub,
             verification_status=verification_status,
             source_type="verified_html",
+            availability_status=JobAvailabilityStatus.CLOSED if closed else JobAvailabilityStatus.UNKNOWN,
             verification_started=True,
             field_evidence=facts.evidence,
         )
@@ -435,11 +529,13 @@ class JobLeadService:
         lead_id: str,
         reader: BrowserJobReader,
         official_hosts: set[str],
+        official_only: bool = False,
     ) -> VerifiedLeadResult:
         existing = self._existing_verified_result(user_id=user_id, lead_id=lead_id)
         if existing is not None:
             return existing
         lead = self._start_verification(user_id=user_id, lead_id=lead_id)
+        self._prepare_official_transport(lead, reader, official_hosts)
         try:
             snapshot = await reader.read(lead.normalized_url)
         except BrowserReadError as error:
@@ -467,6 +563,41 @@ class JobLeadService:
                 lead_id=lead.id,
             ) from error
 
+        snapshot_id = self._save_page_snapshot(
+            user_id=user_id, lead_id=lead.id, url=snapshot.final_url,
+            raw_html=snapshot.raw_html, raw_text=snapshot.visible_text,
+        )
+        if snapshot.screenshots or snapshot.screenshot_error:
+            from src.config import get_settings
+            from src.services.vision_job_extraction import extract_visual_job
+
+            evidence = self.session.get(LeadVerification, snapshot_id)
+            evidence.field_evidence = {
+                **evidence.field_evidence,
+                "screenshots": list(snapshot.screenshots),
+                "screenshot_error": snapshot.screenshot_error,
+                "vision": {"status": "started" if snapshot.screenshots else "capture_failed"},
+            }
+            # Store image evidence before a model timeout or queue cancellation.
+            self.session.commit()
+            if snapshot.screenshots:
+                result = await extract_visual_job(snapshot.screenshots, settings=get_settings())
+                evidence.field_evidence = {**evidence.field_evidence, "vision": result}
+                if result["status"] == "extracted":
+                    fields = result["fields"]
+                    lead.extracted_fields = {
+                        **(lead.extracted_fields or {}),
+                        **{k: v for k, v in fields.items() if v is not None and v != [] and v != ""},
+                        "basis": "screenshot", "verified": False,
+                        "snapshot_id": snapshot_id, "source_url": snapshot.final_url,
+                        "coverage_limited": any(i.get("coverage_limited") for i in snapshot.screenshots),
+                    }
+                self.session.commit()
+                if result["status"] == "extracted":
+                    message = "已从截图提取岗位信息；截图可能不完整，官网及投递条件仍待核验"
+                    self._record_failure(user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
+                                         code="visual_extraction_unverified", reason=message, source_url=snapshot.final_url)
+                    raise LeadVerificationFailure(code="visual_extraction_unverified", message=message, lead_id=lead.id)
         document = parse_html_document(snapshot.raw_html)
         if not looks_like_job_page(document, url=snapshot.final_url):
             message = "浏览器已读取页面，但仍无法确认这是具体岗位详情页"
@@ -486,12 +617,52 @@ class JobLeadService:
 
         final_url = normalize_lead_url(snapshot.final_url)
         host = (urlsplit(final_url).hostname or "").rstrip(".").casefold()
+        is_official = self._official_target(lead, final_url, official_hosts)
+        if official_only and not is_official:
+            self._record_failure(
+                user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
+                code="official_source_unconfirmed",
+                reason="跳转后的页面尚未确认官网归属，保留为待核验线索",
+                source_url=final_url,
+            )
+            raise LeadVerificationFailure(
+                code="official_source_unconfirmed", message="最终页面并非已确认官网", lead_id=lead.id,
+            )
         verification_status = (
             JobVerificationStatus.VERIFIED_OFFICIAL
-            if host in official_hosts
+            if is_official
             else JobVerificationStatus.VERIFIED_SOURCE
         )
+        try:
+            document, closed = scope_job_document(
+                snapshot.raw_html, document, url=final_url,
+            )
+            if not document.title or document.title.strip().endswith(("招聘", "招聘官网", "Careers")):
+                raise DetailScopeError("未提取到具体岗位名称，不能将招聘网站标题作为职位")
+        except DetailScopeError as error:
+            self._record_failure(
+                user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
+                code="job_detail_unconfirmed", reason=str(error), source_url=final_url,
+            )
+            raise LeadVerificationFailure(
+                code="job_detail_unconfirmed", message=str(error), lead_id=lead.id,
+            ) from error
         facts = verify_page_facts(document)
+        if not document.json_ld:
+            for key in ("company", "job_type"):
+                item = facts.evidence.get(key)
+                if item and item.get("source_kind") == "json_ld":
+                    item["source_kind"] = "company_registry" if key == "company" else "page_scope_or_url"
+            for item in facts.evidence.get("locations", []):
+                if item and item.get("source_kind") == "json_ld":
+                    item["source_kind"] = "page_scope"
+        facts.evidence["page_scope"] = {
+            "source_url": final_url,
+            "closed": closed,
+            "status_source_text": "已结束" if closed else None,
+            "extractor": "generic-job-scope-v3",
+            "snapshot_id": snapshot_id,
+        }
         stub = JobStub(
             source_id=lead.source_id or f"{lead.provider}:{host}",
             source_job_id=lead.source_job_id
@@ -510,6 +681,7 @@ class JobLeadService:
             stub=stub,
             verification_status=verification_status,
             source_type="verified_browser",
+            availability_status=JobAvailabilityStatus.CLOSED if closed else JobAvailabilityStatus.UNKNOWN,
             verification_started=True,
             field_evidence={
                 **facts.evidence,
@@ -698,6 +870,35 @@ class JobLeadService:
         self.session.refresh(posting)
         return posting, False
 
+    def _save_page_snapshot(
+        self, *, user_id: str, lead_id: str, url: str,
+        raw_html: str, raw_text: str | None, raw_bytes: bytes | None = None,
+    ) -> str:
+        """Commit the fetched source before any lossy extraction or validation."""
+        snapshot_id = generate_lead_verification_id()
+        self.session.add(LeadVerification(
+            id=snapshot_id, lead_id=lead_id, user_id=user_id,
+            result="SNAPSHOT", source_url=url,
+            source_type="browser_snapshot" if raw_bytes is None else "http_snapshot",
+            content_hash=hashlib.sha256(raw_bytes if raw_bytes is not None else raw_html.encode("utf-8")).hexdigest(),
+            field_evidence={
+                "raw_html": raw_html,
+                "raw_text": raw_text,
+                "raw_bytes_base64": base64.b64encode(raw_bytes).decode("ascii") if raw_bytes is not None else None,
+                "extractor": "generic-job-scope-v3",
+            },
+            checked_at=datetime.now(UTC),
+        ))
+        self.session.commit()
+        from src.services.lead_extraction import extract_lead_preview
+        lead = self.get_lead(user_id=user_id, lead_id=lead_id)
+        if normalize_lead_url(url) == lead.normalized_url:
+            preview = extract_lead_preview(url, raw_html=raw_html, snapshot_id=snapshot_id)
+            if preview.get("title"):
+                lead.extracted_fields = {**(lead.extracted_fields or {}), **{k:v for k,v in preview.items() if v is not None and v != []}}
+                self.session.commit()
+        return snapshot_id
+
     def _record_failure(
         self,
         *,
@@ -744,7 +945,7 @@ def normalize_lead_url(value: str) -> str:
             parsed.netloc.casefold(),
             parsed.path or "/",
             parsed.query,
-            "",
+            route_fragment(parsed.fragment),
         )
     )
 
@@ -764,8 +965,7 @@ def _clean_hint(value: str | None) -> str | None:
 
 
 def _clean_snippet(value: str | None) -> str | None:
-    normalized = " ".join((value or "").split()).strip()
-    return normalized[:2000] or None
+    return (value or "").strip() or None
 
 
 def _normalize_discovered_at(value: datetime | None) -> datetime:

@@ -8,6 +8,7 @@ from src.domain.eligibility import (
     EligibilityInput,
     EligibilityResult,
 )
+from src.domain.graduation import classify_graduation_condition
 from src.domain.job import FieldEvidence, StructuredJobDescription
 
 _DEGREE_TERMS: tuple[tuple[str, int], ...] = (
@@ -142,6 +143,22 @@ def _check_graduation(
 ) -> EligibilityCheck:
     years, evidence_field = _graduation_years(job)
     evidence = _evidence_for(job, evidence_field)
+    sources = [item.source_text for item in evidence]
+    if job.graduation_source_text:
+        sources.append(job.graduation_source_text)
+    if evidence_field == "recruitment_batch" and job.recruitment_batch:
+        sources.append(job.recruitment_batch)
+    if job.graduation_condition_kind in {"qualified", "ambiguous"} or any(
+        classify_graduation_condition(source) != "simple" for source in sources
+    ):
+        return _check(
+            rule_name="graduation_year",
+            field="graduation_year",
+            result="unknown",
+            reason="岗位届别含附加条件或语义不明确，不能仅凭毕业年份确认符合资格",
+            jd_evidence=evidence,
+            missing_information=["对照届别原文确认毕业地区、毕业时间及其他适用条件"],
+        )
     if years is None:
         return _check(
             rule_name="graduation_year",
@@ -202,8 +219,11 @@ def _degree_requirement(value: str) -> tuple[str, int | set[int] | None]:
     }
     if not ranks:
         return "unknown", None
-    if "以上" in normalized:
+    if any(marker in normalized for marker in ("以上", "orhigher", "orabove", "atleast", "minimum")):
         return "minimum", min(ranks)
+    if "equivalent" in normalized or "同等" in normalized:
+        # Alternative education/experience routes cannot be reduced to an exact degree.
+        return "unknown", None
     return "allowed", ranks
 
 
@@ -499,7 +519,9 @@ def _check_job_type(
     )
 
 
-def check_eligibility(input_data: EligibilityInput) -> EligibilityResult:
+def check_eligibility(
+    input_data: EligibilityInput, *, include_search_preferences: bool = True
+) -> EligibilityResult:
     """Return a deterministic qualification result for one user and one JD."""
 
     profile = input_data.profile
@@ -509,9 +531,12 @@ def check_eligibility(input_data: EligibilityInput) -> EligibilityResult:
         _check_graduation(profile.graduation_year, job),
         _check_education(profile.degree, job),
         _check_major(profile.major, job),
-        _check_location(preferences.preferred_locations, job),
-        _check_job_type(preferences.job_types, job),
     ]
+    if include_search_preferences:
+        checks.extend([
+            _check_location(preferences.preferred_locations, job),
+            _check_job_type(preferences.job_types, job),
+        ])
 
     if any(check.result == "fail" for check in checks):
         eligible = "fail"

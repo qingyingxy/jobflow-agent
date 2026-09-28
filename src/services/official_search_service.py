@@ -19,7 +19,7 @@ from src.services.company_registry import (
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
 from src.services.discovery_sources import OfficialCompanyRegistryAdapter
 from src.services.jd_analysis_service import JDAnalysisService
-from src.services.product_jd_parser import ProductJDParser
+from src.services.product_jd_runtime_parser import ProductJDParser
 from src.services.url_reader import SafeHTTPReader
 
 OFFICIAL_SEARCH_MAX_RESULTS = 20
@@ -298,4 +298,4 @@ def _append_agent_trace(
             "error_code": error_code,
             "details": details or {},
         },
-    ][-60:]
+    ]

@@ -361,3 +361,56 @@ async def test_analysis_endpoint_returns_unified_not_found_error() -> None:
 
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "job_not_found"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("saved_preferences", [None, {"preferred_locations": ["上海"], "job_types": ["campus"]}])
+async def test_analysis_ignores_search_preferences(db_session, saved_preferences):
+    posting = create_posting(db_session)
+    if saved_preferences is not None:
+        add_profile_and_evidence(db_session)
+        profile = db_session.get(UserProfile, "user-a")
+        profile.search_preferences = saved_preferences
+        db_session.commit()
+    execution = await JDAnalysisService(
+        db_session, parser=JDParser(FakeModelClient(output=valid_jd_output()))
+    ).analyze(user_id="user-a", job_id=posting.id)
+    checks = execution.analysis.eligibility["checks"]
+    assert {check["rule_name"] for check in checks} == {"graduation_year", "education", "major"}
+    assert all("意向" not in check["reason"] for check in checks)
+    if saved_preferences is None:
+        assert execution.analysis.eligibility["eligible"] == "unknown"
+
+
+@pytest.mark.asyncio
+async def test_candidate_summary_hides_old_preference_based_analysis(db_session):
+    from src.api.applications import _candidate_analysis
+    posting = create_posting(db_session)
+    add_profile_and_evidence(db_session)
+    execution = await JDAnalysisService(
+        db_session, parser=JDParser(FakeModelClient(output=valid_jd_output()))
+    ).analyze(user_id="user-a", job_id=posting.id)
+    assert _candidate_analysis(db_session, user_id="user-a", job_id=posting.id) is not None
+    execution.analysis.analysis_version = "job-analysis-v2-local-matching"
+    db_session.commit()
+    assert _candidate_analysis(db_session, user_id="user-a", job_id=posting.id) is None
+    assert JDAnalysisService(db_session).latest(user_id="user-a", job_id=posting.id) is None
+
+
+@pytest.mark.parametrize("support", ["unsupported", "partial", "needs_confirmation"])
+def test_long_requirement_risk_preserves_full_name(support):
+    from types import SimpleNamespace
+
+    from src.domain.eligibility import EligibilityCheck, EligibilityResult
+    from src.domain.job import JobRequirement
+    from src.domain.matching import RequirementMatch
+    from src.services.jd_analysis_service import _build_risks
+    name = "完整要求" * 30
+    requirement = JobRequirement(category="required_skill", name=name, description=name)
+    match = RequirementMatch(requirement=requirement, support_level=support, explanation=name)
+    eligibility = EligibilityResult(eligible="pass", checks=[EligibilityCheck(rule_name="education", field="education", result="pass", reason="符合")])
+    risks = _build_risks(eligibility, [match], SimpleNamespace(score=100))
+    assert len(risks) == 1
+    assert len(risks[0].code) <= 100
+    assert risks[0].requirement_name == name
+    assert risks[0].detail == name

@@ -101,6 +101,15 @@ def _preference_group(eligibility: EligibilityResult) -> ScoreGroupResult:
         if check.field in {"locations", "job_type"}
     ]
     original_weight = GROUP_WEIGHTS["preferences"]
+    if not checks:
+        return ScoreGroupResult(
+            group="preferences",
+            status="not_applicable",
+            original_weight=original_weight,
+            effective_weight=0,
+            denominator=0,
+            reason="搜索条件由本次岗位搜索处理，不参与简历匹配评分",
+        )
     values = [
         1.0 if check.result == "pass" else 0.0
         for check in checks

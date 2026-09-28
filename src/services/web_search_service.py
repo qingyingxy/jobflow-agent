@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
@@ -37,8 +38,10 @@ from src.services.job_lead_service import (
     JobLeadService,
     LeadVerificationFailure,
 )
+from src.services.job_url import route_fragment
 from src.services.lead_providers import LeadCandidate
 from src.services.official_search_service import analyze_discovery_jobs
+from src.services.responses_search import ResponsesSearchProvider
 from src.services.url_reader import SafeHTTPReader
 
 WEB_SEARCH_MAX_RESULTS = 20
@@ -110,7 +113,9 @@ class BingRSSSearchProvider:
         )
 
     async def discover(self) -> list[LeadCandidate]:
+        self.last_evidence = {"actual_queries": [self.effective_query]}
         response = await self.reader.fetch(self.request_url)
+        self.last_evidence["raw_response"] = response.body.decode("utf-8", errors="replace")
         return [
             candidate
             for candidate in parse_bing_rss(
@@ -159,7 +164,8 @@ class TavilySearchProvider:
         )
 
     async def discover(self) -> list[LeadCandidate]:
-        _, payload = await self.reader.post_json(
+        self.last_evidence = {"actual_queries": [self.effective_query]}
+        response, payload = await self.reader.post_json(
             self.source_url,
             {
                 "api_key": self.api_key,
@@ -170,7 +176,10 @@ class TavilySearchProvider:
                 "include_raw_content": False,
             },
         )
-        if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+        self.last_evidence["raw_response"] = response.body.decode("utf-8", errors="replace") if hasattr(response, "body") else json.dumps(payload, ensure_ascii=False)
+        if not isinstance(payload, dict) or not isinstance(
+            payload.get("results"), list
+        ):
             raise WebSearchPayloadError("Tavily 搜索返回中缺少 results 列表")
 
         discovered_at = datetime.now(UTC)
@@ -187,7 +196,9 @@ class TavilySearchProvider:
                 provider=LeadProvider.EXTERNAL_AGENT,
                 source_url=source_url,
                 source_id=self.source_id,
-                source_job_id=hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24],
+                source_job_id=hashlib.sha256(source_url.encode("utf-8")).hexdigest()[
+                    :24
+                ],
                 title_hint=_clean_snippet_text(str(item.get("title", ""))),
                 search_snippet=_clean_snippet_text(str(item.get("content", ""))),
                 discovered_at=discovered_at,
@@ -255,8 +266,7 @@ def parse_bing_rss(raw_xml: bytes, *, max_results: int = 20) -> list[LeadCandida
         if _local_name(item.tag) != "item":
             continue
         fields = {
-            _local_name(child.tag): "".join(child.itertext()).strip()
-            for child in item
+            _local_name(child.tag): "".join(child.itertext()).strip() for child in item
         }
         source_url = _normalize_result_url(fields.get("link", ""))
         if source_url is None or source_url in seen_urls:
@@ -267,7 +277,9 @@ def parse_bing_rss(raw_xml: bytes, *, max_results: int = 20) -> list[LeadCandida
                 provider=LeadProvider.EXTERNAL_AGENT,
                 source_url=source_url,
                 source_id=WEB_SEARCH_SOURCE_ID,
-                source_job_id=hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24],
+                source_job_id=hashlib.sha256(source_url.encode("utf-8")).hexdigest()[
+                    :24
+                ],
                 title_hint=_clean_snippet_text(fields.get("title")),
                 search_snippet=_clean_snippet_text(fields.get("description")),
                 discovered_at=discovered_at,
@@ -281,7 +293,7 @@ def parse_bing_rss(raw_xml: bytes, *, max_results: int = 20) -> list[LeadCandida
 def create_web_search_provider(
     query: str,
     company_ids: list[str] | None = None,
-) -> BingRSSSearchProvider | TavilySearchProvider:
+) -> BingRSSSearchProvider | TavilySearchProvider | ResponsesSearchProvider:
     settings = get_settings()
     company_names = (
         [source.company for source in enabled_company_sources(company_ids)]
@@ -289,6 +301,19 @@ def create_web_search_provider(
         else []
     )
     provider_name = settings.web_search_provider.strip().casefold().replace("-", "_")
+    if provider_name == "responses":
+        if not settings.llm_base_url or not settings.llm_api_key:
+            raise WebSearchConfigurationError(
+                "Responses 搜索需要配置 LLM_BASE_URL 和 LLM_API_KEY"
+            )
+        return ResponsesSearchProvider(
+            query=query,
+            base_url=settings.llm_base_url,
+            api_key=settings.llm_api_key,
+            model=settings.llm_model,
+            company_names=company_names,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
     if provider_name == "auto" and settings.tavily_api_key:
         provider_name = "tavily"
     elif provider_name == "auto":
@@ -316,7 +341,7 @@ def create_web_search_provider(
         )
     if provider_name != "bing_rss":
         raise WebSearchConfigurationError(
-            "WEB_SEARCH_PROVIDER 只能是 auto、tavily 或 bing_rss"
+            "WEB_SEARCH_PROVIDER 只能是 auto、responses、tavily 或 bing_rss"
         )
 
     return BingRSSSearchProvider(
@@ -359,6 +384,13 @@ async def execute_web_search(
     query: str,
     company_ids: list[str] | None = None,
 ) -> None:
+    if get_settings().web_search_provider.strip().casefold() == "responses":
+        from src.services.multiround_search import execute_multiround_search
+
+        await execute_multiround_search(
+            run_id=run_id, user_id=user_id, query=query, company_ids=company_ids
+        )
+        return
     with SessionLocal() as session:
         run = session.get(DiscoveryRun, run_id)
         if run is None or run.user_id != user_id:
@@ -366,6 +398,10 @@ async def execute_web_search(
 
         settings = get_settings()
         sources = enabled_company_sources(company_ids)
+        # Hosted search discovers links directly; do not fill its budget with
+        # unrelated adapter fallback results before verification starts.
+        if settings.web_search_provider.strip().casefold() == "responses":
+            sources = []
         official_adapter = OfficialCompanyRegistryAdapter(
             sources=sources,
             query=query,
@@ -380,10 +416,11 @@ async def execute_web_search(
         )
         official_result = None
         try:
-            official_result = await DiscoveryService(
-                session,
-                official_adapter,
-            ).run(user_id=user_id, run=run, finalize=False)
+            if sources:
+                official_result = await DiscoveryService(
+                    session,
+                    official_adapter,
+                ).run(user_id=user_id, run=run, finalize=False)
         except DiscoveryFailure:
             session.rollback()
             run = session.get(DiscoveryRun, run_id)
@@ -402,7 +439,7 @@ async def execute_web_search(
             session.rollback()
             run = session.get(DiscoveryRun, run_id)
             if run is None or run.discovered_count == 0:
-                _finish_web_search_failure(session, run_id, error)
+                _finish_web_search_failure(session, run_id, error, provider=provider)
                 return
             web_search_error = error
             candidates = []
@@ -462,7 +499,9 @@ async def execute_web_search(
                 )
             except LeadVerificationFailure as error:
                 checked_lead = leads.get_lead(user_id=user_id, lead_id=error.lead_id)
-                status_counts[checked_lead.status] = status_counts.get(checked_lead.status, 0) + 1
+                status_counts[checked_lead.status] = (
+                    status_counts.get(checked_lead.status, 0) + 1
+                )
                 continue
             except Exception as error:  # noqa: BLE001 - preserve other leads
                 session.rollback()
@@ -478,11 +517,15 @@ async def execute_web_search(
                 continue
             matched_job_ids.add(posting.id)
             stub = JobStub(
-                source_id=posting.source_id or candidate.source_id or WEB_SEARCH_SOURCE_ID,
+                source_id=posting.source_id
+                or candidate.source_id
+                or WEB_SEARCH_SOURCE_ID,
                 source_job_id=(
                     posting.source_job_id
                     or candidate.source_job_id
-                    or hashlib.sha256(candidate.source_url.encode("utf-8")).hexdigest()[:24]
+                    or hashlib.sha256(candidate.source_url.encode("utf-8")).hexdigest()[
+                        :24
+                    ]
                 ),
                 company=posting.company,
                 title=posting.title,
@@ -500,7 +543,9 @@ async def execute_web_search(
                 new_count += 1
             else:
                 duplicate_count += 1
-            status_counts[verified.lead.status] = status_counts.get(verified.lead.status, 0) + 1
+            status_counts[verified.lead.status] = (
+                status_counts.get(verified.lead.status, 0) + 1
+            )
 
         run = session.get(DiscoveryRun, run_id)
         if run is None:
@@ -509,14 +554,17 @@ async def execute_web_search(
         run.new_count = new_count
         run.duplicate_count = duplicate_count
         run.result_matches = result_matches
-        run.failure_summary = "\n".join(
-            item for item in (run.failure_summary, *unexpected_failures) if item
-        )[:4000] or None
+        run.failure_summary = (
+            "\n".join(
+                item for item in (run.failure_summary, *unexpected_failures) if item
+            )[:4000]
+            or None
+        )
         run.agent_trace = [
             *(run.agent_trace or []),
             {
                 "phase": "act",
-                "tool": "bing_web_search",
+                "tool": provider.source_id,
                 "outcome": (
                     "failed"
                     if web_search_error is not None
@@ -534,7 +582,7 @@ async def execute_web_search(
                     if web_search_error is not None
                     else "所有结果先保存为线索，不采用搜索摘要作为岗位事实。"
                 ),
-                "source_id": WEB_SEARCH_SOURCE_ID,
+                "source_id": provider.source_id,
                 "company": None,
                 "url": provider.source_url,
                 "occurred_at": datetime.now(UTC).isoformat(),
@@ -557,9 +605,7 @@ async def execute_web_search(
                     f"已从原始页面核验 {len(result_matches)} 条岗位；"
                     f"严格匹配 {len(strict_job_ids)} 条。"
                 ),
-                "decision": (
-                    "只把原始页面事实交给模型分析；其余线索保留待核验。"
-                ),
+                "decision": ("只把原始页面事实交给模型分析；其余线索保留待核验。"),
                 "source_id": None,
                 "company": None,
                 "url": None,
@@ -599,12 +645,28 @@ async def execute_web_search(
             session,
             run_id=run_id,
             user_id=user_id,
-            job_ids=strict_job_ids,
+            job_ids=list(
+                dict.fromkeys(
+                    [
+                        *strict_job_ids,
+                        *(
+                            str(item["job_posting_id"])
+                            for item in result_matches
+                            if item.get("mismatch_labels")
+                            and all(
+                                "待确认" in label for label in item["mismatch_labels"]
+                            )
+                        ),
+                    ]
+                )
+            ),
             analysis_limit=WEB_SEARCH_ANALYSIS_LIMIT,
         )
 
 
-def _finish_web_search_failure(session: Session, run_id: str, error: Exception) -> None:
+def _finish_web_search_failure(
+    session: Session, run_id: str, error: Exception, *, provider=None
+) -> None:
     run = session.get(DiscoveryRun, run_id)
     if run is None:
         return
@@ -616,13 +678,13 @@ def _finish_web_search_failure(session: Session, run_id: str, error: Exception) 
         *(run.agent_trace or []),
         {
             "phase": "stop",
-            "tool": "bing_web_search",
+            "tool": provider.source_id if provider else "bing_web_search",
             "outcome": "failed",
             "observation": detail,
             "decision": "停止本次运行，不把未核验的搜索摘要当作岗位。",
-            "source_id": WEB_SEARCH_SOURCE_ID,
+            "source_id": provider.source_id if provider else WEB_SEARCH_SOURCE_ID,
             "company": None,
-            "url": WEB_SEARCH_SOURCE_URL,
+            "url": provider.source_url if provider else WEB_SEARCH_SOURCE_URL,
             "occurred_at": datetime.now(UTC).isoformat(),
             "duration_ms": None,
             "error_code": getattr(error, "code", "web_search_failed"),
@@ -650,7 +712,7 @@ def _normalize_result_url(value: str) -> str | None:
             parsed.netloc.casefold(),
             parsed.path or "/",
             parsed.query,
-            "",
+            route_fragment(parsed.fragment),
         )
     )
 

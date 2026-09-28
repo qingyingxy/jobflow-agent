@@ -13,6 +13,7 @@ from src.api.schemas import (
     JobLeadCreateRequest,
     JobLeadDetailRead,
     JobLeadRead,
+    LeadSelectionUpdate,
     LeadVerificationRead,
     ManualLeadHandoffRequest,
 )
@@ -102,6 +103,7 @@ def create_greenhouse_adapter(
             proxy_allow_unlisted_hosts=settings.url_fetch_proxy_allow_unlisted_hosts,
         ),
         company=company,
+        max_jobs=20,
     )
 
 
@@ -571,3 +573,72 @@ def read_discovery_run(
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="发现运行不存在")
     return DiscoveryRunRead.model_validate(run)
+
+
+@router.patch("/discovery/leads/{lead_id}/selection", response_model=JobLeadRead)
+def update_lead_selection(lead_id: str, payload: LeadSelectionUpdate, user_id: CurrentUserId, session: DatabaseSession):
+    service = JobLeadService(session)
+    try:
+        lead = service.get_lead(user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(status_code=404, detail="岗位线索不存在") from error
+    from sqlalchemy import select
+
+    from src.domain.discovery import JobLead
+    for item in session.scalars(select(JobLead).where(JobLead.user_id == user_id, JobLead.normalized_url == lead.normalized_url)):
+        item.selection_status = payload.status
+    session.commit()
+    session.refresh(lead)
+    return JobLeadRead.model_validate(lead)
+
+
+@router.get("/discovery/runs/{run_id}/search-evidence")
+def read_search_evidence(run_id: str, user_id: CurrentUserId, session: DatabaseSession):
+    from sqlalchemy import select
+
+    from src.domain.discovery import SearchEvidence
+    if DiscoveryService(session).get_run(user_id=user_id, run_id=run_id) is None:
+        raise HTTPException(status_code=404, detail="发现运行不存在")
+    records = session.scalars(select(SearchEvidence).where(
+        SearchEvidence.user_id == user_id, SearchEvidence.discovery_run_id == run_id,
+    ).order_by(SearchEvidence.created_at, SearchEvidence.id))
+    return [{"id": r.id, "query": r.query, "provider": r.provider, "status": r.status,
+             "details": r.details, "raw_response": r.raw_response} for r in records]
+
+
+@router.post("/discovery/leads/{lead_id}/expand", response_model=list[JobLeadRead])
+async def expand_recruitment_lead(lead_id: str, user_id: CurrentUserId, session: DatabaseSession):
+    import asyncio
+    from dataclasses import replace
+    from datetime import UTC, datetime
+    from urllib.parse import urlsplit
+
+    from src.services.lead_providers import LeadCandidate
+    from src.services.recruitment_entry import expand_entry
+    service = JobLeadService(session)
+    try:
+        lead = service.get_lead(user_id=user_id, lead_id=lead_id)
+    except JobLeadNotFoundError as error:
+        raise HTTPException(status_code=404, detail="岗位线索不存在") from error
+    hosts = enabled_company_source_hosts()
+    allowed = hosts | {urlsplit(lead.source_url).hostname}
+    run = DiscoveryService(session).get_run(user_id=user_id, run_id=lead.discovery_run_id) if lead.discovery_run_id else None
+    captured = []
+    candidate = LeadCandidate(provider=LeadProvider.EXTERNAL_AGENT, source_url=lead.source_url, discovered_at=datetime.now(UTC), source_id=lead.source_id)
+    def record_snapshot(url, html):
+        service._save_page_snapshot(user_id=user_id, lead_id=lead.id, url=url, raw_html=html, raw_text=None)
+    def capture_detail(link, from_url):
+        item = service.capture_candidate(user_id=user_id, discovery_run_id=lead.discovery_run_id,
+            candidate=replace(candidate, source_url=link.url, title_hint=link.text or None, search_snippet=link.text or None))
+        if urlsplit(lead.source_url).hostname in hosts:
+            service.record_official_link(user_id=user_id, lead_id=item.id, source_url=link.url,
+                entry_url=lead.source_url, from_url=from_url)
+        captured.append(JobLeadRead.model_validate(item))
+    try:
+        await asyncio.wait_for(expand_entry(lead.source_url, reader=create_lead_reader(),
+            browser=create_browser_reader(), allowed_hosts=allowed, official_hosts=hosts,
+            query=run.search_query if run else "", record_snapshot=record_snapshot, on_detail=capture_detail), timeout=50)
+    except TimeoutError:
+        if not captured:
+            raise HTTPException(status_code=504, detail="入口读取超时，已保留原链接和读取快照，可以稍后重试") from None
+    return captured

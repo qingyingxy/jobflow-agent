@@ -45,6 +45,7 @@ _LOCATION_GROUPS: tuple[tuple[str, ...], ...] = (
 )
 
 _ROLE_GROUPS: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
+    (("ai应用", "ai 应用", "人工智能应用"), ("ai应用", "ai 应用", "人工智能应用", "agent", "智能体", "rag", "大模型")),
     (("agent", "智能体"), ("agent", "智能体")),
     (
         ("llm", "大模型", "大语言模型", "large language model"),

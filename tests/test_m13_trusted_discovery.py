@@ -192,7 +192,7 @@ async def test_search_snippet_and_hints_never_become_posting_facts(db_session) -
         ),
         official_hosts={"careers.example.com"},
     )
-    verification = db_session.scalar(select(LeadVerification))
+    verification = db_session.scalar(select(LeadVerification).where(LeadVerification.result == "VERIFIED"))
 
     assert result.posting.company == "正文科技"
     assert result.posting.title == "AI 平台工程师"
@@ -236,7 +236,8 @@ async def test_concurrent_verification_has_one_owner_and_one_audit(db_session) -
 
     reader.release.set()
     await first
-    assert db_session.scalar(select(func.count(LeadVerification.id))) == 1
+    assert db_session.scalar(select(func.count(LeadVerification.id)).where(LeadVerification.result == "VERIFIED")) == 1
+    assert db_session.scalar(select(func.count(LeadVerification.id)).where(LeadVerification.result == "SNAPSHOT")) == 1
     assert db_session.scalar(select(func.count(JobPosting.id))) == 1
 
 
@@ -256,7 +257,7 @@ async def test_browser_handoff_is_read_only_verified_and_audited(db_session) -> 
         reader=browser,
         official_hosts={"careers.example.com"},
     )
-    verification = db_session.scalar(select(LeadVerification))
+    verification = db_session.scalar(select(LeadVerification).where(LeadVerification.result == "VERIFIED"))
 
     assert browser.calls == ["https://careers.example.com/jobs/dynamic-1"]
     assert result.posting.source_type == "verified_browser"

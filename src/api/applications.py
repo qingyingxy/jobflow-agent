@@ -18,7 +18,7 @@ from src.api.schemas import (
     SuggestionRead,
 )
 from src.config import get_settings
-from src.domain.analysis import JobAnalysis
+from src.domain.analysis import ANALYSIS_VERSION, JobAnalysis
 from src.domain.application import (
     APPLICATION_TRANSITIONS,
     CANDIDATE_TRANSITIONS,
@@ -84,6 +84,7 @@ def _candidate_analysis(
             JobAnalysis.user_id == user_id,
             JobAnalysis.job_posting_id == job_id,
             JobAnalysis.invalidated_at.is_(None),
+            JobAnalysis.analysis_version == ANALYSIS_VERSION,
         )
         .order_by(JobAnalysis.created_at.desc(), JobAnalysis.id.desc())
     )

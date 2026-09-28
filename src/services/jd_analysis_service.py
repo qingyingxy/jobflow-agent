@@ -186,7 +186,8 @@ class JDAnalysisService:
                 profile=profile_input,
                 preferences=preferences,
                 job=structured,
-            )
+            ),
+            include_search_preferences=False,
         )
         evidence = self._evidence_records(user_id)
         matches = match_requirements_locally(
@@ -284,7 +285,8 @@ class JDAnalysisService:
                 degree=profile.degree,
                 major=profile.major,
             ),
-            SearchPreferences.model_validate(profile.search_preferences or {}),
+            # Discovery owns search conditions; saved preferences are not qualifications.
+            SearchPreferences(),
         )
 
     def _evidence_records(self, user_id: str) -> list[EvidenceRecord]:
@@ -360,10 +362,13 @@ def _build_risks(
 
     for match in matches:
         requirement_name = match.requirement.name
+        requirement_id = hashlib.sha256(
+            json.dumps(match.requirement.model_dump(mode="json"), sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()[:24]
         if match.validation_status == "failed":
             add(
                 AnalysisRisk(
-                    code=f"evidence_validation:{requirement_name}",
+                    code=f"evidence_validation:{requirement_id}",
                     severity="medium",
                     title="证据匹配已安全降级",
                     detail="模型引用未通过事实校验，已清空非法引用并按 unsupported 处理。",
@@ -373,7 +378,7 @@ def _build_risks(
         elif match.support_level == "unsupported":
             add(
                 AnalysisRisk(
-                    code=f"evidence_missing:{requirement_name}",
+                    code=f"evidence_missing:{requirement_id}",
                     severity="high" if match.requirement.mandatory else "low",
                     title=(
                         "缺少必备要求的经历证据"
@@ -387,7 +392,7 @@ def _build_risks(
         elif match.support_level in {"partial", "needs_confirmation"}:
             add(
                 AnalysisRisk(
-                    code=f"evidence_confirmation:{requirement_name}",
+                    code=f"evidence_confirmation:{requirement_id}",
                     severity="medium" if match.requirement.mandatory else "low",
                     title="经历证据待确认",
                     detail=match.explanation,

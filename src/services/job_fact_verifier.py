@@ -46,7 +46,11 @@ def verify_page_facts(document: ParsedHTMLDocument) -> VerifiedPageFacts:
     )
     title = document.title
     locations = _unique([*document.locations, *_body_locations(text)])
-    job_type = _canonical_job_type(document.job_type) or _body_job_type(text)
+    title_type = _body_job_type(title or "")
+    job_type = (
+        title_type if title_type in {"campus", "internship"}
+        else _canonical_job_type(document.job_type) or _body_job_type(text)
+    )
     graduation_years = _graduation_years(text)
     requirements = _requirement_fragments(text)
 
@@ -62,6 +66,7 @@ def verify_page_facts(document: ParsedHTMLDocument) -> VerifiedPageFacts:
             for location in locations
         ],
         "job_type": _job_type_evidence(job_type, text, document.job_type),
+        "job_type_title": _scalar_evidence(title, text, fallback_kind="heading") if title_type else None,
         "graduation_years": [
             _scalar_evidence(str(year), text, fallback_kind="body")
             for year in graduation_years

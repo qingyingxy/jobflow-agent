@@ -85,7 +85,7 @@ class DiscoveryPlanBudget(BaseModel):
     max_analysis: int = Field(ge=0, le=5)
     max_detail_links_per_source: int | None = Field(default=None, ge=1, le=20)
     max_concurrency: int | None = Field(default=None, ge=1, le=20)
-    request_timeout_seconds: float | None = Field(default=None, gt=0, le=60)
+    request_timeout_seconds: float | None = Field(default=None, gt=0, le=180)
 
 
 class DiscoverySearchPlan(BaseModel):
@@ -129,6 +129,7 @@ class JobLead(Base):
     """A discovered URL or adapter result that must be verified before use."""
 
     __tablename__ = "job_leads"
+    selection_status: Mapped[str] = mapped_column(String(20), nullable=False, default="DISCOVERED", server_default="DISCOVERED")
     __table_args__ = (
         UniqueConstraint(
             "discovery_run_id",
@@ -152,6 +153,7 @@ class JobLead(Base):
     company_hint: Mapped[str | None] = mapped_column(String(160), nullable=True)
     title_hint: Mapped[str | None] = mapped_column(String(160), nullable=True)
     search_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)
+    extracted_fields: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict, server_default=text("'{}'"))
     status: Mapped[str] = mapped_column(
         String(32),
         nullable=False,
@@ -223,6 +225,21 @@ class LeadVerification(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+
+class SearchEvidence(Base):
+    """Full provider response and per-query metrics, separate from UI traces."""
+
+    __tablename__ = "search_evidence"
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    discovery_run_id: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    query: Mapped[str] = mapped_column(Text, nullable=False)
+    provider: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    raw_response: Mapped[str | None] = mapped_column(Text, nullable=True)
+    details: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class DiscoveryRun(Base):

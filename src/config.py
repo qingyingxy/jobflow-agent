@@ -26,6 +26,13 @@ class Settings(BaseSettings):
     oidc_http_timeout_seconds: float = 5.0
     discovery_run_timeout_seconds: int = 3600
     web_search_provider: str = "auto"
+    web_search_max_rounds: int = 6
+    web_search_budget_seconds: int = 300
+    web_search_target_jobs: int = 15
+    web_search_verification_budget_seconds: int = 180
+    web_search_verification_item_seconds: int = 60
+    web_search_entry_limit: int = 8
+    web_search_entry_max_pages: int = 6
     tavily_api_key: str | None = None
     ats_authorization_ttl_seconds: int = 600
     log_level: str = "INFO"
@@ -40,8 +47,8 @@ class Settings(BaseSettings):
     llm_max_retries: int = 2
     llm_retry_backoff_seconds: float = 1.5
     parser_validation_retries: int = 1
-    product_prompt_version: str = "product-jd-two-stage-v6"
-    product_parser_version: str = "product-jd-parser-v3"
+    product_prompt_version: str = "product-jd-two-stage-v7"
+    product_parser_version: str = "product-jd-parser-v4"
     prompt_version: str = "jd-parser-prompt-v4"
     parser_version: str = "jd-parser-v3"
     core_prompt_version: str = "jd-core-parser-prompt-v24"
@@ -51,6 +58,9 @@ class Settings(BaseSettings):
     staged_parser_version: str = "jd-staged-parser-v17"
     llm_api_key: str | None = None
     llm_model: str = "gpt-4.1-mini"
+    vision_fallback_enabled: bool = True
+    vision_model: str | None = None
+    vision_timeout_seconds: float = 30.0
 
     model_config = SettingsConfigDict(
         env_file=".env",

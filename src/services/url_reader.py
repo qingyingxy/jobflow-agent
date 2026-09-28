@@ -14,6 +14,8 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import httpx
 
+from src.services.job_url import route_fragment
+
 
 class URLReaderError(RuntimeError):
     code = "url_read_failed"
@@ -115,7 +117,7 @@ class URLSafetyChecker:
             normalized_netloc = f"{host}:{port}"
         normalized_path = parsed.path or "/"
         return urlunsplit(
-            (scheme, normalized_netloc, normalized_path, parsed.query, "")
+            (scheme, normalized_netloc, normalized_path, parsed.query, route_fragment(parsed.fragment))
         )
 
     def _is_proxy_allowed_host(self, host: str, *, scheme: str) -> bool:
@@ -412,7 +414,7 @@ def extract_html_links(raw_html: str, *, base_url: str) -> list[HTMLLink]:
     links: list[HTMLLink] = []
     seen: set[str] = set()
     for href, text in parser.links:
-        if href.startswith(("#", "javascript:", "mailto:", "tel:", "data:")):
+        if (href.startswith("#") and not href.startswith(("#/", "#!/"))) or href.startswith(("javascript:", "mailto:", "tel:", "data:")):
             continue
         absolute = urljoin(base_url, href)
         try:
@@ -427,7 +429,7 @@ def extract_html_links(raw_html: str, *, base_url: str) -> list[HTMLLink]:
                 parsed.netloc.lower(),
                 parsed.path or "/",
                 parsed.query,
-                "",
+                route_fragment(parsed.fragment),
             )
         )
         if normalized in seen:

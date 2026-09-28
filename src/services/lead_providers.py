@@ -21,6 +21,7 @@ class LeadCandidate:
     title_hint: str | None = None
     search_snippet: str | None = None
     verification_stub: JobStub | None = None
+    official_entry_url: str | None = None
 
 
 class LeadProvider(Protocol):

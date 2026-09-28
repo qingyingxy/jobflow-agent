@@ -255,6 +255,7 @@ async function installApiFixture(page: Page) {
         company_hint: payload.company_hint,
         title_hint: payload.title_hint,
         search_snippet: payload.search_snippet,
+        discovery_kind: "job",
         status: "NEW",
         job_posting_id: null,
         failure_code: null,
@@ -391,6 +392,22 @@ async function installApiFixture(page: Page) {
       });
       return;
     }
+    if (url.pathname === "/api/jobs/job-lead" && request.method() === "GET") {
+      await route.fulfill({
+        headers: jsonHeaders,
+        json: {
+          id: "job-lead",
+          company: "示例科技",
+          title: "AI Agent 工程师",
+          raw_content: "岗位职责：负责 AI Agent 产品研发。任职要求：熟悉 Python、LLM 和软件工程。",
+        },
+      });
+      return;
+    }
+    if (url.pathname === "/api/jobs/job-lead/analysis" && request.method() === "GET") {
+      await route.fulfill({ headers: jsonHeaders, json: handoffAnalysis });
+      return;
+    }
     if (url.pathname === "/api/discovery/search" && request.method() === "POST") {
       searchStarted = true;
       await route.fulfill({
@@ -432,21 +449,23 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   }
   await page.getByRole("button", { name: "搜索并分析" }).click();
 
-  await expect(page.locator(".discovery-message")).toContainText("严格匹配 1 条");
-  await expect(page.getByText("混元 AI Agent 工程师 - 校园招聘")).toBeVisible();
-  await expect(page.getByText("Senior Platform Architect - Enterprise AI Agent")).toBeHidden();
+  await expect(page.locator(".discovery-message")).toContainText("找到 2 个具体岗位");
+  const table = page.locator(".jobs-table");
+  await expect(table.getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
+  await table.getByRole("button", { name: "展开字节跳动" }).click();
+  await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toBeVisible();
+  await expect(table.locator(".jobs-company-rows").first()).toContainText("腾讯");
+  await expect(table.getByText("地点不匹配；非校招")).toBeVisible();
   if (process.env.UPDATE_DEMO_ASSETS === "1") {
-    await page.getByRole("heading", { name: "严格匹配" }).scrollIntoViewIfNeeded();
+    await table.scrollIntoViewIfNeeded();
     await page.screenshot({ path: "test-results/demo-02-strict.png" });
   }
 
-  const expanded = page.locator("details.discovery-expanded-results");
-  await expect(expanded.getByText("拓展候选 / 01", { exact: false })).toBeVisible();
-  await expanded.locator("summary").click();
-  await expect(page.getByText("Senior Platform Architect - Enterprise AI Agent")).toBeVisible();
-  await expect(expanded.getByText("地点不匹配", { exact: true })).toBeVisible();
-  await expect(expanded.getByText("非校招", { exact: true })).toBeVisible();
-  await expect(expanded.getByRole("button", { name: "手动分析 ↗" })).toBeVisible();
+  await page.getByRole("checkbox", { name: "只看符合本次条件的岗位" }).check();
+  await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toHaveCount(0);
+  await expect(table.getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
+  await page.getByRole("checkbox", { name: "只看符合本次条件的岗位" }).uncheck();
+  await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toBeVisible();
 
   await page.locator("summary.discovery-history-heading").click();
   const trace = page.locator("details.discovery-agent-trace");
@@ -456,7 +475,7 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   await expect(trace.getByText("无事实时人工接管")).toBeVisible();
 
   if (process.env.UPDATE_DEMO_ASSETS === "1") {
-    await page.getByText("Senior Platform Architect - Enterprise AI Agent").scrollIntoViewIfNeeded();
+    await table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: "test-results/demo-03-expanded.png" });
     await page.locator(".discovery-shell").screenshot({
       path: "../docs/assets/jobflow-discovery-demo.png",
@@ -478,15 +497,18 @@ test("existing analysis opens as a discovery detail and returns to the list", as
     company_ids: null,
   });
 
-  const strictCard = page.locator(".discovery-card").filter({ hasText: "混元 AI Agent 工程师 - 校园招聘" });
-  await strictCard.getByRole("button", { name: /查看.*分析/ }).click();
+  await page.locator(".jobs-table").getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" }).click();
+  const detail = page.getByRole("dialog", { name: "岗位详情" });
+  await expect(detail.getByRole("heading", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
+  await expect(detail.getByText("岗位职责：负责 AI Agent 产品研发", { exact: false })).toBeVisible();
+  await detail.getByRole("button", { name: "打开完整匹配与申请" }).click();
 
   await expect(page.getByRole("heading", { name: "岗位匹配详情" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
   await page.getByRole("button", { name: "返回岗位列表" }).click();
 
   await expect(page.getByRole("heading", { name: "发现适合你的岗位" })).toBeVisible();
-  await expect(page.getByText("混元 AI Agent 工程师 - 校园招聘", { exact: true })).toBeVisible();
+  await expect(page.locator(".jobs-table").getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
 });
 
 test("submitted job lead stays untrusted until verification succeeds", async ({ page }, testInfo) => {
@@ -500,22 +522,24 @@ test("submitted job lead stays untrusted until verification succeeds", async ({ 
   await page.getByRole("button", { name: /保存线索/ }).click();
 
   await expect(page.getByText("岗位线索已保存")).toBeVisible();
-  await expect(page.locator(".job-lead-row").getByText("待验证", { exact: true })).toBeVisible();
-  await expect(page.getByText("AI Agent 工程师", { exact: true })).toBeVisible();
-  await expect(page.locator(".discovery-card")).toHaveCount(0);
+  const table = page.locator(".jobs-table");
+  const leadRow = table.getByRole("row", { name: /AI Agent 工程师/ });
+  await expect(leadRow).toContainText("待验证");
+  await expect(leadRow).toContainText("条件尚未确认");
+  await expect(table.getByRole("button", { name: "AI Agent 工程师" })).toBeVisible();
   if (process.env.UPDATE_M13_ASSETS === "1") {
     await page.locator(".job-lead-section").screenshot({
       path: `test-results/m13-lead-queue-${testInfo.project.name}.png`,
     });
   }
 
-  await page.getByRole("button", { name: "验证正文" }).click();
+  await leadRow.getByRole("button", { name: "验证正文" }).click();
 
   await expect(page.getByText("岗位已进入可信候选池", { exact: false })).toBeVisible();
-  await expect(page.locator(".discovery-card").getByText("AI Agent 工程师", { exact: true })).toBeVisible();
-  await expect(page.getByText("页面正文已验证", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: /已验证/ }).click();
-  await expect(page.locator(".job-lead-row").getByText("已验证", { exact: true })).toBeVisible();
+  const candidateRow = table.getByRole("row", { name: /AI Agent 工程师/ });
+  await expect(candidateRow).toContainText("正文已核验");
+  await candidateRow.getByRole("button", { name: "AI Agent 工程师" }).click();
+  await expect(page.getByRole("dialog", { name: "岗位详情" }).getByText("岗位职责：负责 AI Agent 产品研发", { exact: false })).toBeVisible();
   if (process.env.UPDATE_M13_ASSETS === "1") {
     await page.locator(".job-lead-section").screenshot({
       path: `test-results/m13-lead-verified-${testInfo.project.name}.png`,
@@ -531,11 +555,12 @@ test("dynamic lead manual handoff remains linked through analysis", async ({ pag
   await page.getByLabel("公司提示（可选）").fill("示例科技");
   await page.getByLabel("岗位提示（可选）").fill("AI Agent 工程师");
   await page.getByRole("button", { name: /保存线索/ }).click();
-  await page.getByRole("button", { name: "验证正文" }).click();
+  const leadRow = page.locator(".jobs-table").getByRole("row", { name: /AI Agent 工程师/ });
+  await leadRow.getByRole("button", { name: "验证正文" }).click();
 
-  await expect(page.locator(".job-lead-row").getByText("需要浏览器", { exact: true })).toBeVisible();
-  await expect(page.getByText("页面依赖 JavaScript", { exact: false }).first()).toBeVisible();
-  await page.getByRole("button", { name: "粘贴 JD 接管" }).click();
+  await expect(leadRow).toContainText("需要浏览器");
+  await expect(leadRow).toContainText("页面依赖 JavaScript");
+  await leadRow.getByRole("button", { name: "粘贴 JD 接管" }).click();
 
   await expect(page.getByRole("heading", { name: "补充岗位原文" })).toBeVisible();
   await expect(page.getByText("正在补充一条无法自动读取的岗位", { exact: true })).toBeVisible();
@@ -556,13 +581,15 @@ test("dynamic lead can use read-only browser verification", async ({ page }) => 
   await page.getByLabel("公司提示（可选）").fill("示例科技");
   await page.getByLabel("岗位提示（可选）").fill("AI Agent 工程师");
   await page.getByRole("button", { name: /保存线索/ }).click();
-  await page.getByRole("button", { name: "验证正文" }).click();
+  const table = page.locator(".jobs-table");
+  const leadRow = table.getByRole("row", { name: /AI Agent 工程师/ });
+  await leadRow.getByRole("button", { name: "验证正文" }).click();
 
-  await expect(page.getByRole("button", { name: "浏览器验证" })).toBeVisible();
-  await page.getByRole("button", { name: "浏览器验证" }).click();
+  await expect(leadRow.getByRole("button", { name: "浏览器验证" })).toBeVisible();
+  await leadRow.getByRole("button", { name: "浏览器验证" }).click();
 
   await expect(page.getByText("浏览器验证完成", { exact: false })).toBeVisible();
-  await expect(page.locator(".discovery-card").getByText("AI Agent 工程师", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "检查开放状态" }).click();
+  await table.getByRole("button", { name: "AI Agent 工程师" }).click();
+  await page.getByRole("dialog", { name: "岗位详情" }).getByRole("button", { name: "检查开放状态" }).click();
   await expect(page.getByText("开放状态检查完成：开放中", { exact: false })).toBeVisible();
 });

@@ -152,12 +152,16 @@ class GreenhouseAdapter:
         board_token: str,
         reader: SafeHTTPReader,
         company: str | None = None,
+        max_jobs: int | None = None,
+        query: str = "",
     ) -> None:
         self.source_url = source_url
         self.board_token = board_token
         self.reader = reader
         self.company_override = company.strip() if company else None
         self.source_id = f"greenhouse:{board_token}"
+        self.max_jobs = max(1, min(max_jobs, 20)) if max_jobs is not None else None
+        self.query = query
 
     @classmethod
     def from_board_url(
@@ -166,6 +170,8 @@ class GreenhouseAdapter:
         *,
         reader: SafeHTTPReader | None = None,
         company: str | None = None,
+        max_jobs: int | None = None,
+        query: str = "",
     ) -> GreenhouseAdapter:
         board_token = cls._board_token(source_url)
         return cls(
@@ -173,6 +179,8 @@ class GreenhouseAdapter:
             board_token=board_token,
             reader=reader or SafeHTTPReader(),
             company=company,
+            max_jobs=max_jobs,
+            query=query,
         )
 
     @property
@@ -209,7 +217,8 @@ class GreenhouseAdapter:
         )
 
     async def list_jobs(self) -> list[JobStub]:
-        _, payload = await self.reader.fetch_json(f"{self.api_base_url}/jobs?content=true")
+        suffix = "" if self.max_jobs is not None else "?content=true"
+        _, payload = await self.reader.fetch_json(f"{self.api_base_url}/jobs{suffix}")
         if not isinstance(payload, dict) or not isinstance(payload.get("jobs"), list):
             raise SourcePayloadError("Greenhouse 返回中缺少 jobs 列表")
 
@@ -219,6 +228,9 @@ class GreenhouseAdapter:
                 jobs.append(self._to_stub(item))
             except (KeyError, TypeError, ValueError) as error:
                 raise SourcePayloadError("Greenhouse 岗位字段格式无效") from error
+        if self.max_jobs is not None:
+            selected = _rank_official_jobs(jobs, query=self.query)[:self.max_jobs]
+            return list(await asyncio.gather(*(self.fetch_job(job.source_job_id) for job in selected)))
         return jobs
 
     async def fetch_job(self, source_job_id: str) -> JobStub:
@@ -565,6 +577,9 @@ class TencentAdapter:
     def _payload_jobs(self, payload: object, *, job_type: str) -> list[JobStub]:
         data = self._payload_data(payload)
         items = data.get("Posts")
+        # The live API represents an empty recruitment category as null.
+        if items is None and data.get("Count") == 0:
+            return []
         if not isinstance(items, list):
             raise SourcePayloadError("腾讯岗位搜索缺少 Posts")
         jobs: list[JobStub] = []
@@ -1590,7 +1605,7 @@ def _unique(values: list[str]) -> list[str]:
 
 def _job_type(parsed_type: str | None, title: str | None, content: str) -> str:
     text = " ".join(item for item in [parsed_type, title, content] if item).casefold()
-    if any(keyword in text for keyword in ("intern", "实习")):
+    if "实习" in text or re.search(r"\bintern(?:s|ship|ships)?\b", text):
         return "internship"
     if any(keyword in text for keyword in ("campus", "校招", "应届")):
         return "campus"

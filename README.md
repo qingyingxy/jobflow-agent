@@ -174,6 +174,16 @@ LLM_API_KEY=your-api-key
 LLM_MODEL=your-model
 ```
 
+服务商支持 Responses 内置 `web_search` 时，设置 `WEB_SEARCH_PROVIDER=responses`。
+搜索复用上述模型配置，请求 `/responses`，无需 Tavily 密钥。该模式将原始条件、方向与城市、公司官网和同义岗位拆成独立查询；重复或空结果会优先切换查询策略。
+默认最多 6 条查询、搜索预算 300 秒；搜索生产队列与正文核验消费队列独立推进，搜索结束后最多继续核验 180 秒，每个页面任务最多 60 秒。
+配置项为 `WEB_SEARCH_MAX_ROUNDS`、`WEB_SEARCH_BUDGET_SECONDS`、`WEB_SEARCH_VERIFICATION_BUDGET_SECONDS`、`WEB_SEARCH_VERIFICATION_ITEM_SECONDS`；有效候选目标由 `WEB_SEARCH_TARGET_JOBS` 控制。
+招聘入口默认最多展开 8 个，每个最多 6 页（`WEB_SEARCH_ENTRY_LIMIT`、`WEB_SEARCH_ENTRY_MAX_PAGES`）。支持观察到的列表链接、下一页链接及明确的下一页/加载更多按钮；登录、验证码和申请操作不会自动执行。
+官网跳转至支持的企业 ATS 时保存出链证据，仅信任观察到的具体岗位 URL，不能把共享 ATS 域名整体视为某公司的官网。保留 `#/job/...` 等 SPA 路由，普通页面锚点和搜索跟踪参数参与去重时移除。
+搜索历史展示每条查询、实际查询（服务商有返回时）、新增/重复链接、具体岗位数、耗时及失败原因。完整响应与查询证据保存在 `search_evidence`，通过有用户权限校验的 `GET /api/discovery/runs/{run_id}/search-evidence` 获取，并纳入账户导出/删除。
+响应即使未整体完成，只要有已完成的真实联网搜索记录，仍保留可用链接与来源并标记部分结果。摘要不会变成已核验 JD；原始正文核验成功后才进入 JD 解析。兼容网关明确不支持 sources include 参数时只重试一次，并保留拒绝响应。
+搜索与核验预算不含随后最多 5 条 JD 分析。达到预算后保留已有线索，不保证岗位数量或全网覆盖。
+
 `.env`、本地数据库、私密材料和评测原始输出均已排除在版本控制之外。
 
 ## 验证

@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from sqlalchemy import JSON, DateTime, Index, Integer, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src.domain.graduation import GraduationConditionKind
 from src.infrastructure.database import Base
 
 
@@ -330,6 +331,8 @@ class StructuredJobDescription(BaseModel):
     title: str | None = None
     job_type: Literal["campus", "internship", "full_time", "part_time", "unknown"] | None = None
     graduation_years: list[int] | None = None
+    graduation_condition_kind: GraduationConditionKind | None = None
+    graduation_source_text: str | None = None
     recruitment_batch: str | None = None
     locations: list[str] | None = None
     education_requirements: list[str] | None = None

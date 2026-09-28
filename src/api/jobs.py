@@ -31,7 +31,7 @@ from src.services.job_parse_service import (
     JobParseService,
 )
 from src.services.job_service import JobImportService
-from src.services.product_jd_parser import ProductJDParser
+from src.services.product_jd_runtime_parser import ProductJDParser
 from src.services.url_reader import (
     SafeHTTPReader,
     URLFetchTimeout,

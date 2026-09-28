@@ -195,6 +195,7 @@ class JobLeadRead(BaseModel):
     company_hint: str | None
     title_hint: str | None
     search_snippet: str | None
+    extracted_fields: dict[str, object] = Field(default_factory=dict)
     status: JobLeadStatus
     next_action: str
     job_posting_id: str | None
@@ -204,6 +205,22 @@ class JobLeadRead(BaseModel):
     verified_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+    discovery_kind: Literal["job", "entry"] = "entry"
+    source_label: str = "来源待核实"
+    selection_status: Literal["DISCOVERED", "SAVED", "IGNORED"] = "DISCOVERED"
+
+    @model_validator(mode="after")
+    def describe_discovered_link(self):
+        from src.services.lead_presentation import discovery_kind, source_label
+        self.discovery_kind = "job" if self.job_posting_id else discovery_kind(self.source_url, self.extracted_fields.get("title") or self.title_hint)
+        self.source_label = source_label(self.source_url)
+        return self
+
+
+class LeadSelectionUpdate(BaseModel):
+    status: Literal["DISCOVERED", "SAVED", "IGNORED"]
 
 
 class JobLeadDetailRead(JobLeadRead):

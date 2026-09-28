@@ -4,18 +4,23 @@ from collections.abc import Sequence
 
 from src.domain.job import JobRequirement
 from src.domain.matching import EvidenceRecord, RequirementMatch
+from src.domain.skill_normalizer import extract_skill_matches
 from src.services.eligibility_checker import normalize_text
 from src.services.evidence_retriever import canonical_skill, skill_mentions
 
 
 def _record_supports(item: str, evidence: EvidenceRecord) -> bool:
     evidence_text = f"{evidence.title} {evidence.claim} {' '.join(evidence.skills)}"
-    item_skills = skill_mentions(item)
+    item_skills = skill_mentions(item) | {
+        canonical_skill(match.canonical) for match in extract_skill_matches(item)
+    }
     evidence_skills = skill_mentions(evidence_text) | {
+        canonical_skill(match.canonical) for match in extract_skill_matches(evidence_text)
+    } | {
         canonical_skill(skill) for skill in evidence.skills
     }
-    if item_skills and item_skills & evidence_skills:
-        return True
+    if item_skills:
+        return item_skills <= evidence_skills
 
     normalized_item = normalize_text(item)
     normalized_evidence = normalize_text(evidence_text)
