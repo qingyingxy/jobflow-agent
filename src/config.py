@@ -1,5 +1,7 @@
 from functools import lru_cache
+from typing import Literal
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,13 +28,22 @@ class Settings(BaseSettings):
     oidc_http_timeout_seconds: float = 5.0
     discovery_run_timeout_seconds: int = 3600
     web_search_provider: str = "auto"
+    web_search_decision_mode: Literal["rule", "agent"] = "rule"
+    web_search_decision_max_calls: int = Field(default=6, ge=0, le=20)
+    web_search_decision_timeout_seconds: float = Field(default=12, gt=0, le=60)
+    web_search_role_review_enabled: bool = True
+    web_search_role_review_max_calls: int = Field(default=12, ge=0, le=30)
+    web_search_role_review_timeout_seconds: float = Field(default=15, gt=0, le=60)
     web_search_max_rounds: int = 6
     web_search_budget_seconds: int = 300
+    web_search_request_timeout_seconds: float = Field(default=60, gt=0, le=120)
+    web_search_transient_retries: int = Field(default=1, ge=0, le=2)
     web_search_target_jobs: int = 15
     web_search_verification_budget_seconds: int = 180
     web_search_verification_item_seconds: int = 60
     web_search_entry_limit: int = 8
     web_search_entry_max_pages: int = 6
+    web_search_entry_max_details: int = Field(default=20, ge=1, le=100)
     tavily_api_key: str | None = None
     ats_authorization_ttl_seconds: int = 600
     log_level: str = "INFO"
@@ -47,8 +58,14 @@ class Settings(BaseSettings):
     llm_max_retries: int = 2
     llm_retry_backoff_seconds: float = 1.5
     parser_validation_retries: int = 1
-    product_prompt_version: str = "product-jd-two-stage-v7"
-    product_parser_version: str = "product-jd-parser-v4"
+    product_parse_mode: Literal["two_stage", "single_call"] = "two_stage"
+    product_prompt_version: str = "product-jd-two-stage-v10"
+    product_single_call_prompt_version: str = "product-jd-single-call-v1"
+    product_parser_version: str = "product-jd-parser-v8"
+    # Semantic matching sends structured experience to the configured model.
+    # Keep local matching until the operator explicitly opts in.
+    evidence_matching_mode: Literal["semantic", "local"] = "local"
+    evidence_matching_timeout_seconds: float = Field(default=60, gt=0, le=120)
     prompt_version: str = "jd-parser-prompt-v4"
     parser_version: str = "jd-parser-v3"
     core_prompt_version: str = "jd-core-parser-prompt-v24"

@@ -2,29 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from src.domain.eligibility import CandidateProfileInput, EligibilityCheck
 from src.domain.job import JobRequirement
 from src.domain.matching import EvidenceRecord, RequirementMatch
-from src.domain.skill_normalizer import extract_skill_matches
-from src.services.eligibility_checker import normalize_text
-from src.services.evidence_retriever import canonical_skill, skill_mentions
-
-
-def _record_supports(item: str, evidence: EvidenceRecord) -> bool:
-    evidence_text = f"{evidence.title} {evidence.claim} {' '.join(evidence.skills)}"
-    item_skills = skill_mentions(item) | {
-        canonical_skill(match.canonical) for match in extract_skill_matches(item)
-    }
-    evidence_skills = skill_mentions(evidence_text) | {
-        canonical_skill(match.canonical) for match in extract_skill_matches(evidence_text)
-    } | {
-        canonical_skill(skill) for skill in evidence.skills
-    }
-    if item_skills:
-        return item_skills <= evidence_skills
-
-    normalized_item = normalize_text(item)
-    normalized_evidence = normalize_text(evidence_text)
-    return len(normalized_item) >= 2 and normalized_item in normalized_evidence
+from src.services.education_evaluator import evaluate_education
+from src.services.ordinary_requirement_evaluator import assess_item, requirement_sources
 
 
 def match_requirement_locally(
@@ -32,64 +14,84 @@ def match_requirement_locally(
     user_id: str,
     requirement: JobRequirement,
     evidence: Sequence[EvidenceRecord],
+    profile: CandidateProfileInput | None = None,
+    education_checks: Sequence[EligibilityCheck] | None = None,
 ) -> RequirementMatch:
     """Match only explicit local evidence; abstain when support is unclear."""
 
-    records = [item for item in evidence if item.user_id == user_id]
-    requirement_items = requirement.items or [requirement.name]
-    matched_by_item: dict[str, EvidenceRecord] = {}
-    for requirement_item in requirement_items:
-        for record in records:
-            if _record_supports(requirement_item, record):
-                matched_by_item[requirement_item] = record
-                break
-
-    matched_items = list(matched_by_item)
-    evidence_ids = list(
-        dict.fromkeys(record.id for record in matched_by_item.values())
-    )
-    if requirement.relation == "uncertain":
+    if requirement.education is not None:
+        # Analysis supplies the qualification result so global graduation scope
+        # and this requirement's match cannot disagree.
+        check = next(
+            (
+                check
+                for check in education_checks or []
+                if check.requirement_source_text == requirement.description
+            ),
+            None,
+        )
+        if check is not None:
+            return RequirementMatch(
+                requirement=requirement,
+                support_level={
+                    "pass": "supported",
+                    "fail": "unsupported",
+                    "unknown": "needs_confirmation",
+                }[check.result],
+                education_evidence=check.education_evidence,
+                explanation=check.reason,
+            )
+        result = evaluate_education(
+            requirement.education, profile or CandidateProfileInput()
+        )
         return RequirementMatch(
             requirement=requirement,
-            support_level="needs_confirmation",
-            evidence_ids=evidence_ids,
-            explanation=(
-                "岗位原文中的条件关系无法可靠确定，请先人工确认是全部满足还是任选其一。"
-            ),
+            support_level={
+                "pass": "supported",
+                "fail": "unsupported",
+                "unknown": "needs_confirmation",
+            }[result.result],
+            education_evidence=result.evidence,
+            explanation=result.reason,
         )
-    any_option_supported = requirement.relation == "any_of" and bool(matched_items)
-    all_options_supported = (
-        requirement.relation == "all_of"
-        and len(matched_items) == len(requirement_items)
-    )
-    if any_option_supported or all_options_supported:
+
+    records = [item for item in evidence if item.user_id == user_id]
+    sources, relation_known = requirement_sources(requirement)
+    checks = [assess_item(source, records) for source in sources]
+    for check in checks:
+        check.condition_text = check.source_text
+        check.source_text = requirement.description
+        if not relation_known:
+            if check.support_level == "supported":
+                check.support_level = "partial"
+            check.unresolved.append("分支或限定范围尚未与原文可靠对应")
+    supported = [check for check in checks if check.support_level == "supported"]
+    evidence_ids = list(dict.fromkeys(eid for check in checks for eid in check.evidence_ids))
+    if not relation_known:
+        support_level = "needs_confirmation"
+        explanation = "条件关系或限定范围尚不能可靠执行，已保留原文并继续分析其他要求。"
+    elif (requirement.relation == "any_of" and supported) or (
+        requirement.relation == "all_of" and checks and len(supported) == len(checks)
+    ):
         support_level = "supported"
-    elif matched_items:
+        explanation = "当前经历完整支持：" + "、".join(c.condition_text for c in supported) + "。"
+    elif any(check.evidence_ids for check in checks):
         support_level = "partial"
+        skills = sorted({skill for check in checks for skill in check.matched_skills})
+        explanation = (
+            ("已找到相关技能证据：" + "、".join(skills) + "；" if skills else "已找到部分证据；")
+            + "以下条件尚缺完整证据："
+            + "、".join(c.condition_text for c in checks if c.support_level != "supported")
+            + "。不会据此认定整条要求已满足，可继续查看其他匹配结果。"
+        )
     else:
         support_level = "needs_confirmation"
-
-    if support_level == "supported":
-        explanation = (
-            f"当前经历明确支持：{'、'.join(matched_items)}。"
-            "结论仅来自已保存的用户证据。"
-        )
-    elif support_level == "partial":
-        missing = [item for item in requirement_items if item not in matched_by_item]
-        explanation = (
-            f"当前经历支持：{'、'.join(matched_items)}；"
-            f"仍需确认：{'、'.join(missing)}。"
-        )
-    else:
-        explanation = (
-            "当前结构化经历中没有找到足以确认该要求的直接证据，"
-            "这不代表用户一定不具备，请人工确认。"
-        )
-
+        explanation = "当前经历尚无足够的直接证据，已保留为信息不足；可继续分析，有补充资料时再更新。"
     return RequirementMatch(
         requirement=requirement,
         support_level=support_level,
         evidence_ids=evidence_ids,
+        item_checks=checks,
         explanation=explanation,
     )
 
@@ -99,12 +101,16 @@ def match_requirements_locally(
     user_id: str,
     requirements: Sequence[JobRequirement] | None,
     evidence: Sequence[EvidenceRecord],
+    profile: CandidateProfileInput | None = None,
+    education_checks: Sequence[EligibilityCheck] | None = None,
 ) -> list[RequirementMatch]:
     return [
         match_requirement_locally(
             user_id=user_id,
             requirement=requirement,
             evidence=evidence,
+            profile=profile,
+            education_checks=education_checks,
         )
         for requirement in requirements or []
     ]

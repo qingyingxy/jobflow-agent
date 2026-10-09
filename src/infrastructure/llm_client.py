@@ -140,6 +140,13 @@ class DemoModelClient:
             output = _demo_product_job_extraction(request)
         elif request.schema_name == "product_requirement_relations":
             output = _demo_product_requirement_relations(request)
+        elif request.schema_name == "product_job_combined":
+            extraction = _demo_product_job_extraction(request)
+            output = {"extraction": extraction, "relations": {"decisions": [
+                {"requirement_index": index, "relation": "all_of", "items": [item["source_text"]],
+                 "reason": "演示客户端保守地保留完整条件。", "education": None}
+                for index, item in enumerate(extraction["requirements"])
+            ]}}
         elif request.schema_name == "core_job_fields":
             output = _demo_core_job_fields(request)
         elif request.schema_name == "detail_job_fields":

@@ -126,6 +126,8 @@ class DiscoveryService:
             self._mark_failed(run.id, error)
             raise self._failure(run.id, error) from error
 
+        from src.services.job_role_review import JobRoleReviewer
+        role_reviewer = JobRoleReviewer(get_settings())
         validation_started = perf_counter()
         failures: list[str] = []
         result_matches: list[dict[str, object]] = []
@@ -150,7 +152,8 @@ class DiscoveryService:
                 created = verified.posting_created
                 job_id = verified.posting.id
                 self.processed_job_ids.append(job_id)
-                match = classify_discovery_job(stub, query=run.search_query)
+                role_review = await role_reviewer.review(stub, query=run.search_query, session=self.session, user_id=user_id, lead_id=lead.id)
+                match = classify_discovery_job(stub, query=run.search_query, role_review=role_review)
                 result_matches.append(match.as_dict(job_posting_id=job_id))
                 if match.match_tier == "strict":
                     self.analysis_job_ids.append(job_id)
@@ -158,6 +161,12 @@ class DiscoveryService:
                     new_count += 1
                 else:
                     duplicate_count += 1
+                # Publish each verified result while the remaining work continues.
+                run.discovered_count = len(candidates)
+                run.new_count = new_count
+                run.duplicate_count = duplicate_count
+                run.result_matches = list(result_matches)
+                self.session.commit()
             except Exception as error:  # noqa: BLE001 - continue collecting other jobs
                 self.session.rollback()
                 failures.append(self._item_failure(index, stub, error))
@@ -195,18 +204,18 @@ class DiscoveryService:
             run.agent_trace = [
                 *run.agent_trace,
                 {
-                    "phase": "human_gate",
-                    "tool": "manual_jd_input",
+                    "phase": "stop",
+                    "tool": "empty_search_result",
                     "outcome": "recommended",
                     "observation": "本次没有获得可验证的具体岗位。",
-                    "decision": "请用户粘贴具体 JD，继续进入证据分析闭环。",
+                    "decision": "保留本次搜索记录，可以调整条件重新搜索。",
                     "source_id": None,
                     "company": None,
                     "url": None,
                     "occurred_at": datetime.now(UTC).isoformat(),
                     "duration_ms": None,
                     "error_code": None,
-                    "details": {"requires_human_input": True},
+                    "details": {"requires_human_input": False},
                 },
             ]
         should_analyze = bool(getattr(self.adapter, "auto_analyze_top", False))
@@ -443,11 +452,11 @@ class DiscoveryService:
                 f"{failure_count} 个来源需要回退或适配。"
             ),
             "decision": (
-                "只分析严格匹配中排序靠前的最多 5 条岗位。"
+                "已核验岗位按搜索条件分类，简历匹配按需进行。"
                 if strict_count
-                else "拓展候选不自动分析，等待用户手动确认。"
+                else "信息不全的岗位保留为待核实。"
                 if expanded_count
-                else "不生成虚假候选岗位，转入人工 JD 入口。"
+                else "保留搜索记录，可以调整条件重新搜索。"
             ),
             "source_id": None,
             "company": None,

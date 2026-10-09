@@ -10606,8 +10606,8 @@ body {
 /* Dense discovery results with an accessible native detail dialog. */
 .jobs-table-section { min-width: 0; margin: 16px 0 28px; }
 .jobs-table-filters { display:flex; flex-wrap:wrap; gap:12px; align-items:end; padding:16px 0; border-top:1px solid #dce3eb; }
-.jobs-table-filters label { display:grid; gap:6px; font-size:12px; color:#536174; }
-.jobs-table-filters input,.jobs-table-filters select { min-height:36px; padding:7px 10px; border:1px solid #ccd5df; border-radius:4px; background:white; color:#253247; }
+.jobs-table-filters label { display:grid; gap:6px; font-size:12px; color:#536174; min-width:0; max-width:100%; }
+.jobs-table-filters input,.jobs-table-filters select { min-height:36px; min-width:0; max-width:100%; width:100%; padding:7px 10px; border:1px solid #ccd5df; border-radius:4px; background:white; color:#253247; text-overflow:ellipsis; }
 .jobs-table-filters input { width:220px; }
 .jobs-table-filters button,.jobs-row-actions button { padding:7px 9px; color:#315cc7; border:1px solid #dce3eb; border-radius:4px; background:white; cursor:pointer; }
 .jobs-table-count { color:#64748b; font-size:12px; margin:0 0 12px; }
@@ -10625,9 +10625,9 @@ body {
 .jobs-table a { color:#315cc7; white-space:nowrap; }
 .jobs-table td:nth-child(6) { min-width:140px; max-width:190px; color:#7c633b; }
 .jobs-decision { display:inline-block; padding:2px 6px; border-radius:4px; white-space:nowrap; background:#f0f3f7; color:#526075; }
-.decision-recommended_application { color:#167455; background:#e7f5ee; }
+.decision-matched, .decision-recommended_application { color:#167455; background:#e7f5ee; }
 .decision-consider { color:#2758a5; background:#eaf1fc; }
-.decision-not_recommended { color:#975139; background:#fff1e9; }
+.decision-excluded, .decision-not_recommended { color:#975139; background:#fff1e9; }
 .jobs-row-actions { display:flex; gap:6px; }
 .jobs-row-actions button:disabled { opacity:.5; cursor:wait; }
 .jobs-no-results { padding:24px; text-align:center; color:#64748b; background:white; }
@@ -10696,3 +10696,23 @@ body {
   .jobs-company-toggle { padding:14px; gap:8px; }
   .jobs-company-stats { flex-basis:100%; margin-left:20px; }
 }
+/* Education records share the profile form controls and stay readable on mobile. */
+.education-editor { margin: 20px 0; min-width: 0; }
+.education-record { min-width: 0; margin: 14px 0; padding: 12px; border: 1px solid #d8ddd9; border-radius: 10px; }
+.education-record legend { padding: 0 5px; font-size: 13px; }
+.education-record textarea, .education-record select { width: 100%; max-width: 100%; padding: 8px; border: 1px solid #d8ddd9; border-radius: 6px; font: inherit; }
+.education-record textarea { min-height: 90px; height: auto; color: var(--ink); background: #f8fafc; }
+.education-editor button { margin: 6px 0; font-size: 13px; }
+.education-editor label.education-completeness { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; font-size: 13px; }
+.education-editor .education-completeness input[type="checkbox"] { width: 16px; height: 16px; min-width: 16px; margin: 2px 0 0; padding: 0; flex: 0 0 16px; }
+.fact-differences {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #d9dde2);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.fact-differences summary { cursor: pointer; }
+.fact-differences blockquote { margin: 8px 0; padding-left: 12px; border-left: 2px solid #b7bfc9; }

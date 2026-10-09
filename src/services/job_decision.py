@@ -22,7 +22,10 @@ def build_job_decision(
         if match.support_level in {"partial", "needs_confirmation", "unsupported"}
     ]
     failed_checks = [check for check in eligibility.checks if check.result == "fail"]
-    unknown_checks = [check for check in eligibility.checks if check.result == "unknown"]
+    unknown_checks = [
+        check for check in eligibility.checks if check.result == "unknown"
+    ]
+    incomplete = [match for match in required if match.validation_status == "failed"]
 
     reasons: list[str] = []
     if failed_checks:
@@ -33,6 +36,12 @@ def build_job_decision(
         reasons.extend(check.reason for check in unknown_checks[:3])
         recommendation = "insufficient_information"
         summary = "缺少决定性岗位或个人信息，当前不宜给出确定建议。"
+    elif incomplete:
+        reasons.append(
+            f"{len(incomplete)} 条必须条件的分析未完成，已保留其他有效结果。"
+        )
+        recommendation = "insufficient_information"
+        summary = "部分能力分析超时或校验失败，暂时无法给出完整申请建议，可稍后重试。"
     elif not required:
         reasons.append("JD 没有识别出明确的必须条件。")
         recommendation = "insufficient_information"

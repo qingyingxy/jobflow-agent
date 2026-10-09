@@ -185,6 +185,6 @@ async def test_product_parse_store_match_api_preserves_cohort_and_any_of(
         match = body["matches"][0]
         assert match["requirement"]["relation"] == "any_of"
         assert match["requirement"]["items"] == ["Python", "Java"]
-        assert match["support_level"] == "supported"
+        assert match["support_level"] == "partial"  # using Python does not prove proficiency
         assert match["evidence_ids"] == [evidence.json()["id"]]
         assert len(model.requests) == 2

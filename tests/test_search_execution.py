@@ -86,6 +86,76 @@ async def test_timeout_isolated_and_cancelled_worker_does_not_leak():
     assert events[1]["url"].endswith("/2")
 
 
+@pytest.mark.asyncio
+async def test_finish_drains_pending_verification_and_snapshot_counts_inflight_work():
+    finishing = asyncio.Event()
+    snapshots = []
+    verified = []
+
+    async def search(number, seen):
+        if number == 1:
+            return [candidate(1)]
+        assert snapshots[-1].pending_verification == 1
+        assert snapshots[-1].verified_jobs == 0
+        finishing.set()
+        return None
+
+    async def verify(lead):
+        await finishing.wait()
+        verified.append(lead.source_url)
+        return lead.source_url, True
+
+    stop = await run_search_pipeline(
+        search=search, verify=verify, report=lambda *args: None,
+        canonicalize=canonical_search_url, on_snapshot=snapshots.append,
+        get_stop_reason=lambda: "agent finished", verification_seconds=1,
+    )
+    assert stop == "agent finished"
+    assert verified == [candidate(1).source_url]
+    assert snapshots[-1].pending_verification == 0
+    assert snapshots[-1].verified_jobs == snapshots[-1].useful_jobs == 1
+
+
+@pytest.mark.asyncio
+async def test_feedback_wait_stops_before_decision_when_verification_reaches_target():
+    calls = []
+
+    async def search(number, seen):
+        calls.append(number)
+        return [candidate(1)]
+
+    async def verify(lead):
+        return lead.source_url, True
+
+    stop = await run_search_pipeline(
+        search=search, verify=verify, report=lambda *args: None,
+        canonicalize=canonical_search_url, target=1, feedback_wait_seconds=0.1,
+    )
+    assert calls == [1]
+    assert stop == "达到有效岗位目标"
+
+
+@pytest.mark.asyncio
+async def test_decision_time_is_included_in_search_deadline_and_cancelled():
+    cancelled = asyncio.Event()
+
+    async def search(number, seen):
+        try:
+            await asyncio.Event().wait()
+        finally:
+            cancelled.set()
+
+    async def verify(lead):
+        raise AssertionError("no provider was executed")
+
+    stop = await run_search_pipeline(
+        search=search, verify=verify, report=lambda *args: None,
+        canonicalize=canonical_search_url, seconds=0.02,
+    )
+    assert stop == "达到搜索时间预算"
+    assert cancelled.is_set()
+
+
 def test_queries_are_distinct_and_preserve_non_ai_intent():
     sources = [
         SimpleNamespace(company="示例公司", career_url="https://example.com/careers")

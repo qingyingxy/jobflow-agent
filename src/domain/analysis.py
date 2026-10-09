@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
 
-ANALYSIS_VERSION = "job-analysis-v4-cohort-conditions"
+ANALYSIS_VERSION = "job-analysis-v9-unified-runtime"
 RiskSeverity = Literal["high", "medium", "low"]
 ApplicationRecommendation = Literal[
     "recommended_application",

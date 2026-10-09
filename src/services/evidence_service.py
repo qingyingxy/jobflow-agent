@@ -5,11 +5,13 @@ from datetime import UTC, datetime
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from src.domain.models import EvidenceItem, generate_evidence_id
+from src.domain.fact_provenance import record_correction
+from src.domain.models import EvidenceItem, UserProfile, generate_evidence_id
 from src.services.jd_analysis_service import (
     delete_analyses_referencing_evidence,
     invalidate_analyses_for_user,
 )
+from src.services.resume_fact_merge import EVIDENCE_FIELDS
 from src.services.suggestion_service import delete_suggestions_referencing_evidence
 
 
@@ -59,6 +61,13 @@ class EvidenceService:
         if item is None:
             return None
 
+        changes = {key: value for key, value in changes.items() if value is not None}
+        old = {field: getattr(item, field) for field in EVIDENCE_FIELDS}
+        old.update(source=item.source, provenance=item.provenance)
+        updated = {**old, **changes}
+        if changes.pop("keep_current", False):
+            updated["provenance"] = {**(item.provenance or {}), "keep_current": True}
+        item.provenance = record_correction(old, updated, EVIDENCE_FIELDS)
         for field, value in changes.items():
             if field == "type" and value is None:
                 continue
@@ -74,6 +83,15 @@ class EvidenceService:
         item = self.get(user_id, evidence_id)
         if item is None:
             return False
+        if item.source.startswith("resume_asset:"):
+            profile = self.session.get(UserProfile, user_id)
+            if profile is not None:
+                state = dict(profile.resume_import_state or {})
+                baseline = (item.provenance or {}).get("extracted") or {"claim": item.claim}
+                state["deleted_claims"] = list(dict.fromkeys(
+                    state.get("deleted_claims", []) + [baseline["claim"]]
+                ))
+                profile.resume_import_state = state
         delete_analyses_referencing_evidence(
             self.session,
             user_id=user_id,

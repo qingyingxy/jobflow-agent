@@ -143,7 +143,8 @@ async def test_analysis_service_persists_user_scoped_result_and_risks(db_session
     assert execution.analysis.user_id == "user-a"
     assert execution.analysis.job_posting_id == posting.id
     assert execution.analysis.invalidated_at is None
-    assert execution.analysis.matches[0]["support_level"] == "supported"
+    assert execution.analysis.matches[0]["support_level"] == "partial"
+    assert execution.analysis.matches[0]["item_checks"][0]["evidence_quotes"]
     assert execution.analysis.score["score"] is not None
     assert execution.agent_run_ids
     assert db_session.scalar(select(JobAnalysis)) is not None

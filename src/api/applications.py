@@ -40,6 +40,7 @@ from src.services.application_service import (
     SubmissionReceiptRequiredError,
 )
 from src.services.job_decision import build_job_decision
+from src.services.job_header_facts import effective_job_locations
 from src.services.suggestion_service import (
     InvalidSuggestionDecisionError,
     JobAnalysisNotFoundError,
@@ -58,7 +59,7 @@ def _job_summary(posting) -> JobSummary:
         title=posting.title,
         source_url=posting.source_url,
         source_id=posting.source_id,
-        locations=posting.locations or [],
+        locations=effective_job_locations(posting),
         job_type=posting.job_type,
         published_at=posting.published_at,
         verification_status=posting.verification_status,

@@ -11,7 +11,7 @@ def classify_graduation_condition(source_text: str) -> GraduationConditionKind:
     # Only an explicit list of cohorts is safe for a year-membership check.
     year = r"20\d{2}(?:年)?(?:届)?"
     if re.fullmatch(
-        rf"(?:面向|招收|招聘|接受|限)?{year}(?:(?:、|，|,|和|或|及|/){year})*"
+        rf"(?:(?:本|该)(?:岗位|职位))?(?:面向|招收|招聘|接受|限)?{year}(?:(?:、|，|,|和|或|及|/){year})*"
         r"(?:应届)?(?:毕业生|毕业学生|应届生)?",
         text,
     ):

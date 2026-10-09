@@ -21,6 +21,8 @@ from src.domain.runs import (
     generate_parse_result_id,
 )
 from src.services.jd_parser import JDParser, JDParserError, ParsedJobDescription
+from src.services.job_fact_grounding import ground_runtime_facts
+from src.services.product_jd_execution import ProductJDExecutionParser
 from src.services.product_jd_parser import ProductJDParser
 from src.services.staged_jd_parser import StagedJDParser
 
@@ -112,7 +114,30 @@ class JobParseService:
         )
 
         try:
-            parsed = await self.parser.parse(document)
+            if isinstance(self.parser, ProductJDExecutionParser):
+                checkpoint = self._extraction_checkpoint(user_id, posting, document)
+
+                def save_checkpoint(value):
+                    value = {
+                        **value,
+                        "origin_run_id": value.get("origin_run_id") or agent_run.id,
+                    }
+                    agent_run.validation_result = {
+                        "status": VALIDATION_FAILED,
+                        "stage": "extraction_completed",
+                        "checkpoint": value,
+                    }
+                    # Commit before the next network request, including on interruption.
+                    # The run remains incomplete and no JobParseResult is published.
+                    self.session.commit()
+
+                parsed = await self.parser.parse_with_checkpoint(
+                    document,
+                    checkpoint=checkpoint,
+                    save_checkpoint=save_checkpoint,
+                )
+            else:
+                parsed = await self.parser.parse(document)
         except JDParserError as error:
             self._mark_failed(agent_run, error, started_clock)
             self.session.commit()
@@ -128,6 +153,30 @@ class JobParseService:
         self.session.refresh(agent_run)
         self.session.refresh(parse_result)
         return JobParseExecution(parse_result=parse_result, agent_run=agent_run)
+
+    def _extraction_checkpoint(self, user_id, posting, document):
+        if self.parser.mode != "two_stage":
+            return None
+        key = self.parser.checkpoint_key(document)
+        runs = self.session.scalars(
+            select(AgentRun)
+            .where(
+                AgentRun.user_id == user_id,
+                AgentRun.run_type == RUN_TYPE_JD_PARSE,
+                AgentRun.target_type == "job_posting",
+                AgentRun.target_id == posting.id,
+                AgentRun.input_hash == posting.content_hash,
+                AgentRun.model == self.parser.model_name,
+                AgentRun.prompt_version == self.parser.prompt_version,
+            )
+            .order_by(AgentRun.started_at.desc())
+            .limit(50)
+        )
+        for run in runs:
+            checkpoint = (run.validation_result or {}).get("checkpoint")
+            if isinstance(checkpoint, dict) and checkpoint.get("key") == key:
+                return checkpoint
+        return None
 
     def _cache_hit(
         self,
@@ -153,6 +202,7 @@ class JobParseService:
                 "status": VALIDATION_PASSED,
                 "cache_hit": True,
                 "parse_result_id": parse_result.id,
+                "execution": {"model_call_count": 0, "cache_hit": True},
             },
             started_at=now,
             finished_at=now,
@@ -171,7 +221,7 @@ class JobParseService:
         parsed: ParsedJobDescription,
         started_clock: float,
     ) -> JobParseResult:
-        structured_output = parsed.structured_jd.model_dump(mode="json")
+        structured_output = ground_runtime_facts(parsed.structured_jd, posting.raw_content).model_dump(mode="json")
         parse_result = JobParseResult(
             id=generate_parse_result_id(),
             job_posting_id=posting.id,
@@ -189,8 +239,11 @@ class JobParseService:
         agent_run.output = structured_output
         agent_run.validation_status = VALIDATION_PASSED
         agent_run.validation_result = {
+            **(agent_run.validation_result or {}),
             "status": VALIDATION_PASSED,
+            "stage": "completed",
             "schema_version": parsed.schema_version,
+            "execution": getattr(parsed, "diagnostics", {}),
         }
         self._finish(agent_run, started_clock)
         return parse_result
@@ -204,7 +257,9 @@ class JobParseService:
         agent_run.status = RUN_STATUS_FAILED
         agent_run.validation_status = VALIDATION_FAILED
         agent_run.validation_result = {
+            **(agent_run.validation_result or {}),
             "status": VALIDATION_FAILED,
+            "stage": error.details.get("stage"),
             "code": error.code,
             "details": error.details,
         }

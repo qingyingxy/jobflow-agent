@@ -360,7 +360,7 @@ async def test_existing_asset_is_backfilled_when_activated_as_resume_version(
     assert "Python Agent" in before_switch.json()[0]["claim"]
     assert len(after_switch.json()) == 1
     assert "TypeScript web" in after_switch.json()[0]["claim"]
-    assert after_switch.json()[0]["source"] == f"resume_asset:{second_asset.id}"
+    assert after_switch.json()[0]["source"] == f"resume_asset:v4:{second_asset.id}"
 
 
 @pytest.mark.asyncio

@@ -22,7 +22,9 @@ class DiscoveryRunStatus(StrEnum):
 class JobLeadStatus(StrEnum):
     NEW = "NEW"
     VERIFYING = "VERIFYING"
+    DEFERRED = "DEFERRED"
     VERIFIED = "VERIFIED"
+    CLOSED = "CLOSED"
     NEEDS_BROWSER = "NEEDS_BROWSER"
     NEEDS_USER = "NEEDS_USER"
     DUPLICATE = "DUPLICATE"
@@ -187,6 +189,8 @@ class JobLead(Base):
     def next_action(self) -> str:
         return {
             JobLeadStatus.NEW.value: LeadNextAction.VERIFY_URL.value,
+            JobLeadStatus.DEFERRED.value: LeadNextAction.RETRY_VERIFICATION.value,
+            JobLeadStatus.CLOSED.value: LeadNextAction.OPEN_IN_BROWSER.value,
             JobLeadStatus.VERIFYING.value: LeadNextAction.WAIT_FOR_VERIFICATION.value,
             JobLeadStatus.NEEDS_BROWSER.value: LeadNextAction.OPEN_IN_BROWSER.value,
             JobLeadStatus.NEEDS_USER.value: LeadNextAction.PROVIDE_MANUAL_JD.value,

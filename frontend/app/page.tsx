@@ -1,4 +1,6 @@
 "use client";
+import { EducationEditor, EducationRecord, educationLabels } from "./education-editor";
+import { FactDifferences, type FactProvenance } from "./fact-differences";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -22,12 +24,15 @@ type JobRequirement = {
   relation?: "all_of" | "any_of" | "uncertain";
   items?: string[] | null;
   relation_reason?: string | null;
+  education?: { relation: "all_of" | "any_of" | "uncertain"; branches: Array<{ source_text: string }> } | null;
 };
 
 type RequirementMatch = {
   requirement: JobRequirement;
   support_level: SupportLevel;
   evidence_ids: string[];
+  education_evidence?: EducationRecord[];
+  item_checks?: { source_text: string; condition_text: string; support_level: SupportLevel; evidence_quotes: string[]; unresolved: string[] }[];
   explanation: string;
   validation_status: "passed" | "failed";
   validation_issues: string[];
@@ -75,6 +80,7 @@ type AnalysisResponse = {
       reason: string;
       missing_information: string[];
       jd_evidence?: Array<{ source_text: string }>;
+      education_evidence?: EducationRecord[];
     }>;
   };
   matches: RequirementMatch[];
@@ -103,7 +109,7 @@ type AnalysisResponse = {
 
 type WorkspaceMode = "profile" | "discover" | "analysis" | "board";
 type ApplicationTool = "packet" | "attempt" | "assisted" | "followup";
-type ProfileSummaryState = "loading" | "ready" | "missing_resume" | "missing_evidence" | "error";
+type ProfileSummaryState = "loading" | "ready" | "missing_resume" | "missing_evidence" | "missing_education" | "error";
 
 type ProfileSummary = {
   state: ProfileSummaryState;
@@ -140,6 +146,8 @@ type ProfileRecord = {
   graduation_year: number | null;
   degree: string | null;
   major: string | null;
+  educations?: EducationRecord[];
+  education_history_complete?: boolean;
   search_preferences: {
     preferred_locations: string[] | null;
     job_types: ProfileJobType[] | null;
@@ -154,6 +162,7 @@ type EvidenceRecord = {
   claim: string;
   skills: string[];
   source: string;
+  provenance?: FactProvenance;
   created_at: string;
   updated_at: string;
 };
@@ -264,6 +273,7 @@ type DiscoveryRunItem = {
   search_plan: DiscoverySearchPlan | null;
   agent_trace: DiscoveryAgentTraceStep[];
   result_matches: DiscoveryResultMatch[];
+  filter_conditions?: Record<string, (string | number)[]>;
   failure_summary: string | null;
   started_at: string;
   finished_at: string | null;
@@ -275,6 +285,8 @@ type DiscoveryResultMatch = {
   match_tier: "strict" | "expanded";
   mismatch_reasons: string[];
   mismatch_labels: string[];
+  filter_status?: "matched" | "pending" | "excluded";
+  checks?: { field: string; status: "matched" | "pending" | "excluded"; reason: string; evidence: string[]; source_url: string }[];
 };
 
 type DiscoveryAgentTraceStep = {
@@ -323,7 +335,9 @@ type DiscoverySourceOption = {
 type JobLeadStatus =
   | "NEW"
   | "VERIFYING"
+  | "DEFERRED"
   | "VERIFIED"
+  | "CLOSED"
   | "NEEDS_BROWSER"
   | "NEEDS_USER"
   | "DUPLICATE"
@@ -379,12 +393,12 @@ const decisionLabel: Record<NonNullable<AnalysisResponse["decision"]>["recommend
 const supportLabel: Record<SupportLevel, string> = {
   supported: "有证据",
   partial: "部分匹配",
-  needs_confirmation: "待确认",
+  needs_confirmation: "信息不足",
   unsupported: "无证据",
 };
 
 const relationLabel: Record<NonNullable<JobRequirement["relation"]>, string> = {
-  all_of: "全部满足",
+  all_of: "要求全部满足",
   any_of: "任选其一",
   uncertain: "关系待确认",
 };
@@ -393,7 +407,24 @@ const groupLabel: Record<string, string> = {
   required_skill: "必备技能",
   preferred_skill: "加分技能",
   preferences: "偏好条件",
+  education: "学历条件",
+  major: "专业条件",
+  experience: "经历要求",
+  general: "综合要求",
 };
+
+function qualificationName(field: string, rule: string): string {
+  const names: Record<string, string> = {
+    educations: "学历及专业条件", education: "学历要求", major: "专业要求",
+    graduation_year: "毕业届别", locations: "工作地点", job_type: "招聘类型",
+  };
+  return names[field] ?? names[rule] ?? "资格条件";
+}
+
+function educationConditionSummary(jd: AnalysisResponse["structured_jd"]): string {
+  const conditions = (jd.requirements ?? []).filter((r) => r.education).map((r) => r.description);
+  return compactList(conditions.length ? conditions : [...(jd.education_requirements ?? []), ...(jd.major_requirements ?? [])]);
+}
 
 const jobTypeLabel: Record<string, string> = {
   campus: "校招",
@@ -492,7 +523,9 @@ const discoveryStopConditionLabel: Record<string, string> = {
 const jobLeadStatusLabel: Record<JobLeadStatus, string> = {
   NEW: "待验证",
   VERIFYING: "验证中",
+  DEFERRED: "暂缓核验，可重试",
   VERIFIED: "已验证",
+  CLOSED: "原页面确认已下线",
   NEEDS_BROWSER: "需要浏览器",
   NEEDS_USER: "需要处理",
   DUPLICATE: "已关联岗位",
@@ -618,6 +651,7 @@ export default function Home() {
   const [rawContent, setRawContent] = useState("");
   const [company, setCompany] = useState("");
   const [title, setTitle] = useState("");
+  const [activePosting, setActivePosting] = useState<{ id: string; raw_content: string; company: string; title: string } | null>(null);
   const [state, setState] = useState<AnalysisState>("empty");
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -647,14 +681,17 @@ export default function Home() {
   const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
   const [manualHandoffLeadId, setManualHandoffLeadId] = useState<string | null>(null);
   const jobLeadRevisionRef = useRef(0);
+  const queryRestoredRef = useRef(false);
+  const queryEditedRef = useRef(false);
 
   async function loadProfileSummary() {
     setProfileSummary((current) => ({ ...current, state: "loading" }));
     try {
       const headers = { "X-User-ID": userId };
-      const [resumeResponse, evidenceResponse] = await Promise.all([
+      const [resumeResponse, evidenceResponse, profileResponse] = await Promise.all([
         fetch(`${apiUrl}/api/resumes/versions`, { headers, cache: "no-store" }),
         fetch(`${apiUrl}/api/evidence`, { headers, cache: "no-store" }),
+        fetch(`${apiUrl}/api/profile`, { headers, cache: "no-store" }),
       ]);
       if (!resumeResponse.ok && resumeResponse.status !== 404) {
         throw new Error(await readError(resumeResponse));
@@ -665,11 +702,16 @@ export default function Home() {
       const resumeCount = resumeResponse.ok
         ? ((await resumeResponse.json()) as Array<{ id: string }>).length
         : 0;
-      const evidenceCount = evidenceResponse.ok
-        ? ((await evidenceResponse.json()) as Array<{ id: string }>).length
-        : 0;
+      const evidence = evidenceResponse.ok ? await evidenceResponse.json() as EvidenceRecord[] : [];
+      if (!profileResponse.ok && profileResponse.status !== 404) throw new Error(await readError(profileResponse));
+      const profile = profileResponse.ok ? await profileResponse.json() as ProfileRecord : null;
+      const genericEvidenceCount = evidence.filter((item) => item.type !== "education" || !profile?.educations?.length).length;
+      const evidenceCount = genericEvidenceCount + (profile?.educations?.length ?? 0);
+      const educationReady = profile?.educations?.length
+        ? profile.educations.every((item) => item.level !== "unknown" && item.major_raw && item.graduation_year)
+        : Boolean(profile?.degree && profile?.major && profile?.graduation_year);
       setProfileSummary({
-        state: resumeCount === 0 ? "missing_resume" : evidenceCount === 0 ? "missing_evidence" : "ready",
+        state: resumeCount === 0 ? "missing_resume" : evidenceCount === 0 ? "missing_evidence" : !educationReady ? "missing_education" : "ready",
         resumeCount,
         evidenceCount,
       });
@@ -734,7 +776,13 @@ export default function Home() {
       if (leadRevision === jobLeadRevisionRef.current) {
         setJobLeads(loadedLeads);
       }
-      setDiscoveryRuns((await runResponse.json()) as DiscoveryRunItem[]);
+      const runs = (await runResponse.json()) as DiscoveryRunItem[];
+      setDiscoveryRuns(runs);
+      if (!queryRestoredRef.current) {
+        queryRestoredRef.current = true;
+        const latestSearch = runs.find((run) => run.search_query);
+        if (latestSearch?.search_query && !queryEditedRef.current) setDiscoveryQuery(latestSearch.search_query);
+      }
       setDiscoverySources((await sourceResponse.json()) as DiscoverySourceOption[]);
       setDiscoveryMessage((current) => current === "Failed to fetch" ? "连接已恢复" : current);
       setDiscoveryState((current) => current === "error" ? "ready" : current);
@@ -776,7 +824,7 @@ export default function Home() {
   }
 
   async function pollDiscoveryRun(runId: string) {
-    for (let attempt = 0; attempt < 240; attempt += 1) {
+    for (let attempt = 0; attempt < 1240; attempt += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 1500));
       try {
         const response = await fetch(`${apiUrl}/api/discovery/runs/${runId}`, {
@@ -787,30 +835,16 @@ export default function Home() {
         const run = (await response.json()) as DiscoveryRunItem;
         if (attempt % 3 === 0) await loadDiscoveryData({ quiet: true });
         setDiscoveryRuns((current) => [run, ...current.filter((item) => item.id !== run.id)]);
-        const strictCount = countDiscoveryMatches(run, "strict");
-        const expandedCount = countDiscoveryMatches(run, "expanded");
-        const verifiedCount = strictCount + expandedCount;
-        setDiscoveryMessage(
-          run.analysis_target_count > 0
-            ? `严格匹配 ${strictCount} 条，自动分析 ${run.analysis_completed_count}/${run.analysis_target_count} 条；拓展候选 ${expandedCount} 条。`
-            : verifiedCount > 0
-              ? `已核验 ${verifiedCount} 条岗位：严格匹配 ${strictCount} 条，拓展候选 ${expandedCount} 条。`
-              : run.discovered_count > 0
-                ? `已找到 ${run.discovered_count} 条线索，正在核验原始岗位页…`
-                : "正在搜索公开岗位…",
-        );
+        const matchedCount = run.result_matches.filter(m => m.filter_status === "matched").length;
+        const pendingCount = run.result_matches.filter(m => !m.filter_status || m.filter_status === "pending").length;
+        const excludedCount = run.result_matches.filter(m => m.filter_status === "excluded").length;
+        const verifiedCount = run.result_matches.length;
+        const summary = `正文已核验 ${verifiedCount} 条：符合已知条件 ${matchedCount} 条，待核实 ${pendingCount} 条，明确不符 ${excludedCount} 条。`;
+        setDiscoveryMessage(verifiedCount ? summary : `已找到 ${run.discovered_count} 条线索，正在核验原始岗位页…`);
         if (run.status !== "RUNNING") {
           await loadDiscoveryData({ quiet: true });
           setDiscoveryState(run.status === "FAILED" ? "error" : "ready");
-          setDiscoveryMessage(
-            verifiedCount === 0
-              ? run.discovered_count > 0
-                ? `找到 ${run.discovered_count} 条线索，但暂时没有可自动核验的岗位；可在线索区继续用浏览器核验。`
-                : "全网暂未找到可验证岗位。你可以调整搜索目标，或直接添加一条岗位。"
-              : strictCount === 0
-                ? `找到 ${expandedCount} 条待进一步判断的候选；请查看信息缺口、条件差异及分析结果。`
-                : `搜索完成：严格匹配 ${strictCount} 条，拓展候选 ${expandedCount} 条；自动分析 ${run.analysis_completed_count}/${run.analysis_target_count} 条。`,
-          );
+          setDiscoveryMessage(verifiedCount ? summary : "本次暂未核验出具体岗位，已发现线索会保留，可继续核验或调整条件搜索。");
           return;
         }
       } catch (error) {
@@ -992,6 +1026,9 @@ export default function Home() {
     setMode("analysis");
     setState("loading");
     setErrorMessage("");
+    setActivePosting(null);
+    setRawContent("");
+    setAnalysis(null);
     try {
       const [response, analysisResponse] = await Promise.all([
         fetch(`${apiUrl}/api/jobs/${jobId}`, { cache: "no-store" }),
@@ -1009,6 +1046,7 @@ export default function Home() {
       setRawContent(posting.raw_content);
       setCompany(posting.company ?? "");
       setTitle(posting.title ?? "");
+      setActivePosting({ id: jobId, raw_content: posting.raw_content, company: posting.company ?? "", title: posting.title ?? "" });
       setManualHandoffLeadId(null);
       if (analysisResponse.ok) {
         setAnalysis((await analysisResponse.json()) as AnalysisResponse);
@@ -1035,6 +1073,7 @@ export default function Home() {
   function openManualJD(leadId?: string) {
     const lead = leadId ? jobLeads.find((item) => item.id === leadId) : null;
     setRawContent("");
+    setActivePosting(null);
     setCompany(lead?.company_hint ?? "");
     setTitle(lead?.title_hint ?? "");
     setManualHandoffLeadId(lead?.id ?? null);
@@ -1055,7 +1094,9 @@ export default function Home() {
     setErrorMessage("");
     try {
       let posting: { id: string };
-      if (manualHandoffLeadId) {
+      if (activePosting && activePosting.raw_content === rawContent && activePosting.company === company && activePosting.title === title) {
+        posting = activePosting;
+      } else if (manualHandoffLeadId) {
         const handoffResponse = await fetch(
           `${apiUrl}/api/discovery/leads/${manualHandoffLeadId}/handoff/manual-jd`,
           {
@@ -1085,6 +1126,10 @@ export default function Home() {
         if (!importResponse.ok) throw new Error(await readError(importResponse));
         posting = (await importResponse.json()) as { id: string };
       }
+
+      // Preserve identity even if analysis fails; retry the same saved document.
+      setActivePosting({ id: posting.id, raw_content: rawContent, company, title });
+      setManualHandoffLeadId(null);
 
       const analysisResponse = await fetch(
         `${apiUrl}/api/jobs/${posting.id}/analyze`,
@@ -1159,7 +1204,9 @@ export default function Home() {
   }
 
   const profileStatusTitle = profileSummary.state === "ready"
-    ? "个人资料已就绪"
+    ? "简历与经历已载入"
+    : profileSummary.state === "missing_education"
+      ? "教育信息待补充"
     : profileSummary.state === "missing_resume"
       ? "尚未上传简历"
       : profileSummary.state === "missing_evidence"
@@ -1169,6 +1216,8 @@ export default function Home() {
           : "个人资料状态暂不可用";
   const profileStatusDetail = profileSummary.state === "ready"
     ? `${profileSummary.evidenceCount} 条经历证据`
+    : profileSummary.state === "missing_education"
+      ? "已有经历可用于匹配"
     : profileSummary.state === "missing_resume"
       ? "点击上传"
       : profileSummary.state === "missing_evidence"
@@ -1236,6 +1285,7 @@ export default function Home() {
             </button>
             <button
               aria-current={mode === "profile" ? "page" : undefined}
+              aria-label="简历资料"
               className={mode === "profile" ? "workspace-nav-active" : ""}
               disabled={!isHydrated}
               onClick={() => setMode("profile")}
@@ -1269,7 +1319,7 @@ export default function Home() {
                 : mode === "discover"
                   ? "按本次输入的城市、方向和招聘类型搜索，无需先填写简历。添加简历后可进一步分析匹配情况。"
                   : mode === "analysis"
-                    ? "根据岗位原文和你确认过的经历，查看匹配依据与申请建议。"
+                    ? "根据岗位原文和已保存的经历，查看匹配依据与申请建议。"
                     : "查看当前状态、下一步和关键时间。"}
             </p>
           </section>
@@ -1304,7 +1354,7 @@ export default function Home() {
                   <div>
                     <div className="section-kicker">匹配结果</div>
                     <p className="result-subtitle">
-                      {profileSummary.evidenceCount > 0 ? `使用 ${profileSummary.evidenceCount} 条已确认经历` : "尚无可引用的经历"}
+                      {profileSummary.evidenceCount > 0 ? `使用 ${profileSummary.evidenceCount} 条已保存经历` : "尚无可引用的经历"}
                     </p>
                   </div>
                   {state === "success" && analysis ? (
@@ -1317,7 +1367,7 @@ export default function Home() {
                 {state === "empty" ? (
                   <div className="analysis-empty">
                     <h3>这个岗位还没有匹配结果</h3>
-                    <p>{profileSummary.evidenceCount > 0 ? "开始后，系统会解析岗位要求，并只引用你确认过的经历。" : "建议先上传简历并核对经历，再开始匹配。"}</p>
+                    <p>{profileSummary.evidenceCount > 0 ? "开始后，系统会解析岗位要求，并引用已保存的经历。" : "建议先上传简历并核对经历，再开始匹配。"}</p>
                     <button disabled={rawContent.trim().length < 20} onClick={() => void runAnalysis()} type="button">开始匹配</button>
                   </div>
                 ) : null}
@@ -1353,7 +1403,7 @@ export default function Home() {
               leadSnippet={leadSnippet}
               submittingLead={submittingLead}
               updatingLeadId={updatingLeadId}
-              onQueryChange={setDiscoveryQuery}
+              onQueryChange={(value) => { queryEditedRef.current = true; setDiscoveryQuery(value); }}
               onToggleCompany={(sourceId) => {
                 setSelectedDiscoveryCompanyIds((current) => (
                   current.includes(sourceId)
@@ -1424,7 +1474,7 @@ export default function Home() {
       {manualJobModalOpen ? (
         <ModalShell
           title={manualHandoffLeadId ? "补充岗位原文" : "添加岗位"}
-          description="粘贴完整的岗位描述，系统会解析要求并与你已确认的经历进行匹配。"
+          description="粘贴完整的岗位描述，系统会解析要求并与你已保存的经历进行匹配。"
           onClose={() => {
             setManualJobModalOpen(false);
             setManualHandoffLeadId(null);
@@ -1458,7 +1508,7 @@ export default function Home() {
             </label>
             {state === "error" && errorMessage ? <div className="manual-job-error">{errorMessage}</div> : null}
             <div className="manual-job-footer">
-              <span>{profileSummary.evidenceCount > 0 ? `将使用 ${profileSummary.evidenceCount} 条已确认经历` : "尚无已确认经历，匹配结果可能信息不足"}</span>
+              <span>{profileSummary.evidenceCount > 0 ? `将使用 ${profileSummary.evidenceCount} 条已保存经历` : "尚无已保存经历，匹配结果可能信息不足"}</span>
               <button disabled={state === "loading" || rawContent.trim().length < 20} onClick={() => void runAnalysis()} type="button">
                 {state === "loading" ? "正在分析…" : manualHandoffLeadId ? "补充并分析" : "添加并分析"}
               </button>
@@ -1531,6 +1581,9 @@ function ProfileWorkspace({
     degree: "",
     major: "",
   });
+  const [educations, setEducations] = useState<EducationRecord[]>([]);
+  const [educationComplete, setEducationComplete] = useState(false);
+  const [educationTouched, setEducationTouched] = useState(false);
   const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
   const [draft, setDraft] = useState<EvidenceDraft>(emptyEvidenceDraft);
   const [editingEvidenceId, setEditingEvidenceId] = useState<string | null>(null);
@@ -1560,6 +1613,9 @@ function ProfileWorkspace({
 
       if (profileResponse.ok) {
         const profile = (await profileResponse.json()) as ProfileRecord;
+        setEducations(profile.educations ?? []);
+        setEducationComplete(profile.education_history_complete ?? false);
+        setEducationTouched(false);
         setProfileForm({
           displayName: profile.display_name ?? "",
           graduationYear: profile.graduation_year?.toString() ?? "",
@@ -1589,12 +1645,20 @@ function ProfileWorkspace({
         headers: { "Content-Type": "application/json", "X-User-ID": userId },
         body: JSON.stringify({
           display_name: profileForm.displayName.trim() || null,
+          ...(educations.length || educationTouched || educationComplete ? {
+            educations,
+            education_history_complete: educationComplete,
+          } : {
           graduation_year: graduationYear ? Number(graduationYear) : null,
           degree: profileForm.degree.trim() || null,
           major: profileForm.major.trim() || null,
+          }),
         }),
       });
       if (!response.ok) throw new Error(await readError(response));
+      const savedProfile = (await response.json()) as ProfileRecord;
+      setEducations(savedProfile.educations ?? []);
+      setEducationComplete(savedProfile.education_history_complete ?? false);
       setState("ready");
       setMessage("简历资料已保存。下一次岗位分析会使用这份资料。");
       onProfileChange?.();
@@ -1639,6 +1703,26 @@ function ProfileWorkspace({
       onProfileChange?.();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "经历证据保存失败。");
+    } finally {
+      setSavingEvidence(false);
+    }
+  }
+
+  async function keepEvidenceValues(item: EvidenceRecord) {
+    setSavingEvidence(true);
+    try {
+      const response = await fetch(`${apiUrl}/api/evidence/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "X-User-ID": userId },
+        body: JSON.stringify({ keep_current: true }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const saved = await response.json() as EvidenceRecord;
+      setEvidence(current => current.map(record => record.id === saved.id ? saved : record));
+      setMessage("已保留当前经历值。");
+      onProfileChange?.();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "保存失败。");
     } finally {
       setSavingEvidence(false);
     }
@@ -1690,7 +1774,7 @@ function ProfileWorkspace({
       <aside className="profile-identity-panel">
         <div className="section-kicker">基本信息</div>
         <h2>简历基本资料</h2>
-        <p className="profile-panel-note">这里核对毕业年份、学历和专业，用于判断招聘资格。城市、岗位方向和招聘类型以本次搜索条件为准；不填写简历资料也可以搜索岗位。</p>
+        <p className="profile-panel-note">按每段教育经历核对学历、专业和毕业年份，用于判断招聘资格。修改后需重新分析岗位。</p>
 
         <div className="profile-form-grid">
           <label>
@@ -1701,6 +1785,7 @@ function ProfileWorkspace({
               placeholder="例如：王永峥"
             />
           </label>
+          {!educations.length && !educationTouched && !educationComplete ? <>
           <label>
             <span>毕业年份</span>
             <input
@@ -1728,7 +1813,12 @@ function ProfileWorkspace({
               placeholder="例如：计算机技术"
             />
           </label>
+          </> : null}
         </div>
+
+        <EducationEditor records={educations} complete={educationComplete} disabled={state === "loading" || state === "saving"}
+          onChange={records => { setEducations(records); setEducationTouched(true); }}
+          onCompleteChange={value => { setEducationComplete(value); setEducationTouched(true); }} />
 
         <button className="profile-save-button" disabled={state === "loading" || state === "saving"} onClick={saveProfile} type="button">
           {state === "saving" ? "正在保存…" : "保存简历资料 ↗"}
@@ -1818,6 +1908,8 @@ function ProfileWorkspace({
                 </div>
                 <h3>{item.title}</h3>
                 <p>{item.claim}</p>
+                <FactDifferences provenance={item.provenance} current={item} disabled={savingEvidence}
+                  onKeep={() => void keepEvidenceValues(item)} />
                 <div className="evidence-card-footer">
                   <div className="evidence-tags">
                     {item.skills.map((skill) => <span key={skill}>{skill}</span>)}
@@ -1995,7 +2087,7 @@ function JobLeadQueue({
     finally { setExpanding(null); }
   }
   const [filter, setFilter] = useState<LeadQueueFilter>("all");
-  const actionableStatuses = new Set<JobLeadStatus>(["NEW", "VERIFYING", "NEEDS_BROWSER", "NEEDS_USER", "FAILED"]);
+  const actionableStatuses = new Set<JobLeadStatus>(["NEW", "VERIFYING", "DEFERRED", "NEEDS_BROWSER", "NEEDS_USER", "FAILED"]);
   const handoffStatuses = new Set<JobLeadStatus>(["NEEDS_BROWSER", "NEEDS_USER", "REJECTED_NON_JOB"]);
   const verifiedStatuses = new Set<JobLeadStatus>(["VERIFIED", "DUPLICATE"]);
   const filteredLeads = leads.filter((lead) => {
@@ -2085,7 +2177,7 @@ function JobLeadQueue({
       {filteredLeads.length > 0 ? (
         <div className="job-lead-list">
           {filteredLeads.map((lead) => {
-            const canVerify = lead.status === "NEW" || lead.status === "FAILED";
+            const canVerify = lead.status === "NEW" || lead.status === "FAILED" || lead.status === "DEFERRED";
             const needsHandoff = handoffStatuses.has(lead.status);
             const isVerified = verifiedStatuses.has(lead.status);
             return (
@@ -2223,11 +2315,12 @@ function DiscoveryWorkspace({
 }) {
   const latestRun = runs[0];
   const latestMatches = latestRun?.result_matches ?? [];
+  const filterLabels: Record<string, string> = { locations: "地点", excluded_locations: "排除地点", roles: "方向", excluded_roles: "排除方向", job_types: "招聘类型", excluded_job_types: "排除类型", graduation_years: "届别", keywords: "关键词", pending_conditions: "需进一步核实" };
   const currentLeads = leads.filter((lead, index, all) =>
     (!latestRun || lead.discovery_run_id === latestRun.id)
     && all.findIndex((other) => other.source_url === lead.source_url
       && (!latestRun || other.discovery_run_id === latestRun.id)) === index);
-  const pendingCount = currentLeads.filter((lead) => !lead.job_posting_id && lead.discovery_kind === "job").length;
+  const pendingCount = currentLeads.filter((lead) => !lead.job_posting_id && lead.discovery_kind === "job" && lead.status !== "CLOSED").length;
   const entryCount = currentLeads.filter((lead) => !lead.job_posting_id && lead.discovery_kind !== "job").length;
   const currentPoolSize = latestMatches.length + pendingCount;
   const verifiedResultCount = latestRun?.result_matches.length ?? 0;
@@ -2264,10 +2357,15 @@ function DiscoveryWorkspace({
             disabled={state === "loading"}
             type="button"
           >
-            <span>{state === "loading" ? "搜索中…" : "搜索并分析"}</span>
+            <span>{state === "loading" ? "搜索中…" : "搜索并筛选"}</span>
             <span aria-hidden="true">↗</span>
           </button>
         </div>
+        {latestRun?.filter_conditions && <div className="discovery-message" aria-label="本次筛选条件">
+          <strong>本次搜索采用的条件</strong>
+          <p>{Object.entries(latestRun.filter_conditions).filter(([, values]) => values.length).map(([key, values]) => `${filterLabels[key] || key}：${values.join("、")}`).join("；") || "未识别出可直接筛选的条件"}</p>
+          <small>对应搜索：{latestRun.search_query}。修改上方描述后重新搜索即可调整。</small>
+        </div>}
         <details className="discovery-filters">
           <summary>
             <span>优先公司（可选）</span>
@@ -2307,31 +2405,32 @@ function DiscoveryWorkspace({
         </details>
       </div>
 
-      {latestRun ? <div className="discovery-message" role="status">找到 {currentPoolSize} 个具体岗位：{latestMatches.length} 个正文已核验，{pendingCount} 个待核验；另有 {entryCount} 个招聘入口。岗位可先查看，分析结果随后补充。</div> : message ? <div className="discovery-message">{message}</div> : null}
+      {latestRun ? <div className="discovery-message" role="status">找到 {currentPoolSize} 个具体岗位：{latestMatches.length} 个正文已核验，{pendingCount} 个待核验；另有 {entryCount} 个招聘入口。核验结果陆续显示，简历匹配可按需使用。</div> : message ? <div className="discovery-message">{message}</div> : null}
+      {latestRun && latestRun.status !== "RUNNING" && !latestMatches.some(m => m.filter_status === "matched") ? <div className="discovery-message" role="status">本轮未找到已核实的符合条件岗位。待核实线索可查看，明确不符或已下线的岗位默认隐藏。</div> : null}
       {latestRun?.agent_trace?.filter((step) => step.tool === "multiround_search").slice(-1).map((step) => (
         <div className="discovery-message" key="search-progress" role="status">
           <strong>{latestRun.status === "RUNNING" ? step.observation : "本次搜索已结束"}</strong>
           <p>{step.decision}</p>
           {latestRun.analysis_target_count > 0 ? <p>岗位分析：{latestRun.analysis_completed_count}/{latestRun.analysis_target_count} 已完成</p> : null}
-          <small>具体岗位发现后即可查看；正文核验与匹配分析不影响链接展示。</small>
+          <small>具体岗位发现后即可查看；核验完成后自动更新筛选结果。</small>
         </div>
       ))}
 
       {needsHumanJD ? (
         <div className="discovery-human-gate">
           <div>
-            <span>需要人工补充</span>
+            <span>暂无可展示结果</span>
             <h3>暂时没有自动核验成功的岗位。</h3>
-            <p>你可以在线索区继续核验，也可以直接添加岗位内容进入匹配。</p>
+            <p>可以调整条件再搜索；已有线索和核验结果会保留。</p>
           </div>
-          <button onClick={() => onPasteJD()} type="button">粘贴 JD 继续分析 <span aria-hidden="true">↗</span></button>
+          <button onClick={() => onPasteJD()} type="button">添加已知岗位 <span aria-hidden="true">↗</span></button>
         </div>
       ) : null}
 
       <div className="discovery-pool-heading">
         <div>
           <h2>候选岗位</h2>
-          <p>按公司、地点和匹配建议比较岗位，点击名称查看正文与分析依据。</p>
+          <p>按搜索条件筛选岗位，点击名称查看原文和筛选依据。学历、专业及能力匹配可在详情中按需分析。</p>
         </div>
         <button className="board-refresh" onClick={onRefresh} disabled={state === "loading"} type="button">
           {state === "loading" ? "读取中…" : "刷新"}
@@ -2356,7 +2455,7 @@ function DiscoveryWorkspace({
         <div className="discovery-empty">
           <div className="empty-glyph">＋</div>
           <h3>{needsHumanJD ? "本次暂未找到具体岗位。" : "候选池还是空的。"}</h3>
-          <p>{needsHumanJD ? "已找到的招聘入口保留在下方，可直接打开；你也可以调整条件继续搜索。" : "描述目标后开始即时搜索。岗位进入这里后，你可以先保存、忽略，或者查看自动分析结果。"}</p>
+          <p>{needsHumanJD ? "已找到的招聘入口保留在下方，可直接打开；你也可以调整条件继续搜索。" : "描述目标后开始即时搜索。岗位进入这里后，你可以先保存、忽略，或者打开原始岗位详情。"}</p>
           <button className="discovery-paste-button" onClick={() => onPasteJD()} type="button">粘贴 JD 继续 <span aria-hidden="true">↗</span></button>
         </div>
       ) : null}
@@ -2436,14 +2535,13 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
   const [showOther, setShowOther] = useState(false);
   const [leadSelections, setLeadSelections] = useState<Record<string, CandidateStatus>>({});
   const [selectionError, setSelectionError] = useState("");
-  useEffect(() => { setStrictOnly(/只要|仅限|不接受/.test(query)); }, [query]);
+  useEffect(() => { setStrictOnly(false); setShowOther(false); setDecision(""); }, [latestRunId]);
   const [detail, setDetail] = useState<{ raw_content: string } | null>(null);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [detailError, setDetailError] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
-  const labels: Record<string, string> = { recommended_application: "推荐申请", consider: "可以考虑", not_recommended: "不建议申请", insufficient_information: "信息不足" };
   const matchMap = new Map(matches.map((m) => [m.job_posting_id, m]));
-  const recommendation = (c: CandidateItem) => c.analysis ? c.analysis.recommendation ?? "insufficient_information" : "pending";
+  const filterStatus = (c: CandidateItem) => c.job.availability_status === "CLOSED" || c.pendingLead?.status === "CLOSED" ? "excluded" : c.pendingLead ? "pending" : matchMap.get(c.job_posting_id)?.filter_status ?? "pending";
   const pending: CandidateItem[] = [];
   const seenUrls = new Set(candidates.map((c) => c.job.source_url));
   for (const lead of leads) {
@@ -2453,16 +2551,12 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
     pending.push({ id: lead.id, pendingLead: lead, user_id: userId, job_posting_id: lead.id,
       status: leadSelections[lead.id] || lead.selection_status || "DISCOVERED", available_transitions: ["SAVED", "IGNORED"],
       job: { id: lead.id, title: lead.extracted_fields?.title || (lead.title_hint && !/^(?:https?:\/\/)?[a-z0-9.-]+\.[a-z]{2,}\/?$/i.test(lead.title_hint) ? lead.title_hint : "具体岗位（名称待核验）"), company: lead.extracted_fields?.company || lead.company_hint,
-        source_url: lead.source_url, locations: lead.extracted_fields?.locations || [], job_type: lead.extracted_fields?.job_type || null },
+        source_url: lead.source_url, locations: lead.extracted_fields?.locations || [], job_type: lead.extracted_fields?.job_type || null, last_verified_at: lead.verified_at },
       analysis: null, created_at: lead.created_at, updated_at: lead.updated_at });
   }
   const allRows = [...candidates, ...pending];
-  const tier = (c: CandidateItem) => {
-    if (c.job.availability_status === "CLOSED" || recommendation(c) === "not_recommended" || matchMap.get(c.job_posting_id)?.mismatch_reasons.includes("role")) return 3;
-    if (c.pendingLead) return 1;
-    if (matchMap.get(c.job_posting_id)?.match_tier === "strict" || ["recommended_application", "consider"].includes(recommendation(c))) return 0;
-    return 2;
-  };
+  const tier = (c: CandidateItem) => ({ matched: 0, pending: 1, excluded: 2 })[filterStatus(c)];
+  const rowOrder = (c: CandidateItem) => tier(c) * 2 + Number(Boolean(c.pendingLead));
   async function updateRow(c: CandidateItem, status: CandidateStatus) {
     if (!c.pendingLead) { onUpdate(c.id, status); return; }
     setSelectionError("");
@@ -2477,25 +2571,26 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
   const rows = allRows.filter((c) =>
     (scope === "ignored" ? c.status === "IGNORED" : c.status !== "IGNORED")
     && (scope !== "current" || !latestRunId || Boolean(c.pendingLead) || matchMap.has(c.job_posting_id))
-    && (showOther || scope === "ignored" || tier(c) !== 3)
-    && (!strictOnly || (!c.pendingLead && matchMap.get(c.job_posting_id)?.match_tier === "strict"))
+    && (showOther || decision === "excluded" || scope === "ignored" || filterStatus(c) !== "excluded")
+    && (!strictOnly || filterStatus(c) === "matched")
     && (scope !== "saved" || c.status === "SAVED")
     && (!keyword || `${c.job.company ?? ""} ${c.job.title ?? ""}`.toLowerCase().includes(keyword.toLowerCase()))
     && (!city || (c.job.locations ?? []).includes(city))
     && (!kind || c.job.job_type === kind)
-    && (!decision || recommendation(c) === decision)
-  ).sort((a, b) => tier(a) - tier(b));
+    && (!decision || filterStatus(c) === decision)
+  ).sort((a, b) => rowOrder(a) - rowOrder(b));
   const companyName = (value?: string | null) => {
     const name = value?.trim().replace(/\s+/g, " ");
     return !name || /^(未知|待确认|公司待确认|尚未识别|unknown|moka|mokahr|北森)$/i.test(name) ? "公司待确认" : name;
   };
-  const grouped = new Map<string, { name: string; rows: CandidateItem[]; entries: JobLeadItem[] }>();
-  const groupFor = (name: string) => {
-    const key = name.toLocaleLowerCase();
-    if (!grouped.has(key)) grouped.set(key, { name, rows: [], entries: [] });
+  const groupLabels = ["符合已知条件", "待核实", "明确不符", "招聘入口"];
+  const grouped = new Map<string, { name: string; rank: number; rows: CandidateItem[]; entries: JobLeadItem[] }>();
+  const groupFor = (name: string, rank: number) => {
+    const key = `${rank}:${name.toLocaleLowerCase()}`;
+    if (!grouped.has(key)) grouped.set(key, { name, rank, rows: [], entries: [] });
     return grouped.get(key)!;
   };
-  for (const row of rows) groupFor(companyName(row.job.company)).rows.push(row);
+  for (const row of rows) groupFor(companyName(row.job.company), tier(row)).rows.push(row);
   const entryUrls = new Set<string>();
   for (const lead of leads) {
     if (lead.job_posting_id || lead.discovery_kind === "job" || entryUrls.has(lead.source_url)) continue;
@@ -2508,14 +2603,19 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
     const name = companyName(lead.extracted_fields?.company || lead.company_hint);
     if (keyword && !`${name} ${lead.title_hint || ""}`.toLowerCase().includes(keyword.toLowerCase())) continue;
     entryUrls.add(lead.source_url);
-    groupFor(name).entries.push(lead);
+    groupFor(name, 3).entries.push(lead);
   }
   const groups = [...grouped.entries()].sort(([, a], [, b]) =>
-    Number(a.name === "公司待确认") - Number(b.name === "公司待确认")
-    || (a.rows.length ? tier(a.rows[0]) : 4) - (b.rows.length ? tier(b.rows[0]) : 4)
+    a.rank - b.rank
+    || Number(a.name === "公司待确认") - Number(b.name === "公司待确认")
+    || (a.rows.length ? rowOrder(a.rows[0]) : 6) - (b.rows.length ? rowOrder(b.rows[0]) : 6)
     || b.rows.length - a.rows.length || a.name.localeCompare(b.name, "zh-CN"));
   const openKey = (key: string) => `${latestRunId || "all"}:${key}`;
-  const isCompanyOpen = (key: string) => companyOpen[openKey(key)] ?? key === groups[0]?.[0];
+  const isCompanyOpen = (key: string) => {
+    const group = grouped.get(key)!;
+    return companyOpen[openKey(key)] ?? (group.rank === 0 || key === groups[0]?.[0]
+      || (group.rank === 1 && key === groups.find(([, g]) => g.rank === 1)?.[0]));
+  };
   useEffect(() => {
     if (!selected) return;
     const controller = new AbortController();
@@ -2548,45 +2648,45 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
       <label>公司 / 岗位<input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="搜索公司或岗位名称" /></label>
       <label>地点<select value={city} onChange={(e) => setCity(e.target.value)}><option value="">全部地点</option>{Array.from(new Set(allRows.flatMap((c) => c.job.locations ?? []))).sort().map((v) => <option key={v}>{v}</option>)}</select></label>
       <label>招聘类型<select value={kind} onChange={(e) => setKind(e.target.value)}><option value="">全部类型</option><option value="campus">校招</option><option value="internship">实习</option><option value="full_time">社招 / 全职</option></select></label>
-      <label>匹配建议<select value={decision} onChange={(e) => setDecision(e.target.value)}><option value="">全部建议</option><option value="pending">待分析</option>{Object.entries(labels).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
+      <label>筛选结果<select value={decision} onChange={(e) => { setDecision(e.target.value); setStrictOnly(false); }}><option value="">全部结果</option><option value="matched">符合已知条件</option><option value="pending">待核实</option><option value="excluded">明确不符</option></select></label>
       <button type="button" onClick={() => { setKeyword(""); setCity(""); setKind(""); setDecision(""); setStrictOnly(false); }}>清除筛选</button>
     </div>
     <div className="jobs-view-options">
       <label><input type="checkbox" checked={strictOnly} onChange={(e) => setStrictOnly(e.target.checked)} />只看符合本次条件的岗位</label>
-      <label><input type="checkbox" checked={showOther} onChange={(e) => setShowOther(e.target.checked)} />显示明显不符或已关闭的岗位</label>
+      <label><input type="checkbox" checked={showOther} onChange={(e) => setShowOther(e.target.checked)} />显示明确不符或已关闭的岗位</label>
     </div>
     {selectionError && <p role="alert">{selectionError}</p>}
     <div className="jobs-company-toolbar">
-      <p className="jobs-table-count">{groups.length} 个公司分组 · {rows.length} 个岗位 · {groups.reduce((n, [, g]) => n + g.entries.length, 0)} 个入口。待核验数包含在岗位数中；数量随筛选变化。</p>
+      <p className="jobs-table-count">{new Set(groups.map(([, g]) => g.name)).size} 个公司 · {rows.length} 个岗位 · {groups.reduce((n, [, g]) => n + g.entries.length, 0)} 个入口。待核验数包含在岗位数中；数量随筛选变化。</p>
       <div><button type="button" onClick={() => setCompanyOpen((old) => ({ ...old, ...Object.fromEntries(groups.map(([key]) => [openKey(key), true])) }))}>全部展开</button><button type="button" onClick={() => setCompanyOpen((old) => ({ ...old, ...Object.fromEntries(groups.map(([key]) => [openKey(key), false])) }))}>全部收起</button></div>
     </div>
     <div className="jobs-table-scroll"><table className="jobs-table jobs-unified-table">
-      <thead><tr><th>公司</th><th>岗位</th><th>地点</th><th>招聘类型</th><th>查看优先级</th><th>核验状态</th><th>条件差异 / 匹配依据</th><th>候选状态</th><th>最近核验</th><th>原始链接</th><th>操作</th></tr></thead>
+      <thead><tr><th>公司</th><th>岗位</th><th>地点</th><th>招聘类型</th><th>筛选结果</th><th>核验状态</th><th>筛选依据</th><th>候选状态</th><th>最近核验</th><th>原始链接</th><th>操作</th></tr></thead>
       {groups.map(([key, group]) => {
         const expanded = isCompanyOpen(key);
         const span = group.rows.length + (group.entries.length ? 1 : 0);
         const companyCell = <td className="jobs-company-cell" data-label="公司" rowSpan={expanded ? Math.max(1, span) : 1}>
-          <button type="button" className="jobs-company-toggle" aria-expanded={expanded} aria-label={`${expanded ? "收起" : "展开"}${group.name}`} onClick={() => setCompanyOpen((old) => ({ ...old, [openKey(key)]: !expanded }))}>
+          <button type="button" className="jobs-company-toggle" aria-expanded={expanded} aria-label={`${expanded ? "收起" : "展开"}${group.name}（${groupLabels[group.rank]}）`} onClick={() => setCompanyOpen((old) => ({ ...old, [openKey(key)]: !expanded }))}>
             <span aria-hidden="true">{expanded ? "▾" : "▸"}</span><strong>{group.name}</strong>
           </button>
-          <small>{group.rows.length} 个岗位 · {group.entries.length} 个入口</small>
-          <small>其中 {group.rows.filter((c) => c.pendingLead).length} 个岗位待核验</small>
+          <small>{groupLabels[group.rank]} · {group.rows.length} 个岗位 · {group.entries.length} 个入口</small>
+          <small>其中 {group.rows.filter((c) => c.pendingLead && c.pendingLead.status !== "CLOSED").length} 个岗位待核验</small>
         </td>;
-        return <tbody className="jobs-company-rows" key={key}>
+        return <tbody className="jobs-company-rows" data-filter-status={group.rank < 3 ? ["matched", "pending", "excluded"][group.rank] : "entry"} key={key}>
           {!expanded ? <tr>{companyCell}<td className="jobs-company-summary" colSpan={10}>已收起，点击公司名称展开岗位和招聘入口</td></tr> : <>
           {group.rows.map((c, index) => <tr key={c.id}>
             {index === 0 && companyCell}
         <td className="jobs-position-cell" data-label="岗位"><button className="jobs-title" onClick={() => setSelected(c)}>{c.job.title || "岗位标题待补全"}</button></td>
         <td data-label="地点">{c.job.locations?.join("、") || "待确认"}</td>
         <td data-label="招聘类型">{jobTypeShortLabel[c.job.job_type ?? ""] || "待确认"}</td>
-        <td data-label="匹配建议"><span className={`jobs-decision decision-${recommendation(c)}`}>{["优先看", "待确认", "相关机会", "明显不符 / 已关闭"][tier(c)]}</span></td>
+        <td data-label="筛选结果"><span className={`jobs-decision decision-${filterStatus(c)}`}>{["符合已知条件", "待核实", "明确不符"][tier(c)]}</span></td>
         <td data-label="核验状态">{c.pendingLead ? `${c.pendingLead.source_label || "来源待核实"} · ${jobLeadStatusLabel[c.pendingLead.status]}` : "正文已核验"}</td>
-        <td data-label="关键提示">{c.job.availability_status === "CLOSED" ? "已关闭；" : ""}{c.pendingLead ? (c.pendingLead.failure_reason || (c.pendingLead.extracted_fields?.basis === "screenshot" ? "截图识别，可能不完整；官网及投递条件待核验" : c.pendingLead.extracted_fields?.basis === "page_snapshot" ? "已提取页面信息；官网及投递条件待核验" : "来自搜索线索，条件尚未确认")) : matchMap.get(c.job_posting_id)?.mismatch_labels.join("；") || (c.analysis ? labels[recommendation(c)] : "搜索条件基本符合，简历匹配待分析")}</td>
+        <td data-label="关键提示">{c.job.availability_status === "CLOSED" ? "已关闭；" : ""}{c.pendingLead ? (c.pendingLead.failure_reason || (c.pendingLead.extracted_fields?.basis === "screenshot" ? "截图识别，可能不完整；官网及投递条件待核验" : c.pendingLead.extracted_fields?.basis === "page_snapshot" ? "已提取页面信息；官网及投递条件待核验" : "来自搜索线索，条件尚未确认")) : matchMap.get(c.job_posting_id)?.checks?.map(check => check.reason).join("；") || matchMap.get(c.job_posting_id)?.mismatch_labels.join("；") || "尚未按本次条件完成筛选"}</td>
         <td data-label="候选状态">{candidateStatusLabel[c.status]}</td>
         <td data-label="最近核验">{c.job.last_verified_at ? formatDate(c.job.last_verified_at) : "尚未核验"}</td>
         <td data-label="原始链接">{safeUrl(c.job.source_url) ? <a href={c.job.source_url!} target="_blank" rel="noopener noreferrer">打开原页 ↗</a> : "未保存链接"}</td>
         <td data-label="操作"><div className="jobs-row-actions">
-          {c.pendingLead && ["NEW", "FAILED"].includes(c.pendingLead.status) && <button disabled={updatingLeadId === c.id} onClick={() => onVerifyLead(c.id)}>验证正文</button>}
+          {c.pendingLead && ["NEW", "FAILED", "DEFERRED"].includes(c.pendingLead.status) && <button disabled={updatingLeadId === c.id} onClick={() => onVerifyLead(c.id)}>验证正文</button>}
           {c.pendingLead?.status === "NEEDS_BROWSER" && <button disabled={updatingLeadId === c.id} onClick={() => onBrowserLead(c.id)}>浏览器验证</button>}
           {c.pendingLead && ["NEEDS_BROWSER", "NEEDS_USER", "REJECTED_NON_JOB"].includes(c.pendingLead.status) && <button onClick={() => onPasteJD(c.id)}>粘贴 JD 接管</button>}
           {c.available_transitions.includes("SAVED") && <button disabled={updatingId === c.id} onClick={() => void updateRow(c, "SAVED")}>保存</button>}
@@ -2604,9 +2704,13 @@ function DiscoveryTable({ renderEntries, candidates, leads, query, onVerifyLead,
     {!groups.length && <p className="jobs-no-results">当前范围没有符合筛选条件的岗位。可清除筛选或切换到“全部候选”。</p>}
     <dialog ref={dialog} className="jobs-detail" aria-label="岗位详情" onClose={() => setSelected(null)} onClick={(e) => { if (e.target === e.currentTarget) dialog.current?.close(); }}>
       {selected && <><header><div><small>{selected.job.company || "公司待确认"}</small><h2>{selected.job.title || "岗位详情"}</h2></div><button aria-label="关闭岗位详情" onClick={() => dialog.current?.close()}>关闭 ×</button></header>
+      {!selected.pendingLead && <section aria-label="筛选依据"><h3>筛选依据</h3>
+        {matchMap.get(selected.job_posting_id)?.checks?.map((check, i) => <div className="jobs-evidence" key={i}><strong>{check.reason}</strong>{check.evidence.length > 0 && <p>核验依据：{check.evidence.join("；")}</p>}</div>) || <p>尚未按本次条件完成筛选</p>}
+        <small>此处仅核对搜索条件；需要评估个人学历、专业与能力时，可进入岗位分析。</small>
+      </section>}
       <div className="jobs-detail-actions">{safeUrl(selected.job.source_url) && <a href={selected.job.source_url!} target="_blank" rel="noopener noreferrer">打开原始页面 ↗</a>}
         {selected.pendingLead ? <>
-          {["NEW", "FAILED"].includes(selected.pendingLead.status) && <button onClick={() => { dialog.current?.close(); onVerifyLead(selected.id); }}>继续核验正文</button>}
+          {["NEW", "FAILED", "DEFERRED"].includes(selected.pendingLead.status) && <button onClick={() => { dialog.current?.close(); onVerifyLead(selected.id); }}>继续核验正文</button>}
           {selected.pendingLead.status === "NEEDS_BROWSER" && <button onClick={() => { dialog.current?.close(); onBrowserLead(selected.id); }}>浏览器验证</button>}
           {["NEEDS_BROWSER", "NEEDS_USER", "REJECTED_NON_JOB"].includes(selected.pendingLead.status) && <button onClick={() => { dialog.current?.close(); onPasteJD(selected.id); }}>粘贴 JD 接管</button>}
         </> : <button onClick={() => { dialog.current?.close(); onOpen(selected.job.id); }}>{result ? "打开完整匹配与申请" : "进入岗位分析"}</button>}
@@ -2746,14 +2850,14 @@ function DiscoveryRunHistory({ runs }: { runs: DiscoveryRunItem[] }) {
         <span>{runs.length} 次搜索</span>
       </summary>
       {runs.length === 0 ? (
-        <p className="discovery-history-empty">还没有搜索记录。第一次即时搜索后，这里会记录搜索目标、来源数量和自动分析进度。</p>
+        <p className="discovery-history-empty">还没有搜索记录。第一次即时搜索后，这里会记录搜索目标、来源数量和核验筛选结果。</p>
       ) : (
         <div className="discovery-history-list">
           {runs.slice(0, 5).map((run) => (
             <div className="discovery-history-row" key={run.id}>
               <span className="discovery-history-source">{run.search_query || run.source}</span>
               <strong>{discoveryRunStatusLabel[run.status]}</strong>
-              <span>严格 {countDiscoveryMatches(run, "strict")} / 拓展 {countDiscoveryMatches(run, "expanded")} / 分析 {run.analysis_completed_count}/{run.analysis_target_count}</span>
+              <span>符合 {run.result_matches.filter(m => m.filter_status === "matched").length} / 待核实 {run.result_matches.filter(m => !m.filter_status || m.filter_status === "pending").length} / 不符 {run.result_matches.filter(m => m.filter_status === "excluded").length}</span>
               <time>{formatDate(run.created_at)}</time>
               {run.failure_summary ? (
                 <p className="discovery-history-warning" title={run.failure_summary}>
@@ -2768,7 +2872,7 @@ function DiscoveryRunHistory({ runs }: { runs: DiscoveryRunItem[] }) {
                       <div className="discovery-plan-heading">
                         <span>{run.search_plan.version.toUpperCase()}</span>
                         <strong>
-                          来源 {run.search_plan.allowed_source_ids.length} · 岗位上限 {run.search_plan.budget.max_results} · 自动分析 {run.search_plan.budget.max_analysis}
+                          来源 {run.search_plan.allowed_source_ids.length} · 岗位上限 {run.search_plan.budget.max_results} · 简历匹配按需进行
                         </strong>
                       </div>
                       <div className="discovery-plan-routes">
@@ -2860,7 +2964,7 @@ function AnalysisResult({
           {decision.reasons.map((reason) => <small key={reason}>{reason}</small>)}
         </div>
         <div className="decision-action">
-          <span className="summary-label">HUMAN GATE</span>
+          <span className="summary-label">下一步</span>
           <button onClick={onPrepareApplication} disabled={preparing} type="button">
             {preparing ? "正在创建…" : "准备申请 ↗"}
           </button>
@@ -2874,12 +2978,11 @@ function AnalysisResult({
         <div className="jd-facts">
           <Fact label="岗位类型" value={jd.job_type ? jobTypeLabel[jd.job_type] ?? jd.job_type : "未识别"} />
           <Fact label="工作地点" value={compactList(jd.locations)} />
-          <Fact label="学历要求" value={compactList(jd.education_requirements)} />
+          <Fact label="学历及专业条件" value={educationConditionSummary(jd)} />
           <Fact label="届别原文" value={jd.graduation_source_text ?? "未识别"} />
-          <Fact label="专业要求" value={compactList(jd.major_requirements)} />
           <Fact label="必备技能" value={compactList(jd.required_skills)} accent />
           <Fact label="加分技能" value={compactList(jd.preferred_skills)} />
-          <Fact label="截止时间" value={jd.deadline ?? "未识别"} />
+          <Fact label="截止时间" value={jd.deadline ?? "原文未明确"} />
           <Fact label="实习条件" value={internshipCopy(jd)} />
           <Fact label="岗位职责" value={compactList(jd.responsibilities)} />
         </div>
@@ -2891,11 +2994,12 @@ function AnalysisResult({
           {analysis.eligibility.checks.map((check) => (
             <div className="eligibility-row" key={`${check.rule_name}-${check.field}`}>
               <span className={`check-icon check-${check.result}`}>{check.result === "pass" ? "✓" : check.result === "fail" ? "×" : "?"}</span>
-              <div><strong>{check.rule_name.replaceAll("_", " ")}</strong><p>{check.reason}</p>
-                {check.jd_evidence?.map((item, index) => <p key={index}>岗位原文：{item.source_text}</p>)}
+              <div><strong>{qualificationName(check.field, check.rule_name)}</strong><p>{check.reason}</p>
+                {Array.from(new Set(check.jd_evidence?.map((item) => item.source_text))).map((quote) => <p key={quote}>岗位原文：{quote}</p>)}
+                {check.education_evidence?.map(item => <p key={item.id}>教育依据（{educationLabels[item.level]}／{item.major_raw ?? "专业未填"}）：{item.source_text}</p>)}
                 {check.missing_information.map((item) => <p key={item}>待确认：{item}</p>)}
               </div>
-              <span className={`check-word check-word-${check.result}`}>{check.result.toUpperCase()}</span>
+              <span className={`check-word check-word-${check.result}`}>{{ pass: "符合", fail: "不符合", unknown: "待确认" }[check.result]}</span>
             </div>
           ))}
         </div>
@@ -3471,6 +3575,7 @@ function Fact({ label, value, accent = false }: { label: string; value: string; 
 }
 
 function MatchRow({ match }: { match: RequirementMatch }) {
+  const citationCount = match.evidence_ids.length + (match.education_evidence?.length ?? 0);
   return (
     <article className={`match-row match-${match.support_level}`}>
       <div className="match-main">
@@ -3483,10 +3588,19 @@ function MatchRow({ match }: { match: RequirementMatch }) {
             </span>
           ) : null}
         </div>
-        <p>{match.requirement.description}</p>
+        {match.requirement.description !== match.requirement.name && <p>{match.requirement.description}</p>}
         <div className="match-explanation"><span className="quote-mark">“</span>{match.explanation}</div>
+        {match.item_checks?.some(check => check.evidence_quotes.length > 0) && <details className="fact-differences">
+          <summary>查看经历依据与尚缺条件</summary>
+          {match.item_checks.map((check, index) => <div key={index}>
+            <p>{check.condition_text || check.source_text}：{supportLabel[check.support_level]}</p>
+            {check.evidence_quotes.map((quote, i) => <blockquote key={i}>{quote}</blockquote>)}
+            {check.unresolved.map((reason, i) => <p key={i}>{reason}</p>)}
+          </div>)}
+        </details>}
+        {match.education_evidence?.map(item => <p key={item.id}>教育依据{item.reviewed ? "（已核对）" : ""}：{item.source_text}</p>)}
       </div>
-      <div className="match-status"><span className="match-status-dot" /><strong>{supportLabel[match.support_level]}</strong><small>{match.evidence_ids.length > 0 ? `${match.evidence_ids.length} 条引用` : "需要补充"}</small></div>
+      <div className="match-status"><span className="match-status-dot" /><strong>{supportLabel[match.support_level]}</strong><small>{citationCount > 0 ? `${citationCount} 条引用` : "需要补充"}</small></div>
     </article>
   );
 }

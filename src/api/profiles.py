@@ -22,4 +22,7 @@ def upsert_profile(
     session: DatabaseSession,
 ) -> ProfileRead:
     changes = payload.model_dump(mode="json", exclude_unset=True)
-    return ProfileService(session).upsert(user_id, changes)
+    try:
+        return ProfileService(session).upsert(user_id, changes)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error

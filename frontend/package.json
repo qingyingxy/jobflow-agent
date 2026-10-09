@@ -9,6 +9,8 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
+    "test:integration": "playwright test --config=playwright.integration.config.ts",
+    "test:live-results": "playwright test --config=playwright.live.config.ts",
     "demo:capture": "playwright test e2e/discovery-demo.spec.ts --project=chromium"
   },
   "dependencies": {

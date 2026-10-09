@@ -30,13 +30,14 @@
   {"id":"pony","company":"小马智行 Pony.ai","priority":"A","career_url":"https://campus.pony.ai/","entry_type":"official_campus_page","enabled":true},
   {"id":"weride","company":"文远知行 WeRide","priority":"B","career_url":"https://www.weride.ai/zh/careers","entry_type":"official_career_page","enabled":true},
   {"id":"lixiang","company":"理想汽车","priority":"A","career_url":"https://www.lixiang.com/employ.html","entry_type":"official_career_page","enabled":true},
-  {"id":"nio","company":"蔚来","priority":"B","career_url":"https://campus.nio.com/","entry_type":"official_campus_page","enabled":true},
+  {"id":"nio","company":"蔚来","priority":"B","career_url":"https://campus.nio.com/","entry_type":"official_campus_page","enabled":true,"resource_hosts":["cdn-fx.nio.com","cdn-campus.nio.com"]},
   {"id":"xpeng","company":"小鹏汽车","priority":"A","career_url":"https://www.xiaopeng.com/join.html","entry_type":"official_career_page","enabled":true},
   {"id":"byd","company":"比亚迪","priority":"B","career_url":"https://job.byd.com/portal/mobile/school-home","entry_type":"official_campus_page","enabled":true},
   {"id":"zhipu","company":"智谱 AI","priority":"A","career_url":"https://www.zhipuai.cn/zh/joinus","entry_type":"official_career_page","enabled":true},
-  {"id":"minimax","company":"MiniMax","priority":"A","career_url":"https://minimaxi.com/careers","entry_type":"official_career_page","enabled":true},
+  {"id":"minimax","company":"MiniMax","priority":"A","career_url":"https://minimax.cn/careers","entry_type":"official_career_page","enabled":true},
   {"id":"360","company":"360集团","priority":"B","career_url":"https://campus.360.cn/","entry_type":"official_campus_page","enabled":true},
   {"id":"wps","company":"金山办公 WPS","priority":"B","career_url":"https://campus.wps.cn/","entry_type":"official_campus_page","enabled":true},
+  {"id":"unity","company":"Unity中国","priority":"B","career_url":"https://recruiting.unity.cn/","entry_type":"official_career_page","enabled":true,"resource_hosts":["lf-package-cn.feishucdn.com"],"verification_reference":"https://unity.cn/"},
   {"id":"china-mobile","company":"中国移动","priority":"C","career_url":"https://job.10086.cn/","entry_type":"official_career_page","enabled":true},
   {"id":"china-telecom","company":"中国电信","priority":"C","career_url":"https://campus.51job.com/chinatelecom/","entry_type":"official_campus_page","enabled":true}
 ]

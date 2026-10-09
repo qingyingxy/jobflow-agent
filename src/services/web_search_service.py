@@ -45,7 +45,7 @@ from src.services.responses_search import ResponsesSearchProvider
 from src.services.url_reader import SafeHTTPReader
 
 WEB_SEARCH_MAX_RESULTS = 20
-WEB_SEARCH_ANALYSIS_LIMIT = 5
+WEB_SEARCH_ANALYSIS_LIMIT = 0
 WEB_SEARCH_SOURCE_ID = "web-search:bing-rss"
 WEB_SEARCH_SOURCE_URL = "https://www.bing.com/search?format=rss"
 WEB_SEARCH_RUN_SOURCE_ID = "web-search-agent:v1"
@@ -246,7 +246,6 @@ def _build_agent_search_plan(
         stop_conditions=[
             "max_results_reached",
             "source_route_exhausted",
-            "no_verified_jobs_requires_human_input",
         ],
     )
 
@@ -312,7 +311,7 @@ def create_web_search_provider(
             api_key=settings.llm_api_key,
             model=settings.llm_model,
             company_names=company_names,
-            timeout_seconds=settings.llm_timeout_seconds,
+            timeout_seconds=min(settings.llm_timeout_seconds, settings.web_search_request_timeout_seconds),
         )
     if provider_name == "auto" and settings.tavily_api_key:
         provider_name = "tavily"
@@ -384,7 +383,11 @@ async def execute_web_search(
     query: str,
     company_ids: list[str] | None = None,
 ) -> None:
-    if get_settings().web_search_provider.strip().casefold() == "responses":
+    runtime_settings = get_settings()
+    if (
+        runtime_settings.web_search_provider.strip().casefold() == "responses"
+        or runtime_settings.web_search_decision_mode == "agent"
+    ):
         from src.services.multiround_search import execute_multiround_search
 
         await execute_multiround_search(
@@ -537,6 +540,8 @@ async def execute_web_search(
             )
             match = classify_discovery_job(stub, query=query)
             result_matches.append(match.as_dict(job_posting_id=posting.id))
+            run.result_matches = list(result_matches)
+            session.commit()
             if match.match_tier == "strict":
                 strict_job_ids.append(posting.id)
             if verified.posting_created:
@@ -578,7 +583,7 @@ async def execute_web_search(
                     else f"网页搜索补充 {len(candidates)} 条岗位线索。"
                 ),
                 "decision": (
-                    "保留已经核验的官网岗位并继续分析。"
+                    "保留已经核验的官网岗位和筛选结果。"
                     if web_search_error is not None
                     else "所有结果先保存为线索，不采用搜索摘要作为岗位事实。"
                 ),
@@ -605,7 +610,7 @@ async def execute_web_search(
                     f"已从原始页面核验 {len(result_matches)} 条岗位；"
                     f"严格匹配 {len(strict_job_ids)} 条。"
                 ),
-                "decision": ("只把原始页面事实交给模型分析；其余线索保留待核验。"),
+                "decision": ("依据原始页面事实筛选岗位；其余线索保留待核验。"),
                 "source_id": None,
                 "company": None,
                 "url": None,
@@ -625,18 +630,18 @@ async def execute_web_search(
             run.agent_trace = [
                 *(run.agent_trace or []),
                 {
-                    "phase": "human_gate",
-                    "tool": "lead_review_or_manual_jd",
+                    "phase": "stop",
+                    "tool": "pending_verification",
                     "outcome": "recommended",
                     "observation": "本次没有自动核验成功的具体岗位页。",
-                    "decision": "保留搜索线索供浏览器核验，或由用户粘贴具体 JD。",
+                    "decision": "保留搜索线索，可继续核验或调整条件搜索。",
                     "source_id": None,
                     "company": None,
                     "url": None,
                     "occurred_at": datetime.now(UTC).isoformat(),
                     "duration_ms": None,
                     "error_code": None,
-                    "details": {"requires_human_input": True},
+                    "details": {"requires_human_input": False},
                 },
             ][-60:]
         session.commit()

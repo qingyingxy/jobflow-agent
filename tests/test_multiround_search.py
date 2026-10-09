@@ -121,7 +121,9 @@ def test_ai_application_and_campus_title_are_not_rejected():
                   locations=facts.locations, job_type=facts.job_type, published_at=None,
                   detail_url="https://example.com/jobs/1", raw_content=document.text)
     match = classify_discovery_job(job, query="2027校招 AI应用开发 Agent开发 RAG开发 Python后端 上海 杭州")
-    assert match.match_tier == "strict"
+    assert match.filter_status == "pending"
+    assert "graduation_year" in match.mismatch_reasons
+    assert "role" not in match.mismatch_reasons
 
 
 @pytest.mark.asyncio

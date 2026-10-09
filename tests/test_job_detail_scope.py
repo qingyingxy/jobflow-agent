@@ -11,6 +11,32 @@ HTML = """<title>滴滴招聘</title><nav>校园招聘 实习生招聘</nav>
 <div class="position-detail-similarPosts">AI应用开发校招 北京市</div>"""
 
 
+@pytest.mark.parametrize(
+    "body,expected",
+    [
+        ("招聘类型：校园招聘。任职要求：熟悉 Python。", "campus"),
+        ("招聘类别：实习招聘。任职要求：熟悉 Python。", "internship"),
+        ("任职要求：有校园招聘平台开发经验或实习经验。", "full_time"),
+    ],
+)
+def test_explicit_recruitment_type_is_distinct_from_full_time_hours(body, expected):
+    import json
+
+    item = {
+        "@type": "JobPosting",
+        "title": "Python 开发工程师",
+        "description": body,
+        "employmentType": "FULL_TIME",
+    }
+    html = '<script type="application/ld+json">' + json.dumps(item) + "</script>"
+    doc, _ = scope_job_document(
+        html, parse_html_document(html), url="https://example.com/jobs/1"
+    )
+    facts = verify_page_facts(doc)
+    assert facts.job_type == expected
+    assert facts.evidence["job_type"]["value"] == expected
+
+
 def test_current_job_excludes_navigation_and_related_jobs():
     doc, closed = scope_job_document(
         HTML, parse_html_document(HTML), url="https://talent.didiglobal.com/social/p/1"
@@ -180,7 +206,9 @@ def test_hashed_component_classes_and_explicit_type_override_route():
 @pytest.mark.parametrize("wrapper", ["section", "div", "article"])
 def test_sibling_requirements_and_status_are_retained(wrapper):
     html = f"<main><div>已结束</div><{wrapper}><h1>Python工程师</h1><h2>岗位职责</h2><p>开发接口。</p></{wrapper}><{wrapper}><h2>任职要求</h2><div>硕士学历，三年经验。</div></{wrapper}><div>工作地点：成都</div></main>"
-    doc, closed = scope_job_document(html, parse_html_document(html), url="https://example.com/jobs/1")
+    doc, closed = scope_job_document(
+        html, parse_html_document(html), url="https://example.com/jobs/1"
+    )
     assert "开发接口" in doc.text
     assert "硕士学历，三年经验" in doc.text
     assert verify_page_facts(doc).locations == ["成都"]
@@ -189,7 +217,9 @@ def test_sibling_requirements_and_status_are_retained(wrapper):
 
 def test_mixed_tags_and_split_labels_preserve_each_fact():
     html = "<main><h1>Python工程师</h1><div>工作地点</div><div>成都</div><div>招聘类型：实习</div><h2>岗位职责</h2><p>开发接口。</p><div>任职要求：硕士学历。</div><table><tr><td>薪资</td><td>每月8000元</td></tr></table></main>"
-    doc, _ = scope_job_document(html, parse_html_document(html), url="https://example.com/jobs/1")
+    doc, _ = scope_job_document(
+        html, parse_html_document(html), url="https://example.com/jobs/1"
+    )
     for fact in ["成都", "实习", "开发接口", "硕士学历", "每月8000元"]:
         assert fact in doc.text
     assert doc.text.count("开发接口") == 1
@@ -198,9 +228,20 @@ def test_mixed_tags_and_split_labels_preserve_each_fact():
 
 def test_structured_description_keeps_additional_dom_requirements():
     import json
-    data = {"@type":"JobPosting", "title":"Python工程师", "description":"岗位职责：开发接口。"}
-    html = '<script type="application/ld+json">' + json.dumps(data) + '</script><main><h1>Python工程师</h1><div>任职要求：硕士学历，三年经验。</div><div>工作地点：成都</div></main>'
-    doc, _ = scope_job_document(html, parse_html_document(html), url="https://example.com/jobs/1")
+
+    data = {
+        "@type": "JobPosting",
+        "title": "Python工程师",
+        "description": "岗位职责：开发接口。",
+    }
+    html = (
+        '<script type="application/ld+json">'
+        + json.dumps(data)
+        + "</script><main><h1>Python工程师</h1><div>任职要求：硕士学历，三年经验。</div><div>工作地点：成都</div></main>"
+    )
+    doc, _ = scope_job_document(
+        html, parse_html_document(html), url="https://example.com/jobs/1"
+    )
     assert "开发接口" in doc.text
     assert "硕士学历，三年经验" in doc.text
     assert verify_page_facts(doc).locations == ["成都"]
@@ -217,16 +258,44 @@ async def test_original_snapshot_survives_success_and_failure(db_session, valid)
     from src.services.job_lead_service import JobLeadService, LeadVerificationFailure
     from src.services.url_reader import FetchedResponse
 
-    html = '<nav>导航原文</nav><main><h1>Python工程师</h1><div>岗位职责：负责后端接口开发、数据库设计和服务维护。</div><div>任职要求：熟悉Python，能够独立开发测试并参与代码评审，具有良好的团队协作能力，愿意持续学习软件工程实践。</div><div>工作地点：成都。</div></main>' if valid else '<main>未加载的原始页面</main>'
+    html = (
+        "<nav>导航原文</nav><main><h1>Python工程师</h1><div>岗位职责：负责后端接口开发、数据库设计和服务维护。</div><div>任职要求：熟悉Python，能够独立开发测试并参与代码评审，具有良好的团队协作能力，愿意持续学习软件工程实践。</div><div>工作地点：成都。</div></main>"
+        if valid
+        else "<main>未加载的原始页面</main>"
+    )
+
     class Reader:
         async def fetch(self, url):
-            return FetchedResponse(requested_url=url, final_url=url, status_code=200, content_type="text/html", body=html.encode())
+            return FetchedResponse(
+                requested_url=url,
+                final_url=url,
+                status_code=200,
+                content_type="text/html",
+                body=html.encode(),
+            )
+
     service = JobLeadService(db_session)
-    lead = service.create_lead(user_id="snapshot-user", provider=LeadProvider.EXTERNAL_AGENT, source_url="https://example.com/jobs/1")
+    lead = service.create_lead(
+        user_id="snapshot-user",
+        provider=LeadProvider.EXTERNAL_AGENT,
+        source_url="https://example.com/jobs/1",
+    )
     try:
-        await service.verify_url(user_id="snapshot-user", lead_id=lead.id, reader=Reader(), official_hosts={"example.com"})
+        await service.verify_url(
+            user_id="snapshot-user",
+            lead_id=lead.id,
+            reader=Reader(),
+            official_hosts={"example.com"},
+        )
     except LeadVerificationFailure:
         assert not valid
-    observation = db_session.scalar(select(LeadVerification).where(LeadVerification.lead_id == lead.id, LeadVerification.result == "SNAPSHOT"))
+    observation = db_session.scalar(
+        select(LeadVerification).where(
+            LeadVerification.lead_id == lead.id, LeadVerification.result == "SNAPSHOT"
+        )
+    )
     assert observation.field_evidence["raw_html"] == html
-    assert base64.b64decode(observation.field_evidence["raw_bytes_base64"]) == html.encode()
+    assert (
+        base64.b64decode(observation.field_evidence["raw_bytes_base64"])
+        == html.encode()
+    )

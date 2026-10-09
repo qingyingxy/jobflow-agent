@@ -26,6 +26,7 @@ from src.services.company_registry import (
     enabled_company_source_hosts,
     enabled_company_sources,
 )
+from src.services.discovery_results import current_run_matches
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
 from src.services.discovery_sources import (
     GreenhouseAdapter,
@@ -557,10 +558,12 @@ def list_discovery_runs(
     user_id: CurrentUserId,
     session: DatabaseSession,
 ) -> list[DiscoveryRunRead]:
-    return [
-        DiscoveryRunRead.model_validate(run)
-        for run in DiscoveryService(session).list_runs(user_id=user_id)
-    ]
+    runs = DiscoveryService(session).list_runs(user_id=user_id)
+    matches = current_run_matches(session, runs)
+    return [DiscoveryRunRead.model_validate({
+        **DiscoveryRunRead.model_validate(run).model_dump(),
+        "result_matches": matches[run.id],
+    }) for run in runs]
 
 
 @router.get("/discovery/runs/{run_id}", response_model=DiscoveryRunRead)
@@ -572,7 +575,10 @@ def read_discovery_run(
     run = DiscoveryService(session).get_run(user_id=user_id, run_id=run_id)
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="发现运行不存在")
-    return DiscoveryRunRead.model_validate(run)
+    return DiscoveryRunRead.model_validate({
+        **DiscoveryRunRead.model_validate(run).model_dump(),
+        "result_matches": current_run_matches(session, [run])[run.id],
+    })
 
 
 @router.patch("/discovery/leads/{lead_id}/selection", response_model=JobLeadRead)

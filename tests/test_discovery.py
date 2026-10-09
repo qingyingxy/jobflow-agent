@@ -478,8 +478,9 @@ async def test_empty_discovery_run_recommends_bounded_human_fallback(db_session)
     assert any(
         step["outcome"] == "needs_adapter" for step in result.run.agent_trace
     )
-    assert result.run.agent_trace[-1]["phase"] == "human_gate"
-    assert result.run.agent_trace[-1]["tool"] == "manual_jd_input"
+    assert result.run.agent_trace[-1]["phase"] == "stop"
+    assert result.run.agent_trace[-1]["tool"] == "empty_search_result"
+    assert result.run.agent_trace[-1]["details"]["requires_human_input"] is False
 
 
 def test_stale_discovery_run_is_failed_with_recovery_trace(db_session) -> None:
@@ -918,7 +919,7 @@ def test_official_search_plan_records_real_source_routes_and_budgets(
     ]
     assert run.search_plan["budget"] == {
         "max_results": 20,
-        "max_analysis": 5,
+        "max_analysis": 0,
         "max_detail_links_per_source": 4,
         "max_concurrency": 2,
         "request_timeout_seconds": None,

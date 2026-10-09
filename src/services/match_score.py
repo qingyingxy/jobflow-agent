@@ -70,6 +70,18 @@ def _skill_group(
     match_by_key: dict[str, RequirementMatch] = {}
     for match in matches:
         match_by_key.setdefault(requirement_key(match.requirement), match)
+    if any(
+        match_by_key.get(requirement_key(item)) is not None
+        and match_by_key[requirement_key(item)].validation_status == "failed"
+        for item in selected
+    ):
+        return ScoreGroupResult(
+            group=group,
+            status="insufficient_data",
+            original_weight=original_weight,
+            effective_weight=0,
+            reason="部分要求的匹配超时或未通过校验，不能计为零分或已完成",
+        )
     values = [
         _SUPPORT_VALUES.get(
             match_by_key.get(requirement_key(requirement), None).support_level
@@ -158,9 +170,7 @@ def calculate_match_score(
         ),
         _preference_group(eligibility),
     ]
-    has_insufficient_data = any(
-        group.status == "insufficient_data" for group in groups
-    )
+    has_insufficient_data = any(group.status == "insufficient_data" for group in groups)
     applicable_groups = [group for group in groups if group.status == "applicable"]
     weight_total = sum(group.original_weight for group in applicable_groups)
     if has_insufficient_data or not applicable_groups or weight_total <= 0:
@@ -182,12 +192,12 @@ def calculate_match_score(
         )
 
     missing_information = [
-        item
-        for check in eligibility.checks
-        for item in check.missing_information
+        item for check in eligibility.checks for item in check.missing_information
     ]
     if has_insufficient_data:
-        missing_information.append("补充缺失的 JD 要求或用户偏好")
+        missing_information.append(
+            "部分信息或匹配结果不完整，可查看已完成项并稍后更新分析"
+        )
     missing_information = list(dict.fromkeys(missing_information))
 
     if eligibility.eligible == "fail":

@@ -329,7 +329,7 @@ async def test_product_parser_accepts_no_explicit_requirements() -> None:
     assert parsed.structured_jd.responsibilities == ["负责大模型应用开发"]
 
 
-def test_local_matcher_supports_any_explicit_option_and_abstains_on_missing() -> None:
+def test_local_matcher_abstains_when_options_are_not_bound_to_original_description() -> None:
     requirements = [
         JobRequirement(
             category="required_skill",
@@ -362,7 +362,7 @@ def test_local_matcher_supports_any_explicit_option_and_abstains_on_missing() ->
         evidence=evidence,
     )
 
-    assert matches[0].support_level == "supported"
+    assert matches[0].support_level == "needs_confirmation"
     assert matches[0].evidence_ids == ["evidence_python"]
     assert matches[1].support_level == "needs_confirmation"
     assert matches[1].evidence_ids == []

@@ -15,6 +15,7 @@ from src.domain.analysis import (
     JobAnalysis,
     generate_job_analysis_id,
 )
+from src.domain.education import EducationRecord, education_summary
 from src.domain.eligibility import (
     CandidateProfileInput,
     EligibilityInput,
@@ -23,10 +24,11 @@ from src.domain.eligibility import (
 )
 from src.domain.job import JobPosting, StructuredJobDescription
 from src.domain.matching import EvidenceRecord, RequirementMatch
-from src.domain.models import EvidenceItem, UserProfile
+from src.domain.models import EvidenceItem
 from src.domain.runs import JobParseResult
 from src.services.eligibility_checker import check_eligibility
 from src.services.jd_parser import JDParser
+from src.services.job_fact_grounding import ground_runtime_facts
 from src.services.job_parse_service import (
     JDParseFailure,
     JobNotFoundError,
@@ -35,6 +37,8 @@ from src.services.job_parse_service import (
 from src.services.local_evidence_matcher import match_requirements_locally
 from src.services.match_score import calculate_match_score
 from src.services.product_jd_parser import ProductJDParser
+from src.services.semantic_evidence_matcher import SemanticEvidenceMatcher
+from src.services.semantic_matching_service import match_with_cache
 from src.services.staged_jd_parser import StagedJDParser
 
 
@@ -113,9 +117,7 @@ def delete_analyses_referencing_evidence(
     """Hard-delete user analyses whose stored matches cite one evidence item."""
 
     analyses = list(
-        session.scalars(
-            select(JobAnalysis).where(JobAnalysis.user_id == user_id)
-        ).all()
+        session.scalars(select(JobAnalysis).where(JobAnalysis.user_id == user_id)).all()
     )
     deleted = 0
     for analysis in analyses:
@@ -129,7 +131,7 @@ def delete_analyses_referencing_evidence(
 
 
 class JDAnalysisService:
-    """Parse once, then make a conservative decision from local user evidence."""
+    """Combine local qualifications with optional batch semantic matching."""
 
     def __init__(
         self,
@@ -137,12 +139,14 @@ class JDAnalysisService:
         *,
         parser: JDParser | StagedJDParser | ProductJDParser | None = None,
         matcher: object | None = None,
+        semantic_matcher: SemanticEvidenceMatcher | None = None,
     ) -> None:
         self.session = session
         self.parser = parser
         # Kept as a no-op keyword during the product-v1 migration so callers that
         # construct the old service do not break. Runtime analysis never uses it.
         self.legacy_matcher = matcher
+        self.semantic_matcher = semantic_matcher
 
     async def analyze(self, *, user_id: str, job_id: str) -> JobAnalysisExecution:
         if self.parser is None:
@@ -181,6 +185,39 @@ class JDAnalysisService:
             ) from error
 
         profile_input, preferences = self._profile_inputs(user_id)
+        structured = ground_runtime_facts(structured, posting.raw_content)
+        evidence = self._evidence_records(user_id)
+        matching_identity = (
+            self.semantic_matcher.identity() if self.semantic_matcher else None
+        )
+        input_hash = _analysis_input_hash(
+            structured=structured,
+            profile=profile_input,
+            preferences=preferences,
+            evidence=evidence,
+            matching_identity=matching_identity,
+        )
+        cached = self.session.scalar(
+            select(JobAnalysis)
+            .where(
+                JobAnalysis.user_id == user_id,
+                JobAnalysis.job_posting_id == job_id,
+                JobAnalysis.parse_result_id == parse_execution.parse_result.id,
+                JobAnalysis.input_hash == input_hash,
+                JobAnalysis.analysis_version == ANALYSIS_VERSION,
+                JobAnalysis.invalidated_at.is_(None),
+            )
+            .order_by(JobAnalysis.created_at.desc())
+        )
+        if cached and all(
+            m.get("validation_status") == "passed" for m in cached.matches
+        ):
+            return JobAnalysisExecution(
+                cached,
+                posting,
+                parse_execution.parse_result,
+                [parse_execution.agent_run.id],
+            )
         eligibility = check_eligibility(
             EligibilityInput(
                 profile=profile_input,
@@ -189,13 +226,62 @@ class JDAnalysisService:
             ),
             include_search_preferences=False,
         )
-        evidence = self._evidence_records(user_id)
+        requirements = structured.requirements or []
+        ordinary = [
+            r
+            for r in requirements
+            if r.education is None and r.category not in {"education", "major"}
+        ]
+        local_requirements = (
+            [r for r in requirements if r not in ordinary]
+            if self.semantic_matcher
+            else requirements
+        )
         matches = match_requirements_locally(
             user_id=user_id,
-            requirements=structured.requirements,
+            requirements=local_requirements,
             evidence=evidence,
+            profile=profile_input,
+            education_checks=[
+                check for check in eligibility.checks if check.field == "educations"
+            ],
         )
         agent_run_ids = [parse_execution.agent_run.id]
+        if self.semantic_matcher and ordinary:
+            semantic_matches, matching_run_id = await match_with_cache(
+                self.session,
+                matcher=self.semantic_matcher,
+                user_id=user_id,
+                job_id=job_id,
+                requirements=ordinary,
+                evidence=evidence,
+            )
+            agent_run_ids.append(matching_run_id)
+            local_iter, semantic_iter = iter(matches), iter(semantic_matches)
+            matches = [
+                next(semantic_iter) if r in ordinary else next(local_iter)
+                for r in requirements
+            ]
+            # Do not publish conclusions about old facts after a concurrent edit.
+            self.session.expire_all()
+            current_profile, current_preferences = self._profile_inputs(user_id)
+            current_hash = _analysis_input_hash(
+                structured=structured,
+                profile=current_profile,
+                preferences=current_preferences,
+                evidence=self._evidence_records(user_id),
+                matching_identity=matching_identity,
+            )
+            if (
+                current_hash != input_hash
+                or posting.content_hash != parse_execution.parse_result.content_hash
+            ):
+                raise JDAnalysisFailure(
+                    stage="matching",
+                    agent_run_id=matching_run_id,
+                    code="analysis_inputs_changed",
+                    message="分析期间资料或岗位已更新，请使用最新内容重新分析。",
+                )
 
         score = calculate_match_score(
             requirements=structured.requirements,
@@ -203,12 +289,6 @@ class JDAnalysisService:
             eligibility=eligibility,
         )
         risks = _build_risks(eligibility, matches, score)
-        input_hash = _analysis_input_hash(
-            structured=structured,
-            profile=profile_input,
-            preferences=preferences,
-            evidence=evidence,
-        )
 
         invalidate_analyses_for_job(
             self.session,
@@ -243,6 +323,10 @@ class JDAnalysisService:
         if posting is None:
             raise JobNotFoundError(job_id)
 
+        from src.services.legacy_education import restore_legacy_education
+
+        restore_legacy_education(self.session, user_id)
+
         rows = self.session.execute(
             select(JobAnalysis, JobParseResult)
             .join(JobParseResult, JobParseResult.id == JobAnalysis.parse_result_id)
@@ -276,14 +360,30 @@ class JDAnalysisService:
         self,
         user_id: str,
     ) -> tuple[CandidateProfileInput, SearchPreferences]:
-        profile = self.session.get(UserProfile, user_id)
+        from src.services.legacy_education import restore_legacy_education
+
+        profile = restore_legacy_education(self.session, user_id)
         if profile is None:
             return CandidateProfileInput(), SearchPreferences()
+        records = [
+            EducationRecord.model_validate(item) for item in profile.educations or []
+        ]
+        degree, major, year = profile.degree, profile.major, profile.graduation_year
+        if records or profile.education_history_complete:
+            degree, major, year = education_summary(records)
+        elif self.session.scalar(select(EvidenceItem.id).where(
+            EvidenceItem.user_id == user_id, EvidenceItem.type == "education",
+        ).limit(1)):
+            # Unconverted legacy records must not fall back to a possibly mixed
+            # highest-degree/major summary (for example when over capacity).
+            degree, major, year = None, None, None
         return (
             CandidateProfileInput(
-                graduation_year=profile.graduation_year,
-                degree=profile.degree,
-                major=profile.major,
+                graduation_year=year,
+                degree=degree,
+                major=major,
+                educations=records,
+                education_history_complete=profile.education_history_complete,
             ),
             # Discovery owns search conditions; saved preferences are not qualifications.
             SearchPreferences(),
@@ -292,7 +392,7 @@ class JDAnalysisService:
     def _evidence_records(self, user_id: str) -> list[EvidenceRecord]:
         items = self.session.scalars(
             select(EvidenceItem)
-            .where(EvidenceItem.user_id == user_id)
+            .where(EvidenceItem.user_id == user_id, EvidenceItem.type != "education")
             .order_by(EvidenceItem.id)
         ).all()
         return [
@@ -314,6 +414,7 @@ def _analysis_input_hash(
     profile: CandidateProfileInput,
     preferences: SearchPreferences,
     evidence: list[EvidenceRecord],
+    matching_identity: dict | None = None,
 ) -> str:
     payload = {
         "analysis_version": ANALYSIS_VERSION,
@@ -321,6 +422,7 @@ def _analysis_input_hash(
         "profile": profile.model_dump(mode="json"),
         "preferences": preferences.model_dump(mode="json"),
         "evidence": [item.model_dump(mode="json") for item in evidence],
+        "matching": matching_identity or {"strategy": "local"},
     }
     return hashlib.sha256(
         json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
@@ -363,15 +465,19 @@ def _build_risks(
     for match in matches:
         requirement_name = match.requirement.name
         requirement_id = hashlib.sha256(
-            json.dumps(match.requirement.model_dump(mode="json"), sort_keys=True, ensure_ascii=False).encode("utf-8")
+            json.dumps(
+                match.requirement.model_dump(mode="json"),
+                sort_keys=True,
+                ensure_ascii=False,
+            ).encode("utf-8")
         ).hexdigest()[:24]
         if match.validation_status == "failed":
             add(
                 AnalysisRisk(
                     code=f"evidence_validation:{requirement_id}",
                     severity="medium",
-                    title="证据匹配已安全降级",
-                    detail="模型引用未通过事实校验，已清空非法引用并按 unsupported 处理。",
+                    title="部分能力暂未完成判断",
+                    detail="分析超时或输出未通过校验，已保留为信息不足；岗位与资格结果仍可查看，可稍后重试。",
                     requirement_name=requirement_name,
                 )
             )
@@ -402,11 +508,11 @@ def _build_risks(
 
     if score.score is None:
         add(
-                AnalysisRisk(
-                    code="score_insufficient_data",
-                    severity="medium",
-                    title="申请建议暂不可判断",
-                    detail="岗位要求或用户资料不足，请补充后重新分析。",
-                )
+            AnalysisRisk(
+                code="score_insufficient_data",
+                severity="medium",
+                title="申请建议暂不可判断",
+                detail="岗位要求或用户资料不足，请补充后重新分析。",
             )
+        )
     return risks

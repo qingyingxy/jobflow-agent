@@ -1,0 +1,113 @@
+{
+  "version": "campus-matching-pilot-v1",
+  "source_dataset": "artifacts/evaluation/product-jd-development70-v2-2026-09-06.json",
+  "candidate_file": "datasets/campus_match_candidate_v1.json",
+  "selection": {"seed": "campus-match-pilot-v1", "jobs": 8, "policy": "Sort development jobs by sha256(seed + ':' + id), take first nonempty job per company until eight. Include all ordinary requirements; exclude the explicitly listed major requirements only."},
+  "reference_status": "agent_authored_provisional_before_model_run; not human adjudicated, independent gold, or a held-out accuracy benchmark",
+  "scope": "Eight historical public development JDs (six campus roles and two internships), one synthetic campus candidate. Reuse fixed parsed requirements to isolate matching; both strategies see the same full evidence. One model batch per job, one run, no retry and no result cache. Production default remains local.",
+  "rubric": "Concrete implemented work may support a campus capability without literal keyword agreement. supported means the complete requirement is evidenced; partial means relevant facts with a remaining qualifier; needs_confirmation means insufficient evidence or ambiguous scope; unsupported needs explicit counterevidence. Multi-label references indicate genuine ambiguity and are excluded from strict-label metrics.",
+  "decision_rule": "A promising pilot requires zero fully-supported predictions on strict non-supported references, at least five additional recovered strict supported requirements relative to local matching, 100% valid raw citations and output coverage, and p95 job latency at most 60000 ms. Passing is only a development signal, not authorization or sufficient independent evidence for changing the production default. Money is reported only if provider-specific prices are supplied; otherwise report tokens and latency.",
+  "references": {
+    "campus-ai-086": {
+      "exclude": {"13": "专业条件不属于本次普通能力对照"},
+      "labels": {
+        "0": {"allowed": ["partial"], "reason": "Python 工程习惯有证据，Go 明确尚未用于项目；复合整条不宜直接全部通过。"},
+        "1": {"allowed": ["partial", "supported"], "reason": "Go、Python等的列举范围存在解释空间，单独列为歧义项。"},
+        "2": {"allowed": ["partial", "supported"], "reason": "能否将课程资料服务视为平台型系统有合理分歧。"},
+        "3": {"allowed": ["partial"], "reason": "HTTP、数据库、权限、日志有实践，gRPC、队列、调度等没有充分依据。"},
+        "4": {"allowed": ["unsupported"], "reason": "明确尚未使用 Go 完成项目。"},
+        "5": {"allowed": ["supported"], "reason": "主动持续调研 Agent 与工具，并有实际应用。"},
+        "6": {"allowed": ["supported"], "reason": "实际使用过 Agent 产品和 AI 编程助手。"},
+        "7": {"allowed": ["supported"], "reason": "存在完整课程和个人项目。"},
+        "8": {"allowed": ["supported"], "reason": "独立分析方案、实现原型、评测和排查问题的具体工作支持能力推断。"},
+        "9": {"allowed": ["partial"], "reason": "课程组协作有依据，游戏研发与不同业务流程理解尚无依据。"},
+        "10": {"allowed": ["supported"], "reason": "原文允许或关系，LangChain、RAG、工具调用工作流有具体实践。"},
+        "11": {"allowed": ["supported"], "reason": "原文允许或关系，日志定位失败与效果评测已有实践。"},
+        "12": {"allowed": ["supported"], "reason": "方案笔记包含人机协作及工具失败交互的具体思考。"}
+      }
+    },
+    "campus-ai-072": {
+      "exclude": {"7": "专业条件"},
+      "labels": {
+        "0": {"allowed": ["partial"], "reason": "有数学和实验分析工作，未证明把非标准管理问题转为数学模型。"},
+        "1": {"allowed": ["supported"], "reason": "至少一门，Python 在多个完整项目中承担实际研发。"},
+        "2": {"allowed": ["partial"], "reason": "有 CNN、优化训练知识，统计检验及多类统计模型未证明。"},
+        "3": {"allowed": ["supported"], "reason": "独立完成数据处理、实验划分、训练分析和对比验证。"},
+        "4": {"allowed": ["supported"], "reason": "有自回归和注意力知识，RAG 架构及提示词有具体实践。"},
+        "5": {"allowed": ["supported"], "reason": "开发和日常使用 AI 工作流，并对人机协作做过分析。"},
+        "6": {"allowed": ["supported"], "reason": "完成可运行的 Agent 问答原型。"}
+      }
+    },
+    "campus-ai-110": {
+      "exclude": {"11": "专业条件"},
+      "labels": {
+        "0": {"allowed": ["partial"], "reason": "有用户反馈迭代，汽车互联网产品创新尚无证据。"},
+        "1": {"allowed": ["supported"], "reason": "持续主动尝试 Agent 工具且在两周完成论文复现。"},
+        "2": {"allowed": ["needs_confirmation", "unsupported"], "reason": "Go、React 有明确未实践说明，NodeJS 未提及；取决于列举范围，单独列为歧义项。"},
+        "3": {"allowed": ["unsupported"], "reason": "明确尚无高并发系统经验。"},
+        "4": {"allowed": ["partial"], "reason": "有原理学习、微调与应用实践，但深入理解这一强限定证据有限。"},
+        "5": {"allowed": ["unsupported"], "reason": "明确尚无大规模系统经验，小型 Agent 不等于大规模落地。"},
+        "6": {"allowed": ["partial", "supported"], "reason": "LangChain 实践充分，等主流框架是否要求多个存在范围歧义。"},
+        "7": {"allowed": ["partial"], "reason": "有同学间研发协作，没有与产品设计等非研发团队紧密配合的证据。"},
+        "8": {"allowed": ["needs_confirmation"], "reason": "没有汽车行业兴趣和了解的材料。"},
+        "9": {"allowed": ["needs_confirmation"], "reason": "没有 Figma 使用事实，不能由界面反馈推断。"},
+        "10": {"allowed": ["partial", "supported"], "reason": "自动化工作流有实践；顿号是否要求同时有视频图片 AIGC 存在范围歧义。"}
+      }
+    },
+    "campus-ai-010": {
+      "exclude": {"3": "专业条件"},
+      "labels": {
+        "0": {"allowed": ["partial"], "reason": "有助手开发和兴趣证据，但深入理解多类 AI 产品的强限定未充分证明。"},
+        "1": {"allowed": ["supported"], "reason": "根据试用反馈确定展示和引用需求，并有方案拆解与比较笔记。"},
+        "2": {"allowed": ["partial"], "reason": "有组内协作和主动学习，跨团队推动尚未证明。"},
+        "4": {"allowed": ["unsupported"], "reason": "明确尚无正式实习。"}
+      }
+    },
+    "campus-ai-097": {
+      "exclude": {"4": "专业条件"},
+      "labels": {
+        "0": {"allowed": ["supported"], "reason": "或关系，操作系统、网络和数据库都有基础实践。"},
+        "1": {"allowed": ["needs_confirmation"], "reason": "有普通日志分析不等于使用列出的任何可观测工具。"},
+        "2": {"allowed": ["supported"], "reason": "完整实现、测试、CI、部署和调试支持应届生工程能力。"},
+        "3": {"allowed": ["supported"], "reason": "任选一门，Python 有充分具体实践。"}
+      }
+    },
+    "campus-ai-078": {
+      "exclude": {},
+      "labels": {
+        "0": {"allowed": ["supported"], "reason": "深度学习与语言建模知识、Python/PyTorch 实践均有具体依据。"},
+        "1": {"allowed": ["supported"], "reason": "PPO 论文复现、模型训练分析及服务工程均有完整工作。"},
+        "2": {"allowed": ["supported"], "reason": "任选方向，强化学习 PPO 复现与实验支持。"},
+        "3": {"allowed": ["partial", "needs_confirmation"], "reason": "Gym 决策学习不能直接证明真实机器人感知与跨场景泛化；相关程度可有分歧。"},
+        "4": {"allowed": ["needs_confirmation"], "reason": "仅明确无真机，其他机器人经验未说明；Gym 未说明是机器人任务。"},
+        "5": {"allowed": ["supported"], "reason": "英文原文复现并解释假设局限支持校招所需阅读和技术判断。"}
+      }
+    },
+    "campus-ai-165": {
+      "exclude": {},
+      "labels": {
+        "0": {"allowed": ["supported"], "reason": "基础理论解释、CNN 和强化学习训练支持校招基础能力。"},
+        "1": {"allowed": ["supported"], "reason": "Python 完整研发实践。"},
+        "2": {"allowed": ["supported"], "reason": "单元/接口测试、CI 和代码评审支持工程习惯。"},
+        "3": {"allowed": ["partial"], "reason": "能独立排查与复现，不足以证明创新及独立开展研究的完整要求。"},
+        "4": {"allowed": ["supported"], "reason": "有具体分工、同步、联调和解决分歧的事实。"},
+        "5": {"allowed": ["unsupported"], "reason": "明确没有论文发表记录。"},
+        "6": {"allowed": ["unsupported"], "reason": "明确未操作机器人真机。"}
+      }
+    },
+    "campus-ai-158": {
+      "exclude": {},
+      "labels": {
+        "0": {"allowed": ["supported"], "reason": "接口、数据库、权限、测试、部署和基础课程实践支撑后端基础。"},
+        "1": {"allowed": ["supported"], "reason": "数据结构算法、操作系统和网络均有明确实验。"},
+        "2": {"allowed": ["partial", "supported"], "reason": "C++ 基础实践和 Go 学习意愿有依据，但功底扎实的程度可有分歧。"},
+        "3": {"allowed": ["supported"], "reason": "完整项目即可，不要求一定有实习或开源。"},
+        "4": {"allowed": ["supported"], "reason": "比较数据库索引并记录选择理由，另有训练问题分析。"},
+        "5": {"allowed": ["supported"], "reason": "实际使用 AI 编程助手和自主开发的 Agent 产品。"},
+        "6": {"allowed": ["supported"], "reason": "有明确 LangChain 问答与工具工作流实现。"},
+        "7": {"allowed": ["partial", "needs_confirmation", "supported"], "reason": "权限计费未完整具备，课程资料服务是否属于内容平台取决于岗位定义；不用于严格计分。"},
+        "8": {"allowed": ["partial", "supported"], "reason": "PostgreSQL、CI/CD 有实践，但深度使用及技术列举范围存在歧义。"}
+      }
+    }
+  }
+}

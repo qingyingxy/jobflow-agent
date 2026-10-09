@@ -7,6 +7,7 @@ from html.parser import HTMLParser
 from typing import ClassVar
 from urllib.parse import urljoin, urlsplit
 
+from src.services.job_header_facts import header_location_evidence
 from src.services.url_reader import ParsedHTMLDocument, parse_html_document
 
 
@@ -79,7 +80,7 @@ class _Page(HTMLParser):
         excluded |= attrs.get("role") in {"navigation", "menu", "contentinfo"}
         excluded |= bool(
             re.search(
-                r"similar|recommend|related|breadcrumb|cookie|(?:^|[-_ ])nav(?:$|[-_ ])",
+                r"similar|recommend|related|breadcrumb|cookie|footer|(?:^|[-_ ])nav(?:$|[-_ ])",
                 label,
             )
         )
@@ -110,11 +111,11 @@ _REQUIREMENTS = re.compile(
     re.IGNORECASE,
 )
 _RELATED = re.compile(
-    r"^(?:相似职位|相关职位|推荐职位|其他职位|similar jobs|related jobs|recommended jobs)$",
+    r"^(?:(?:相似|相关|推荐|其他)(?:职位|岗位)(?:推荐)?|similar jobs|related jobs|recommended jobs)$",
     re.IGNORECASE,
 )
 _CLOSED = re.compile(
-    r"^(?:已结束|已关闭|招聘已结束|职位已下线|岗位已下线|招聘结束|职位已关闭|停止招聘|job closed|position closed|no longer accepting applications)$",
+    r"^(?:(?:该|此|本)?(?:职位|岗位)(?:已下线|已关闭|已结束|已停止招聘)|已结束|已关闭|招聘已结束|招聘结束|停止招聘|job closed|position closed|no longer accepting applications)[。.!！]?$",
     re.IGNORECASE,
 )
 
@@ -126,6 +127,7 @@ def _job_title(text):
         not in {"基本信息", "基础信息", "在招业务", "职位详情", "岗位详情", "招聘详情"}
         and not _REQUIREMENTS.search(text)
         and not _RELATED.match(text)
+        and not _CLOSED.fullmatch(text)
         and not re.fullmatch(
             r".*(?:招聘|招聘官网)|careers|jobs|job opportunities", text, re.IGNORECASE
         )
@@ -146,6 +148,7 @@ def _titles(root):
         )
         heading |= bool(
             re.search(r"(?:job|position|vacancy|detail).*?(?:title|name)(?:$|[\s_-])", label)
+            and not re.search(r"(?:^|[\s_-])sub[\s_-]*title(?:$|[\s_-])", label)
         )
         if (
             heading
@@ -167,11 +170,18 @@ def _select_scope(root):
         if _RELATED.fullmatch(node.text()) and not any(
             isinstance(c, _Node) and _RELATED.fullmatch(c.text()) for c in node.children
         ):
-            siblings = node.parent.children
-            for sibling in siblings[siblings.index(node):]:
+            # A section label can sit inside otherwise empty layout wrappers.
+            # Its following job cards are siblings of the wrapper, not the label.
+            boundary = node
+            while boundary.parent and _RELATED.fullmatch(boundary.parent.text()):
+                boundary = boundary.parent
+            if boundary.parent is None:
+                continue
+            siblings = boundary.parent.children
+            for sibling in siblings[siblings.index(boundary):]:
                 if not isinstance(sibling, _Node):
                     continue
-                if sibling is not node and (
+                if sibling is not boundary and (
                     sibling.tag in {"h1", "h2", "h3", "h4"}
                     and _REQUIREMENTS.search(sibling.text())
                 ):
@@ -209,6 +219,27 @@ def _normalized_scope_text(scope):
     text = "\n".join(re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines() if line.strip())
     # Labels and values are often separate divs; retain their association.
     return re.sub(r"(工作地点|办公地点|招聘类型|招聘项目|公司名称|招聘公司|location|company)[:：]?\n", r"\1：", text, flags=re.IGNORECASE)
+
+
+def closed_page_notice(raw_html: str, *, url: str) -> str | None:
+    """A current detail can be closed after the site removes its title and JD.
+
+    Never use a listing's cards, hidden banners or related-job regions as proof.
+    """
+    from src.services.lead_presentation import discovery_kind
+
+    if discovery_kind(url) != "job":
+        return None
+    page = _Page()
+    page.feed(raw_html)
+    # Apply the same related-section exclusions as regular detail extraction.
+    try:
+        _select_scope(page.root)
+    except DetailScopeError:
+        pass
+    if len(_titles(page.root)) > 1:
+        return None
+    return next((n.text() for n in page.root.walk() if _CLOSED.fullmatch(n.text())), None)
 
 
 def _structured(document, url):
@@ -270,21 +301,15 @@ def scope_job_document(raw_html: str, document: ParsedHTMLDocument, *, url: str)
         text = _normalized_scope_text(scope)
         header = text.split(title, 1)[-1]
         header = _REQUIREMENTS.split(header, maxsplit=1)[0]
-        locations = []
+        locations = [item["value"] for item in header_location_evidence(text, title)]
+        # Legacy compact headers can pair a city with a job category/headcount.
+        # Do not retain only known cities from a partly understood location list.
         for match in re.finditer(
-            r"(?:^|[\s/|])([\u4e00-\u9fff]{2,10}市)(?=[\s/|]|$)", header
+            r"(?:^|\n)([\u4e00-\u9fff]{2,10}市)\s*/\s*"
+            r"(?:技术|研发|产品|设计|运营|市场|销售|职能)\s*/\s*\d+\s*人", header
         ):
             if match[1] not in locations:
                 locations.append(match[1])
-        city_list = re.search(
-            r"(?:[\u4e00-\u9fff]{2,10}\s*/\s*)+[\u4e00-\u9fff]{2,10}", header
-        )
-        if city_list and not locations:
-            from src.services.discovery_matching import _LOCATION_GROUPS
-
-            known_cities = {group[0] for group in _LOCATION_GROUPS}
-            names = city_list[0].replace(" ", "").split("/")
-            locations = list(dict.fromkeys(name for name in names if name in known_cities))
         from src.services.job_fact_verifier import _body_job_type
 
         job_type = _body_job_type(header)

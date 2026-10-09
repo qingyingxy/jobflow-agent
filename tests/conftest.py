@@ -50,6 +50,7 @@ def override_api_model_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep API regression tests offline even when the developer has real .env keys."""
 
     settings = Settings(
+        _env_file=None,
         structured_model_provider="fake",
         prompt_version="test-prompt-v1",
         parser_version="test-parser-v1",

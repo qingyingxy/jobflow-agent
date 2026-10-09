@@ -6,6 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.domain.education import EducationRecord
 from src.domain.eligibility import EligibilityStatus
 from src.domain.job import JobRequirement
 
@@ -63,12 +64,26 @@ class EvidenceMatchModelOutput(BaseModel):
         return [item.strip() for item in value]
 
 
+class RequirementItemCheck(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_text: str
+    condition_text: str = ""
+    support_level: SupportLevel
+    evidence_ids: list[str] = Field(default_factory=list)
+    evidence_quotes: list[str] = Field(default_factory=list)
+    matched_skills: list[str] = Field(default_factory=list)
+    unresolved: list[str] = Field(default_factory=list)
+
+
 class RequirementMatch(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     requirement: JobRequirement
     support_level: SupportLevel
     evidence_ids: list[str] = Field(default_factory=list)
+    education_evidence: list[EducationRecord] = Field(default_factory=list)
+    item_checks: list[RequirementItemCheck] = Field(default_factory=list)
     explanation: str = Field(min_length=1)
     validation_status: ValidationStatus = "passed"
     validation_issues: list[str] = Field(default_factory=list)

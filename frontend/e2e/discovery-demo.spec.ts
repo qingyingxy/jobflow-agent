@@ -6,12 +6,14 @@ const resultMatches = [
   {
     job_posting_id: "job-strict",
     match_tier: "strict",
+    filter_status: "matched",
     mismatch_reasons: [],
     mismatch_labels: [],
   },
   {
     job_posting_id: "job-expanded",
     match_tier: "expanded",
+    filter_status: "excluded",
     mismatch_reasons: ["location", "job_type"],
     mismatch_labels: ["地点不匹配", "非校招"],
   },
@@ -436,7 +438,7 @@ async function installApiFixture(page: Page) {
   });
 }
 
-test("strict and expanded discovery results stay visibly separated", async ({ page }) => {
+test("filter results hide explicit conflicts until requested", async ({ page }) => {
   await installApiFixture(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "搜索岗位" })).toBeVisible();
@@ -447,11 +449,13 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   if (process.env.UPDATE_DEMO_ASSETS === "1") {
     await page.screenshot({ path: "test-results/demo-01-search.png" });
   }
-  await page.getByRole("button", { name: "搜索并分析" }).click();
+  await page.getByRole("button", { name: "搜索并筛选" }).click();
 
   await expect(page.locator(".discovery-message")).toContainText("找到 2 个具体岗位");
   const table = page.locator(".jobs-table");
   await expect(table.getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
+  await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toHaveCount(0);
+  await page.getByRole("checkbox", { name: "显示明确不符或已关闭的岗位" }).check();
   await table.getByRole("button", { name: "展开字节跳动" }).click();
   await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toBeVisible();
   await expect(table.locator(".jobs-company-rows").first()).toContainText("腾讯");
@@ -470,7 +474,7 @@ test("strict and expanded discovery results stay visibly separated", async ({ pa
   await page.locator("summary.discovery-history-heading").click();
   const trace = page.locator("details.discovery-agent-trace");
   await trace.locator("summary").click();
-  await expect(trace.getByText("来源 2 · 岗位上限 20 · 自动分析 5")).toBeVisible();
+  await expect(trace.getByText("来源 2 · 岗位上限 20 · 简历匹配按需进行")).toBeVisible();
   await expect(trace.getByText("tencent_public_job_adapter", { exact: false })).toBeVisible();
   await expect(trace.getByText("无事实时人工接管")).toBeVisible();
 
@@ -489,7 +493,7 @@ test("existing analysis opens as a discovery detail and returns to the list", as
   const searchRequestPromise = page.waitForRequest((request) => (
     new URL(request.url()).pathname === "/api/discovery/search"
   ));
-  await page.getByRole("button", { name: "搜索并分析" }).click();
+  await page.getByRole("button", { name: "搜索并筛选" }).click();
   const searchRequest = await searchRequestPromise;
   expect(searchRequest.postDataJSON()).toEqual({
     query: "北京 / 上海的 AI Agent、LLM、算法校招岗位",

@@ -9,7 +9,7 @@ from src.evaluation.discovery_agent import (
     render_markdown,
 )
 
-MANIFEST_PATH = Path("datasets/m12_discovery_agent_manifest.json")
+MANIFEST_PATH = Path("datasets/discovery_filtering_manifest_v2.json")
 
 
 def _load_manifest() -> DiscoveryEvaluationManifest:
@@ -21,8 +21,8 @@ def _load_manifest() -> DiscoveryEvaluationManifest:
 def test_discovery_agent_manifest_is_versioned_and_complete() -> None:
     manifest = _load_manifest()
 
-    assert manifest.manifest_version == "m12-discovery-agent-manifest-v1"
-    assert manifest.dataset_version == "m12-discovery-agent-fixtures-2026-08-09-v1"
+    assert manifest.manifest_version == "discovery-filtering-manifest-v2"
+    assert manifest.dataset_version == "discovery-filtering-fixtures-2026-10-08-v2"
     assert len(manifest.cases) == 13
     assert len(manifest.thresholds) == 9
 

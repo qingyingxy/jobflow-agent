@@ -440,6 +440,7 @@ def extract_html_links(raw_html: str, *, base_url: str) -> list[HTMLLink]:
 
 
 class _HTMLTextParser(HTMLParser):
+    _void_tags: ClassVar[set[str]] = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
     _ignored_tags: ClassVar[set[str]] = {"script", "style", "noscript", "template"}
     _block_tags: ClassVar[set[str]] = {
         "address",
@@ -474,6 +475,12 @@ class _HTMLTextParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         normalized_tag = tag.lower()
+        # Void elements have no matching end tag. Pushing a hidden meta/input
+        # onto the stack made the subsequent visible JD appear hidden too.
+        if normalized_tag in self._void_tags:
+            if normalized_tag in self._block_tags:
+                self.parts.append("\n")
+            return
         attributes = {key.lower(): value or "" for key, value in attrs}
         self._tag_stack.append(normalized_tag)
 
@@ -507,6 +514,8 @@ class _HTMLTextParser(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         normalized_tag = tag.lower()
+        if normalized_tag in self._void_tags:
+            return
         if normalized_tag == "script" and self._jsonld_buffer is not None:
             self._parse_jsonld("".join(self._jsonld_buffer))
             self._jsonld_buffer = None

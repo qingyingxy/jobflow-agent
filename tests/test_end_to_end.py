@@ -18,6 +18,8 @@ RAW_DISCOVERY_JD = "目标公司招聘 Python 后端开发实习生，要求 Pyt
 
 def fake_settings() -> Settings:
     return Settings(
+        _env_file=None,
+        evidence_matching_mode="local",
         structured_model_provider="fake",
         prompt_version="e2e-prompt-v1",
         parser_version="e2e-parser-v1",

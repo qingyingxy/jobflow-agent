@@ -4,8 +4,10 @@ import re
 from urllib.parse import urlsplit
 
 from src.services.browser_job_reader import BrowserReadError
+from src.services.job_url import canonical_job_url
 from src.services.lead_presentation import discovery_kind
 from src.services.recruitment_trust import hiring_scope, within_scope
+from src.services.retrieval_quality import search_link_rejection
 from src.services.url_reader import URLReaderError, extract_html_links
 
 
@@ -17,6 +19,8 @@ async def expand_entry(
     allowed_hosts,
     record_snapshot,
     max_pages=6,
+    max_details=20,
+    initial_scope=None,
     query="",
     official_hosts=None,
     on_detail=None,
@@ -26,10 +30,25 @@ async def expand_entry(
     queue = [url]
     visited = set()
     details = {}
-    scopes = []
+    scopes = [initial_scope] if initial_scope else []
+    observed_details = set()
+    deferred_details = set()
+    max_details = max(1, min(100, max_details))
     pages_read = 0
     listing_snapshots = 0
     official_hosts = official_hosts or set()
+
+    from src.services.discovery_matching import classify_discovery_job
+    from src.services.discovery_sources import JobStub
+
+    def relevance(link):
+        stub = JobStub(
+            source_id="entry", source_job_id=link.url, company=None,
+            title=link.text, locations=[], job_type=None, published_at=None,
+            detail_url=link.url, raw_content=link.text,
+        )
+        # Routing priority only: a missing keyword is not proof of mismatch.
+        return "role" in classify_discovery_job(stub, query=query).mismatch_reasons
 
     def permitted(target):
         return urlsplit(target).hostname in allowed_hosts or any(
@@ -37,7 +56,10 @@ async def expand_entry(
         )
 
     def collect(links, page_url):
-        for link in links:
+        # Rank the entire observed page before admitting any job to the queue.
+        for link in sorted(links, key=relevance):
+            if search_link_rejection(link.url, link.text, query=query):
+                continue
             parsed = urlsplit(link.url)
             if not permitted(link.url):
                 scope = hiring_scope(link.url)
@@ -59,8 +81,13 @@ async def expand_entry(
                         {"from_url": page_url, "url": link.url, "scope": list(scope)},
                     )
             if discovery_kind(link.url, link.text) == "job":
-                if link.url not in details:
-                    details[link.url] = link
+                key = canonical_job_url(link.url)
+                observed_details.add(key)
+                if key not in details:
+                    if len(details) >= max_details:
+                        deferred_details.add(key)
+                        continue
+                    details[key] = link
                     if on_detail:
                         on_detail(link, page_url)
             elif (
@@ -81,6 +108,7 @@ async def expand_entry(
                 )
                 and link.url not in visited
                 and link.url not in queue
+                and len(queue) < max_pages
             ):
                 queue.append(link.url)
 
@@ -93,7 +121,7 @@ async def expand_entry(
         if permitted(page_url):
             collect(extract_html_links(html, base_url=page_url), page_url)
 
-    while queue and pages_read < max_pages:
+    while queue and pages_read < max_pages and len(details) < max_details:
         current = queue.pop(0)
         if current in visited or not permitted(current):
             continue
@@ -112,13 +140,13 @@ async def expand_entry(
         except URLReaderError as error:
             if on_event:
                 on_event("entry_read", {"url": current, "error_code": error.code})
-        if not any(
+        if len(details) < max_details and (not any(
             discovery_kind(link.url, link.text) == "job" for link in links
         ) or re.search(
             r"<(?:button|[^>]+role=[\"']button)[^>]*>[^<]*(?:下一页|加载更多|更多职位|next|load more)",
             html,
             re.IGNORECASE,
-        ):
+        )):
             try:
                 if hasattr(browser, "read_listing"):
                     snapshot = await browser.read_listing(
@@ -145,25 +173,9 @@ async def expand_entry(
                     "url": current,
                     "detail_count": len(details),
                     "visited_pages": pages_read,
+                    "observed_details": len(observed_details),
+                    "deferred_by_limit": len(deferred_details),
+                    "max_details": max_details,
                 },
             )
-        if len(details) >= 100:
-            break
-    from src.services.discovery_matching import classify_discovery_job
-    from src.services.discovery_sources import JobStub
-
-    def relevance(link):
-        stub = JobStub(
-            source_id="entry",
-            source_job_id=link.url,
-            company=None,
-            title=link.text,
-            locations=[],
-            job_type=None,
-            published_at=None,
-            detail_url=link.url,
-            raw_content=link.text,
-        )
-        return "role" in classify_discovery_job(stub, query=query).mismatch_reasons
-
     return sorted(details.values(), key=relevance)

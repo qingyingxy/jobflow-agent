@@ -667,7 +667,7 @@ class OfficialCompanyRegistryAdapter:
 
     source_id = "official-registry:ai-campus-40"
     source_url = "registry://ai-campus-target-companies-40"
-    auto_analyze_top = True
+    auto_analyze_top = False
 
     def __init__(
         self,
@@ -710,7 +710,7 @@ class OfficialCompanyRegistryAdapter:
             ],
             budget=DiscoveryPlanBudget(
                 max_results=min(max_results, self.max_jobs),
-                max_analysis=5,
+                max_analysis=0,
                 max_detail_links_per_source=self.max_detail_links_per_source,
                 max_concurrency=self.max_concurrency,
                 request_timeout_seconds=_reader_timeout(self.reader),

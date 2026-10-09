@@ -3,7 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from src.domain.analysis import AnalysisRisk, JobDecision
 from src.domain.application import (
@@ -11,7 +18,9 @@ from src.domain.application import (
     CandidateStatus,
 )
 from src.domain.discovery import DiscoverySearchPlan, JobLeadStatus, LeadProvider
+from src.domain.education import EducationRecord
 from src.domain.eligibility import EligibilityResult, SearchPreferences
+from src.domain.fact_provenance import FactProvenance
 from src.domain.job import (
     JobAvailabilityStatus,
     JobVerificationStatus,
@@ -28,10 +37,19 @@ from src.domain.suggestion import (
 
 class ProfileUpdate(BaseModel):
     display_name: str | None = Field(default=None, max_length=100)
-    graduation_year: int | None = Field(default=None, ge=2000, le=2100)
+    graduation_year: int | None = Field(default=None, ge=1900, le=2200)
     degree: str | None = Field(default=None, max_length=100)
     major: str | None = Field(default=None, max_length=100)
+    educations: list[EducationRecord] = Field(default_factory=list, max_length=20)
+    education_history_complete: bool = False
     search_preferences: SearchPreferences = Field(default_factory=SearchPreferences)
+
+    @field_validator("educations")
+    @classmethod
+    def unique_education_ids(cls, value: list[EducationRecord]) -> list[EducationRecord]:
+        if len({item.id for item in value}) != len(value):
+            raise ValueError("教育经历 ID 不能重复")
+        return value
 
 
 class ProfileRead(ProfileUpdate):
@@ -52,6 +70,7 @@ class EvidenceCreate(BaseModel):
 
 
 class EvidenceUpdate(BaseModel):
+    keep_current: bool = False
     type: str | None = Field(default=None, min_length=1, max_length=40)
     title: str | None = Field(default=None, min_length=1, max_length=160)
     claim: str | None = Field(default=None, min_length=1)
@@ -64,6 +83,7 @@ class EvidenceRead(EvidenceCreate):
 
     id: str
     user_id: str
+    provenance: FactProvenance = Field(default_factory=FactProvenance)
     created_at: datetime
     updated_at: datetime
 
@@ -213,7 +233,12 @@ class JobLeadRead(BaseModel):
 
     @model_validator(mode="after")
     def describe_discovered_link(self):
+        from src.services.job_url import canonical_job_url
         from src.services.lead_presentation import discovery_kind, source_label
+        self.normalized_url = canonical_job_url(self.source_url)
+        if self.status == JobLeadStatus.NEEDS_USER and self.failure_code == "verification_budget_exhausted":
+            self.status = JobLeadStatus.DEFERRED
+            self.next_action = "retry_verification"
         self.discovery_kind = "job" if self.job_posting_id else discovery_kind(self.source_url, self.extracted_fields.get("title") or self.title_hint)
         self.source_label = source_label(self.source_url)
         return self
@@ -261,6 +286,13 @@ class JobPostingRead(BaseModel):
     trace_id: str
     created_at: datetime
     updated_at: datetime
+
+    @model_validator(mode="after")
+    def recover_saved_header_locations(self):
+        from src.services.job_header_facts import effective_job_locations
+
+        self.locations = effective_job_locations(self)
+        return self
 
 
 class JobSummary(BaseModel):
@@ -329,6 +361,9 @@ class DiscoveryResultMatchRead(BaseModel):
     match_tier: Literal["strict", "expanded"]
     mismatch_reasons: list[str] = Field(default_factory=list)
     mismatch_labels: list[str] = Field(default_factory=list)
+    filter_status: Literal["matched", "pending", "excluded"] = "pending"
+    checks: list[dict[str, object]] = Field(default_factory=list)
+    filter_version: str | None = None
 
 
 class DiscoveryRunRead(BaseModel):
@@ -355,6 +390,12 @@ class DiscoveryRunRead(BaseModel):
     started_at: datetime
     finished_at: datetime | None
     created_at: datetime
+
+    @computed_field
+    @property
+    def filter_conditions(self) -> dict[str, object]:
+        from src.services.discovery_matching import search_filter_conditions
+        return search_filter_conditions(self.search_query)
 
 
 class DomainEventRead(BaseModel):

@@ -66,6 +66,7 @@ class DiscoveryExpected(BaseModel):
     fallback_correct: bool | None = None
     non_job_accepted: bool | None = None
     human_gate_correct: bool | None = None
+    empty_result_handling_correct: bool | None = None
     budget_compliant: bool | None = None
     state_consistent: bool | None = None
 
@@ -119,6 +120,7 @@ class DiscoveryObservation(BaseModel):
     fallback_correct: bool | None = None
     non_job_accepted: bool | None = None
     human_gate_correct: bool | None = None
+    empty_result_handling_correct: bool | None = None
     budget_compliant: bool | None = None
     state_consistent: bool | None = None
     trace_phases: list[str] = Field(default_factory=list)
@@ -472,13 +474,18 @@ async def _dynamic_shell_human_gate() -> DiscoveryObservation:
             "bounded_discovery_planner",
             "json_ld_job_parser → static_job_page_validator → visible_job_link_reader",
             "candidate_validator",
-            "manual_jd_input",
+            "empty_search_result",
         ],
     )
     observation.non_job_accepted = observation.discovered_count != 0
     observation.human_gate_correct = (
         observation.discovered_count == 0
         and trace[-1].get("phase") == "human_gate"
+    )
+    observation.empty_result_handling_correct = (
+        observation.discovered_count == 0
+        and trace[-1].get("phase") == "stop"
+        and trace[-1].get("details", {}).get("requires_human_input") is False
     )
     return observation
 
@@ -502,13 +509,18 @@ async def _guideline_rejected() -> DiscoveryObservation:
             "bounded_discovery_planner",
             "structured_data → static_html",
             "candidate_validator",
-            "manual_jd_input",
+            "empty_search_result",
         ],
     )
     observation.non_job_accepted = observation.discovered_count != 0
     observation.human_gate_correct = (
         observation.discovered_count == 0
         and trace[-1].get("phase") == "human_gate"
+    )
+    observation.empty_result_handling_correct = (
+        observation.discovered_count == 0
+        and trace[-1].get("phase") == "stop"
+        and trace[-1].get("details", {}).get("requires_human_input") is False
     )
     return observation
 
@@ -571,7 +583,7 @@ async def _source_failure_isolated() -> DiscoveryObservation:
     return observation
 
 
-async def _result_and_analysis_budget() -> DiscoveryObservation:
+async def _result_and_analysis_budget(expected_analysis_count=5) -> DiscoveryObservation:
     listing_url = "https://many.example.com/jobs"
     with _evaluation_session() as session:
         adapter = OfficialCompanyRegistryAdapter(
@@ -597,7 +609,7 @@ async def _result_and_analysis_budget() -> DiscoveryObservation:
         observation.budget_compliant = (
             result.run.discovered_count == 20
             and observation.strict_count == 20
-            and result.run.analysis_target_count == 5
+            and result.run.analysis_target_count == expected_analysis_count
             and len(result.analysis_job_posting_ids) == 20
         )
         observation.details["analysis_target_count"] = (
@@ -669,6 +681,7 @@ SCENARIOS: dict[str, Callable[[], Any]] = {
     "jsonld_job_accepted": _jsonld_job_accepted,
     "source_failure_isolated": _source_failure_isolated,
     "result_and_analysis_budget": _result_and_analysis_budget,
+    "result_and_filter_budget": lambda: _result_and_analysis_budget(0),
     "strict_expanded_gate": _strict_expanded_gate,
     "duplicate_rerun_idempotent": _duplicate_rerun_idempotent,
 }
@@ -765,11 +778,14 @@ def _metrics(
         "fallback_correctness_rate": ("fallback_correct", True),
         "non_job_false_accept_rate": ("non_job_accepted", False),
         "human_gate_accuracy": ("human_gate_correct", True),
+        "empty_result_handling_accuracy": ("empty_result_handling_correct", True),
         "budget_compliance_rate": ("budget_compliant", True),
         "state_consistency_rate": ("state_consistent", True),
     }
     result: dict[str, dict[str, Any]] = {}
     for metric_name, (field_name, positive) in metric_specs.items():
+        if metric_name not in thresholds:
+            continue
         if field_name is None:
             values = [passed for _, _, passed in observations]
         else:

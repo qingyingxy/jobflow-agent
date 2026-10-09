@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import JSON, DateTime, String, Text, func, text
+from sqlalchemy import JSON, Boolean, DateTime, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
@@ -18,6 +18,15 @@ class UserProfile(Base):
     graduation_year: Mapped[int | None] = mapped_column(nullable=True)
     degree: Mapped[str | None] = mapped_column(String(100), nullable=True)
     major: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    educations: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSON, nullable=False, default=list, server_default=text("'[]'"),
+    )
+    education_history_complete: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=text("0"),
+    )
+    resume_import_state: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, default=dict, server_default=text("'{}'"),
+    )
     search_preferences: Mapped[dict[str, Any]] = mapped_column(
         JSON,
         nullable=False,
@@ -60,6 +69,9 @@ class EvidenceItem(Base):
         nullable=False,
         default="manual",
         server_default=text("'manual'"),
+    )
+    provenance: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, default=dict, server_default=text("'{}'"),
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

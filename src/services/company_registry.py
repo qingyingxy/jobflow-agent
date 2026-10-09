@@ -15,6 +15,7 @@ class CompanySource:
     career_url: str
     entry_type: str
     enabled: bool = True
+    resource_hosts: tuple[str, ...] = ()
 
 
 REGISTRY_PATH = Path(__file__).resolve().parents[1] / "data" / "company_sources.json"
@@ -38,6 +39,7 @@ def load_company_sources() -> list[CompanySource]:
             career_url=str(item["career_url"]).strip(),
             entry_type=str(item.get("entry_type", "official_career_page")).strip(),
             enabled=bool(item.get("enabled", True)),
+            resource_hosts=tuple(item.get("resource_hosts", [])),
         )
         if not source.id or not source.company or not source.career_url:
             raise ValueError("公司来源注册表记录缺少必填字段")

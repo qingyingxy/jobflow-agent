@@ -12,14 +12,13 @@ from src.infrastructure.llm_client import (
     ModelClientError,
     create_structured_model_client,
 )
+from src.services.analysis_runtime import create_analysis_service
 from src.services.company_registry import (
     company_source_hosts,
     enabled_company_sources,
 )
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
 from src.services.discovery_sources import OfficialCompanyRegistryAdapter
-from src.services.jd_analysis_service import JDAnalysisService
-from src.services.product_jd_runtime_parser import ProductJDParser
 from src.services.url_reader import SafeHTTPReader
 
 OFFICIAL_SEARCH_MAX_RESULTS = 20
@@ -52,7 +51,7 @@ async def execute_official_search(
     query: str,
     company_ids: list[str] | None = None,
 ) -> None:
-    """Run one official-site search and analyze up to five strict matches."""
+    """Search and filter verified jobs; resume analysis is a separate action."""
 
     with SessionLocal() as session:
         run = session.get(DiscoveryRun, run_id)
@@ -88,6 +87,7 @@ async def execute_official_search(
             run_id=run_id,
             user_id=user_id,
             job_ids=result.analysis_job_posting_ids,
+            analysis_limit=0,
         )
 
 
@@ -121,16 +121,16 @@ async def analyze_discovery_jobs(
     _append_agent_trace(
         run,
         phase="act",
-        tool="product_jd_parser → eligibility_checker → local_evidence_matcher",
+        tool="job_analysis",
         outcome="selected",
         observation=f"准备分析排序靠前的 {len(selected_job_ids)} 条岗位。",
-        decision="每份 JD 只解析一次，资格、证据和建议由本地代码计算。",
+        decision="复用岗位解析；按统一配置完成资格判断和经历匹配。",
         details={"analysis_target_count": len(selected_job_ids)},
     )
     session.commit()
 
     try:
-        parser = _analysis_dependencies()
+        analysis_service = _analysis_dependencies(session)
     except ModelClientError as error:
         _finish_analysis_with_failure(
             session,
@@ -143,10 +143,7 @@ async def analyze_discovery_jobs(
 
     for job_id in selected_job_ids:
         try:
-            await JDAnalysisService(
-                session,
-                parser=parser,
-            ).analyze(user_id=user_id, job_id=job_id)
+            await analysis_service.analyze(user_id=user_id, job_id=job_id)
         except Exception as error:  # noqa: BLE001 - continue with remaining jobs
             session.rollback()
             _record_analysis_failure(session, run_id, job_id, error)
@@ -161,14 +158,11 @@ async def analyze_discovery_jobs(
     _finish_analysis(session, run_id)
 
 
-def _analysis_dependencies() -> ProductJDParser:
-    settings = get_settings()
-    client = create_structured_model_client(settings)
-    return ProductJDParser(
-        client,
-        prompt_version=settings.product_prompt_version,
-        parser_version=settings.product_parser_version,
-        validation_retries=settings.parser_validation_retries,
+def _analysis_dependencies(session):
+    return create_analysis_service(
+        session,
+        settings=get_settings(),
+        client_factory=create_structured_model_client,
     )
 
 
@@ -192,9 +186,7 @@ def _finish_analysis(session: Session, run_id: str) -> None:
     run = session.get(DiscoveryRun, run_id)
     if run is None:
         return
-    run.analysis_status = (
-        "PARTIAL" if run.analysis_failure_count else "SUCCEEDED"
-    )
+    run.analysis_status = "PARTIAL" if run.analysis_failure_count else "SUCCEEDED"
     run.status = (
         DiscoveryRunStatus.PARTIAL.value
         if run.analysis_failure_count or run.failure_summary

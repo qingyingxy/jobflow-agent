@@ -10,6 +10,10 @@ from src.domain.eligibility import (
 )
 from src.domain.graduation import classify_graduation_condition
 from src.domain.job import FieldEvidence, StructuredJobDescription
+from src.services.education_evaluator import (
+    binds_application_cohort,
+    evaluate_education,
+)
 
 _DEGREE_TERMS: tuple[tuple[str, int], ...] = (
     ("博士", 5),
@@ -214,12 +218,13 @@ def _degree_requirement(value: str) -> tuple[str, int | set[int] | None]:
     normalized = normalize_text(value)
     if any(marker in normalized for marker in ("不限", "无要求", "不限制")):
         return "unrestricted", None
-    ranks = {
-        rank for term, rank in _DEGREE_TERMS if term in normalized
-    }
+    ranks = {rank for term, rank in _DEGREE_TERMS if term in normalized}
     if not ranks:
         return "unknown", None
-    if any(marker in normalized for marker in ("以上", "orhigher", "orabove", "atleast", "minimum")):
+    if any(
+        marker in normalized
+        for marker in ("以上", "orhigher", "orabove", "atleast", "minimum")
+    ):
         return "minimum", min(ranks)
     if "equivalent" in normalized or "同等" in normalized:
         # Alternative education/experience routes cannot be reduced to an exact degree.
@@ -527,16 +532,90 @@ def check_eligibility(
     profile = input_data.profile
     preferences = input_data.preferences
     job = input_data.job
-    checks: list[EligibilityCheck] = [
-        _check_graduation(profile.graduation_year, job),
-        _check_education(profile.degree, job),
-        _check_major(profile.major, job),
+    scoped = [
+        r for r in job.requirements or [] if r.education is not None and r.mandatory
     ]
+    checks: list[EligibilityCheck] = []
+    scoped_years = any(b.graduation_years for r in scoped for b in r.education.branches)
+    cohort_check = _check_graduation(profile.graduation_year, job)
+    global_years, _ = _graduation_years(job)
+    simple_global_years = (
+        global_years
+        if global_years
+        and not (
+            job.graduation_condition_kind in {"qualified", "ambiguous"}
+            or any(
+                classify_graduation_condition(e.source_text) != "simple"
+                for e in cohort_check.jd_evidence
+            )
+            or (
+                job.graduation_source_text
+                and classify_graduation_condition(job.graduation_source_text)
+                != "simple"
+            )
+            or (
+                job.graduation_years is None
+                and job.recruitment_batch
+                and classify_graduation_condition(job.recruitment_batch) != "simple"
+            )
+        )
+        else None
+    )
+    if scoped and simple_global_years:
+        if not any(binds_application_cohort(r.education) for r in scoped):
+            checks.append(
+                _check(
+                    rule_name="graduation_year",
+                    field="graduation_year",
+                    result="unknown",
+                    reason="岗位届别明确，但尚未确定哪条要求针对本次申请学历；不能用历史教育背景替代届别判断",
+                    jd_evidence=cohort_check.jd_evidence,
+                    missing_information=["确认岗位届别对应的申请学历"],
+                )
+            )
+    elif job.graduation_years is not None or not scoped_years:
+        checks.append(cohort_check)
+    # Omitted legacy fields must not create duplicate unknown gates after an
+    # explicit structured qualification. Independently stated facts still apply.
+    for field, value, checker in (
+        ("education_requirements", profile.degree, _check_education),
+        ("major_requirements", profile.major, _check_major),
+    ):
+        fact_evidence = _evidence_for(job, field)
+        covered = bool(fact_evidence) and all(
+            any(item.source_text in r.description for r in scoped)
+            for item in fact_evidence
+        )
+        if not scoped or (getattr(job, field) is not None and not covered):
+            checks.append(checker(value, job))
+    for index, requirement in enumerate(scoped):
+        result = evaluate_education(
+            requirement.education, profile, graduation_years=simple_global_years
+        )
+        checks.append(
+            EligibilityCheck(
+                rule_name=f"education_qualification_{index}",
+                field="educations",
+                result=result.result,
+                reason=result.reason,
+                requirement_source_text=requirement.description,
+                jd_evidence=[
+                    *(requirement.evidence or []),
+                    *(cohort_check.jd_evidence if simple_global_years else []),
+                ],
+                education_evidence=result.evidence,
+                missing_information=["核对教育经历、专业归类或资格条件原文"]
+                if result.result == "unknown"
+                else [],
+            )
+        )
     if include_search_preferences:
-        checks.extend([
-            _check_location(preferences.preferred_locations, job),
-            _check_job_type(preferences.job_types, job),
-        ])
+        checks.extend(
+            [
+                _check_location(preferences.preferred_locations, job),
+                _check_job_type(preferences.job_types, job),
+            ]
+        )
 
     if any(check.result == "fail" for check in checks):
         eligible = "fail"

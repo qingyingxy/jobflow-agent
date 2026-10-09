@@ -25,6 +25,7 @@ class BrowserPageSnapshot:
     additional_pages: tuple[tuple[str, str], ...] = ()
     screenshots: tuple[dict, ...] = ()
     screenshot_error: str | None = None
+    html_compacted: bool = False
 
 
 class BrowserJobReader(Protocol):
@@ -103,11 +104,13 @@ class PlaywrightBrowserJobReader:
                             return
                         await route.continue_()
 
-                    # Known static resources observed on the Alibaba careers page.
-                    if urlsplit(requested_url).hostname == "campus-talent.alibaba.com" and self.proxy:
+                    # Exact public CDN hosts observed on these recruiting pages.
+                    # Keep URL validation for every request, including redirects.
+                    resource_hosts = recruitment_resource_hosts(requested_url)
+                    if resource_hosts and self.proxy:
                         resource_checker = URLSafetyChecker(
                             proxy_url=self.proxy,
-                            proxy_allowed_hosts=enabled_resource_hosts(),
+                            proxy_allowed_hosts=enabled_resource_hosts() | resource_hosts | set(getattr(self.safety_checker, "proxy_allowed_hosts", ())),
                         )
                     else:
                         resource_checker = self.safety_checker
@@ -117,18 +120,19 @@ class PlaywrightBrowserJobReader:
                         wait_until="domcontentloaded",
                         timeout=self.timeout_ms,
                     )
-                    await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000))
+                    await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1)
                     final_url = await self._validate_url(page.url)
                     visible_text = await page.locator("body").inner_text(
                         timeout=self.timeout_ms
                     )
                     _raise_for_human_gate(visible_text)
-                    raw_html = await page.content()
+                    raw_html, html_compacted = await bounded_page_html(page, max_chars=self.max_chars)
                     screenshots = []
                     screenshot_error = None
                     from src.config import get_settings
+                    from src.services.job_detail_scope import closed_page_notice
                     from src.services.vision_job_extraction import needs_visual_fallback
-                    if listing_pages == 1 and get_settings().vision_fallback_enabled and needs_visual_fallback(raw_html, final_url):
+                    if listing_pages == 1 and get_settings().vision_fallback_enabled and not closed_page_notice(raw_html, url=final_url) and needs_visual_fallback(raw_html, final_url):
                         try:
                             await page.set_viewport_size({"width": 1280, "height": 1000})
                             height = await page.evaluate("document.documentElement.scrollHeight")
@@ -146,7 +150,8 @@ class PlaywrightBrowserJobReader:
                     for _ in range(max(0, min(listing_pages, 3)-1)):
                         from src.services.lead_presentation import discovery_kind
                         from src.services.url_reader import extract_html_links
-                        if not any(discovery_kind(link.url, link.text) == "job" for link in extract_html_links(await page.content(), base_url=page.url)):
+                        current_html, _ = await bounded_page_html(page, max_chars=self.max_chars)
+                        if not any(discovery_kind(link.url, link.text) == "job" for link in extract_html_links(current_html, base_url=page.url)):
                             break
                         # Only unambiguous public pagination controls, never form
                         # submissions or arbitrary "continue"/"apply" buttons.
@@ -162,11 +167,13 @@ class PlaywrightBrowserJobReader:
                             await page.wait_for_function("old => document.body.innerText !== old", arg=previous, timeout=5000)
                         except PlaywrightTimeoutError:
                             break
-                        await wait_for_recruitment_content(page, timeout_ms=5000)
+                        await wait_for_recruitment_content(page, timeout_ms=5000, listing=True)
                         page_url = await self._validate_url(page.url)
                         previous = await page.locator("body").inner_text(timeout=self.timeout_ms)
                         _raise_for_human_gate(previous)
-                        page_html = await page.content()
+                        if len(previous) > self.max_chars:
+                            raise BrowserReadError("浏览器可见内容超过大小限制", code="browser_response_too_large")
+                        page_html, _ = await bounded_page_html(page, max_chars=self.max_chars)
                         if record_snapshot:
                             record_snapshot(page_url, page_html)
                         additional_pages.append((page_url, page_html))
@@ -187,6 +194,7 @@ class PlaywrightBrowserJobReader:
                         additional_pages=tuple(additional_pages),
                         screenshots=tuple(screenshots),
                         screenshot_error=screenshot_error,
+                        html_compacted=html_compacted,
                     )
                 finally:
                     await browser.close()
@@ -208,17 +216,52 @@ class PlaywrightBrowserJobReader:
             raise BrowserReadError(str(error), code=error.code) from error
 
 
-async def wait_for_recruitment_content(page, *, timeout_ms):
+async def bounded_page_html(page, *, max_chars):
+    """Keep DOM evidence and links, while bounding serialized page payloads.
+
+    Inline bundles, styles and SVG paths are not JD evidence. Preserve original
+    HTML when small; explicitly mark compact snapshots and reject large DOMs.
+    """
+    result = await page.evaluate(r"""limit => {
+        const html = document.documentElement.outerHTML;
+        if (html.length <= limit) return {html, compacted: false};
+        if (document.getElementsByTagName('*').length > 30000) return null;
+        const copy = document.documentElement.cloneNode(true);
+        const originals = document.documentElement.querySelectorAll('*');
+        const clones = copy.querySelectorAll('*');
+        originals.forEach((el, i) => {
+            const style = getComputedStyle(el);
+            if (style.display === 'none' || style.visibility === 'hidden') clones[i].setAttribute('hidden', '');
+        });
+        copy.querySelectorAll('script,style,svg,canvas,iframe').forEach(el => {
+            if (el.tagName === 'SCRIPT' && /application\/(ld\+json|json\+ld)/i.test(el.type)) return;
+            el.remove();
+        });
+        const attrs = new Set(['class','id','style','hidden','aria-hidden','role','itemprop','href','type']);
+        for (const el of copy.querySelectorAll('*')) {
+            for (const attr of [...el.attributes]) if (!attrs.has(attr.name)) el.removeAttribute(attr.name);
+        }
+        const compact = copy.outerHTML;
+        return compact.length <= limit ? {html: compact, compacted: true} : null;
+    }""", max_chars)
+    if result is None:
+        raise BrowserReadError("浏览器页面内容超过大小限制", code="browser_response_too_large")
+    return result["html"], result["compacted"]
+
+
+async def wait_for_recruitment_content(page, *, timeout_ms, listing=False):
     """Wait for meaningful job content and idle loading indicators, bounded."""
     from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
     try:
-        await page.wait_for_function("""() => {
+        await page.wait_for_function("""listing => {
             const text = document.body?.innerText || '';
             const busy = [...document.querySelectorAll('[aria-busy="true"], [role="progressbar"]')]
                 .some(el => el.getClientRects().length > 0);
-            return !busy && text.length > 100 && /职位|岗位|任职|招聘|responsibilit|qualification|jobs/i.test(text);
-        }""", timeout=timeout_ms)
+            const detail = /职位描述|职位要求|任职要求|岗位描述|岗位要求|岗位职责|工作职责|(?:该|此|本)?(?:职位|岗位)已(?:下线|关闭|结束)|responsibilities|qualifications|job description|no longer accepting applications/i.test(text);
+            const links = document.querySelector('a[href*="/job/"],a[href*="/jobs/"],a[href*="/position/"]');
+            return !busy && (detail || (listing && links));
+        }""", arg=listing, timeout=timeout_ms)
         # A short quiet DOM window also catches delayed replacement of a shell.
         await page.wait_for_function("""() => {
             const text = document.body?.innerText || '';
@@ -248,3 +291,17 @@ def _raise_for_human_gate(text: str) -> None:
 def enabled_resource_hosts() -> set[str]:
     from src.services.company_registry import enabled_company_source_hosts
     return enabled_company_source_hosts() | {"g.alicdn.com", "lang.alicdn.com"}
+
+
+def recruitment_resource_hosts(url: str) -> set[str]:
+    host = urlsplit(url).hostname or ""
+    from src.services.company_registry import enabled_company_sources
+    registered = {resource for source in enabled_company_sources() if urlsplit(source.career_url).hostname == host for resource in source.resource_hosts}
+    if registered:
+        return registered
+    if host.endswith((".jobs.feishu.cn", ".jobs.f.mioffice.cn")):
+        return {"lf-package-cn.feishucdn.com"}
+    return {
+        "campus-talent.alibaba.com": {"g.alicdn.com", "lang.alicdn.com"},
+        "jobs.bytedance.com": {"lf-package-cn.feishucdn.com"},
+    }.get(urlsplit(url).hostname, set())

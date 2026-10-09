@@ -1,0 +1,52 @@
+{
+  "version": "campus-match-candidate-v1",
+  "provenance": "Synthetic candidate authored for a controlled development experiment. These are not the user's resume or verified facts about any real person.",
+  "user_id": "pilot-candidate",
+  "evidence": [
+    {
+      "id": "ev_backend", "user_id": "pilot-candidate", "title": "课程资料服务", "source": "synthetic_eval",
+      "claim": "独立用 Python、FastAPI 和 PostgreSQL 完成课程资料服务，实现 HTTP API、登录权限、数据表设计和数据库索引；用 pytest 编写单元测试和接口测试，通过 GitHub Actions 自动运行测试。排查过慢查询，比较索引方案后记录选择理由，并把完整项目部署到 Linux 服务器。",
+      "skills": ["Python", "FastAPI", "PostgreSQL", "pytest", "HTTP", "Linux"]
+    },
+    {
+      "id": "ev_agent", "user_id": "pilot-candidate", "title": "课程知识问答助手", "source": "synthetic_eval",
+      "claim": "使用 Python 和 LangChain 完成可运行的课程知识问答助手，实现文档切分、BM25 与向量混合检索、重排序及回答引用；设计提示词并加入工具调用和自动检索工作流。整理测试问题集，对比不同切分与检索方案的正确率和延迟，通过运行日志定位失败环节。实际使用过该助手，也日常使用 AI 编程助手编写代码并检查生成结果。",
+      "skills": ["Python", "LangChain", "BM25", "RAG"]
+    },
+    {
+      "id": "ev_training", "user_id": "pilot-candidate", "title": "模型训练实验", "source": "synthetic_eval",
+      "claim": "用 PyTorch 实现并训练图像分类 CNN，完成数据预处理、训练验证划分、损失曲线分析和过拟合诊断；能解释反向传播、梯度下降、注意力机制和自回归语言建模。对开源语言模型做过 LoRA 微调，比较学习率和训练轮数对验证集表现的影响，并将模型接入本地推理接口。",
+      "skills": ["PyTorch", "CNN", "LoRA"]
+    },
+    {
+      "id": "ev_paper", "user_id": "pilot-candidate", "title": "强化学习论文复现", "source": "synthetic_eval",
+      "claim": "阅读英文 PPO 论文和实现文档，对照目标函数用 Python、PyTorch 实现裁剪策略更新和优势估计；在 Gym 仿真环境中训练智能体，检查回报曲线，复现实验并分析训练不稳定的原因。在两周内完成可运行版本，在组会上讲解算法假设与实验局限。",
+      "skills": ["PPO", "Python", "PyTorch", "Gym", "强化学习"]
+    },
+    {
+      "id": "ev_foundations", "user_id": "pilot-candidate", "title": "基础课程实践", "source": "synthetic_eval",
+      "claim": "用 C++ 实现排序、二叉搜索树和图的遍历，分析时间复杂度；实现过简易线程池，通过实验解释进程线程、互斥锁和死锁；使用抓包工具观察 TCP 握手和 HTTP 请求。",
+      "skills": ["C++", "TCP", "HTTP"]
+    },
+    {
+      "id": "ev_team", "user_id": "pilot-candidate", "title": "三人课程项目协作", "source": "synthetic_eval",
+      "claim": "在三人课程项目中负责后端，与负责界面的同学讨论接口和演示需求，每周同步进度，通过代码评审与联调解决接口分歧，按期完成演示。根据试用同学的反馈修改检索结果展示和回答引用。",
+      "skills": []
+    },
+    {
+      "id": "ev_learning", "user_id": "pilot-candidate", "title": "持续学习与调研", "source": "synthetic_eval",
+      "claim": "持续关注 AI Agent 工具，每周阅读英文技术文档，主动尝试新工具；为问答助手写过方案比较笔记，讨论回答可靠性、人机协作方式和工具调用失败时的交互设计。",
+      "skills": ["AI Agent"]
+    },
+    {
+      "id": "ev_limits", "user_id": "pilot-candidate", "title": "明确的经历边界", "source": "synthetic_eval",
+      "claim": "尚无正式实习、商业化产品、大规模或高并发系统经验；尚无学术论文发表、竞赛获奖和开源社区贡献记录；未操作过机器人真机。",
+      "skills": []
+    },
+    {
+      "id": "ev_plan", "user_id": "pilot-candidate", "title": "尚未实践的学习计划", "source": "synthetic_eval",
+      "claim": "计划学习 Go、React、Kubernetes、CUDA 和 TensorRT，目前没有使用这些技术完成项目。",
+      "skills": ["Go", "React", "Kubernetes", "CUDA", "TensorRT"]
+    }
+  ]
+}

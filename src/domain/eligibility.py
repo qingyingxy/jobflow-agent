@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from src.domain.education import EducationRecord
 from src.domain.job import FieldEvidence, StructuredJobDescription
 
 JobType = Literal["campus", "internship", "full_time", "part_time"]
@@ -58,6 +59,8 @@ class CandidateProfileInput(BaseModel):
     graduation_year: int | None = Field(default=None, ge=1900, le=2200)
     degree: str | None = Field(default=None, max_length=100)
     major: str | None = Field(default=None, max_length=100)
+    educations: list[EducationRecord] = Field(default_factory=list, max_length=20)
+    education_history_complete: bool = False
 
 
 class EligibilityInput(BaseModel):
@@ -76,6 +79,8 @@ class EligibilityCheck(BaseModel):
     result: EligibilityStatus
     reason: str = Field(min_length=1)
     jd_evidence: list[FieldEvidence] = Field(default_factory=list)
+    education_evidence: list[EducationRecord] = Field(default_factory=list)
+    requirement_source_text: str | None = None
     missing_information: list[str] = Field(default_factory=list)
 
 

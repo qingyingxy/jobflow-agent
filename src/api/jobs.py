@@ -11,12 +11,13 @@ from src.api.schemas import (
 from src.config import get_settings
 from src.domain.analysis import AnalysisRisk
 from src.domain.eligibility import EligibilityResult
-from src.domain.job import StructuredJobDescription
+from src.domain.job import JobPosting, StructuredJobDescription
 from src.domain.matching import MatchScore, RequirementMatch
 from src.infrastructure.llm_client import (
     ModelClientError,
     create_structured_model_client,
 )
+from src.services.analysis_runtime import create_analysis_service, create_product_parser
 from src.services.company_registry import enabled_company_source_hosts
 from src.services.discovery_sources import GreenhouseAdapter
 from src.services.jd_analysis_service import (
@@ -25,13 +26,13 @@ from src.services.jd_analysis_service import (
     JDAnalysisService,
 )
 from src.services.job_decision import build_job_decision
+from src.services.job_fact_grounding import ground_runtime_facts
 from src.services.job_parse_service import (
     JDParseFailure,
     JobNotFoundError,
     JobParseService,
 )
 from src.services.job_service import JobImportService
-from src.services.product_jd_runtime_parser import ProductJDParser
 from src.services.url_reader import (
     SafeHTTPReader,
     URLFetchTimeout,
@@ -83,8 +84,8 @@ def _analysis_response(
         parse_result_id=analysis.parse_result_id,
         analysis_version=analysis.analysis_version,
         agent_run_ids=agent_run_ids,
-        structured_jd=StructuredJobDescription.model_validate(
-            parse_result.structured_jd
+        structured_jd=ground_runtime_facts(
+            StructuredJobDescription.model_validate(parse_result.structured_jd), posting.raw_content,
         ),
         eligibility=eligibility,
         matches=matches,
@@ -173,19 +174,16 @@ async def parse_job(
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = ProductJDParser(
-        client,
-        prompt_version=settings.product_prompt_version,
-        parser_version=settings.product_parser_version,
-        validation_retries=settings.parser_validation_retries,
-    )
+    parser = create_product_parser(client, settings)
     try:
         execution = await JobParseService(session, parser).parse(
             user_id=user_id,
             job_id=job_id,
         )
     except JobNotFoundError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="岗位不存在") from error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="岗位不存在"
+        ) from error
     except JDParseFailure as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -206,7 +204,10 @@ async def parse_job(
         schema_version=result.schema_version,
         parser_version=result.parser_version,
         prompt_version=result.prompt_version,
-        structured_jd=result.structured_jd,
+        structured_jd=ground_runtime_facts(
+            StructuredJobDescription.model_validate(result.structured_jd),
+            session.get(JobPosting, job_id).raw_content,
+        ),
     )
 
 
@@ -221,24 +222,19 @@ async def analyze_job(
 ) -> JobAnalysisResponse:
     settings = get_settings()
     try:
-        client = create_structured_model_client(settings)
+        service = create_analysis_service(
+            session,
+            settings=settings,
+            client_factory=create_structured_model_client,
+        )
     except ModelClientError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={"code": error.code, "message": str(error)},
         ) from error
 
-    parser = ProductJDParser(
-        client,
-        prompt_version=settings.product_prompt_version,
-        parser_version=settings.product_parser_version,
-        validation_retries=settings.parser_validation_retries,
-    )
     try:
-        execution = await JDAnalysisService(
-            session,
-            parser=parser,
-        ).analyze(user_id=user_id, job_id=job_id)
+        execution = await service.analyze(user_id=user_id, job_id=job_id)
     except JobNotFoundError as error:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -246,7 +242,9 @@ async def analyze_job(
         ) from error
     except JDAnalysisFailure as error:
         response_status = (
-            status.HTTP_503_SERVICE_UNAVAILABLE
+            status.HTTP_409_CONFLICT
+            if error.code == "analysis_inputs_changed"
+            else status.HTTP_503_SERVICE_UNAVAILABLE
             if error.code in {"model_timeout", "model_unavailable", "model_error"}
             else status.HTTP_422_UNPROCESSABLE_CONTENT
         )

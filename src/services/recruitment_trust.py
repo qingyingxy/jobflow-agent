@@ -2,7 +2,7 @@
 
 from urllib.parse import urlsplit
 
-ATS_DOMAINS = ("mokahr.com", "zhiye.com", "hotjob.cn", "recruitment.hrtps.com", "jobs.feishu.cn")
+ATS_DOMAINS = ("mokahr.com", "zhiye.com", "hotjob.cn", "recruitment.hrtps.com", "jobs.feishu.cn", "jobs.f.mioffice.cn")
 
 
 def hiring_scope(url):

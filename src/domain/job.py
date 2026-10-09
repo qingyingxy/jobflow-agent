@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from sqlalchemy import JSON, DateTime, Index, Integer, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src.domain.education import EducationCondition, validate_condition_grounding
 from src.domain.graduation import GraduationConditionKind
 from src.infrastructure.database import Base
 
@@ -280,9 +281,14 @@ class JobRequirement(BaseModel):
     items: list[str] | None = None
     relation_reason: str | None = Field(default=None, max_length=500)
     evidence: list[FieldEvidence] | None = None
+    education: EducationCondition | None = None
 
     @model_validator(mode="after")
     def validate_relation(self) -> JobRequirement:
+        if self.education is not None:
+            if self.education.relation != self.relation:
+                raise ValueError("结构化教育资格与外层条件关系不一致")
+            validate_condition_grounding(self.education, self.description)
         if self.items is not None:
             self.items = list(dict.fromkeys(item.strip() for item in self.items if item.strip()))
             if not self.items:

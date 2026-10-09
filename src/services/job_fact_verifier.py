@@ -4,12 +4,13 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from src.services.job_header_facts import header_location_evidence
 from src.services.url_reader import ParsedHTMLDocument
 
 _JOB_TYPE_PATTERNS: dict[str, tuple[str, ...]] = {
     "campus": ("校园招聘", "校招", "应届生招聘", "应届招聘", "应届生"),
     "internship": ("实习生", "实习", "internship", "intern"),
-    "full_time": ("全职", "正式员工", "full-time", "full time"),
+    "full_time": ("社会招聘", "社招", "全职", "正式员工", "full-time", "full time"),
     "part_time": ("兼职", "part-time", "part time"),
 }
 _REQUIREMENT_MARKERS = (
@@ -45,12 +46,48 @@ def verify_page_facts(document: ParsedHTMLDocument) -> VerifiedPageFacts:
         ("招聘公司", "公司名称", "company"),
     )
     title = document.title
-    locations = _unique([*document.locations, *_body_locations(text)])
+    header_locations = header_location_evidence(text, title)
+    locations = _unique([
+        *document.locations, *_body_locations(text),
+        *(item["value"] for item in header_locations),
+    ])
+    header_evidence = {item["value"]: item for item in header_locations}
     title_type = _body_job_type(title or "")
+    declared_type = _canonical_job_type(document.job_type)
+    labeled = _labeled_recruitment_match(text)
+    labeled_type = _body_job_type(labeled[0]) if labeled else None
+    # A mention of campus recruitment/previous internships in qualifications is
+    # not a recruitment classification. Only read header metadata as fallback.
+    header = re.split(
+        r"岗位描述|岗位职责|工作职责|职位描述|职位职责|任职要求|岗位要求|职位要求|职责描述|requirements|qualifications|responsibilities",
+        text,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0]
     job_type = (
-        title_type if title_type in {"campus", "internship"}
-        else _canonical_job_type(document.job_type) or _body_job_type(text)
+        labeled_type or title_type
+        if title_type in {"campus", "internship"}
+        else labeled_type or declared_type
+        if declared_type in {"campus", "internship"}
+        else labeled_type or declared_type or _body_job_type(header)
     )
+    if labeled and job_type == labeled_type:
+        type_evidence = _scalar_evidence(labeled[0], text, fallback_kind="body")
+        type_evidence["value"] = job_type
+    elif title_type == job_type:
+        type_evidence = _job_type_evidence(
+            job_type, title or "", title, fallback_kind="heading"
+        )
+        if type_evidence:
+            quoted = type_evidence["source_text"]
+            type_evidence = {
+                **_scalar_evidence(quoted, text, fallback_kind="heading"),
+                "value": job_type,
+            }
+    elif declared_type == job_type:
+        type_evidence = _job_type_evidence(job_type, "", document.job_type)
+    else:
+        type_evidence = _job_type_evidence(job_type, header, None, fallback_kind="body")
     graduation_years = _graduation_years(text)
     requirements = _requirement_fragments(text)
 
@@ -62,18 +99,19 @@ def verify_page_facts(document: ParsedHTMLDocument) -> VerifiedPageFacts:
         ),
         "title": _scalar_evidence(title, text, fallback_kind="heading"),
         "locations": [
-            _scalar_evidence(location, text, fallback_kind="json_ld")
+            header_evidence.get(location) or _scalar_evidence(location, text, fallback_kind="json_ld")
             for location in locations
         ],
-        "job_type": _job_type_evidence(job_type, text, document.job_type),
-        "job_type_title": _scalar_evidence(title, text, fallback_kind="heading") if title_type else None,
+        "job_type": type_evidence,
+        "job_type_title": _scalar_evidence(title, text, fallback_kind="heading")
+        if title_type
+        else None,
         "graduation_years": [
             _scalar_evidence(str(year), text, fallback_kind="body")
             for year in graduation_years
         ],
         "requirements": [
-            _scalar_evidence(item, text, fallback_kind="body")
-            for item in requirements
+            _scalar_evidence(item, text, fallback_kind="body") for item in requirements
         ],
     }
     return VerifiedPageFacts(
@@ -184,6 +222,8 @@ def _canonical_job_type(value: str | None) -> str | None:
         "fulltime": "full_time",
         "全职": "full_time",
         "正式员工": "full_time",
+        "社会招聘": "full_time",
+        "社招": "full_time",
         "parttime": "part_time",
         "兼职": "part_time",
     }
@@ -196,6 +236,23 @@ def _body_job_type(text: str) -> str | None:
         if any(marker.casefold() in folded for marker in markers):
             return job_type
     return None
+
+
+def _labeled_recruitment_type(text: str) -> str | None:
+    # FULL_TIME describes working hours, not whether recruitment targets campus
+    # candidates. Only an explicit field in the scoped job body overrides it;
+    # incidental references to campus/internship experience do not.
+    match = _labeled_recruitment_match(text)
+    return _body_job_type(match[0]) if match else None
+
+
+def _labeled_recruitment_match(text: str):
+    return re.search(
+        r"(?:招聘类型|招聘类别|招聘项目|recruitment\s+type)\s*[:：]\s*"
+        r"(校园招聘|校招|实习生招聘|实习招聘|实习|社会招聘|社招)",
+        text,
+        re.IGNORECASE,
+    )
 
 
 def _labeled_value(text: str, labels: tuple[str, ...]) -> str | None:
@@ -218,10 +275,15 @@ def _body_locations(text: str) -> list[str]:
     )
     values: list[str] = []
     for match in matches:
+        # Some sites render multiple labeled fields in a single text node.
+        location = re.split(
+            r"\s*(?:所属部门|部门|招聘人数|发布时间|发布日期|职位类型|招聘类型|薪资|department|date posted)\s*[:：]",
+            match.group(1),
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )[0].strip()
         values.extend(
-            item.strip()
-            for item in re.split(r"[,，、/|]", match.group(1))
-            if item.strip()
+            item.strip() for item in re.split(r"[,，、/|]", location) if item.strip()
         )
     return values[:20]
 
@@ -260,7 +322,16 @@ def _requirement_fragments(text: str) -> list[str]:
             in_requirement_section
             and any(
                 marker in folded
-                for marker in ("熟悉", "具备", "要求", "经验", "学历", "专业", "ability", "experience")
+                for marker in (
+                    "熟悉",
+                    "具备",
+                    "要求",
+                    "经验",
+                    "学历",
+                    "专业",
+                    "ability",
+                    "experience",
+                )
             )
         ):
             result.append(cleaned[:500])
