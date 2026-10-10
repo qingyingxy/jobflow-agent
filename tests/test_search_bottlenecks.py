@@ -96,7 +96,7 @@ def configure_execution(db_session, monkeypatch, factory, **overrides):
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda: {"official.example"})
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [SimpleNamespace(company="Example", career_url="https://official.example/careers")])
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [SimpleNamespace(id="example", company="Example", career_url="https://official.example/careers")])
     monkeypatch.setattr(web_search_service, "create_web_search_provider", factory)
     run = DiscoveryRun(id="bottleneck", user_id="u", source="test", source_url="https://official.example", started_at=datetime.now(UTC))
     db_session.add(run)
@@ -208,7 +208,7 @@ async def test_total_budget_cancels_request_without_dispatching_retry(db_session
 
 
 def test_poor_feedback_prefers_broad_recovery_with_original_exclusions():
-    sources = [SimpleNamespace(company="Example", career_url="https://official.example/careers")]
+    sources = [SimpleNamespace(id="example", company="Example", career_url="https://official.example/careers")]
     tasks = build_search_tasks(QUERY, sources)
     task = next_search_task(tasks, {QUERY}, poor_results=True)
     assert task.strategy == "条件补搜" and QUERY in task.query

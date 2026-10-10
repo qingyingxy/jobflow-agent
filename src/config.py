@@ -33,7 +33,10 @@ class Settings(BaseSettings):
     web_search_decision_timeout_seconds: float = Field(default=12, gt=0, le=60)
     web_search_role_review_enabled: bool = True
     web_search_role_review_max_calls: int = Field(default=12, ge=0, le=30)
+    web_search_role_review_batch_size: int = Field(default=2, ge=1, le=3)
+    web_search_role_review_concurrency: int = Field(default=2, ge=1, le=3)
     web_search_role_review_timeout_seconds: float = Field(default=15, gt=0, le=60)
+    web_search_direct_sources_enabled: bool = False
     web_search_max_rounds: int = 6
     web_search_budget_seconds: int = 300
     web_search_request_timeout_seconds: float = Field(default=60, gt=0, le=120)

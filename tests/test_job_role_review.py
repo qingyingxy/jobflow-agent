@@ -125,7 +125,8 @@ async def test_role_timeout_and_call_budget_preserve_pending(db_session):
     engine = JobRoleReviewer(
         Settings(
             _env_file=None,
-            web_search_role_review_timeout_seconds=0.01,
+            # Allow dispatch before testing timeout (Windows timers can tick at 16ms).
+            web_search_role_review_timeout_seconds=0.05,
             web_search_role_review_max_calls=1,
         ),
         client=Slow(),

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+from contextlib import contextmanager, nullcontext
 from dataclasses import asdict, replace
 from datetime import UTC, datetime
 from time import monotonic
@@ -36,6 +38,7 @@ from src.services.search_planner import (
     build_search_tasks,
     next_search_task,
 )
+from src.services.search_scheduling import candidate_priority, candidate_source
 from src.services.url_reader import SafeHTTPReader
 
 
@@ -49,8 +52,13 @@ def _transient_search_failure(error, evidence):
     if evidence.get("http_status") in {408, 429, 500, 502, 503, 504, 524}:
         return True
     return evidence.get("error_code") in {
-        "ReadTimeout", "ConnectTimeout", "WriteTimeout", "PoolTimeout",
-        "ConnectError", "ReadError", "RemoteProtocolError",
+        "ReadTimeout",
+        "ConnectTimeout",
+        "WriteTimeout",
+        "PoolTimeout",
+        "ConnectError",
+        "ReadError",
+        "RemoteProtocolError",
     }
 
 
@@ -134,8 +142,14 @@ async def search_rounds(
 
 
 async def execute_multiround_search(
-    *, run_id, user_id, query, company_ids,
-    query_tasks=None, analysis_limit=0, feedback_wait_seconds=None,
+    *,
+    run_id,
+    user_id,
+    query,
+    company_ids,
+    query_tasks=None,
+    analysis_limit=0,
+    feedback_wait_seconds=None,
 ):
     from src.services.web_search_service import create_web_search_provider
 
@@ -162,15 +176,22 @@ async def execute_multiround_search(
         analysis_ids = []
         failures = []
         sources = enabled_company_sources(company_ids or None)
-        hiring_resolver = OfficialHiringResolver(sources=sources, reader=reader, browser=browser)
+        hiring_resolver = OfficialHiringResolver(
+            sources=sources, reader=reader, browser=browser
+        )
         followup_links = []
         expanded_entries = set()
         agent_enabled = settings.web_search_decision_mode == "agent"
         # Internal callers may supply the same code-owned candidates in controlled
         # comparisons; the public API keeps the normal mode-specific defaults.
-        tasks = list(query_tasks) if query_tasks is not None else (
-            build_agent_search_tasks(query, sources)
-            if agent_enabled else build_search_tasks(query, sources)
+        tasks = (
+            list(query_tasks)
+            if query_tasks is not None
+            else (
+                build_agent_search_tasks(query, sources)
+                if agent_enabled
+                else build_search_tasks(query, sources)
+            )
         )
         completed_queries = set()
         duplicate_streak = 0
@@ -180,9 +201,16 @@ async def execute_multiround_search(
         search_unavailable = False
         verification_errors = {}
         verified_summaries = []
+        role_jobs = {}
+        summary_indices = {}
         snapshot = SearchSnapshot(0, 0, 0, 0, seconds)
         search_stop_reason = None
         resuming_after_verification = False
+        enqueue_discovered = None
+
+        def queue_ready(enqueue):
+            nonlocal enqueue_discovered
+            enqueue_discovered = enqueue
 
         def update_snapshot(value):
             nonlocal snapshot
@@ -199,16 +227,22 @@ async def execute_multiround_search(
             trace.append(
                 {
                     "phase": (
-                        "fallback" if kind == "search_decision_fallback"
-                        else "plan" if is_decision else "observe"
+                        "fallback"
+                        if kind == "search_decision_fallback"
+                        else "plan"
+                        if is_decision
+                        else "observe"
                     ),
                     "tool": kind,
                     "outcome": "failed" if error else "completed",
                     "observation": details.get("summary")
                     or f"{kind}：{details.get('url', '')}",
-                    "decision": details.get("reason") if is_decision else (
+                    "decision": details.get("reason")
+                    if is_decision
+                    else (
                         "已保留证据；失败不删除已发现链接"
-                        if error else "继续独立查询与正文核验"
+                        if error
+                        else "继续独立查询与正文核验"
                     ),
                     "duration_ms": details.get("duration_ms"),
                     "error_code": error,
@@ -219,31 +253,89 @@ async def execute_multiround_search(
             run.agent_trace = trace
             session.commit()
 
+        @contextmanager
+        def verification_stage(stage, url):
+            started = monotonic()
+            error_code = None
+            try:
+                yield
+            except BaseException as error:
+                error_code = getattr(error, "code", type(error).__name__)
+                raise
+            finally:
+                trace_event(
+                    "verification_stage",
+                    {
+                        "url": url,
+                        "stage": stage,
+                        "duration_ms": int((monotonic() - started) * 1000),
+                        "error_code": error_code,
+                    },
+                )
+
         def decision_client():
             # One counted decision attempt must mean one HTTP request. Repairs
             # are budgeted explicitly by SearchDecisionPlanner, never hidden in
             # the shared client's transport retry loop.
-            return create_structured_model_client(settings.model_copy(update={
-                "llm_max_retries": 0,
-                "llm_timeout_seconds": min(
-                    settings.llm_timeout_seconds,
-                    settings.web_search_decision_timeout_seconds,
-                ),
-            }))
+            return create_structured_model_client(
+                settings.model_copy(
+                    update={
+                        "llm_max_retries": 0,
+                        "llm_timeout_seconds": min(
+                            settings.llm_timeout_seconds,
+                            settings.web_search_decision_timeout_seconds,
+                        ),
+                    }
+                )
+            )
 
-        from src.services.job_role_review import JobRoleReviewer
+        from src.services.direct_recruitment_search import DirectRecruitmentSearch
+        from src.services.job_role_review import JobRoleReviewer, load_role_review
+
         role_reviewer = JobRoleReviewer(settings, on_event=trace_event)
-
-        planner = SearchDecisionPlanner(
-            decision_client,
-            max_calls=settings.web_search_decision_max_calls,
-            timeout_seconds=settings.web_search_decision_timeout_seconds,
+        direct = DirectRecruitmentSearch(
+            sources=sources,
+            query=query,
+            reader=reader,
+            browser=browser,
             on_event=trace_event,
-        ) if agent_enabled else None
+            max_jobs=settings.web_search_entry_max_details,
+        )
+        direct_checkpoint_pending = (
+            settings.web_search_direct_sources_enabled and direct.supported
+        )
+
+        async def bootstrap(enqueue):
+            def publish(candidates):
+                for candidate in candidates:
+                    service.capture_candidate(
+                        user_id=user_id, discovery_run_id=run_id, candidate=candidate
+                    )
+                enqueue(candidates)
+
+            await direct.discover(publish)
+
+        planner = (
+            SearchDecisionPlanner(
+                decision_client,
+                max_calls=settings.web_search_decision_max_calls,
+                timeout_seconds=settings.web_search_decision_timeout_seconds,
+                on_event=trace_event,
+            )
+            if agent_enabled
+            else None
+        )
 
         async def search(number, seen):
             nonlocal duplicate_streak, search_stop_reason, resuming_after_verification
             nonlocal pending_retry, retries_used, search_unavailable
+            nonlocal direct_checkpoint_pending
+            if direct_checkpoint_pending:
+                direct_checkpoint_pending = False
+                if direct.evidence and snapshot.pending_verification:
+                    return WaitForVerification(
+                        "官网直搜已返回正文，先等待筛选反馈；不足时自动补搜"
+                    )
             if search_unavailable:
                 return None
             is_retry = pending_retry is not None
@@ -253,8 +345,13 @@ async def execute_multiround_search(
                 or (snapshot.completed_verifications >= 2 and snapshot.useful_jobs == 0)
             )
             task = pending_retry or next_search_task(
-                tasks, completed_queries, duplicate_streak, poor_results=poor_results,
-                last_strategy=search_history[-1]["strategy"] if search_history else None,
+                tasks,
+                completed_queries,
+                duplicate_streak,
+                poor_results=poor_results,
+                last_strategy=search_history[-1]["strategy"]
+                if search_history
+                else None,
             )
             pending_retry = None
             if planner is not None and number > 1 and not is_retry:
@@ -271,7 +368,8 @@ async def execute_multiround_search(
                     "must_search": resuming_after_verification,
                     "resume_reason": (
                         "核验反馈后岗位数量仍不足；请选择新的查询，不能再次仅等待或结束"
-                        if resuming_after_verification else None
+                        if resuming_after_verification
+                        else None
                     ),
                 }
                 decision = await planner.choose(
@@ -288,7 +386,10 @@ async def execute_multiround_search(
                     search_stop_reason = "达到有效岗位目标"
                     return None
                 if decision.action == "finish":
-                    if snapshot.pending_verification or observation["pending_verification"]:
+                    if (
+                        snapshot.pending_verification
+                        or observation["pending_verification"]
+                    ):
                         resuming_after_verification = True
                         return WaitForVerification(decision.reason)
                     search_stop_reason = "搜索 Agent 建议结束新增搜索；继续核验已有线索"
@@ -326,11 +427,16 @@ async def execute_multiround_search(
             retry_scheduled = False
             try:
                 try:
-                    candidates = list(await asyncio.wait_for(
-                        current_provider.discover(), settings.web_search_request_timeout_seconds
-                    ))
+                    candidates = list(
+                        await asyncio.wait_for(
+                            current_provider.discover(),
+                            settings.web_search_request_timeout_seconds,
+                        )
+                    )
                 except TimeoutError:
-                    raise SearchRequestTimeout("单次搜索请求超时，继续在剩余预算内补搜") from None
+                    raise SearchRequestTimeout(
+                        "单次搜索请求超时，继续在剩余预算内补搜"
+                    ) from None
                 # Persist before any slow fetch or parser. Evidence contains all
                 # occurrences even when multiple queries return the same URL.
                 for candidate in candidates:
@@ -343,7 +449,11 @@ async def execute_multiround_search(
                 failure_reason = (
                     str(error)
                     if type(error).__name__
-                    in {"WebSearchPayloadError", "WebSearchConfigurationError", "SearchRequestTimeout"}
+                    in {
+                        "WebSearchPayloadError",
+                        "WebSearchConfigurationError",
+                        "SearchRequestTimeout",
+                    }
                     else failure
                 )
                 provider_failure = getattr(current_provider, "last_evidence", {})
@@ -396,12 +506,22 @@ async def execute_multiround_search(
                     "summary": f"查询：{task.query}；返回 {len(candidates)}，新增链接 {len(new_urls)}，新增具体岗位 {new_jobs}",
                 }
                 evidence.details = details
-                search_history.append({
-                    key: details[key] for key in (
-                        "query", "strategy", "round", "output_count", "new_links",
-                        "new_details", "duplicate_count", "duration_ms", "error_code",
-                    )
-                })
+                search_history.append(
+                    {
+                        key: details[key]
+                        for key in (
+                            "query",
+                            "strategy",
+                            "round",
+                            "output_count",
+                            "new_links",
+                            "new_details",
+                            "duplicate_count",
+                            "duration_ms",
+                            "error_code",
+                        )
+                    }
+                )
                 evidence.status = (
                     "FAILED"
                     if failure
@@ -450,25 +570,72 @@ async def execute_multiround_search(
                 discovery_run_id=run_id,
                 candidate=candidate,
             )
+            direct_evidence = direct.evidence.get(candidate.source_url)
+            if direct_evidence:
+                if direct_evidence.official_html:
+                    service._save_page_snapshot(
+                        user_id=user_id,
+                        lead_id=lead.id,
+                        url=direct_evidence.official_proof_url
+                        or direct_evidence.official_url,
+                        raw_html=direct_evidence.official_html,
+                        raw_text=None,
+                    )
+                snapshot_id = service._save_page_snapshot(
+                    user_id=user_id,
+                    lead_id=lead.id,
+                    url=direct_evidence.api_record["url"],
+                    raw_html="",
+                    raw_text=json.dumps(direct_evidence.api_record, ensure_ascii=False),
+                    raw_bytes=json.dumps(
+                        direct_evidence.api_record, ensure_ascii=False
+                    ).encode(),
+                )
+                service.record_official_link(
+                    user_id=user_id,
+                    lead_id=lead.id,
+                    source_url=candidate.source_url,
+                    entry_url=direct_evidence.official_url,
+                    from_url=direct_evidence.listing_url,
+                    company=direct_evidence.stub.company,
+                )
             host = (urlsplit(candidate.source_url).hostname or "").lower()
             if host not in hosts and not candidate.official_entry_url:
-                evidence = await hiring_resolver.resolve(
-                    candidate,
-                    record_snapshot=lambda url, html: service._save_page_snapshot(
-                        user_id=user_id, lead_id=lead.id, url=url, raw_html=html, raw_text=None,
-                    ),
-                )
+                with verification_stage("official_ownership", candidate.source_url):
+                    evidence = await hiring_resolver.resolve(
+                        candidate,
+                        record_snapshot=lambda url, html: service._save_page_snapshot(
+                            user_id=user_id,
+                            lead_id=lead.id,
+                            url=url,
+                            raw_html=html,
+                            raw_text=None,
+                        ),
+                    )
                 if evidence:
                     service.record_official_link(
-                        user_id=user_id, lead_id=lead.id, source_url=candidate.source_url,
-                        entry_url=evidence.entry_url, from_url=evidence.from_url,
-                        scope_url=evidence.scope_url, snapshot_id=evidence.snapshot_id, company=evidence.company,
+                        user_id=user_id,
+                        lead_id=lead.id,
+                        source_url=candidate.source_url,
+                        entry_url=evidence.entry_url,
+                        from_url=evidence.from_url,
+                        scope_url=evidence.scope_url,
+                        snapshot_id=evidence.snapshot_id,
+                        company=evidence.company,
                     )
-                    candidate = replace(candidate, official_entry_url=evidence.entry_url)
-                    trace_event("official_ownership", {"url": candidate.source_url,
-                        "summary": f"已从{evidence.company}官网确认企业招聘页面归属",
-                        "entry_url": evidence.entry_url, "scope_url": evidence.scope_url,
-                        "snapshot_id": evidence.snapshot_id})
+                    candidate = replace(
+                        candidate, official_entry_url=evidence.entry_url
+                    )
+                    trace_event(
+                        "official_ownership",
+                        {
+                            "url": candidate.source_url,
+                            "summary": f"已从{evidence.company}官网确认企业招聘页面归属",
+                            "entry_url": evidence.entry_url,
+                            "scope_url": evidence.scope_url,
+                            "snapshot_id": evidence.snapshot_id,
+                        },
+                    )
             if (
                 host not in hosts
                 and not candidate.official_entry_url
@@ -489,12 +656,19 @@ async def execute_multiround_search(
                 found = []
                 if host not in hosts and not candidate.official_entry_url:
                     lead.failure_code = "entry_source_unconfirmed"
-                    lead.failure_reason = "入口官网归属未确认，已保留线索供补搜追溯，未批量展开"
+                    lead.failure_reason = (
+                        "入口官网归属未确认，已保留线索供补搜追溯，未批量展开"
+                    )
                     session.commit()
-                    trace_event("entry_expansion", {
-                        "url": candidate.source_url, "output_count": 0,
-                        "reason": "entry_source_unconfirmed", "summary": lead.failure_reason,
-                    })
+                    trace_event(
+                        "entry_expansion",
+                        {
+                            "url": candidate.source_url,
+                            "output_count": 0,
+                            "reason": "entry_source_unconfirmed",
+                            "summary": lead.failure_reason,
+                        },
+                    )
                     return found
                 if (
                     len(expanded_entries)
@@ -535,28 +709,34 @@ async def execute_multiround_search(
                                 from_url=from_url,
                             )
                         found.append(detail)
+                        if enqueue_discovered:
+                            enqueue_discovered([detail])
 
                     try:
-                        await asyncio.wait_for(
-                            expand_entry(
-                                candidate.source_url,
-                                reader=reader,
-                                browser=browser,
-                                allowed_hosts=hosts,
-                                initial_scope=hiring_scope(candidate.source_url)
-                                if candidate.official_entry_url else None,
-                                record_snapshot=record_snapshot,
-                                query=query,
-                                max_pages=max(
-                                    2, min(12, settings.web_search_entry_max_pages)
+                        with verification_stage(
+                            "entry_expansion", candidate.source_url
+                        ):
+                            await asyncio.wait_for(
+                                expand_entry(
+                                    candidate.source_url,
+                                    reader=reader,
+                                    browser=browser,
+                                    allowed_hosts=hosts,
+                                    initial_scope=hiring_scope(candidate.source_url)
+                                    if candidate.official_entry_url
+                                    else None,
+                                    record_snapshot=record_snapshot,
+                                    query=query,
+                                    max_pages=max(
+                                        2, min(12, settings.web_search_entry_max_pages)
+                                    ),
+                                    official_hosts=hosts,
+                                    max_details=settings.web_search_entry_max_details,
+                                    on_detail=capture_detail,
+                                    on_event=trace_event,
                                 ),
-                                official_hosts=hosts,
-                                max_details=settings.web_search_entry_max_details,
-                                on_detail=capture_detail,
-                                on_event=trace_event,
-                            ),
-                            timeout=50,
-                        )
+                                timeout=50,
+                            )
                     except TimeoutError:
                         trace_event(
                             "entry_timeout",
@@ -581,26 +761,63 @@ async def execute_multiround_search(
                 return found
             try:
                 try:
-                    verified = await service.verify_url(
-                        user_id=user_id,
-                        lead_id=lead.id,
-                        reader=reader,
-                        official_hosts=hosts,
-                        official_only=True,
-                    )
+                    if direct_evidence and direct_evidence.full_body:
+                        from src.services.job_fact_verifier import (
+                            verified_stub_evidence,
+                        )
+
+                        stub = direct_evidence.stub
+                        fields = verified_stub_evidence(
+                            raw_content=stub.raw_content,
+                            company=stub.company,
+                            title=stub.title,
+                            locations=stub.locations,
+                            job_type=stub.job_type,
+                            metadata_kind="official_payload",
+                        )
+                        with verification_stage(
+                            "official_payload", candidate.source_url
+                        ):
+                            verified = service.verify_stub(
+                                user_id=user_id,
+                                lead_id=lead.id,
+                                stub=direct_evidence.stub,
+                                source_type="official_ats_search_payload",
+                                field_evidence={
+                                    **fields,
+                                    "snapshot_id": snapshot_id,
+                                    "listing_url": direct_evidence.listing_url,
+                                    "api_url": direct_evidence.api_record["url"],
+                                    "source_job_id": direct_evidence.stub.source_job_id,
+                                },
+                            )
+                    else:
+                        with verification_stage(
+                            "http_verification", candidate.source_url
+                        ):
+                            verified = await service.verify_url(
+                                user_id=user_id,
+                                lead_id=lead.id,
+                                reader=reader,
+                                official_hosts=hosts,
+                                official_only=True,
+                            )
                 except LeadVerificationFailure as error:
                     if error.code not in {
                         "lead_requires_browser",
                         "job_detail_unconfirmed",
                     }:
                         return None
-                    verified = await service.verify_browser(
-                        user_id=user_id,
-                        lead_id=lead.id,
-                        reader=browser,
-                        official_hosts=hosts,
-                        official_only=True,
-                    )
+                    with verification_stage(
+                        "browser_verification", candidate.source_url
+                    ):
+                        verified = await service.verify_browser(
+                            user_id=user_id,
+                            lead_id=lead.id,
+                            reader=browser,
+                            official_hosts=hosts,
+                            official_only=True,
+                        )
             except LeadVerificationFailure:
                 return None
             except asyncio.CancelledError:
@@ -627,26 +844,64 @@ async def execute_multiround_search(
                 detail_url=posting.source_url,
                 raw_content=posting.raw_content,
             )
-            role_review = await role_reviewer.review(stub, query=query, session=session, user_id=user_id, lead_id=lead.id)
+            role_jobs[posting.id] = (stub, posting, lead.id)
+            # Publish verified public facts before any remote direction review.
+            role_review = load_role_review(
+                session, user_id=user_id, job=stub, query=query
+            )
             match = classify_discovery_job(stub, query=query, role_review=role_review)
+            return posting.id, publish_match(
+                posting, match, created=verified.posting_created
+            )
+
+        def publish_match(posting, match, *, created=False):
             useful = match.filter_status == "matched"
             useful = useful and posting.availability_status != "CLOSED"
             if posting.id not in matched:
-                matched[posting.id] = match.as_dict(job_posting_id=posting.id)
-                verified_summaries.append({
-                    "company": (posting.company or "")[:160],
-                    "title": (posting.title or "")[:160],
-                    "match_tier": match.match_tier,
-                    "mismatch_labels": list(match.mismatch_labels),
-                    "useful": useful,
-                })
-                if verified.posting_created:
+                summary_indices[posting.id] = len(verified_summaries)
+                verified_summaries.append(
+                    {
+                        "company": (posting.company or "")[:160],
+                        "title": (posting.title or "")[:160],
+                        "match_tier": match.match_tier,
+                        "mismatch_labels": list(match.mismatch_labels),
+                        "useful": useful,
+                    }
+                )
+                if created:
                     run.new_count += 1
                 else:
                     run.duplicate_count += 1
-                if useful:
-                    analysis_ids.append(posting.id)
-            return posting.id, useful
+            matched[posting.id] = match.as_dict(job_posting_id=posting.id)
+            verified_summaries[summary_indices[posting.id]].update(
+                match_tier=match.match_tier,
+                mismatch_labels=list(match.mismatch_labels),
+                useful=useful,
+            )
+            if useful and posting.id not in analysis_ids:
+                analysis_ids.append(posting.id)
+            elif not useful and posting.id in analysis_ids:
+                analysis_ids.remove(posting.id)
+            return useful
+
+        async def review_direction(job_id):
+            while True:
+                inputs = role_jobs[job_id]
+                stub, posting, lead_id = inputs
+                with verification_stage("role_review", stub.detail_url):
+                    role_review = await role_reviewer.review(
+                        stub,
+                        query=query,
+                        session=session,
+                        user_id=user_id,
+                        lead_id=lead_id,
+                    )
+                # A newer official body can arrive while the model is waiting.
+                if role_jobs[job_id] is inputs:
+                    match = classify_discovery_job(
+                        stub, query=query, role_review=role_review
+                    )
+                    return job_id, publish_match(posting, match)
 
         def report(number, seen, useful, message, stop):
             if "搜索失败" in message:
@@ -708,18 +963,10 @@ async def execute_multiround_search(
             run.agent_trace = trace
             session.commit()
 
-        def candidate_priority(candidate):
-            if candidate.official_entry_url:
-                return 0
-            is_job = discovery_kind(candidate.source_url, candidate.title_hint) == "job"
-            if urlsplit(candidate.source_url).hostname in hosts:
-                return 1 if is_job else 2
-            return 3 if is_job else 4
-
         trace_event(
             "query_plan",
             {
-                "summary": f"已拆分 {len(tasks)} 条备选查询，本次预算最多执行 {rounds} 条；官网优先核验",
+                "summary": f"已拆分 {len(tasks)} 条备选查询，本次预算最多执行 {rounds} 条；相关具体岗位优先，来源轮流核验",
                 "planned_queries": [
                     {"query": t.query, "strategy": t.strategy} for t in tasks
                 ],
@@ -733,34 +980,66 @@ async def execute_multiround_search(
                 "request_timeout_seconds": settings.web_search_request_timeout_seconds,
                 "transient_retry_limit": settings.web_search_transient_retries,
                 "entry_max_details": settings.web_search_entry_max_details,
+                "verification_scheduler": "relevance-source-fair-v1",
+                "source_batch_size": 3,
+                "max_active_entries": 1,
+                "direct_sources_enabled": settings.web_search_direct_sources_enabled,
                 "verification_budget_seconds": settings.web_search_verification_budget_seconds,
             },
         )
         search_deadline = monotonic() + seconds
-        await run_search_pipeline(
-            max_concurrency=2,
-            priority=candidate_priority,
-            canonicalize=canonical_search_url,
-            on_event=trace_event,
-            on_snapshot=update_snapshot,
-            get_stop_reason=lambda: search_stop_reason,
-            feedback_wait_seconds=(
-                feedback_wait_seconds if feedback_wait_seconds is not None
-                else 1 if agent_enabled else 0
-            ),
-            verification_seconds=max(
-                1, min(900, settings.web_search_verification_budget_seconds)
-            ),
-            item_seconds=max(
-                1, min(180, settings.web_search_verification_item_seconds)
-            ),
-            search=search,
-            verify=verify,
-            report=report,
-            max_rounds=rounds,
-            seconds=seconds,
-            target=target,
-        )
+        async with browser.reuse() if hasattr(browser, "reuse") else nullcontext():
+            try:
+                await run_search_pipeline(
+                    bootstrap=bootstrap
+                    if settings.web_search_direct_sources_enabled and direct.supported
+                    else None,
+                    max_concurrency=2,
+                    priority=lambda candidate: candidate_priority(
+                        candidate,
+                        query=query,
+                        official_hosts=hosts,
+                    ),
+                    source_key=candidate_source,
+                    is_entry=lambda candidate: (
+                        discovery_kind(
+                            candidate.source_url,
+                            candidate.title_hint,
+                        )
+                        == "entry"
+                    ),
+                    on_queue_ready=queue_ready,
+                    canonicalize=canonical_search_url,
+                    on_event=trace_event,
+                    on_snapshot=update_snapshot,
+                    get_stop_reason=lambda: search_stop_reason,
+                    feedback_wait_seconds=(
+                        feedback_wait_seconds
+                        if feedback_wait_seconds is not None
+                        else 1
+                        if agent_enabled
+                        else 0
+                    ),
+                    verification_seconds=max(
+                        1, min(900, settings.web_search_verification_budget_seconds)
+                    ),
+                    item_seconds=max(
+                        1, min(180, settings.web_search_verification_item_seconds)
+                    ),
+                    search=search,
+                    verify=verify,
+                    review=review_direction,
+                    review_concurrency=(
+                        settings.web_search_role_review_batch_size
+                        * settings.web_search_role_review_concurrency
+                    ),
+                    report=report,
+                    max_rounds=rounds,
+                    seconds=seconds,
+                    target=target,
+                )
+            finally:
+                await role_reviewer.aclose()
         for pending in service.list_leads(user_id=user_id):
             if (
                 pending.discovery_run_id == run_id

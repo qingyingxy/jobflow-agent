@@ -107,3 +107,31 @@ def effective_job_locations(job) -> list[str]:
         item["value"]
         for item in header_location_evidence(job.raw_content or "", job.title)
     ]
+
+
+def recruitment_type_conflicts(job) -> list[str]:
+    """Find explicit current-job type conflicts, not past internship experience."""
+    text = job.raw_content or ""
+    if job.job_type in {"campus", "full_time"}:
+        from src.services.job_role_review import duty_text
+
+        quotes = []
+        if re.search(r"实习|\bintern(?:ship)?\b", job.title or "", re.IGNORECASE):
+            quotes.append(job.title)
+        for source, pattern in (
+            (duty_text(job), r"实习(?:内容|职责|工作|岗位)|\binternship (?:duties|role)\b"),
+            (text, r"实习周期|连续实习\s*\d|(?:每周|每星期)(?:可)?实习\s*\d|至少实习"),
+        ):
+            quotes.extend(
+                s.strip() for s in re.split(r"[。；;\n]", source)
+                if re.search(pattern, s, re.IGNORECASE)
+            )
+        return list(dict.fromkeys(quotes))[:3]
+    if job.job_type == "internship":
+        # Conversion opportunities in duties do not make an internship formal.
+        end = _HEADER_END.search(text)
+        header = text[:end.start()] if end else ""
+        return [line.strip() for line in header.splitlines() if re.fullmatch(
+            r"(?:招聘类型\s*[：:]\s*)?(?:正式|正式校招|全职|社会招聘|社招)", line.strip()
+        )][:3]
+    return []

@@ -382,6 +382,11 @@ async def test_execution_persists_queries_and_page_failures_with_separate_sessio
     assert all(r.raw_response == "original-response" for r in records)
     assert sorted(r.details["new_links"] for r in records) == [0, 1]
     assert any(s.get("error_code") == "lead_not_job_page" for s in run.agent_trace)
+    stages = [s["details"] for s in run.agent_trace if s["tool"] == "verification_stage"]
+    assert any(
+        s["stage"] == "http_verification" and s["duration_ms"] >= 0
+        and s["error_code"] == "lead_not_job_page" for s in stages
+    )
 
 
 @pytest.mark.asyncio

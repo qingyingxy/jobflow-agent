@@ -304,7 +304,7 @@ async def test_real_orchestration_resumes_after_failed_bytedance_detail_verifica
         "enabled_company_sources",
         lambda *args: [
             SimpleNamespace(
-                company="字节跳动", career_url="https://jobs.bytedance.com/campus"
+                id="bytedance", company="字节跳动", career_url="https://jobs.bytedance.com/campus"
             )
         ],
     )

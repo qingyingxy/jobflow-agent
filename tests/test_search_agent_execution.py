@@ -117,7 +117,7 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
         execution,
         "enabled_company_sources",
         lambda *args: [
-            SimpleNamespace(company="Example", career_url="https://example.com/careers")
+            SimpleNamespace(id="example", company="Example", career_url="https://example.com/careers")
         ],
     )
     monkeypatch.setattr(execution, "create_structured_model_client", client_factory)

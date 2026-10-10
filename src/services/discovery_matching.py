@@ -4,9 +4,16 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-from src.domain.graduation import classify_graduation_condition
+from src.domain.graduation import (
+    cohort_conflict_sources,
+    cohort_source_fragments,
+    simple_cohort_years,
+)
 from src.services.discovery_sources import JobStub
-from src.services.job_header_facts import effective_job_locations
+from src.services.job_header_facts import (
+    effective_job_locations,
+    recruitment_type_conflicts,
+)
 from src.services.search_constraints import select_term_groups
 
 MatchTier = Literal["strict", "expanded"]
@@ -28,7 +35,7 @@ class DiscoveryJobMatch:
             "mismatch_labels": list(self.mismatch_labels),
             "filter_status": self.filter_status,
             "checks": list(self.checks),
-            "filter_version": "query-filters-v3",
+            "filter_version": "query-filters-v10",
         }
 
 
@@ -94,7 +101,9 @@ _ROLE_GROUPS: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
 )
 
 
-def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None) -> DiscoveryJobMatch:
+def classify_discovery_job(
+    job: JobStub, *, query: str | None, role_review=None
+) -> DiscoveryJobMatch:
     """Filter verified page facts. Missing evidence never proves a conflict."""
     normalized_query = (query or "").casefold()
     reasons: list[str] = []
@@ -162,7 +171,15 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
     type_names = dict(zip(type_groups, ("campus", "internship", "full_time")))
     if wanted_types or denied_types:
         evidence = [job.job_type] if job.job_type else []
-        if job.job_type in {None, "unknown"}:
+        conflicts = recruitment_type_conflicts(job)
+        if conflicts:
+            record(
+                "job_type",
+                "pending",
+                "招聘类型标签与岗位原文冲突，待核实",
+                [*evidence, *conflicts],
+            )
+        elif job.job_type in {None, "unknown"}:
             record("job_type", "pending", "招聘类型待确认", evidence)
         elif job.job_type in {type_names[g] for g in denied_types}:
             record(
@@ -178,24 +195,18 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
         else:
             record("job_type", "matched", "已确认招聘类型符合搜索条件", evidence)
 
-    positive_roles, excluded_roles = select_term_groups(
+    _, excluded_roles = select_term_groups(
         normalized_query, [g[0] for g in _ROLE_GROUPS]
     )
-    requested_roles = [
-        terms for aliases, terms in _ROLE_GROUPS if aliases in positive_roles
-    ]
-    # Keep the application qualifier instead of expanding it to every model job.
-    if re.search(r"(?:大模型|大语言模型|llm)\s*(?:应用|application)", normalized_query):
-        requested_roles = [
-            ("大模型应用", "大语言模型应用", "llm application", "llm应用", "rag", "检索增强", "agent", "智能体")
-            if "llm" in terms or "ai应用" in terms else terms
-            for terms in requested_roles
-        ]
+    requested_roles = requested_role_terms(query)
     ai_terms = ("ai", "人工智能", "artificial intelligence")
-    positive_ai, excluded_ai = select_term_groups(normalized_query, [ai_terms])
-    if not requested_roles and positive_ai:
-        requested_roles = [ai_terms]
-    from src.services.job_role_review import duty_text, valid_review
+    _, excluded_ai = select_term_groups(normalized_query, [ai_terms])
+    from src.services.job_role_review import (
+        duty_text,
+        local_duty_evidence,
+        software_domain_conflict,
+        valid_review,
+    )
 
     role_text = "\n".join([job.title or "", duty_text(job)])
     accepted_review = valid_review(role_review, job, query)
@@ -210,7 +221,21 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
             for term in terms
             if _contains(role_text.casefold(), term)
         ]
-        if any(_contains(title, term) for term in denied_terms):
+        mixed_boundary = mixed_frontend_boundary(job, denied_terms)
+        direct_evidence = local_duty_evidence(job, query)
+        domain_conflict = software_domain_conflict(job, query)
+        if mixed_boundary:
+            status, evidence = mixed_boundary
+            record(
+                "role",
+                status,
+                "岗位必须承担已排除的前端职责"
+                if status == "excluded"
+                else "前后端方向可选或职责不明确，待确认",
+                evidence,
+                "excluded_role" if status == "excluded" else "role",
+            )
+        elif any(_contains(title, term) for term in denied_terms):
             record(
                 "role",
                 "excluded",
@@ -218,13 +243,23 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
                 [job.title],
                 "excluded_role",
             )
+        elif domain_conflict:
+            record("role", "excluded", "岗位职责为芯片设计流程，未承担目标软件前后端研发", domain_conflict)
+            checks[-1]["method"] = "local_domain"
         elif accepted_review:
             decision = accepted_review["decision"]
             record("role", decision["status"], decision["reason"], decision["evidence"])
+        elif direct_evidence and not local_role_needs_review(job, requested_roles):
+            record("role", "matched", "实际职责明确覆盖目标方向", direct_evidence)
+            checks[-1]["method"] = "local_duties"
         elif requested_roles and not hits:
             record("role", "pending", "正文尚未确认目标方向", [])
         elif denied_terms and not title:
             record("role", "pending", "岗位名称缺失，排除方向待核实", [])
+        elif local_role_needs_review(job, requested_roles):
+            record(
+                "role", "pending", "关键词或岗位标题不足以确认目标研发职责", [job.title]
+            )
         else:
             record(
                 "role",
@@ -240,14 +275,22 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
     if years:
         # A season title or date is not an eligibility cohort. Keep the complete
         # sentence so regional qualifications and ranges cannot be dropped.
-        fragments = [
-            s.strip()
-            for s in re.split(r"[。；;\n]", job.raw_content or "")
-            if re.search(r"20\d{2}.*(?:届|毕业)|毕业.*20\d{2}", s)
-        ]
+        fragments = cohort_source_fragments(job.raw_content or "", title=job.title)
         simple = [_simple_search_cohort(s) for s in fragments]
-        cohorts = {int(y) for sentence in simple if sentence for y in re.findall(r"20\d{2}", sentence)}
+        cohorts = {
+            int(y)
+            for sentence in simple
+            if sentence
+            for y in re.findall(r"20\d{2}", sentence)
+        }
         certain = bool(fragments) and all(simple) and len(set(simple)) == 1
+        if certain:
+            conflicts = cohort_conflict_sources(
+                fragments[0], job.raw_content or "", title=job.title
+            )
+            if conflicts:
+                fragments = list(dict.fromkeys([*fragments, *conflicts]))
+                certain = False
         if re.search(
             r"(?:不考虑|排除|不接受).*20\d{2}|20\d{2}.*(?:至|到|[-~～]).*20\d{2}",
             normalized_query,
@@ -270,7 +313,9 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
                 fragments,
             )
     for keyword in conditions["keywords"]:
-        quotes = _source_quotes("\n".join([job.title or "", job.raw_content or ""]), [keyword])
+        quotes = _source_quotes(
+            "\n".join([job.title or "", job.raw_content or ""]), [keyword]
+        )
         record(
             "keyword",
             "matched" if quotes else "pending",
@@ -302,34 +347,104 @@ def classify_discovery_job(job: JobStub, *, query: str | None, role_review=None)
     )
 
 
-def _simple_search_cohort(sentence):
-    """Recognize explicit cohort facts without dropping regional/date conditions."""
-    value = re.sub(r"^(?:[-•]\s*|\d+[.、]\s*)", "", sentence.strip())
-    value = re.sub(r"^(?:招聘对象|招募对象|任职要求|招聘要求|毕业届别|适用届别|届别)\s*[：:]\s*", "", value)
-    if classify_graduation_condition(value) == "simple":
-        return ",".join(sorted(set(re.findall(r"20\d{2}", value))))
-    # A header explicitly saying 届 is distinct from a year naming a campaign.
-    cohort = re.fullmatch(r"(20\d{2})\s*届(?:校园招聘|校招)(?:计划|项目)?(?:\s*[-—·]\s*(?:正式批|提前批|秋招|春招))?", value)
-    if cohort:
-        return cohort[1]
-    # A recruitment label can wrap the same explicit cohort in parentheses.
-    # Match the entire label; never discard conditions inside or after it.
-    cohort = re.fullmatch(
-        r"(?:应届生|应届毕业生|校园招聘|校招)\s*[（(]\s*"
-        r"(20\d{2})\s*届(?:应届生|应届毕业生)(?:校园招聘|校招)\s*[）)]",
-        value,
-    )
-    if cohort:
-        return cohort[1]
-    if re.search(r"海外|境外|境内|国内|大陆|留学|毕业时间|毕业日期|之前|之后|如果|仅限|不接受|不招|不含|除外|或(?:符合|其他|满足)|[月日]|20\d{2}.*20\d{2}", value):
+def requested_role_terms(query):
+    """Share the positive direction scope with model-exclusion validation."""
+    text = (query or "").casefold()
+    positive, _ = select_term_groups(text, [g[0] for g in _ROLE_GROUPS])
+    terms = [values for aliases, values in _ROLE_GROUPS if aliases in positive]
+    if re.search(r"(?:大模型|大语言模型|llm)\s*(?:应用|application)", text):
+        terms = [
+            (
+                "大模型应用",
+                "大语言模型应用",
+                "llm application",
+                "llm应用",
+                "rag",
+                "检索增强",
+                "agent",
+                "智能体",
+            )
+            if "llm" in values or "ai应用" in values
+            else values
+            for values in terms
+        ]
+    ai = ("ai", "人工智能", "artificial intelligence")
+    positive_ai, _ = select_term_groups(text, [ai])
+    return terms or ([ai] if positive_ai else [])
+
+
+def mixed_frontend_boundary(job, denied_terms):
+    """A full-stack title alone does not prove mandatory frontend work."""
+    if not any(t in denied_terms for t in ("前端", "frontend", "front-end")):
         return None
-    # Some renderers flatten the education heading and its paragraph together.
-    # Strip only an explicit education prefix; retain the complete sentence as
-    # evidence and reject regional/date/exception qualifiers above.
-    value = re.sub(r"^(?:教育背景|学历要求|教育要求|学历)\s*[:：]?\s*", "", value)
-    value = re.sub(r"^(?:(?:本科|硕士|博士|研究生|大专|及以上|及|或|和|、|学历|学位|\s)+)[，,]\s*", "", value)
-    cohort = re.fullmatch(r"(?:面向|招收|招聘|接受)?(20\d{2})\s*届\s*(?:本科|硕士|博士|及|或|和|、|[ /])*\s*(?:应届毕业生|应届生|毕业生)(?:[，,].*)?", value)
-    return cohort[1] if cohort else None
+    title = (job.title or "").casefold()
+    if not re.search(r"全栈|前后端|前端.*后端|后端.*前端|full.?stack", title):
+        return None
+    from src.services.job_role_review import duty_text
+
+    duties = duty_text(job)
+    if re.search(r"任选|二选一|可选|或后端|或前端|按方向|择一", title + "\n" + duties):
+        return "pending", [job.title]
+    evidence = [
+        line.strip()
+        for line in duties.splitlines()
+        if re.search(r"负责|承担|主导|参与|持续跟进", line)
+        and re.search(r"前后端|前端.{0,20}(?:开发|技术|研发)", line)
+        and not re.search(r"不负责|无需|协同前端|与前端|加分|优先", line)
+    ]
+    return ("excluded", evidence) if evidence else ("pending", [job.title])
+
+
+def local_role_needs_review(job, requested_roles):
+    """Technical keywords in another function cannot alone prove an R&D role."""
+    terms = {t for group in requested_roles for t in group}
+    from src.services.job_role_review import (
+        SPECIFIC_DIRECTION_TERMS,
+        specific_direction_needs_evidence,
+    )
+
+    if (
+        terms
+        and terms <= (SPECIFIC_DIRECTION_TERMS | {"后端", "backend", "back-end", "前端", "frontend", "front-end"})
+        and specific_direction_needs_evidence(job, " ".join(terms))
+    ):
+        return True
+    return role_title_needs_review(job, requested_roles)
+
+
+def role_title_needs_review(job, requested_roles):
+    """A planning/design title needs semantic interpretation of R&D wording."""
+    terms = {t for group in requested_roles for t in group}
+    engineering = {
+        "agent",
+        "智能体",
+        "rag",
+        "检索增强",
+        "后端",
+        "backend",
+        "前端",
+        "frontend",
+        "算法",
+        "algorithm",
+        "大模型应用",
+        "llm应用",
+    }
+    if not terms & engineering or terms & {"产品", "product"}:
+        return False
+    return bool(
+        re.search(
+            r"产品(?:经理|运营|实习生|助理)|校园大使|(?:销售|商务|市场|人力资源|行政|运营)(?:经理|专员|顾问|实习生)|"
+            r"(?:产品|视觉|交互|平面|UI|UX|用户体验)设计师|"
+            r"\b(?:product manager|talent partner|recruiter)\b",
+            job.title or "",
+            re.IGNORECASE,
+        )
+    )
+
+
+def _simple_search_cohort(sentence):
+    years = simple_cohort_years(sentence)
+    return ",".join(map(str, sorted(years))) if years else None
 
 
 def _source_quotes(text: str, terms: list[str]) -> list[str]:

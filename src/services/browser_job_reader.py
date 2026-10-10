@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import base64
+import json
 import re
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.parse import urlsplit
@@ -26,6 +29,7 @@ class BrowserPageSnapshot:
     screenshots: tuple[dict, ...] = ()
     screenshot_error: str | None = None
     html_compacted: bool = False
+    recruitment_api: tuple[dict, ...] = ()
 
 
 class BrowserJobReader(Protocol):
@@ -54,6 +58,64 @@ class PlaywrightBrowserJobReader:
         )
         self.timeout_ms = max(1_000, min(60_000, int(timeout_seconds * 1000)))
         self.max_chars = max(20_000, min(2_000_000, max_chars))
+        self._shared_browser = None
+        self._playwright = None
+        self._reuse = False
+        self._launch_lock = asyncio.Lock()
+
+    @asynccontextmanager
+    async def reuse(self):
+        """One browser per search run; every page retains its own context."""
+        if self._reuse:
+            raise RuntimeError("Browser reuse scopes cannot overlap")
+        self._reuse = True
+        try:
+            yield self
+        finally:
+            self._reuse = False
+            try:
+                if self._shared_browser is not None:
+                    await self._shared_browser.close()
+            finally:
+                self._shared_browser = None
+                if self._playwright is not None:
+                    await self._playwright.stop()
+                    self._playwright = None
+
+    @asynccontextmanager
+    async def browser_session(self):
+        from playwright.async_api import async_playwright
+
+        def options():
+            result = {"headless": True}
+            if self.proxy:
+                url = urlsplit(self.proxy)
+                proxy = {"server": f"{url.scheme}://{url.hostname}:{url.port}"}
+                if url.username:
+                    proxy["username"] = url.username
+                if url.password:
+                    proxy["password"] = url.password
+                result["proxy"] = proxy
+            return result
+
+        if not self._reuse:
+            async with async_playwright() as runtime:
+                browser = await runtime.chromium.launch(**options())
+                try:
+                    yield browser
+                finally:
+                    await browser.close()
+            return
+        async with self._launch_lock:
+            if self._shared_browser is None:
+                self._playwright = await async_playwright().start()
+                try:
+                    self._shared_browser = await self._playwright.chromium.launch(**options())
+                except BaseException:
+                    await self._playwright.stop()
+                    self._playwright = None
+                    raise
+        yield self._shared_browser
 
     async def read(self, url: str) -> BrowserPageSnapshot:
         return await self._read(url)
@@ -61,11 +123,13 @@ class PlaywrightBrowserJobReader:
     async def read_listing(self, url, *, max_pages=3, record_snapshot=None):
         return await self._read(url, listing_pages=max_pages, record_snapshot=record_snapshot)
 
-    async def _read(self, url, *, listing_pages=1, record_snapshot=None):
+    async def read_search_listing(self, url):
+        return await self._read(url, listing_pages=1, capture_api=True)
+
+    async def _read(self, url, *, listing_pages=1, record_snapshot=None, capture_api=False):
         requested_url = await self._validate_url(url)
         try:
             from playwright.async_api import TimeoutError as PlaywrightTimeoutError
-            from playwright.async_api import async_playwright
         except ImportError as error:
             raise BrowserReadError(
                 "服务端未安装 Playwright 浏览器运行时",
@@ -73,24 +137,40 @@ class PlaywrightBrowserJobReader:
             ) from error
 
         try:
-            async with async_playwright() as playwright:
-                launch_options = {"headless": True}
-                if self.proxy:
-                    proxy_url = urlsplit(self.proxy)
-                    proxy = {"server": f"{proxy_url.scheme}://{proxy_url.hostname}:{proxy_url.port}"}
-                    if proxy_url.username:
-                        proxy["username"] = proxy_url.username
-                    if proxy_url.password:
-                        proxy["password"] = proxy_url.password
-                    launch_options["proxy"] = proxy
-                browser = await playwright.chromium.launch(**launch_options)
+            async with self.browser_session() as browser:
+                context = await browser.new_context(
+                    java_script_enabled=True,
+                    accept_downloads=False,
+                    service_workers="block",
+                )
+                api_records, api_tasks = [], []
                 try:
-                    context = await browser.new_context(
-                        java_script_enabled=True,
-                        accept_downloads=False,
-                        service_workers="block",
-                    )
                     page = await context.new_page()
+
+                    async def capture_response(response):
+                        parsed = urlsplit(response.url)
+                        if parsed.hostname != urlsplit(requested_url).hostname or not (
+                            parsed.path == "/api/v1/search/job/posts"
+                            or re.fullmatch(r"/api/v1/config/job/filters/\d+", parsed.path)
+                        ) or response.status != 200:
+                            return
+                        try:
+                            raw = await response.text()
+                            if len(raw) > self.max_chars * 4:
+                                return
+                            payload = json.loads(raw)
+                            request = json.loads(response.request.post_data or "{}")
+                        except Exception:  # noqa: BLE001 - response may be cancelled with the page
+                            return
+                        api_records.append({
+                            "url": f"{parsed.scheme}://{parsed.netloc}{parsed.path}",
+                            "request": request, "payload": payload,
+                        })
+
+                    if capture_api:
+                        page.on("response", lambda response: api_tasks.append(
+                            asyncio.create_task(capture_response(response))
+                        ))
 
                     async def guard_request(route) -> None:
                         request_url = route.request.url
@@ -120,7 +200,7 @@ class PlaywrightBrowserJobReader:
                         wait_until="domcontentloaded",
                         timeout=self.timeout_ms,
                     )
-                    await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1)
+                    await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1 or capture_api)
                     final_url = await self._validate_url(page.url)
                     visible_text = await page.locator("body").inner_text(
                         timeout=self.timeout_ms
@@ -132,7 +212,7 @@ class PlaywrightBrowserJobReader:
                     from src.config import get_settings
                     from src.services.job_detail_scope import closed_page_notice
                     from src.services.vision_job_extraction import needs_visual_fallback
-                    if listing_pages == 1 and get_settings().vision_fallback_enabled and not closed_page_notice(raw_html, url=final_url) and needs_visual_fallback(raw_html, final_url):
+                    if not capture_api and listing_pages == 1 and get_settings().vision_fallback_enabled and not closed_page_notice(raw_html, url=final_url) and needs_visual_fallback(raw_html, final_url):
                         try:
                             await page.set_viewport_size({"width": 1280, "height": 1000})
                             height = await page.evaluate("document.documentElement.scrollHeight")
@@ -185,6 +265,8 @@ class PlaywrightBrowserJobReader:
                             "浏览器页面内容超过大小限制",
                             code="browser_response_too_large",
                         )
+                    if api_tasks:
+                        await asyncio.gather(*api_tasks, return_exceptions=True)
                     return BrowserPageSnapshot(
                         requested_url=requested_url,
                         final_url=final_url,
@@ -195,9 +277,15 @@ class PlaywrightBrowserJobReader:
                         screenshots=tuple(screenshots),
                         screenshot_error=screenshot_error,
                         html_compacted=html_compacted,
+                        recruitment_api=tuple(api_records),
                     )
                 finally:
-                    await browser.close()
+                    for task in api_tasks:
+                        if not task.done():
+                            task.cancel()
+                    if api_tasks:
+                        await asyncio.gather(*api_tasks, return_exceptions=True)
+                    await context.close()
         except BrowserReadError:
             raise
         except Exception as error:
