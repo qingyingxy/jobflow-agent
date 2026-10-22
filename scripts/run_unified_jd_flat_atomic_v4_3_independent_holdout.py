@@ -1,0 +1,475 @@
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import json
+import os
+import platform
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from time import perf_counter
+from typing import Any
+from urllib.parse import urlparse
+
+from scripts.run_unified_jd_flat_atomic_v4_live_probe import (
+    build_live_probe_requests,
+)
+from src.config import get_settings
+from src.evaluation.model_first_v4_3_independent_holdout import (
+    evaluate_independent_holdout_v4_3,
+)
+from src.infrastructure.llm_client import (
+    ModelClientError,
+    StructuredModelClient,
+    StructuredModelRequest,
+    create_structured_model_client,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+MAX_NEW_MODEL_CALLS = 5
+
+DEFAULT_SELECTION = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_"
+    "v1_2026-09-06.json"
+)
+DEFAULT_INDEPENDENCE = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_independence_"
+    "receipt_v1_2026-09-06.json"
+)
+DEFAULT_PREREGISTRATION = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_preregistration_"
+    "v1_2026-09-06.json"
+)
+DEFAULT_PREREGISTRATION_FREEZE = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_preregistration_"
+    "freeze_v1_2026-09-06.json"
+)
+DEFAULT_SOURCE_FREEZE = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_source_freeze_"
+    "v1_2026-09-06.json"
+)
+DEFAULT_REQUEST_CONTRACT = ROOT / (
+    "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_"
+    "v1_2026-09-06.json"
+)
+DEFAULT_REQUESTS = ROOT / (
+    "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-"
+    "requests-v1-2026-09-06.json"
+)
+DEFAULT_CHECKPOINT = ROOT / (
+    "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-"
+    "raw-v1-2026-09-06.checkpoint.json"
+)
+DEFAULT_RAW = ROOT / (
+    "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-"
+    "raw-v1-2026-09-06.json"
+)
+DEFAULT_REPORT = ROOT / (
+    "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-"
+    "report-v1-2026-09-06.json"
+)
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _payload_sha256(value: object) -> str:
+    rendered = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def _load(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise TypeError(f"expected object: {path}")
+    return value
+
+
+def _write_new_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x", encoding="utf-8", newline="\n") as output:
+        json.dump(payload, output, ensure_ascii=False, indent=2)
+        output.write("\n")
+
+
+def _replace_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    with temporary.open("w", encoding="utf-8", newline="\n") as output:
+        json.dump(payload, output, ensure_ascii=False, indent=2)
+        output.write("\n")
+    os.replace(temporary, path)
+
+
+def _reference(path: Path) -> dict[str, str]:
+    return {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path)}
+
+
+def _verify_entries(entries: dict[str, Any]) -> None:
+    for name, entry in entries.items():
+        if not isinstance(entry, dict):
+            raise TypeError(f"invalid frozen entry: {name}")
+        relative = entry.get("path")
+        expected = entry.get("sha256")
+        if not isinstance(relative, str) or not isinstance(expected, str):
+            raise TypeError(f"invalid frozen reference: {name}")
+        path = (ROOT / relative).resolve()
+        if ROOT.resolve() not in path.parents:
+            raise ValueError(f"frozen path escapes workspace: {path}")
+        if not path.is_file() or _sha256(path) != expected:
+            raise ValueError(f"frozen file hash mismatch: {name}")
+
+
+def _request_artifact(
+    requests: list[tuple[str, str, StructuredModelRequest]],
+    *,
+    destination_host: str,
+    written_at: str,
+) -> dict[str, Any]:
+    return {
+        "request_version": (
+            "unified-jd-flat-atomic-v4.3-independent-holdout-requests-v1"
+        ),
+        "written_at": written_at,
+        "authorization": {
+            "confirmed": True,
+            "scope": (
+                "The user explicitly authorized these five complete public job "
+                "bodies to api.deepseek.com, at most one call per job, zero retries."
+            ),
+        },
+        "destination_host": destination_host,
+        "maximum_new_model_calls": MAX_NEW_MODEL_CALLS,
+        "maximum_calls_per_case": 1,
+        "transport_retries": 0,
+        "validation_retries": 0,
+        "requests": [
+            {
+                "case_id": case_id,
+                "input_sha256": input_sha256,
+                "request_sha256": _payload_sha256(request.model_dump(mode="json")),
+                "request": request.model_dump(mode="json"),
+            }
+            for case_id, input_sha256, request in requests
+        ],
+    }
+
+
+def _checkpoint_payload(
+    records: list[dict[str, Any]], history: list[dict[str, Any]]
+) -> dict[str, Any]:
+    return {
+        "checkpoint_version": (
+            "unified-jd-flat-atomic-v4.3-independent-holdout-checkpoint-v1"
+        ),
+        "maximum_new_model_calls": MAX_NEW_MODEL_CALLS,
+        "model_call_count": len(records),
+        "checkpoint_write_count": len(history),
+        "history": history,
+        "records": records,
+    }
+
+
+async def _execute(
+    requests: list[tuple[str, str, StructuredModelRequest]],
+    client: StructuredModelClient,
+    *,
+    checkpoint_path: Path,
+    existing_records: list[dict[str, Any]] | None = None,
+    existing_history: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    records = list(existing_records or [])
+    history = list(existing_history or [])
+    attempted_ids = {record["case_id"] for record in records}
+    if (
+        len(records) > MAX_NEW_MODEL_CALLS
+        or len(attempted_ids) != len(records)
+        or len(history) != len(records)
+    ):
+        raise ValueError("checkpoint violates one-call-per-case budget")
+    if any(record.get("failure_code") is not None for record in records):
+        raise ValueError("cannot resume after a frozen transport failure")
+
+    transport_stopped = False
+    for case_id, input_sha256, request in requests:
+        if case_id in attempted_ids:
+            continue
+        if len(records) >= MAX_NEW_MODEL_CALLS:
+            break
+        started_at = datetime.now(UTC)
+        started_clock = perf_counter()
+        try:
+            response = await client.generate(request)
+        except ModelClientError as error:
+            record = {
+                "case_id": case_id,
+                "input_sha256": input_sha256,
+                "request_sha256": _payload_sha256(request.model_dump(mode="json")),
+                "model_call_count": 1,
+                "started_at": started_at.isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "duration_ms": round((perf_counter() - started_clock) * 1000, 2),
+                "model": client.model_name,
+                "provider": client.provider,
+                "failure_code": error.code,
+                "error": str(error),
+                "error_details": error.details,
+                "raw_model_output": None,
+                "response_diagnostics": {},
+            }
+            records.append(record)
+            transport_stopped = True
+        else:
+            record = {
+                "case_id": case_id,
+                "input_sha256": input_sha256,
+                "request_sha256": _payload_sha256(request.model_dump(mode="json")),
+                "model_call_count": 1,
+                "started_at": started_at.isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "duration_ms": round((perf_counter() - started_clock) * 1000, 2),
+                "model": response.model,
+                "provider": response.provider,
+                "failure_code": None,
+                "error": None,
+                "error_details": {},
+                "raw_model_output": response.output,
+                "response_diagnostics": {
+                    **response.diagnostics,
+                    "response_id": response.response_id,
+                    "finish_reason": response.finish_reason,
+                    "request_duration_ms": response.request_duration_ms,
+                    "usage": response.usage,
+                },
+            }
+            records.append(record)
+        attempted_ids.add(case_id)
+        history.append(
+            {
+                "record_count": len(records),
+                "records_sha256": _payload_sha256(records),
+                "written_at": datetime.now(UTC).isoformat(),
+            }
+        )
+        _replace_json(checkpoint_path, _checkpoint_payload(records, history))
+        if transport_stopped:
+            break
+    return {
+        "response_version": (
+            "unified-jd-flat-atomic-v4.3-independent-holdout-raw-v1"
+        ),
+        "maximum_new_model_calls": MAX_NEW_MODEL_CALLS,
+        "model_call_count": len(records),
+        "checkpoint_write_count": len(history),
+        "transport_stopped": transport_stopped,
+        "records": records,
+    }
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the frozen five-call v4.3 independent holdout"
+    )
+    parser.add_argument("--selection", type=Path, default=DEFAULT_SELECTION)
+    parser.add_argument("--independence", type=Path, default=DEFAULT_INDEPENDENCE)
+    parser.add_argument("--preregistration", type=Path, default=DEFAULT_PREREGISTRATION)
+    parser.add_argument(
+        "--preregistration-freeze",
+        type=Path,
+        default=DEFAULT_PREREGISTRATION_FREEZE,
+    )
+    parser.add_argument("--source-freeze", type=Path, default=DEFAULT_SOURCE_FREEZE)
+    parser.add_argument(
+        "--request-contract", type=Path, default=DEFAULT_REQUEST_CONTRACT
+    )
+    parser.add_argument("--requests", type=Path, default=DEFAULT_REQUESTS)
+    parser.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT)
+    parser.add_argument("--raw-responses", type=Path, default=DEFAULT_RAW)
+    parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--authorized-full-body-transmission", action="store_true")
+    return parser.parse_args()
+
+
+def main() -> int:
+    arguments = _parse_args()
+    if not arguments.authorized_full_body_transmission:
+        raise SystemExit(
+            "explicit authorization is required before transmitting the five full bodies"
+        )
+    final_outputs = (arguments.raw_responses, arguments.report)
+    existing_final = [str(path) for path in final_outputs if path.exists()]
+    if existing_final:
+        raise SystemExit(f"refusing to repeat frozen holdout: {existing_final}")
+    if arguments.resume:
+        if not arguments.requests.is_file() or not arguments.checkpoint.is_file():
+            raise SystemExit("--resume requires saved request and checkpoint artifacts")
+    else:
+        existing_partial = [
+            str(path)
+            for path in (arguments.requests, arguments.checkpoint)
+            if path.exists()
+        ]
+        if existing_partial:
+            raise SystemExit(
+                f"existing partial holdout requires --resume: {existing_partial}"
+            )
+
+    preregistration = _load(arguments.preregistration)
+    preregistration_freeze = _load(arguments.preregistration_freeze)
+    source_freeze = _load(arguments.source_freeze)
+    independence = _load(arguments.independence)
+    request_contract = _load(arguments.request_contract)
+    if preregistration.get("status") != (
+        "preregistered_before_runner_implementation_and_model_calls"
+    ):
+        raise SystemExit("invalid independent holdout preregistration status")
+    if source_freeze.get("status") != "frozen_before_independent_holdout_calls":
+        raise SystemExit("independent holdout runner and evaluator are not frozen")
+    if independence.get("audit", {}).get("all_repository_novelty_checks_passed") is not True:
+        raise SystemExit("independence audit did not pass")
+    _verify_entries(preregistration["frozen_inputs"])
+    _verify_entries(preregistration_freeze["artifacts"])
+    _verify_entries(source_freeze["artifacts"])
+    if _sha256(arguments.preregistration) != source_freeze.get(
+        "preregistration_sha256"
+    ):
+        raise SystemExit("source freeze points to a different preregistration")
+
+    selection = _load(arguments.selection)
+    requests = build_live_probe_requests(selection, request_contract)
+    settings = get_settings()
+    hostname = urlparse(settings.llm_base_url or "").hostname
+    if hostname != "api.deepseek.com":
+        raise SystemExit(
+            "holdout is authorized only for api.deepseek.com; "
+            f"configured host={hostname!r}"
+        )
+    one_attempt_settings = settings.model_copy(
+        update={"llm_max_retries": 0, "llm_thinking_mode": "disabled"}
+    )
+    try:
+        client = create_structured_model_client(one_attempt_settings)
+    except ModelClientError as error:
+        raise SystemExit(f"cannot create DeepSeek client: {error}") from error
+    if client.provider == "fake":
+        raise SystemExit("independent holdout requires the configured DeepSeek client")
+
+    if arguments.resume:
+        request_artifact = _load(arguments.requests)
+        deterministic = _request_artifact(
+            requests,
+            destination_host=hostname,
+            written_at=request_artifact.get("written_at", ""),
+        )
+        if request_artifact != deterministic:
+            raise SystemExit("saved requests do not match deterministic rebuild")
+        checkpoint = _load(arguments.checkpoint)
+        existing_records = checkpoint.get("records")
+        existing_history = checkpoint.get("history")
+        if not isinstance(existing_records, list) or not isinstance(
+            existing_history, list
+        ):
+            raise SystemExit("invalid checkpoint")
+    else:
+        request_artifact = _request_artifact(
+            requests,
+            destination_host=hostname,
+            written_at=datetime.now(UTC).isoformat(),
+        )
+        _write_new_json(arguments.requests, request_artifact)
+        existing_records = []
+        existing_history = []
+
+    started_at = datetime.now(UTC)
+    started_clock = perf_counter()
+    raw_responses = asyncio.run(
+        _execute(
+            requests,
+            client,
+            checkpoint_path=arguments.checkpoint,
+            existing_records=existing_records,
+            existing_history=existing_history,
+        )
+    )
+    raw_responses.update(
+        {
+            "destination_host": hostname,
+            "selection_sha256": _sha256(arguments.selection),
+            "requests_sha256": _sha256(arguments.requests),
+        }
+    )
+    _write_new_json(arguments.raw_responses, raw_responses)
+    checkpoint = _load(arguments.checkpoint)
+
+    report = evaluate_independent_holdout_v4_3(
+        selection,
+        preregistration,
+        request_artifact,
+        checkpoint,
+        raw_responses,
+        authorization_confirmed=True,
+        destination_valid=True,
+        independence_valid=True,
+        frozen_inputs_valid=True,
+        frozen_sources_valid=True,
+        gold_unavailable_to_requests=_forbidden_evaluation_keys_absent(
+            request_artifact
+        ),
+        raw_responses_retained=arguments.raw_responses.is_file(),
+    )
+    report["inputs"] = {
+        "selection": _reference(arguments.selection),
+        "independence_receipt": _reference(arguments.independence),
+        "preregistration": _reference(arguments.preregistration),
+        "preregistration_freeze": _reference(arguments.preregistration_freeze),
+        "source_freeze": _reference(arguments.source_freeze),
+        "request_contract": _reference(arguments.request_contract),
+        "requests": _reference(arguments.requests),
+        "checkpoint": _reference(arguments.checkpoint),
+        "raw_responses": _reference(arguments.raw_responses),
+    }
+    report["run"] = {
+        "started_at": started_at.isoformat(),
+        "finished_at": datetime.now(UTC).isoformat(),
+        "duration_ms": round((perf_counter() - started_clock) * 1000, 2),
+        "python_version": sys.version.split()[0],
+        "platform": platform.platform(),
+        "model": client.model_name,
+        "provider": client.provider,
+        "destination_host": hostname,
+        "transport_retries": 0,
+        "validation_retries": 0,
+    }
+    _write_new_json(arguments.report, report)
+    print(
+        "v4.3 independent holdout complete "
+        f"decision={report['decision']} calls={report['model_call_count']}/5"
+    )
+    print(f"requests={arguments.requests}")
+    print(f"checkpoint={arguments.checkpoint}")
+    print(f"raw_responses={arguments.raw_responses}")
+    print(f"report={arguments.report}")
+    return 0 if report["passed"] else 2
+
+
+def _forbidden_evaluation_keys_absent(value: object) -> bool:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            folded = str(key).casefold()
+            if "gold" in folded or "expected" in folded:
+                return False
+            if not _forbidden_evaluation_keys_absent(item):
+                return False
+    elif isinstance(value, list):
+        return all(_forbidden_evaluation_keys_absent(item) for item in value)
+    return True
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

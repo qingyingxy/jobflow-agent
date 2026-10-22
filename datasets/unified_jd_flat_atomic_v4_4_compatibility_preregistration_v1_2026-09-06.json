@@ -1,0 +1,405 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.4-compatibility-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_v4_4_implementation_and_execution",
+  "objective": "Compose only the two independently supported residual mechanisms after frozen v4.3, while converting category vocabulary variants into the existing four-category contract instead of widening it.",
+  "claim_boundary": "v4.4 is a revealed-development compatibility candidate. A full offline pass establishes deterministic recovery and legacy non-regression only; it does not establish external generalization or authorize a schema ontology expansion.",
+  "frozen_inputs": {
+    "frozen_v4_3_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+      "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+    },
+    "frozen_v4_3_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "955922d4576d4782359f9d4dcbd73f00fc1b611edba6149232cde647dc9d9609"
+    },
+    "frozen_v4_3_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-compatibility-report-v1-2026-09-06.json",
+      "sha256": "fa9d1a51e57dde4e3d811ee2d2dece16ec368122ef2582547397985fe87e1cdb"
+    },
+    "revealed_independent_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.json",
+      "sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+    },
+    "revealed_independent_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "revealed_independent_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-report-v1-2026-09-06.json",
+      "sha256": "7ad3e538dc318eebb88263bc9a763e3e9e33db9a4f6bd4c42f22c89b34062d95"
+    },
+    "revealed_independent_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "4c37610bd648a4db6f9956087297260365dfe9bc3ac6d6085395c7d952ae6b01"
+    },
+    "category_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "0e4dec9018463d255224044517b4e6ff0c48c06bb28984a4559688340df81d90"
+    },
+    "category_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "1e00d4ed7a3533be2e3faada998074d0b5bad71701aef424e5877b676f24ce5d"
+    },
+    "category_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-category-vocabulary-admission-oracle-report-v1-2026-09-06.json",
+      "sha256": "63ab68a30ddb29bca180805b6ef158ecc33bc111e06e8f977c62d142690925ae"
+    },
+    "zero_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_zero_lower_bound_qualifier_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "799bb850a726d1e1645b7d542bbce95acbdb7722695dd12d95ac26c5b73f969a"
+    },
+    "zero_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_zero_lower_bound_qualifier_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "47b14243c999274c3102e761fd06c2de4307d8cdc5b5a2d7f265ef1ed58e2fb1"
+    },
+    "zero_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-zero-lower-bound-qualifier-oracle-report-v1-2026-09-06.json",
+      "sha256": "2c606baac096fc6cebfb5d66e8d651c5e76ae9217ef5dadaa968c99b6fbc87a1"
+    },
+    "legacy_dev20_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "legacy_live_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-raw-responses-v1-2026-09-06.json",
+      "sha256": "81075fd2edaae3a2aa7fca3f13147e5cdeea0d5ae66cfc0ca62850a6f32b1e6b"
+    },
+    "legacy_live_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "legacy_external_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "legacy_external_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "human_category_reference": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_labels_v1_2026-09-04.json",
+      "sha256": "64823eb502b5219254a0376808a234e056b2964fe85cd00c30d898b821a79b54"
+    }
+  },
+  "frozen_observations": {
+    "development": {
+      "cohort": "revealed-independent-5",
+      "record_count": 5,
+      "atom_count": 104,
+      "category_alias_candidates": [
+        {
+          "record_index": 0,
+          "case_id": "independent-lever-collate-ai-engineer",
+          "atom_index": 10,
+          "path": "clause_atoms[10].category",
+          "before": "motivation",
+          "after": "capability"
+        },
+        {
+          "record_index": 4,
+          "case_id": "independent-smartrecruiters-bluescope-ai-engineer",
+          "atom_index": 22,
+          "path": "clause_atoms[22].category",
+          "before": "knowledge",
+          "after": "skill"
+        }
+      ],
+      "zero_lower_bound_candidates": [
+        {
+          "record_index": 2,
+          "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+          "atom_index": 27,
+          "path": "clause_atoms[27].qualifier.minimum_months",
+          "before": 0,
+          "after": null,
+          "source_text": "• 0–3 years of AI development experience (Fresh graduates are welcome to apply)"
+        }
+      ],
+      "new_candidate_count": 3,
+      "v4_3_strict_valid_case_count": 2,
+      "v4_3_valid_by_case": {
+        "independent-lever-collate-ai-engineer": false,
+        "independent-lever-field-ai-robotics-ai-engineer": true,
+        "independent-greenhouse-simplifynext-ai-engineer-graduate": false,
+        "independent-greenhouse-optiver-ai-engineer": true,
+        "independent-smartrecruiters-bluescope-ai-engineer": false
+      },
+      "v4_3_activation_counts": {
+        "omitted_empty_absent_fact_placeholder": 11
+      }
+    },
+    "regression": {
+      "legacy_dev20": {
+        "cohort": "legacy-dev20",
+        "record_count": 20,
+        "atom_count": 427,
+        "category_alias_candidates": [],
+        "zero_lower_bound_candidates": [],
+        "new_candidate_count": 0
+      },
+      "legacy_live_probe": {
+        "cohort": "legacy-live-probe",
+        "record_count": 5,
+        "atom_count": 183,
+        "category_alias_candidates": [],
+        "zero_lower_bound_candidates": [],
+        "new_candidate_count": 0
+      },
+      "legacy_external_holdout": {
+        "cohort": "legacy-external-holdout",
+        "record_count": 5,
+        "atom_count": 161,
+        "category_alias_candidates": [],
+        "zero_lower_bound_candidates": [],
+        "new_candidate_count": 0
+      }
+    },
+    "category_policy_evidence": {
+      "knowledge_to_skill_same_batch_analog_count": 3,
+      "knowledge_to_skill_same_batch_analogs": [
+        {
+          "case_id": "independent-lever-field-ai-robotics-ai-engineer",
+          "atom_index": 12,
+          "category": "skill",
+          "source_text": "Knowledge of robotics frameworks such as ROS/ROS2."
+        },
+        {
+          "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+          "atom_index": 23,
+          "category": "skill",
+          "source_text": "• Knowledge of cloud platforms (AWS, GCP, Azure) is a plus"
+        },
+        {
+          "case_id": "independent-greenhouse-optiver-ai-engineer",
+          "atom_index": 13,
+          "category": "skill",
+          "source_text": "Excellent knowledge of Python, common AI/ML libraries and integration with 3rd party services"
+        }
+      ],
+      "motivation_to_capability_human_control": {
+        "id": "structured-corpus-external-v1-019",
+        "category": "capability",
+        "source_text": "具备良好的逻辑思维与问题解决能力，对大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲，能快速跟进前沿技术并落地实践",
+        "annotation_status": "human_reviewed_before_v4_prediction"
+      },
+      "policy_limit": "These analogs justify a frozen compatibility alias policy; they do not establish a new universal category ontology."
+    },
+    "independent_oracle_results": {
+      "category": {
+        "accepted": true,
+        "baseline_valid": 2,
+        "oracle_valid": 4
+      },
+      "zero_lower_bound": {
+        "accepted": true,
+        "baseline_valid": 2,
+        "oracle_valid": 3
+      }
+    }
+  },
+  "runtime_contract": {
+    "version": "unified-jd-flat-atomic-v4.4-compatibility-v1",
+    "pipeline": [
+      {
+        "order": "1-3",
+        "mechanism": "frozen-v4.3-forward-unchanged",
+        "source": {
+          "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+          "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+        }
+      },
+      {
+        "order": 4,
+        "mechanism": "category-literal-alias",
+        "activation": "An object clause atom has category exactly knowledge or motivation. No case, fixture, gold, source-text, or position identifier may participate.",
+        "mapping": {
+          "knowledge": "skill",
+          "motivation": "capability"
+        },
+        "diagnostic_code": "normalized_category_vocabulary_alias",
+        "only_changed_field": "clause_atoms[i].category"
+      },
+      {
+        "order": 5,
+        "mechanism": "zero-lower-bound-to-absent-minimum",
+        "activation": {
+          "category": "experience",
+          "qualifier_fields_exact": [
+            "domain",
+            "experience_type",
+            "minimum_months"
+          ],
+          "minimum_months_exact_integer": 0,
+          "boolean_zero_disallowed": true,
+          "surface_item_exact_source_substring": true,
+          "source_or_surface_pattern": "(?<!\\d)0\\s*(?:-|–|—|to)\\s*\\d+\\s*(?:years?|yrs?|months?)\\b",
+          "case_fixture_gold_ids_allowed": false
+        },
+        "intervention": "minimum_months: 0 -> null",
+        "diagnostic_code": "normalized_zero_lower_bound_to_absent_minimum",
+        "only_changed_field": "clause_atoms[i].qualifier.minimum_months"
+      }
+    ],
+    "formal_category_vocabulary": [
+      "skill",
+      "capability",
+      "experience",
+      "responsibility"
+    ],
+    "formal_schema_widening_allowed": false,
+    "unknown_category_fallback_allowed": false,
+    "input_mutation_allowed": false,
+    "reverse_order": [
+      5,
+      4,
+      3,
+      2,
+      1
+    ],
+    "reverse_must_replay_exactly": true,
+    "maximum_months_added": false
+  },
+  "acceptance_gates": {
+    "G0-frozen-inputs-source-isolation-and-zero-calls": {
+      "requirements": [
+        "All preregistered and source-freeze hashes match.",
+        "Model, network, parser, and canonicalizer call counts are zero.",
+        "No v4-v4.3 source, frozen raw, report, oracle, or threshold changes.",
+        "No new holdout is loaded."
+      ]
+    },
+    "G1-revealed-development-strict-recovery": {
+      "baseline_strict_valid_case_count": 2,
+      "required_v4_4_strict_valid_case_count": 5,
+      "required_new_activation_count": 3,
+      "required_category_alias_activation_count": 2,
+      "required_zero_lower_bound_activation_count": 1,
+      "required_carried_v4_3_activation_count": 11,
+      "required_changed_field_count": 3,
+      "required_changed_paths": [
+        {
+          "case_id": "independent-lever-collate-ai-engineer",
+          "path": "clause_atoms[10].category",
+          "before": "motivation",
+          "after": "capability"
+        },
+        {
+          "case_id": "independent-smartrecruiters-bluescope-ai-engineer",
+          "path": "clause_atoms[22].category",
+          "before": "knowledge",
+          "after": "skill"
+        },
+        {
+          "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+          "path": "clause_atoms[27].qualifier.minimum_months",
+          "before": 0,
+          "after": null
+        }
+      ]
+    },
+    "G2-exact-reversibility-and-held-fixed": {
+      "required_exact_v4_4_reverse_case_count": 5,
+      "required_exact_raw_restoration_case_count": 5,
+      "required_unchanged_atom_count": 101,
+      "facts_metadata_order_and_all_other_atom_fields_unchanged": true,
+      "forward_and_reverse_input_mutation_allowed": false
+    },
+    "G3-legacy-zero-regression": {
+      "cohorts": {
+        "legacy_dev20": {
+          "case_count": 20,
+          "atom_count": 427,
+          "required_new_activation_count": 0,
+          "required_output_equal_v4_3": true,
+          "required_strict_valid_case_count": 20
+        },
+        "legacy_live_probe": {
+          "case_count": 5,
+          "required_new_activation_count": 0,
+          "required_output_equal_v4_3": true,
+          "required_exact_reverse_case_count": 5
+        },
+        "legacy_external_holdout": {
+          "case_count": 5,
+          "required_new_activation_count": 0,
+          "required_output_equal_v4_3": true,
+          "required_strict_valid_case_count": 5,
+          "required_exact_reverse_case_count": 5
+        }
+      }
+    },
+    "G4-fail-closed-controls": {
+      "positive_controls": [
+        "knowledge-to-skill",
+        "motivation-to-capability",
+        "explicit-0-to-3-years-to-null",
+        "combined-category-and-zero-with-frozen-v4.3"
+      ],
+      "negative_controls": [
+        "already-skill-knowledge-source",
+        "already-capability-motivation-source",
+        "unknown-category",
+        "category-alias-case-mismatch",
+        "boolean-zero",
+        "zero-wrong-category",
+        "zero-wrong-qualifier-topology",
+        "zero-without-range-pattern",
+        "zero-unanchored-surface",
+        "positive-minimum-72"
+      ],
+      "tampered_diagnostics_must_raise_without_mutation": true,
+      "empty_diagnostics_must_return_equal_deep_copy": true
+    },
+    "G5-category-policy-and-schema-stability": {
+      "required_mapping": {
+        "knowledge": "skill",
+        "motivation": "capability"
+      },
+      "formal_category_enum_unchanged": true,
+      "knowledge_to_skill_same_batch_analog_count": 3,
+      "motivation_to_capability_human_control_count": 1,
+      "unknown_category_still_invalid": true,
+      "canonical_items_and_evidence_must_not_change": true
+    },
+    "G6-static-audit-and-tests": {
+      "runtime_allowed_imports": [
+        "standard library",
+        "frozen v4.3 compatibility symbols"
+      ],
+      "forbidden_runtime_dependencies": [
+        "network or model clients",
+        "parser or canonicalizer",
+        "artifact paths",
+        "case, fixture, or gold identifiers"
+      ],
+      "focused_and_related_tests_pass_before_source_freeze": true,
+      "full_suite_pass_before_source_freeze": true,
+      "frozen_source_hashes_match_during_formal_execution": true
+    }
+  },
+  "execution_protocol": {
+    "all_gates_conjunctive": true,
+    "source_and_tests_frozen_before_formal_execution": true,
+    "formal_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_or_control_change_after_freeze_allowed": false,
+    "write_new_artifacts_only": true,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "post_gate_protocol": {
+    "on_full_pass": [
+      "Freeze v4.4 as a development-qualified candidate.",
+      "Do not modify v4.3 or claim generalization.",
+      "Preregister a new source-only independent holdout enriched for category and zero-bound surface cues.",
+      "Request separate authorization before any full-body transmission."
+    ],
+    "on_any_failure": [
+      "Do not modify or rerun v4.4.",
+      "Retain failed artifacts and diagnose only from frozen inputs.",
+      "Do not load or call a new holdout."
+    ]
+  },
+  "next_allowed_action": "Implement only the v4.4 adapter, evaluator, controls, focused tests, and one-time gate runner; pass tests; freeze source hashes; then execute the offline gates once."
+}

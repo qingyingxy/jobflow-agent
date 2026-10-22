@@ -4,6 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from typing import Any
 
 from sqlalchemy import select, update
@@ -28,6 +29,7 @@ from src.domain.models import EvidenceItem
 from src.domain.runs import JobParseResult
 from src.services.eligibility_checker import check_eligibility
 from src.services.jd_parser import JDParser
+from src.services.job_correction_service import effective_structure
 from src.services.job_fact_grounding import ground_runtime_facts
 from src.services.job_parse_service import (
     JDParseFailure,
@@ -148,15 +150,17 @@ class JDAnalysisService:
         self.legacy_matcher = matcher
         self.semantic_matcher = semantic_matcher
 
-    async def analyze(self, *, user_id: str, job_id: str) -> JobAnalysisExecution:
-        if self.parser is None:
+    async def analyze(self, *, user_id: str, job_id: str, saved_parse=None) -> JobAnalysisExecution:
+        if self.parser is None and saved_parse is None:
             raise ValueError("分析服务需要配置 parser")
 
         try:
-            parse_execution = await JobParseService(self.session, self.parser).parse(
-                user_id=user_id,
-                job_id=job_id,
-            )
+            if saved_parse is not None:
+                parse_execution = SimpleNamespace(parse_result=saved_parse, agent_run=SimpleNamespace(id=""))
+            else:
+                parse_execution = await JobParseService(self.session, self.parser).parse(
+                    user_id=user_id, job_id=job_id,
+                )
         except JobNotFoundError:
             raise
         except JDParseFailure as error:
@@ -173,9 +177,7 @@ class JDAnalysisService:
             raise JobNotFoundError(job_id)
 
         try:
-            structured = StructuredJobDescription.model_validate(
-                parse_execution.parse_result.structured_jd
-            )
+            structured = effective_structure(self.session, user_id, parse_execution.parse_result)
         except Exception as error:
             raise JDAnalysisFailure(
                 stage="stored_parse_result",
@@ -216,7 +218,7 @@ class JDAnalysisService:
                 cached,
                 posting,
                 parse_execution.parse_result,
-                [parse_execution.agent_run.id],
+                [parse_execution.agent_run.id] if parse_execution.agent_run.id else [],
             )
         eligibility = check_eligibility(
             EligibilityInput(
@@ -246,7 +248,7 @@ class JDAnalysisService:
                 check for check in eligibility.checks if check.field == "educations"
             ],
         )
-        agent_run_ids = [parse_execution.agent_run.id]
+        agent_run_ids = [parse_execution.agent_run.id] if parse_execution.agent_run.id else []
         if self.semantic_matcher and ordinary:
             semantic_matches, matching_run_id = await match_with_cache(
                 self.session,
@@ -266,7 +268,7 @@ class JDAnalysisService:
             self.session.expire_all()
             current_profile, current_preferences = self._profile_inputs(user_id)
             current_hash = _analysis_input_hash(
-                structured=structured,
+                structured=ground_runtime_facts(effective_structure(self.session, user_id, parse_execution.parse_result), posting.raw_content),
                 profile=current_profile,
                 preferences=current_preferences,
                 evidence=self._evidence_records(user_id),
@@ -302,6 +304,7 @@ class JDAnalysisService:
             parse_result_id=parse_execution.parse_result.id,
             analysis_version=ANALYSIS_VERSION,
             input_hash=input_hash,
+            structured_jd=structured.model_dump(mode="json"),
             eligibility=eligibility.model_dump(mode="json"),
             matches=[item.model_dump(mode="json") for item in matches],
             score=score.model_dump(mode="json"),

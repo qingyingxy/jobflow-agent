@@ -1,0 +1,400 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v6-preregistration-v1",
+  "created_at": "2026-09-05",
+  "status": "frozen_before_v6_implementation",
+  "scope": {
+    "task": "activation_and_compatibility_only",
+    "development_data_status": "all_inputs_revealed_not_holdout",
+    "generalization_claim": false,
+    "v4_modification_allowed": false,
+    "v5_modification_allowed": false,
+    "v5_gate_or_threshold_modification_allowed": false,
+    "new_structure_semantics_allowed": false,
+    "fixture_specific_runtime_rules_allowed": false,
+    "employer_title_or_category_dispatch_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "unified_jd_structured_span_v5_preregistration_v1_2026-09-04": {
+      "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+      "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8"
+    },
+    "unified_jd_structured_span_v5_source_freeze_v1_2026-09-05": {
+      "path": "datasets/unified_jd_structured_span_v5_source_freeze_v1_2026-09-05.json",
+      "sha256": "ac91d62eda040c00f1977aca818bb17fd279241a7afbc23339b9e5f68d9276c9"
+    },
+    "unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+      "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+    },
+    "unified-jd-structured-span-v5-regression-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-regression-raw-v1-2026-09-05.json",
+      "sha256": "d386a0e0e2e3834abf9c033a54702b7b4a12d81eee3f181605725b8e64819285"
+    },
+    "unified-jd-structured-span-v5-development-regression-report-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-report-v1-2026-09-05.json",
+      "sha256": "a1a82413a355de58c7e765ec3fd7799cd479657377d04854be401f9bac531d01"
+    },
+    "unified-jd-structured-span-v5-development-regression-receipt-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-receipt-v1-2026-09-05.json",
+      "sha256": "60bd1207184f79939699b2b07ffe8184ea2fa893d18f74f17fe34968d325a130"
+    },
+    "unified-jd-structured-span-v5-frozen-regression-classification-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-frozen-regression-classification-v1-2026-09-05.json",
+      "sha256": "e42741673adeca13bdcbadd5464297ba17bc136b1052d7be01c23ed9117f47fa"
+    },
+    "unified-jd-structured-span-v5-frozen-regression-classification-findings-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-frozen-regression-classification-findings-v1-2026-09-05.md",
+      "sha256": "fc3fcee3962eada89c19ec14c8467c95b616e404aa3dce69fc36a5aef9c50ec2"
+    },
+    "analyze_unified_structured_span_v5_frozen_regressions": {
+      "path": "scripts/analyze_unified_structured_span_v5_frozen_regressions.py",
+      "sha256": "2e676f63954b1defc7cc4c0cd9effb711a90f35ae97fa93a1fe9fb1aee04628e"
+    },
+    "unified_jd_structured_spans_v4": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "unified_jd_structured_spans_v5": {
+      "path": "src/domain/unified_jd_structured_spans_v5.py",
+      "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+    }
+  },
+  "offline_diagnostic_basis": {
+    "classified_observation_count": 31,
+    "classification_counts": {
+      "R1-ambiguous-deng-surface-example-role-flip": 12,
+      "R2-singleton-parenthetical-attachment-loss": 3,
+      "R3-wrapper-operator-boundary-drift": 7,
+      "R4-connector-scope-decomposition-drift": 6,
+      "R5-explicit-cue-colon-segmentation-gap": 1,
+      "R6-open-list-wrapper-overactivation": 1,
+      "R7-frozen-gold-same-character-offset-defect": 1
+    },
+    "interpretation": "The evidence supports an activation/compatibility layer around the frozen parsers. It does not support expanding v5 parsing semantics."
+  },
+  "v6_mechanism": {
+    "name": "region-local-supported-delta-compatibility-router",
+    "implementation_target": "src/domain/unified_jd_structured_spans_v6.py",
+    "composition": "Run the byte-frozen v4 and v5 parsers, align their nodes to exact top-level source regions, and merge only licensed v5 region subgraphs. Frozen v4 is the default for every unlicensed or conflicted region.",
+    "ordered_stages": [
+      {
+        "order": 1,
+        "name": "dual_frozen_parse",
+        "rule": "Execute the frozen v4 and v5 parsers once each for the same source_text and category. Neither parser source may be changed."
+      },
+      {
+        "order": 2,
+        "name": "exact_region_alignment",
+        "rule": "Assign wrappers, connectors, members, scopes, attachments, and candidates to half-open top-level source regions by span containment. Cross-region attachments retain their cue region and source-anchored parent span."
+      },
+      {
+        "order": 3,
+        "name": "license_supported_activation",
+        "rule": "A region may use a v5 delta only for: an explicit 如 cue including 如 followed by a colon; a protected parenthetical attachment; an E7 leading-对 attachment ending in 等领域 or 等方面; an E6 direct open list governed by an immediately preceding deictic 以下… header and colon; or a structural wrapper decomposition where v5 creates at least one explicit coordination, scope, or attachment inside that same wrapper content."
+      },
+      {
+        "order": 4,
+        "name": "apply_role_conflict_guard",
+        "rule": "For a no-explicit-cue 等 enumeration, if v4 projects the same source spans as surface items while v5 only reclassifies them as examples, keep the v4 region unless the independently licensed E6 or E7 signature is present."
+      },
+      {
+        "order": 5,
+        "name": "preserve_protected_compatibility",
+        "rule": "Reject a v5 region delta that deletes a v4 protected parenthetical attachment without a source-covering replacement, or changes a v4 atomic/slash/scope-bearing projection outside the licensed delta span."
+      },
+      {
+        "order": 6,
+        "name": "bound_open_list_activation",
+        "rule": "An open_list_suffix wrapper from terminal 等优先 is retained only for the deictic-header-plus-colon E6 form. A plain list ending 等优先 retains the frozen v4 wrapper graph."
+      },
+      {
+        "order": 7,
+        "name": "region_local_merge",
+        "rule": "Start from the v4 graph, replace only licensed and unconflicted region nodes with their v5 counterparts, then deterministically rebase ids and scope member references. No whole-clause fresh dispatch is permitted."
+      },
+      {
+        "order": 8,
+        "name": "validate_and_project",
+        "rule": "Validate all spans, ids, scope edges, and attachment edges, then project from the merged graph without string rewriting or canonicalization."
+      }
+    ],
+    "precedence": [
+      "source anchoring and graph validity",
+      "compatibility veto",
+      "licensed v5 region delta",
+      "frozen v4 default"
+    ],
+    "runtime_prohibitions": [
+      "fixture id, file path, company, title, category, or gold lookup",
+      "expected or actual projection string equality lookup",
+      "classification-case id lookup",
+      "new lexical canonicalization",
+      "model or network calls"
+    ]
+  },
+  "evaluation_adjudication": {
+    "purpose": "Correct one source-inconsistent same-character offset while retaining the effective 20/20 legacy exact threshold.",
+    "source_gold_immutable": true,
+    "fixture_id": "structured-external-v1-016",
+    "field": "wrappers[1].marker_span",
+    "frozen_value": {
+      "text": "能",
+      "start": 2,
+      "end": 3
+    },
+    "source_corrected_value": {
+      "text": "能",
+      "start": 6,
+      "end": 7
+    },
+    "evidence": "The associated content_span starts at 7 and the grammatical prefix immediately precedes it at [6,7); [2,3) is the homograph inside 工程能力.",
+    "runtime_exception_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-G6-preserved-without-weakening": {
+      "source": {
+        "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+        "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8",
+        "json_pointer": "/development_acceptance_gates",
+        "canonical_sha256": "a890fbd72d10e594e43e3d7c892ac2db81920ae3de757bad6432cbc04999e7b7"
+      },
+      "requirement": "Evaluate every original G0-G6 criterion with unchanged operators and numeric thresholds. For the single invalid legacy marker offset, use the preregistered source-corrected adjudication above and continue to require effective 20/20 exactness."
+    },
+    "G7-v5-mechanism-preservation": {
+      "fixture_count": 20,
+      "reference": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+        "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+      },
+      "requirement": "V6 must match frozen v5 exactly fixture-by-fixture on wrappers, connector roles, coordination members, scope edges, attachment parents and edges, surface projection, and example projection.",
+      "required_exact_fixture_count": 20
+    },
+    "G8-classified-regression-resolution": {
+      "all_criteria_conjunctive": true,
+      "cohorts": {
+        "R1-ambiguous-deng-surface-example-role-flip": {
+          "observation_count": 12,
+          "required_resolved_count": 12,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-006"
+            },
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-007"
+            },
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-010"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-skill-001",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-skill-002",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-skill-003",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-001",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-004",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-006",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-010",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v2-010",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v2_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v2-019",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v2_2026-09-04.json"
+            }
+          ]
+        },
+        "R2-singleton-parenthetical-attachment-loss": {
+          "observation_count": 3,
+          "required_resolved_count": 3,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-responsibility-005",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-skill-005",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-009",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            }
+          ]
+        },
+        "R3-wrapper-operator-boundary-drift": {
+          "observation_count": 7,
+          "required_resolved_count": 7,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-001"
+            },
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-014"
+            },
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-017"
+            },
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-018"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-responsibility-001",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-capability-004",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-capability-005",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            }
+          ]
+        },
+        "R4-connector-scope-decomposition-drift": {
+          "observation_count": 6,
+          "required_resolved_count": 6,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-003",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-005",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-015",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-017",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v1-019",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json"
+            },
+            {
+              "cohort": "projection-60",
+              "id": "surface-holdout-v2-002",
+              "fixture_path": "datasets/unified_jd_surface_holdout_labels_v2_2026-09-04.json"
+            }
+          ]
+        },
+        "R5-explicit-cue-colon-segmentation-gap": {
+          "observation_count": 1,
+          "required_resolved_count": 1,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "projection-60",
+              "id": "canonical-v1-skill-004",
+              "fixture_path": "datasets/unified_jd_canonical_items_contract_v1.json"
+            }
+          ]
+        },
+        "R6-open-list-wrapper-overactivation": {
+          "observation_count": 1,
+          "required_resolved_count": 1,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "revealed-external-20",
+              "id": "structured-corpus-external-v1-006"
+            }
+          ]
+        },
+        "R7-frozen-gold-same-character-offset-defect": {
+          "observation_count": 1,
+          "required_resolved_count": 1,
+          "required_resolution_rate": 1.0,
+          "cases": [
+            {
+              "cohort": "legacy-20",
+              "id": "structured-external-v1-016"
+            }
+          ]
+        }
+      },
+      "resolution_definition": "A case is resolved only when all frozen expected structural layers available for that cohort and both projections are exact. The R7 case uses only the source-corrected adjudicated marker offset."
+    },
+    "G9-no-new-regression": {
+      "legacy_effective_exact_fixture_count": 20,
+      "projection_exact_fixture_count": 60,
+      "projection_fixture_count": 60,
+      "revealed_external": "Every aggregate metric and every per-fixture primary-layer difference count must be no worse than frozen v4; the known structured-corpus-external-v1-006 wrapper regression must be zero.",
+      "structured_span_tests": "all pass"
+    }
+  },
+  "evaluation_protocol": {
+    "all_criteria_conjunctive": true,
+    "threshold_or_operator_change_after_freeze_allowed": false,
+    "source_freeze_before_any_v6_fixture_execution": true,
+    "raw_before_decision": true,
+    "write_new_outputs_only": true,
+    "v6_development_run_count": 1,
+    "v6_regression_run_count": 1,
+    "failure_policy": "Freeze the failed raw and keep v4 as production reference. Any source, trigger, conflict guard, adjudication, or threshold change requires a new preregistration version before another v6 attempt."
+  },
+  "post_gate_protocol": {
+    "on_pass": "Freeze v6 and collect a fresh corpus-external blind holdout with no source, job, URL, or employer-selection overlap with revealed data.",
+    "on_fail": "Do not modify frozen v6 in place. Diagnose only from its frozen raw and create a new preregistration before another implementation.",
+    "canonicalizer_allowed_after_development_pass": false,
+    "canonicalizer_unlock_condition": "Only a later fresh blind-holdout pass under separately frozen gates."
+  }
+}

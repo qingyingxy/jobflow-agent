@@ -34,6 +34,7 @@ from src.services.discovery_sources import (
 )
 from src.services.jd_analysis_service import invalidate_analyses_for_job
 from src.services.job_detail_scope import (
+    EXTRACTOR_VERSION,
     DetailScopeError,
     closed_page_notice,
     scope_job_document,
@@ -47,6 +48,13 @@ from src.services.lead_providers import (
 )
 from src.services.lead_providers import (
     LeadProvider as LeadProviderContract,
+)
+from src.services.recruitment_context import (
+    availability_status as evidence_availability_status,
+)
+from src.services.recruitment_context import (
+    collect_recruitment_context,
+    resolve_availability,
 )
 from src.services.url_reader import SafeHTTPReader, URLReaderError, parse_html_document
 
@@ -76,17 +84,118 @@ class VerifiedLeadResult:
 class JobLeadService:
     """Own the boundary between untrusted discovery leads and formal jobs."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, *, understanding=None, review_guard=None) -> None:
         self.session = session
+        self.understanding = understanding
+        self.review_guard = review_guard
+
+    async def _readable_document(self, raw_html, url, *, lead, snapshot_id, method="http", allow_visual=False):
+        document, scoped = _readable_page_document(raw_html, url)
+        if scoped is not None and closed_page_notice(raw_html, url=url):
+            # A closed page with a complete JD can still be saved as CLOSED,
+            # without spending any interpretation/vision budget.
+            return scoped[0], (scoped[0], True), False
+        from src.services.lead_presentation import explicit_listing_url
+
+        if explicit_listing_url(url):
+            return document, None, False
+        from src.services.body_quality import assess_body
+        from src.services.job_detail_scope import readable_page_text
+
+        quality = assess_body(scoped[0].text if scoped else readable_page_text(raw_html),
+                              title=scoped[0].title if scoped else document.title)
+        snapshot = self.session.get(LeadVerification, snapshot_id)
+        snapshot.field_evidence = {**snapshot.field_evidence, "body_quality": quality}
+        self.session.commit()
+        if quality["status"] != "readable":
+            if quality["status"] == "empty" and allow_visual:
+                return document, None, False
+            code = "browser_body_incomplete" if method == "browser" else "page_body_incomplete"
+            snapshot.field_evidence = {**snapshot.field_evidence, "ai_reading_pending": False}
+            self.session.commit()
+            self._record_failure(user_id=lead.user_id, lead_id=lead.id,
+                status=JobLeadStatus.FAILED if method == "browser" else JobLeadStatus.NEEDS_BROWSER,
+                code=code, reason=quality["reason"], source_url=url)
+            raise LeadVerificationFailure(code=code, message=quality["reason"], lead_id=lead.id)
+        from src.config import get_settings
+        from src.services.source_understanding import SourceUnderstanding
+
+        if self.understanding is None:
+            self.understanding = SourceUnderstanding(get_settings())
+        recovery_input = replace(document, text=readable_page_text(raw_html))
+        if len(recovery_input.text) > 20000 and scoped is not None:
+            recovery_input = scoped[0]
+        if self.understanding.primary:
+            from src.services.saved_page_review import page_attempt, save_page_attempt
+
+            snapshot = self.session.get(LeadVerification, snapshot_id)
+            conditions = self.understanding.conditions
+            attempt = page_attempt(snapshot, conditions)
+            timeout = (self.understanding.settings.web_search_semantic_retry_timeout_seconds
+                       if attempt.get("failures", 0) else None)
+            save_page_attempt(snapshot, conditions, started=True)
+            self.session.commit()
+            analyzed = await self.understanding.analyze_page(recovery_input, url=url,
+                title_hint=lead.title_hint, timeout=timeout)
+            if self.review_guard and not self.review_guard():
+                raise LeadVerificationFailure(code="semantic_review_superseded",
+                    message="目标或原文已变化，保留新状态", lead_id=lead.id)
+            snapshot = self.session.get(LeadVerification, snapshot_id)
+            if analyzed is not None:
+                interpreted, evidence = analyzed
+                save_page_attempt(snapshot, conditions)
+                snapshot.field_evidence = {**snapshot.field_evidence, "page_understanding": evidence,
+                                           "ai_reading_pending": False}
+                self.session.commit()
+                if interpreted is None:
+                    code = "job_detail_unconfirmed" if evidence["page_type"] == "uncertain" else "lead_not_job_page"
+                    message = "原文理解尚未确认唯一岗位" if code == "job_detail_unconfirmed" else "原文为列表或其他页面，保留来源"
+                    self._record_failure(user_id=lead.user_id, lead_id=lead.id,
+                        status=JobLeadStatus.NEEDS_USER, code=code, reason=message, source_url=url)
+                    raise LeadVerificationFailure(code=code, message=message, lead_id=lead.id)
+                return interpreted, (interpreted, False), evidence["sections"]
+            # A model failure is not a browser failure. Preserve the already
+            # fetched page for another interpretation attempt without refetching.
+            if scoped is None and len(recovery_input.text) >= 100:
+                snapshot = self.session.get(LeadVerification, snapshot_id)
+                save_page_attempt(snapshot, conditions,
+                    error=self.understanding.page_failures.get(url, "semantic_unavailable"))
+                self.session.commit()
+                message = "官网正文已保存，AI理解暂未完成，可继续处理原文"
+                self._record_failure(user_id=lead.user_id, lead_id=lead.id,
+                    status=JobLeadStatus.DEFERRED, code="semantic_page_pending", reason=message, source_url=url)
+                raise LeadVerificationFailure(code="semantic_page_pending", message=message, lead_id=lead.id)
+            # A local job scope can still be persisted for the field-review lane.
+            snapshot.field_evidence = {**snapshot.field_evidence, "ai_reading_pending": False}
+            self.session.commit()
+            return document, scoped, False
+        if scoped is not None and looks_like_job_page(document, url=url):
+            return document, scoped, False
+        recovered = await self.understanding.recover_detail(recovery_input, url=url, title_hint=lead.title_hint)
+        if recovered is None:
+            return document, scoped, False
+        document, evidence = recovered
+        snapshot = self.session.get(LeadVerification, snapshot_id)
+        snapshot.field_evidence = {**snapshot.field_evidence, "semantic_scope": evidence}
+        self.session.commit()
+        return document, (document, False), evidence["sections"]
 
     def record_official_link(self, *, user_id, lead_id, source_url, entry_url, from_url,
                              scope_url=None, snapshot_id=None, company=None):
+        from src.services.company_registry import (
+            enabled_company_sources,
+            within_company_source,
+        )
+
+        manual = any(source.verification_method == "manual" and within_company_source(source_url, source)
+                     for source in enabled_company_sources(session=self.session, user_id=user_id))
         self.session.add(LeadVerification(
             id=generate_lead_verification_id(), lead_id=lead_id, user_id=user_id,
             result="OFFICIAL_LINK", source_url=normalize_lead_url(source_url),
-            source_type="official_outbound_link", checked_at=datetime.now(UTC),
+            source_type="user_confirmed_company" if manual else "official_outbound_link", checked_at=datetime.now(UTC),
             field_evidence={"entry_url": entry_url, "from_url": from_url,
-                            "scope_url": scope_url, "snapshot_id": snapshot_id, "company": company},
+                            "scope_url": scope_url, "snapshot_id": snapshot_id, "company": company,
+                            "verification_method": "manual" if manual else "automatic"},
         ))
         self.session.commit()
 
@@ -115,9 +224,38 @@ class JobLeadService:
             LeadVerification.result == "OFFICIAL_LINK",
         ))
         companies = {r.field_evidence.get("company") for r in records if r.field_evidence.get("company")}
+        if not companies:
+            from src.services.company_registry import (
+                enabled_company_sources,
+                within_company_source,
+            )
+
+            companies = {source.company for source in enabled_company_sources(
+                session=self.session, user_id=lead.user_id)
+                if within_company_source(lead.source_url, source)}
         return replace(document, company=companies.pop()) if len(companies) == 1 else document
 
     def _prepare_official_transport(self, lead, reader, official_hosts):
+        from src.services.company_registry import (
+            company_source_hosts,
+            enabled_company_sources,
+            within_company_source,
+        )
+
+        sources = enabled_company_sources(session=self.session, user_id=lead.user_id)
+        for source in sources:
+            if source.official_homepage_url and within_company_source(lead.normalized_url, source):
+                official_hosts.update(company_source_hosts([source]))
+                existing = self.session.scalar(select(LeadVerification.id).where(
+                    LeadVerification.lead_id == lead.id, LeadVerification.user_id == lead.user_id,
+                    LeadVerification.result == "OFFICIAL_LINK",
+                ).limit(1))
+                if not existing:
+                    self.record_official_link(user_id=lead.user_id, lead_id=lead.id,
+                        source_url=lead.normalized_url, entry_url=source.official_homepage_url,
+                        from_url=source.hiring_evidence_url or source.official_homepage_url,
+                        scope_url=source.career_url, company=source.company)
+                break
         if self._official_target(lead, lead.normalized_url, official_hosts):
             checker = getattr(reader, "safety_checker", None)
             if checker is not None and hasattr(checker, "proxy_allowed_hosts"):
@@ -183,7 +321,11 @@ class JobLeadService:
             .order_by(JobLead.updated_at.desc(), JobLead.id.desc()).limit(1)
         )
         from src.services.lead_extraction import extract_lead_preview
+        from src.services.lead_retry import prior_retry_state
+
         lead = JobLead(
+            retry_state=prior_retry_state(self.session, run=run, normalized_url=normalized_url)
+            if discovery_run_id is not None else {},
             extracted_fields=extract_lead_preview(source_url, title=title_hint, snippet=search_snippet),
             selection_status=previous_selection or "DISCOVERED",
             id=generate_job_lead_id(),
@@ -230,7 +372,7 @@ class JobLeadService:
         candidate: LeadCandidate,
         discovery_run_id: str | None = None,
     ) -> JobLead:
-        return self.create_lead(
+        lead = self.create_lead(
             user_id=user_id,
             provider=candidate.provider,
             source_url=candidate.source_url,
@@ -242,6 +384,13 @@ class JobLeadService:
             search_snippet=candidate.search_snippet,
             discovered_at=candidate.discovered_at,
         )
+        if candidate.observed_title:
+            lead.extracted_fields = {**(lead.extracted_fields or {}), "page_type_basis": "observed_listing"}
+            self.session.commit()
+        if candidate.search_context:
+            lead.extracted_fields = {**(lead.extracted_fields or {}), "search_context": candidate.search_context}
+            self.session.commit()
+        return lead
 
     def capture_stub(
         self,
@@ -266,6 +415,7 @@ class JobLeadService:
         *,
         user_id: str,
         status: JobLeadStatus | None = None,
+        discovery_run_id: str | None = None,
     ) -> list[JobLead]:
         statement = (
             select(JobLead)
@@ -274,6 +424,8 @@ class JobLeadService:
         )
         if status is not None:
             statement = statement.where(JobLead.status == status.value)
+        if discovery_run_id:
+            statement = statement.where(JobLead.discovery_run_id == discovery_run_id)
         # Historical runs may predate canonical identity. Coalesce their display
         # without deleting records, verification evidence or user selections.
         grouped = {}
@@ -342,13 +494,31 @@ class JobLeadService:
             if existing is not None:
                 return existing
             lead = self._start_verification(user_id=user_id, lead_id=lead_id)
+            from src.services.lead_retry import mark_method
+
+            mark_method(lead, "official_payload" if source_type != "manual_handoff" else "manual")
         try:
+            from src.services.body_quality import assess_body
+
+            quality = assess_body(stub.raw_content, title=stub.title)
+            if quality["status"] != "readable" and availability_status != JobAvailabilityStatus.CLOSED:
+                code = "browser_body_incomplete" if source_type == "verified_browser" else "page_body_incomplete"
+                raise LeadVerificationFailure(code=code, message=quality["reason"], lead_id=lead.id)
             posting, created = self._upsert_posting(
                 stub,
                 source_type=source_type,
                 verification_status=verification_status,
                 availability_status=availability_status,
             )
+            if source_type in {"verified_html", "verified_browser"}:
+                # Re-reading a page cannot refresh an old ACTIVE observation.
+                if posting.availability_status != "CLOSED" or availability_status != JobAvailabilityStatus.UNKNOWN:
+                    posting.availability_status = availability_status.value
+                posting.last_availability_checked_at = datetime.now(UTC)
+                if availability_status == JobAvailabilityStatus.CLOSED:
+                    posting.closed_at = posting.closed_at or datetime.now(UTC)
+                elif availability_status == JobAvailabilityStatus.ACTIVE:
+                    posting.closed_at = None
             checked_at = datetime.now(UTC)
             lead = self.get_lead(user_id=user_id, lead_id=lead.id)
             lead.status = (
@@ -360,6 +530,9 @@ class JobLeadService:
             lead.verified_at = checked_at
             lead.failure_code = None
             lead.failure_reason = None
+            from src.services.lead_retry import mark_success
+
+            mark_success(lead)
             if field_evidence is None:
                 metadata_kind = (
                     "official_payload"
@@ -427,35 +600,55 @@ class JobLeadService:
         reader: SafeHTTPReader,
         official_hosts: set[str],
         official_only: bool = False,
+        saved_only: bool = False,
     ) -> VerifiedLeadResult:
         existing = self._existing_verified_result(user_id=user_id, lead_id=lead_id)
         if existing is not None:
             return existing
+        lead = self.get_lead(user_id=user_id, lead_id=lead_id)
+        cached_page = self._pending_page_snapshot(lead)
+        if saved_only and cached_page is None:
+            raise LeadVerificationFailure(code="saved_body_unavailable", message="已保存正文已过期或变化，需重新读取", lead_id=lead.id)
         lead = self._start_verification(user_id=user_id, lead_id=lead_id)
+        from src.services.lead_retry import mark_method
+
+        mark_method(lead, "http")
+        self.session.commit()
         self._prepare_official_transport(lead, reader, official_hosts)
         try:
-            response = await reader.fetch(lead.normalized_url)
+            if cached_page is not None:
+                from src.services.url_reader import FetchedResponse
+
+                response = FetchedResponse(requested_url=lead.normalized_url, final_url=cached_page.source_url,
+                    status_code=200, content_type="text/html", body=cached_page.field_evidence["raw_html"].encode())
+            else:
+                response = await reader.fetch(lead.normalized_url)
         except URLReaderError as error:
+            code = {404: "source_not_found", 410: "source_not_found", 429: "source_rate_limited",
+                    401: "source_forbidden", 403: "source_forbidden"}.get(getattr(error, "status_code", None), error.code)
             self._record_failure(
                 user_id=user_id,
                 lead_id=lead.id,
                 status=JobLeadStatus.FAILED,
-                code=error.code,
+                code=code,
                 reason=str(error),
             )
             raise LeadVerificationFailure(
-                code=error.code,
+                code=code,
                 message=str(error),
                 lead_id=lead.id,
             ) from error
 
         raw_html = response.body.decode("utf-8", errors="replace")
-        snapshot_id = self._save_page_snapshot(
+        snapshot_id = cached_page.id if cached_page is not None else self._save_page_snapshot(
             user_id=user_id, lead_id=lead.id, url=response.final_url,
             raw_html=raw_html, raw_text=None, raw_bytes=response.body,
         )
-        document = parse_html_document(raw_html)
-        if not looks_like_job_page(document, url=response.final_url):
+        self._record_closed_notice(lead, raw_html, response.final_url, snapshot_id,
+                                   official_hosts=official_hosts, official_only=official_only, keep_readable=True)
+        document, scoped_document, semantic_scope = await self._readable_document(
+            raw_html, response.final_url, lead=lead, snapshot_id=snapshot_id)
+        if not semantic_scope and not (scoped_document and scoped_document[1]) and not looks_like_job_page(document, url=response.final_url):
             self._record_closed_notice(lead, raw_html, response.final_url, snapshot_id,
                                        official_hosts=official_hosts, official_only=official_only)
             if looks_like_dynamic_shell(raw_html) or (
@@ -506,9 +699,7 @@ class JobLeadService:
             final_url.encode("utf-8")
         ).hexdigest()[:24]
         try:
-            document, closed = scope_job_document(
-                raw_html, document, url=final_url,
-            )
+            document, closed = scoped_document or scope_job_document(raw_html, document, url=final_url)
             if not document.title or document.title.strip().endswith(("招聘", "招聘官网", "Careers")):
                 raise DetailScopeError("未提取到具体岗位名称，不能将招聘网站标题作为职位")
         except DetailScopeError as error:
@@ -522,7 +713,18 @@ class JobLeadService:
                 code="job_detail_unconfirmed", message=str(error), lead_id=lead.id,
             ) from error
         document = self._official_company(lead, document)
+        context = await self._recruitment_context(
+            lead, document, raw_html, final_url, None if saved_only else reader, official_hosts,
+            checked_at=cached_page.checked_at if saved_only else None,
+        )
+        if semantic_scope:
+            context = {**context, "text_sections": semantic_scope}
+        availability = resolve_availability(raw_html, url=final_url, context=context)
+        if closed:
+            availability = {"value": "CLOSED", "source_text": "已结束", "source_url": final_url}
         facts = verify_page_facts(document)
+        facts.evidence["recruitment_context"] = context
+        facts.evidence["availability"] = {**availability, "snapshot_id": availability.get("snapshot_id") or snapshot_id}
         if not document.json_ld:
             for key in ("company", "job_type"):
                 item = facts.evidence.get(key)
@@ -535,7 +737,7 @@ class JobLeadService:
             "source_url": final_url,
             "closed": closed,
             "status_source_text": "已结束" if closed else None,
-            "extractor": "generic-job-scope-v3",
+            "extractor": EXTRACTOR_VERSION,
             "snapshot_id": snapshot_id,
         }
         stub = JobStub(
@@ -548,17 +750,57 @@ class JobLeadService:
             published_at=document.published_at,
             detail_url=final_url,
             raw_content=document.text,
+            recruitment_context=context,
         )
-        return self.verify_stub(
+        from src.services.source_understanding import attach_page_understanding
+
+        stub = attach_page_understanding(stub)
+        facts.evidence["recruitment_context"] = stub.recruitment_context
+        result = self.verify_stub(
             user_id=user_id,
             lead_id=lead.id,
             stub=stub,
             verification_status=verification_status,
             source_type="verified_html",
-            availability_status=JobAvailabilityStatus.CLOSED if closed else JobAvailabilityStatus.UNKNOWN,
+            availability_status=evidence_availability_status(availability),
             verification_started=True,
             field_evidence=facts.evidence,
         )
+        if cached_page is not None:
+            result.posting.last_verified_at = cached_page.checked_at
+            result.posting.last_availability_checked_at = cached_page.checked_at
+            self.session.commit()
+        return result
+
+    def _pending_page_snapshot(self, lead):
+        return self.pending_page_snapshots(lead.user_id, [lead.normalized_url]).get(lead.normalized_url)
+
+    def pending_page_snapshots(self, user_id, urls, *, now=None):
+        """Select the latest observation per URL in one query, including aliases.
+
+        A newer non-pending snapshot supersedes an older pending one. Filtering
+        pending flags before selecting the latest would resurrect stale bodies.
+        """
+        from datetime import timedelta
+
+        if not urls:
+            return {}
+        now = now or datetime.now(UTC)
+        rows = self.session.execute(select(JobLead.normalized_url, LeadVerification).join(
+            JobLead, JobLead.id == LeadVerification.lead_id).where(
+            JobLead.user_id == user_id, JobLead.normalized_url.in_(set(urls)),
+            LeadVerification.result == "SNAPSHOT",
+        ).order_by(LeadVerification.checked_at.desc(), LeadVerification.id.desc()))
+        seen, pending = set(), {}
+        for url, record in rows:
+            if url in seen:
+                continue
+            seen.add(url)
+            checked = record.checked_at.replace(tzinfo=record.checked_at.tzinfo or UTC)
+            if (record.field_evidence.get("ai_reading_pending") and record.field_evidence.get("raw_html")
+                    and timedelta(0) <= now - checked < timedelta(days=1)):
+                pending[url] = record
+        return pending
 
     async def verify_browser(
         self,
@@ -573,6 +815,10 @@ class JobLeadService:
         if existing is not None:
             return existing
         lead = self._start_verification(user_id=user_id, lead_id=lead_id)
+        from src.services.lead_retry import mark_method
+
+        mark_method(lead, "browser")
+        self.session.commit()
         self._prepare_official_transport(lead, reader, official_hosts)
         try:
             snapshot = await reader.read(lead.normalized_url)
@@ -605,11 +851,17 @@ class JobLeadService:
             user_id=user_id, lead_id=lead.id, url=snapshot.final_url,
             raw_html=snapshot.raw_html, raw_text=snapshot.visible_text,
         )
+        self._record_closed_notice(lead, snapshot.raw_html, snapshot.final_url, snapshot_id,
+                                   official_hosts=official_hosts, official_only=official_only, keep_readable=True)
         if snapshot.html_compacted:
             evidence = self.session.get(LeadVerification, snapshot_id)
             evidence.field_evidence = {**evidence.field_evidence, "html_compacted": True,
                                       "snapshot_format": "dom_without_bundles_styles_or_svg"}
             self.session.commit()
+        document, scoped_document, semantic_scope = await self._readable_document(
+            snapshot.raw_html, snapshot.final_url, lead=lead, snapshot_id=snapshot_id, method="browser",
+            allow_visual=bool(snapshot.screenshots))
+        readable_dom = scoped_document is not None and (semantic_scope or scoped_document[1] or looks_like_job_page(document, url=snapshot.final_url))
         if snapshot.screenshots or snapshot.screenshot_error:
             from src.config import get_settings
             from src.services.vision_job_extraction import extract_visual_job
@@ -619,11 +871,11 @@ class JobLeadService:
                 **evidence.field_evidence,
                 "screenshots": list(snapshot.screenshots),
                 "screenshot_error": snapshot.screenshot_error,
-                "vision": {"status": "started" if snapshot.screenshots else "capture_failed"},
+                "vision": {"status": "not_needed_readable_dom" if readable_dom else "started" if snapshot.screenshots else "capture_failed"},
             }
             # Store image evidence before a model timeout or queue cancellation.
             self.session.commit()
-            if snapshot.screenshots:
+            if snapshot.screenshots and not readable_dom:
                 result = await extract_visual_job(snapshot.screenshots, settings=get_settings())
                 evidence.field_evidence = {**evidence.field_evidence, "vision": result}
                 if result["status"] == "extracted":
@@ -641,8 +893,7 @@ class JobLeadService:
                     self._record_failure(user_id=user_id, lead_id=lead.id, status=JobLeadStatus.NEEDS_USER,
                                          code="visual_extraction_unverified", reason=message, source_url=snapshot.final_url)
                     raise LeadVerificationFailure(code="visual_extraction_unverified", message=message, lead_id=lead.id)
-        document = parse_html_document(snapshot.raw_html)
-        if not looks_like_job_page(document, url=snapshot.final_url):
+        if not semantic_scope and not (scoped_document and scoped_document[1]) and not looks_like_job_page(document, url=snapshot.final_url):
             self._record_closed_notice(lead, snapshot.raw_html, snapshot.final_url, snapshot_id,
                                        official_hosts=official_hosts, official_only=official_only)
             message = "浏览器已读取页面，但仍无法确认这是具体岗位详情页"
@@ -679,9 +930,7 @@ class JobLeadService:
             else JobVerificationStatus.VERIFIED_SOURCE
         )
         try:
-            document, closed = scope_job_document(
-                snapshot.raw_html, document, url=final_url,
-            )
+            document, closed = scoped_document or scope_job_document(snapshot.raw_html, document, url=final_url)
             if not document.title or document.title.strip().endswith(("招聘", "招聘官网", "Careers")):
                 raise DetailScopeError("未提取到具体岗位名称，不能将招聘网站标题作为职位")
         except DetailScopeError as error:
@@ -695,7 +944,22 @@ class JobLeadService:
                 code="job_detail_unconfirmed", message=str(error), lead_id=lead.id,
             ) from error
         document = self._official_company(lead, document)
+        from src.config import get_settings
+
+        context = await self._recruitment_context(
+            lead, document, snapshot.raw_html, final_url,
+            SafeHTTPReader(proxy=get_settings().url_fetch_proxy, proxy_allowed_hosts=official_hosts,
+                           timeout_seconds=4, max_retries=0),
+            official_hosts, api_records=snapshot.recruitment_api,
+        )
+        if semantic_scope:
+            context = {**context, "text_sections": semantic_scope}
+        availability = resolve_availability(snapshot.raw_html, url=final_url, context=context)
+        if closed:
+            availability = {"value": "CLOSED", "source_text": "已结束", "source_url": final_url}
         facts = verify_page_facts(document)
+        facts.evidence["recruitment_context"] = context
+        facts.evidence["availability"] = {**availability, "snapshot_id": availability.get("snapshot_id") or snapshot_id}
         if not document.json_ld:
             for key in ("company", "job_type"):
                 item = facts.evidence.get(key)
@@ -708,7 +972,7 @@ class JobLeadService:
             "source_url": final_url,
             "closed": closed,
             "status_source_text": "已结束" if closed else None,
-            "extractor": "generic-job-scope-v3",
+            "extractor": EXTRACTOR_VERSION,
             "snapshot_id": snapshot_id,
         }
         stub = JobStub(
@@ -722,14 +986,19 @@ class JobLeadService:
             published_at=document.published_at,
             detail_url=final_url,
             raw_content=document.text or snapshot.visible_text,
+            recruitment_context=context,
         )
+        from src.services.source_understanding import attach_page_understanding
+
+        stub = attach_page_understanding(stub)
+        facts.evidence["recruitment_context"] = stub.recruitment_context
         return self.verify_stub(
             user_id=user_id,
             lead_id=lead.id,
             stub=stub,
             verification_status=verification_status,
             source_type="verified_browser",
-            availability_status=JobAvailabilityStatus.CLOSED if closed else JobAvailabilityStatus.UNKNOWN,
+            availability_status=evidence_availability_status(availability),
             verification_started=True,
             field_evidence={
                 **facts.evidence,
@@ -825,6 +1094,12 @@ class JobLeadService:
         posting = self.session.get(JobPosting, lead.job_posting_id)
         if posting is None:
             raise JobLeadStateError("已验证线索关联的岗位不存在")
+        from src.services.body_quality import readable_body
+
+        if posting.availability_status != "CLOSED" and not readable_body(posting.raw_content, title=posting.title):
+            lead.status = JobLeadStatus.DEFERRED.value
+            self.session.commit()
+            return None
         return VerifiedLeadResult(
             lead=lead,
             posting=posting,
@@ -851,11 +1126,17 @@ class JobLeadService:
             )
         )
         if posting is None:
+            # Legacy rows may still contain tracking parameters. Reuse their
+            # identity without deleting analyses, saved state or applications.
+            posting = next((row for row in self.session.scalars(select(JobPosting).where(
+                JobPosting.source_url.is_not(None)))
+                if normalize_lead_url(row.source_url) == normalized_url), None)
+        if posting is None:
             posting = self.session.scalar(
                 select(JobPosting).where(
                     or_(
                         JobPosting.source_url == normalized_url,
-                        JobPosting.content_hash == content_hash,
+                        JobPosting.source_url.is_(None) & (JobPosting.content_hash == content_hash),
                     )
                 )
             )
@@ -878,6 +1159,8 @@ class JobLeadService:
                 availability_status=availability_status,
                 commit=False,
             )
+            if source_type in {"verified_html", "verified_browser"}:
+                posting.recruitment_context = stub.recruitment_context
             return posting, True
 
         content_changed = posting.content_hash != content_hash
@@ -885,6 +1168,11 @@ class JobLeadService:
         incoming_is_stronger = _verification_rank(verification_status) >= _verification_rank(
             current_verification
         )
+        if incoming_is_stronger and source_type in {"verified_html", "verified_browser"}:
+            from src.services.search_goal_service import posting_stub
+            from src.services.source_understanding import preserve_review_context
+
+            posting.recruitment_context = preserve_review_context(posting_stub(posting), stub)
         if incoming_is_stronger:
             posting.source_url = normalized_url
             posting.source_type = source_type
@@ -923,6 +1211,24 @@ class JobLeadService:
         self.session.refresh(posting)
         return posting, False
 
+    async def _recruitment_context(self, lead, document, raw_html, url, fetcher, official_hosts, *, api_records=(), checked_at=None):
+        def save_snapshot(source_url, raw):
+            snapshot_id = generate_lead_verification_id()
+            self.session.add(LeadVerification(
+                id=snapshot_id, lead_id=lead.id, user_id=lead.user_id,
+                result="SNAPSHOT", source_url=source_url, source_type="recruitment_context_snapshot",
+                content_hash=hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+                field_evidence={"raw_content": raw, "job_url": url}, checked_at=checked_at or datetime.now(UTC),
+            ))
+            self.session.commit()
+            return snapshot_id
+
+        return await collect_recruitment_context(
+            raw_html=raw_html, document=document, url=url, fetcher=fetcher,
+            is_official=lambda target: self._official_target(lead, target, official_hosts),
+            save_snapshot=save_snapshot, api_records=api_records, now=checked_at,
+        )
+
     def _save_page_snapshot(
         self, *, user_id: str, lead_id: str, url: str,
         raw_html: str, raw_text: str | None, raw_bytes: bytes | None = None,
@@ -938,7 +1244,7 @@ class JobLeadService:
                 "raw_html": raw_html,
                 "raw_text": raw_text,
                 "raw_bytes_base64": base64.b64encode(raw_bytes).decode("ascii") if raw_bytes is not None else None,
-                "extractor": "generic-job-scope-v3",
+                "extractor": EXTRACTOR_VERSION,
             },
             checked_at=datetime.now(UTC),
         ))
@@ -952,11 +1258,13 @@ class JobLeadService:
                 self.session.commit()
         return snapshot_id
 
-    def _record_closed_notice(self, lead, raw_html, url, snapshot_id, *, official_hosts, official_only):
+    def _record_closed_notice(self, lead, raw_html, url, snapshot_id, *, official_hosts, official_only, keep_readable=False):
         if official_only and not self._official_target(lead, url, official_hosts):
             return
         quote = closed_page_notice(raw_html, url=url)
         if not quote:
+            return
+        if keep_readable and _readable_page_document(raw_html, url)[1] is not None:
             return
         message = f"原始岗位页面明确显示：{quote}"
         self._record_failure(
@@ -984,6 +1292,11 @@ class JobLeadService:
         lead.status = status.value
         lead.failure_code = code[:80]
         lead.failure_reason = reason[:2000]
+        from src.services.lead_retry import failed_state, retry_message
+
+        lead.retry_state = failed_state(lead.retry_state, code, now=checked_at)
+        if lead.retry_state.get("mode") in {"cooldown", "exhausted", "manual", "needs_adapter"}:
+            lead.failure_reason = f"{lead.failure_reason}；{retry_message(lead.retry_state)}"
         if status == JobLeadStatus.CLOSED:
             lead.verified_at = checked_at
         self.session.add(
@@ -1004,6 +1317,20 @@ class JobLeadService:
         self.session.commit()
         self.session.refresh(lead)
         return lead
+
+
+def _readable_page_document(raw_html, url):
+    """A unique scoped heading outranks the site's generic browser-tab title."""
+    from src.services.lead_presentation import discovery_kind
+
+    document = parse_html_document(raw_html)
+    try:
+        scoped = scope_job_document(raw_html, document, url=url)
+    except DetailScopeError:
+        return document, None
+    if discovery_kind(url, scoped[0].title, observed_title=True) == "job":
+        return scoped[0] if looks_like_job_page(scoped[0], url=url) else document, scoped
+    return document, None
 
 
 def normalize_lead_url(value: str) -> str:

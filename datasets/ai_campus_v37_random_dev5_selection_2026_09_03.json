@@ -1,0 +1,48 @@
+{
+  "version": "ai-campus-v37-random-dev5-selection-v1-2026-09-03",
+  "status": "development_regression_sample",
+  "sampling_method": "ascending SHA-256(seed|case_id)",
+  "seed": "v37-random-dev5-2026-09-03",
+  "population": "human-reviewed remaining51 dev-21",
+  "population_size": 21,
+  "sample_size": 5,
+  "sealed_holdout_included": false,
+  "unseen_claimed": false,
+  "source_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+    "sha256": "28d1460b1f0d0e61aa9274447b86f8a34f56512666abe2a03d1a0e0afe899e51",
+    "size_bytes": 88109
+  },
+  "cases": [
+    {
+      "id": "campus-ai-024",
+      "rank_hash": "09bda2f81700fad4aa3b2b84defac471f6643ffa382c8056a78193df805fe09a",
+      "source_url": "https://jobs.bytedance.com/campus/position/7668635915050912005/detail",
+      "raw_content_sha256": "c915b3bd90c643d9610eeb7e01af8599b3479e185482083932093ed4d6f22825"
+    },
+    {
+      "id": "campus-ai-126",
+      "rank_hash": "198294b34a58e60237298d6f6f953d935c0bee4e100eb6770abcef5d2d8b91c0",
+      "source_url": "https://dcar.jobs.feishu.cn/campus/position/7659806674613750059/detail",
+      "raw_content_sha256": "dbcc2383ed62d7922e1b25d0e3f4f4effbe1d7fafd4ddfdf36fe5645e91a12c6"
+    },
+    {
+      "id": "campus-ai-080",
+      "rank_hash": "30155aa086fac62710d7d58d43e2cbdfa1b39e012ea40e03852cfaa49c928696",
+      "source_url": "https://nwd4iy9rd2s.jobs.feishu.cn/campusofSpiritAI/position/7672029899397744902/detail",
+      "raw_content_sha256": "8f506a1ac4d4d5427ed33c3b49e956a2922fd235421caf20a1ac03695ebc53ad"
+    },
+    {
+      "id": "campus-ai-023",
+      "rank_hash": "353e2a62cbf223efe96b2b457c67c4bca45b9130370ecffbd3968bbabbb0cb44",
+      "source_url": "https://jobs.bytedance.com/campus/position/7667419628440242485/detail",
+      "raw_content_sha256": "8e17a60c6007121dbcd0fdb01b4d3080cbb8ec8abe8b34b04b6f9daf11d97ba1"
+    },
+    {
+      "id": "campus-ai-001",
+      "rank_hash": "434ed2c5fdac630aecd36b5d200048596b5f14c303703e8febdb789421eedf77",
+      "source_url": "https://careers.oppo.com/university/oppo/campus/post/1799",
+      "raw_content_sha256": "17c549bd5e231d5cb8176a44fc5f62a09fb307609e20190981f6e6828b3a2022"
+    }
+  ]
+}

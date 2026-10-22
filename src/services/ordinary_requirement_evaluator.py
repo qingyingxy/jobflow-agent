@@ -205,7 +205,9 @@ def requirement_sources(requirement: JobRequirement) -> tuple[list[str], bool]:
     prefix, suffix = description[: spans[0][0]], description[spans[-1][1] :]
     if requirement.relation == "any_of":
         suffix = re.sub(
-            r"^(?:中)?(?:的)?(?:至少|任意)?(?:一种|一门|一项|任一|之一)(?:编程语言|语言|技术|框架|技能)?",
+            r"^(?:等)?(?:其中|中)?(?:的)?(?:至少|任意|任意的|任一)?"
+            r"(?:一种|一门|一项|任一种|任一门|任一项|任一|之一)"
+            r"(?:编程语言|语言|技术|框架|技能)?",
             "",
             suffix,
         )

@@ -1,0 +1,53 @@
+{
+  "freeze_version": "unified-jd-structured-span-rules-freeze-v3",
+  "frozen_at": "2026-09-04",
+  "status": "frozen_before_external_holdout_selection_and_labeling",
+  "parser": {
+    "path": "src/domain/unified_jd_structured_spans.py",
+    "version": "unified-jd-structured-span-parser-v3",
+    "sha256": "0ba56a1eafee24f9643cc5015c495e88201cf7652e2a278e305ff821319d863a"
+  },
+  "tests": {
+    "path": "tests/test_unified_jd_structured_spans.py",
+    "sha256": "ee6816ffeedabdbf3d7786f214a1d75de9a5f7447508ab5b5c51d5f984a49efc",
+    "development_fixture_count": 60,
+    "development_test_count": 127
+  },
+  "development_data": [
+    {
+      "path": "datasets/unified_jd_canonical_items_contract_v1.json",
+      "sha256": "1053371c0a787c7f246522a89b6df2234aba5f3385d59f28ae6065949d7e3c65"
+    },
+    {
+      "path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json",
+      "sha256": "a567166266c152e636f3900121a0a70b4e567751008f7f8e30c4b06cb01ead1e"
+    },
+    {
+      "path": "datasets/unified_jd_surface_holdout_labels_v2_2026-09-04.json",
+      "sha256": "2524778cd8762258411d5dfa38739503fa5e4da62422ee903ef70bb9f7a18f86"
+    }
+  ],
+  "external_holdout_protocol": {
+    "population": "sealed_blind cases outside unified-jd dev-50",
+    "split_path": "datasets/unified_jd_eval_split_v1_2026_09_03.json",
+    "split_sha256": "6f32f0256d095834f5aa93e41fbdbaea0b8fe72e24f7ffc99c3f2dceef388a70",
+    "local_source_path": "artifacts/evaluation/m11-ai-campus-source-full-2026-08-31.json",
+    "local_source_sha256": "9ed80c4d5128466a1c7437e74c589d9d44d1dd0aeaf95e0f8b7157a213706d",
+    "population_case_count": 30,
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "unique_case_per_fixture": true,
+    "selection_and_labels_visible_during_parser_development": false,
+    "prediction_must_not_run_before_labels_are_frozen": true,
+    "parser_may_change_after_holdout_selection": false,
+    "parser_may_change_after_holdout_evaluation": false,
+    "gates": {
+      "surface_items_f1_min": 0.85,
+      "surface_exact_set_rate_min": 0.7,
+      "examples_f1_min": 0.8,
+      "unanchored_output_count_max": 0,
+      "structure_validation_error_count_max": 0
+    }
+  },
+  "downstream_policy": "Implement and connect a canonicalizer only if every external holdout gate passes. Otherwise keep v3 frozen and perform offline error attribution only."
+}

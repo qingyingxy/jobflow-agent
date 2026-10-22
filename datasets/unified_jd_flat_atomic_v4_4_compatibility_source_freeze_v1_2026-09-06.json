@@ -1,0 +1,42 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.4-compatibility-source-freeze-v1",
+  "frozen_at": "2026-09-06T05:35:16.6624505Z",
+  "status": "frozen_before_formal_gate_execution",
+  "preregistration_sha256": "51289285026f2cbebca8e5b012a920bc7f4a7d1f39378ceda7cebef56b0267a7",
+  "preregistration_freeze_sha256": "23ad4b949e5e5679b108cf47b701564349c482367ab4068c37d368860c5397ac",
+  "artifacts": {
+    "compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_4_compatibility.py",
+      "sha256": "3152d457da8bbd04a3494a259bcb16afcc6e3685d464e8f1f47d735d7b34dac8"
+    },
+    "compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_4_compatibility.py",
+      "sha256": "204b7aa2e7c2a7d89b179ee0275af53faebdf16eb8dfd5e0ea540d5f4a2be13e"
+    },
+    "gate_runner": {
+      "path": "scripts/evaluate_unified_jd_flat_atomic_v4_4_compatibility_gates.py",
+      "sha256": "10a331972c62ac751072b70281df87fcda8b96211c8a71277712189ebed21134"
+    },
+    "focused_tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_4_compatibility.py",
+      "sha256": "bd9e363e2b8aedfae226e28d1eaac5b10c717250e7827a88977bf2da1aea7ed0"
+    }
+  },
+  "pre_freeze_verification": {
+    "focused_and_related_test_count": 32,
+    "focused_and_related_tests_passed": true,
+    "full_suite_test_count": 959,
+    "full_suite_tests_passed": true,
+    "ruff_check_passed": true,
+    "python_compilation_passed": true,
+    "runtime_static_isolation_passed": true,
+    "v4_3_adapter_sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2",
+    "frozen_raw_sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+  },
+  "implementation_targets_existed_at_preregistration_freeze": false,
+  "formal_execution_count_at_freeze": 0,
+  "new_model_call_count": 0,
+  "network_call_count": 0,
+  "new_holdout_loaded": false,
+  "immutability": "Any source, test, frozen input, mapping, activation predicate, pipeline order, control, or threshold change invalidates the one-time v4.4 formal gate execution."
+}

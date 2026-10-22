@@ -24,7 +24,7 @@ def _standalone_cohort_kind(source_text: str) -> GraduationConditionKind:
     year = COHORT_YEAR_PATTERN
     cohorts = rf"{year}(?:(?:、|，|,|和|或|及|/){year})*"
     if re.fullmatch(
-        rf"(?:(?:本|该)(?:岗位|职位))?(?:面向|招收|招聘|接受|限)?{cohorts}"
+        rf"(?:(?:本|该)(?:岗位|职位))?(?:面向|招收|招聘|接受|仅限|限)?{cohorts}"
         r"(?:应届)?(?:毕业生|毕业学生|应届生)?",
         text,
     ):
@@ -137,7 +137,9 @@ def cohort_source_fragments(
 ) -> list[str]:
     """Keep literal cohort quotes; a title alone cannot establish eligibility."""
     sources = []
-    for fragment in re.split(r"[。；;\n]", content):
+    # Inline section headings also terminate an education clause. Keep each
+    # returned fragment literal so evidence offsets and qualification facets survive.
+    for fragment in re.split(r"[。；;\n]|\s+(?=必备能力\s|加分能力\s|岗位职责\s|工作职责\s)", content):
         quote = fragment.strip()
         is_title = quote == title or bool(
             re.match(r"(?:岗位名称|职位名称|招聘岗位)\s*[：:]", quote)

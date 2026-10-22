@@ -1,0 +1,44 @@
+{
+  "freeze_version": "unified-jd-structured-span-v8-e10-component-bridge-oracle-source-freeze-v1",
+  "frozen_at": "2026-09-05",
+  "status": "offline_oracle_runner_frozen_before_execution",
+  "experiment_id": "E10-component-bridge-oracle",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v8_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "36314c3079aefe8c244bd99820ed6f68aa6579551770a0f491a41ee960c38f7b"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_structured_span_v8_residual_oracles_preregistration_freeze_v1_2026-09-05.json",
+      "sha256": "99e8a37e8d81961f6ababab3e040b275cd77d550b738ce3b70b671ea1d079779"
+    },
+    "common_offline_graph_engine": {
+      "path": "scripts/unified_structured_span_v8_residual_oracle_common.py",
+      "sha256": "dba2c0492feec6318f46bf3258eda50a38afb8191b1069db6de791f247a687f2"
+    },
+    "experiment_runner": {
+      "path": "scripts/run_unified_structured_span_v8_e10_component_bridge_oracle.py",
+      "sha256": "e875f3e1f00b6a365a60a399bccb98c2af762e08923098608a6575cecbfa7f9e"
+    },
+    "synthetic_tests": {
+      "path": "tests/test_unified_jd_structured_span_v8_residual_oracle_runners.py",
+      "sha256": "57a80687881eb137e267e1ea27ada874aaa08bbaab0e430bc47f7cd06198b1a4"
+    }
+  },
+  "checks_before_freeze": {
+    "ruff_check_passed": true,
+    "ruff_format_check_passed": true,
+    "python_compile_passed": true,
+    "synthetic_test_count": 7,
+    "synthetic_tests_passed": 7,
+    "parser_import_audit_passed": true,
+    "experiment_run_count": 0,
+    "planned_output_count": 3,
+    "existing_output_count": 0,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "independence": "Reload only preregistered frozen inputs. Do not load E11 or E12 oracle outputs and do not accumulate their treatments.",
+  "immutability": "The common graph engine, E10 runner, and shared synthetic tests are frozen. Do not edit or rerun E10 regardless of its result; any revision requires a new preregistration and source freeze.",
+  "next_allowed_action": "Run the E10 read-only preflight and then execute E10 exactly once."
+}

@@ -244,14 +244,16 @@ class FollowUpService:
                 item
                 for item in task_views
                 if pending(item)
-                and current <= self._as_utc(item.task.scheduled_at) < seven_day_end
+                and not item.is_overdue
+                and self._as_utc(item.task.scheduled_at) < seven_day_end
             ]
         if view == "next_30_days":
             return [
                 item
                 for item in task_views
                 if pending(item)
-                and current <= self._as_utc(item.task.scheduled_at) < thirty_day_end
+                and not item.is_overdue
+                and self._as_utc(item.task.scheduled_at) < thirty_day_end
             ]
         raise FollowUpError(
             code="invalid_follow_up_view",
@@ -508,8 +510,14 @@ class FollowUpService:
         current = self._as_utc(now or datetime.now(UTC))
         scheduled = self._as_utc(task.scheduled_at)
         base_status = FollowUpStatus(task.status)
+        deadline = scheduled
+        if task.all_day:
+            local_day = scheduled.astimezone(self._zone(task.timezone))
+            deadline = (local_day.replace(hour=0, minute=0, second=0, microsecond=0)
+                        + timedelta(days=1)).astimezone(UTC)
         is_overdue = (
-            base_status is FollowUpStatus.PENDING and scheduled < current
+            base_status is FollowUpStatus.PENDING
+            and (deadline <= current if task.all_day else deadline < current)
         )
         effective_status = (
             FollowUpEffectiveStatus.OVERDUE

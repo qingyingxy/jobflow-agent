@@ -1,0 +1,58 @@
+{
+  "freeze_version": "unified-jd-structured-span-v7-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05T03:17:39.540827+00:00",
+  "status": "frozen_before_v7_implementation",
+  "artifacts": {
+    "runtime_signal_analysis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-runtime-signal-analysis-v1-2026-09-05.json",
+      "sha256": "e42d9ca9099796b758423750be3dc644f5b5a8b50a7506d90f62f27961692a7a"
+    },
+    "runtime_signal_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-runtime-signal-analysis-findings-v1-2026-09-05.md",
+      "sha256": "cfeccea7534e6816f37ec4e057801a15b98a6456fd4615531629f6610b82c58f"
+    },
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v7_preregistration_v1_2026-09-05.json",
+      "sha256": "8e6fd8abfc67814de11bc6c7d1d4369b942b36c705283a4fcd6c0fc80c5c7afe"
+    },
+    "preregistration_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v7-preregistration-findings-v1-2026-09-05.md",
+      "sha256": "66a2cf16bae9a055e938cbc456c1e19fdd943d9544df5bcbe45624f132483325"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v7_preregistration.py",
+      "sha256": "8b7d01c667b2eb6894b19e6219beae7ac8bb5d561ea5df08e4965dd12c7c0b1e"
+    },
+    "frozen_v4_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "frozen_v5_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v5.py",
+      "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+    },
+    "frozen_v6_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v6.py",
+      "sha256": "960d0d49f1c0b6b9fece8645ca5edc0a5874cf9ffb250e2f6c780cfcde11ccfd"
+    }
+  },
+  "checks": {
+    "v7_existed_at_freeze": false,
+    "e9_target_count": 9,
+    "e9_changed_family_count": 16,
+    "e9_retained_exact_v6_family_count": 9,
+    "e9_control_count": 22,
+    "runtime_signal_count": 3,
+    "all_16_switches_assigned_once": true,
+    "fixture_id_in_runtime_mechanism": false,
+    "old_threshold_or_operator_weakened": false,
+    "v5_mechanism_required_exact": "20/20",
+    "legacy_required_effective_exact": "20/20",
+    "projection_required_exact": "60/60",
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "canonicalizer_allowed": false
+  },
+  "immutability": "Any signal predicate, family route, veto, precedence rule, gate, threshold, or frozen input change requires a new preregistration and freeze version before implementation.",
+  "next_allowed_action": "Implement only the frozen v7 runtime-observable node-family router, add synthetic predicate/veto tests and the one-time evaluator, freeze all source, then execute development and regression gates exactly once."
+}

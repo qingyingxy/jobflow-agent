@@ -70,3 +70,19 @@ def test_formal_test100_receipt_rejects_changed_report(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="recomputation"):
         build_evaluation_receipt(report_path=changed_report)
+
+
+@pytest.mark.skipif(not LOCAL_ARTIFACTS_AVAILABLE, reason="formal test-100 artifacts missing")
+def test_formal_receipt_rejects_changed_archived_runner(monkeypatch):
+    from scripts import finalize_product_jd_test100_evaluation as module
+
+    original = module._sha256_file
+
+    def changed_runner(path):
+        if path.name == "run_product_jd_baseline.py":
+            return "0" * 64
+        return original(path)
+
+    monkeypatch.setattr(module, "_sha256_file", changed_runner)
+    with pytest.raises(ValueError, match="Frozen runtime file changed: evaluation_runner"):
+        module.build_evaluation_receipt()

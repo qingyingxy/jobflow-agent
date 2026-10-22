@@ -219,5 +219,12 @@ async def test_browser_compacts_bundles_keeps_links_and_waits_for_delayed_closur
             with pytest.raises(BrowserReadError) as exc:
                 await bounded_page_html(page, max_chars=20000)
             assert exc.value.code == "browser_response_too_large"
+            # A large navigation shell does not invalidate a complete, unique
+            # main region. In particular, keep qualifications at the JD's tail.
+            await page.set_content('<nav>' + '导航内容' * 9000 + '</nav><main><h1>研究工程师</h1>'
+                '<p>岗位职责：开发Agent系统。</p><p>任职要求：数学或相关专业博士学位；论文优先。</p></main>')
+            scoped, compacted = await bounded_page_html(page, max_chars=20000)
+            assert compacted and '博士学位；论文优先' in scoped and '研究工程师' in scoped
+            assert len(scoped) < 20000
         finally:
             await browser.close()

@@ -1,0 +1,31 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.1-long-evidence-span-oracle-source-freeze-v1",
+  "date": "2026-09-06",
+  "status": "offline_oracle_runner_frozen_before_execution",
+  "experiment_id": "long-evidence-span-representation-oracle",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_long_evidence_span_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "ae367044d7db6172d21b5919de46372ea2c628759e9efde4db0bdfab8a5860ec"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_long_evidence_span_oracle_preregistration_freeze_v1_2026-09-06.json",
+      "sha256": "d723cdfe23300780f797b55adad5d4b019ab482c6af81f425bb0403ec6963454"
+    },
+    "runner": {
+      "path": "scripts/run_unified_jd_flat_atomic_v4_1_long_evidence_span_oracle.py",
+      "sha256": "9c06df98b00bbcd2b8d0d0fe611f78ae5ce078e49a5aaaf076707cfdd649da04"
+    },
+    "tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_1_external_oracles.py",
+      "sha256": "88aa84dd61722ebc49211bb73a9d76fba6816ab2efc5fcd7d7ea838b293576f8"
+    }
+  },
+  "verification_before_freeze": {
+    "focused_tests": "2 passed",
+    "ruff_check": "passed",
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "immutability": "Any runner, test, treatment, input, target, control, or threshold change invalidates this one-time oracle."
+}

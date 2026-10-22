@@ -1,0 +1,48 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4-live-probe-source-freeze-v1",
+  "frozen_at": "2026-09-05T17:12:09.8744423Z",
+  "status": "frozen_before_live_probe_calls",
+  "preregistration_sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87",
+  "artifacts": {
+    "live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    },
+    "live_runner": {
+      "path": "scripts/run_unified_jd_flat_atomic_v4_live_probe.py",
+      "sha256": "173d084ca445aceb6887153a5177ac93859c37ee2d7026ab65be46fd02f7c2c7"
+    },
+    "live_tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_live_probe.py",
+      "sha256": "1d7a1b05da99336248ab43f4a612c5537a7de01c51c4fa1b42b950ce392939c4"
+    }
+  },
+  "prefreeze_verification": {
+    "live_runner_and_evaluator_ruff_passed": true,
+    "frozen_builder_non_import_lints_passed": true,
+    "frozen_builder_known_import_order_lint_count": 1,
+    "live_test_count": 5,
+    "live_tests_passed": 5,
+    "full_test_count": 888,
+    "full_tests_passed": 888,
+    "unauthorized_launch_rejected_before_writes": true,
+    "request_artifact_existed_at_freeze": false,
+    "checkpoint_existed_at_freeze": false,
+    "raw_response_artifact_existed_at_freeze": false,
+    "report_artifact_existed_at_freeze": false,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "execution_lock": {
+    "explicit_user_authorization_required": true,
+    "authorization_flag": "--authorized-full-body-transmission",
+    "destination_host": "api.deepseek.com",
+    "selected_case_count": 5,
+    "maximum_new_model_calls": 5,
+    "maximum_calls_per_case": 1,
+    "transport_retries": 0,
+    "validation_retries": 0
+  },
+  "immutability": "Any change to the live evaluator, runner, tests, prompt, sample, budget, or gates invalidates this source freeze.",
+  "next_allowed_action": "After explicit user authorization, execute the frozen runner once against api.deepseek.com and retain requests, checkpoint, raw responses, and the gate report regardless of outcome."
+}

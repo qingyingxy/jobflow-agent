@@ -1,0 +1,347 @@
+{
+  "query": "工作地点：北京、上海；岗位方向：ai agent、rag、AI产品；招聘类型：校招；届别：2027届",
+  "review_status": "assistant_audited_user_scope_confirmed",
+  "split": "development_7_original_plus_4_new_source_boundaries",
+  "source_run_id": "discovery_64ea5153a862457c80b1",
+  "captured_at": "2026-10-18",
+  "samples": [
+    {
+      "id": "job_34a181a20eb4438b9f3c",
+      "company": "美团",
+      "title": "大模型应用算法工程师",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobUnionId=4697320023",
+      "source_id": "web-search:responses",
+      "source_job_id": "00847b259bdcb8368ae26ae3",
+      "locations": [
+        "北京市",
+        "上海市"
+      ],
+      "job_type": "campus",
+      "raw_content": "大模型应用算法工程师 应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n1. 研究大模型和搜索推荐前沿技术，基于AI技术对搜索推荐系统进行技术升级和下一代算法架构新范式的探索。\n2. 负责美团生成式搜索和交互式对话系统的设计与开发，探索Agent、RAG、领域模型调优等相关技术在生活服务场景落地。\n3. 负责生成式推荐技术的探索和开发，并在美团推荐场景落地。\n4. 探索大模型技术在美团平台各场景的落地应用，参与产品需求分析，通过技术提升用户体验，提供有价值的解决方案。\n任职要求\n1. 计算机相关专业，熟悉机器学习、深度学习，自然语言处理等领域的专业知识。\n2. 优秀的编程能力，熟悉PyTorch、TensorFlow深度学习框架。\n3. 熟悉主流大模型，如GPT/LLaMA等，对模型背后的原理和差异有深入的理解，有实际动手经验。\n4. 逻辑思维清晰，学习能力强，自驱力好，富有探索精神，能快速适应新环境。\n具备以下条件优先：\n1. 有搜索、推荐、广告、AIGC应用产品研发等领域的实习经历，有复杂业务场景下大规模深度学习模型的算法研发及改进经验。\n2. 密切关注业界最新进展，在SIGKDD、ACL、CIKM、ICML、ICLR、SIGIR、RECSYS等顶会发表过创新性论文，或业界最新算法的应用实践。\n3. 在ACM、Kaggle等竞赛平台取得靠前名次。\n岗位亮点：\n1. 美团平台搜索推荐，亿级DAU、海量的用户数据、复杂的多业务场景，挑战算法的极限并提升个人技术能力。\n2. 负责大模型和搜索推荐前沿技术研究，基于AI技术对搜索推荐系统进行技术升级和下一代算法架构新范式的探索，拥有广阔的技术创新空间和应用前景。\n3. 充足的计算资源和海量数据，丰富的业务落地场景，场景复杂度高、挑战性大，无需为应用场景和资源操心，快速积累AI在搜推方向的落地经验。\n4. 团队技术卓越，发表多篇顶会论文，技术交流分享氛围浓厚，支持进行前沿技术与业务探索，加入优秀的团队，一起快速成长。\n工作城市\n北京市、上海市",
+      "recruitment_context": {},
+      "source_sha256": "0306527eb965c3a58cea767c6d4afba5710330f24efc701763df514b1b9f829e",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\n大模型应用算法工程师\n应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n1. 研究大模型和搜索推荐前沿技术，基于AI技术对搜索推荐系统进行技术升级和下一代算法架构新范式的探索。\n2. 负责美团生成式搜索和交互式对话系统的设计与开发，探索Agent、RAG、领域模型调优等相关技术在生活服务场景落地。\n3. 负责生成式推荐技术的探索和开发，并在美团推荐场景落地。\n4. 探索大模型技术在美团平台各场景的落地应用，参与产品需求分析，通过技术提升用户体验，提供有价值的解决方案。\n任职要求\n1. 计算机相关专业，熟悉机器学习、深度学习，自然语言处理等领域的专业知识。\n2. 优秀的编程能力，熟悉PyTorch、TensorFlow深度学习框架。\n3. 熟悉主流大模型，如GPT/LLaMA等，对模型背后的原理和差异有深入的理解，有实际动手经验。\n4. 逻辑思维清晰，学习能力强，自驱力好，富有探索精神，能快速适应新环境。\n具备以下条件优先：\n1. 有搜索、推荐、广告、AIGC应用产品研发等领域的实习经历，有复杂业务场景下大规模深度学习模型的算法研发及改进经验。\n2. 密切关注业界最新进展，在SIGKDD、ACL、CIKM、ICML、ICLR、SIGIR、RECSYS等顶会发表过创新性论文，或业界最新算法的应用实践。\n3. 在ACM、Kaggle等竞赛平台取得靠前名次。\n岗位亮点：\n1. 美团平台搜索推荐，亿级DAU、海量的用户数据、复杂的多业务场景，挑战算法的极限并提升个人技术能力。\n2. 负责大模型和搜索推荐前沿技术研究，基于AI技术对搜索推荐系统进行技术升级和下一代算法架构新范式的探索，拥有广阔的技术创新空间和应用前景。\n3. 充足的计算资源和海量数据，丰富的业务落地场景，场景复杂度高、挑战性大，无需为应用场景和资源操心，快速积累AI在搜推方向的落地经验。\n4. 团队技术卓越，发表多篇顶会论文，技术交流分享氛围浓厚，支持进行前沿技术与业务探索，加入优秀的团队，一起快速成长。\n工作城市\n北京市、上海市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "audit_note": "正文与完整页面均未写届别；开放状态未明确。",
+      "missing_in_captured_source": [
+        "availability",
+        "graduation_year"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_735a9a6bf4474c1b84a3",
+      "company": "美团",
+      "title": "AI应用开发工程师",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobShareType=1&jobUnionId=4694862735",
+      "source_id": "web-search:responses",
+      "source_job_id": "806d5dbd3a41102238bb7d81",
+      "locations": [
+        "北京市",
+        "上海市"
+      ],
+      "job_type": "campus",
+      "raw_content": "AI应用开发工程师 应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n岗位职责\n1. 参与大模型应用、Agent应用、企业内部AI工具等产品的研发与落地。\n2. 基于大模型API、RAG、工具调用、工作流编排等能力，构建可用、稳定、可迭代的AI应用。\n3. 与产品、算法、数据、业务团队合作，将真实业务场景转化为AI解决方案。\n4. 负责AI应用的后端服务、接口设计、数据处理、效果监控与持续优化。\n任职要求\n岗位要求\n1. 2026/2027届本科及以上学历，计算机、软件工程、人工智能、数据科学等相关专业优先。\n2. 熟悉至少一门编程语言，如Python、Go、Java、TypeScript。\n3. 具备扎实的软件工程基础，理解常见后端开发、数据库、接口设计和系统部署。\n4. 了解 Prompt、RAG、Function Calling、Agent、Embedding、MCP协议等基础概念。\n5. 具备较强的问题拆解能力，能把业务需求转化为工程方案。\n工作城市\n北京市、上海市",
+      "recruitment_context": {},
+      "source_sha256": "dab1300cd0d462bf0f86cc5fbd91f9438dd8bc66f2a8cc8f8aa9e2b534a7694c",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\nAI应用开发工程师\n应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n岗位职责\n1. 参与大模型应用、Agent应用、企业内部AI工具等产品的研发与落地。\n2. 基于大模型API、RAG、工具调用、工作流编排等能力，构建可用、稳定、可迭代的AI应用。\n3. 与产品、算法、数据、业务团队合作，将真实业务场景转化为AI解决方案。\n4. 负责AI应用的后端服务、接口设计、数据处理、效果监控与持续优化。\n任职要求\n岗位要求\n1. 2026/2027届本科及以上学历，计算机、软件工程、人工智能、数据科学等相关专业优先。\n2. 熟悉至少一门编程语言，如Python、Go、Java、TypeScript。\n3. 具备扎实的软件工程基础，理解常见后端开发、数据库、接口设计和系统部署。\n4. 了解 Prompt、RAG、Function Calling、Agent、Embedding、MCP协议等基础概念。\n5. 具备较强的问题拆解能力，能把业务需求转化为工程方案。\n工作城市\n北京市、上海市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "matched"
+      },
+      "audit_note": "2026/2027届明确包含2027；原规则只支持部分年份和学历句式。",
+      "missing_in_captured_source": [
+        "availability"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_438e2c4b6b8d4048b745",
+      "company": "美团",
+      "title": "AI全栈工程师",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobUnionId=4697320043",
+      "source_id": "official:meituan",
+      "source_job_id": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4697320043&highlightType=campus",
+      "locations": [
+        "北京市",
+        "上海市",
+        "成都市",
+        "深圳市"
+      ],
+      "job_type": "campus",
+      "raw_content": "AI全栈工程师 应届-校园招聘\n工作地点：北京市、上海市、成都市、深圳市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n岗位职责\n1. 参与 AI 应用的全栈开发：负责 AI 产品功能的前端界面（Web/小程序）与后端服务的设计与实现，保障高可用与用户体验；\n2. 大模型能力工程化：参与LLM 应用架构设计与开发，包括 Prompt 模板工程、RAG检索管线搭建、Agent 工作流编排等；\n3. 模型效果调优与评估：参与模型输出的质量评估，分析 Bad Case，优化提示词策略与检索链路，提升 AI 回答的准确率与可用性；\n4. AI 工程基础设施建设：参与模型服务化部署、推理性能优化、流式响应设计，构建高效稳定的 AI 应用底座；\n5. 技术探索与落地：跟踪前沿AI 技术动态，参与从 0 到 1 的 AI 功能创新验证。\n任职要求\n岗位要求\n1. 本科及以上学历，计算机科学、软件工程或相关专业；\n2. 扎实的编程基础：熟练掌握至少一门编程语言（Python / Java / TypeScript / Go 等），具备良好的代码习惯；\n3. 基本功扎实：了解前端框架（React / Vue 等）或后端框架（Spring / Django / Express 等）之一，具备完整 Web 项目开发经验；\n4. AI 素养与好奇心：熟悉大模型基本原理与应用范式，有 ChatGPT / Claude 等工具的深度使用经验，理解 Prompt Engineering 基本技巧；\n5. 学习与解决问题能力：对新技术保持敏感，能快速学习并应用 AI 领域新知识，具备良好的逻辑思维与沟通协作能力。\n6. 有独立完成AI应用（Bot/Agent/自动化工作流）从0到1上线的经历者优先\n工作城市\n北京市、上海市、成都市、深圳市",
+      "recruitment_context": {},
+      "source_sha256": "035606997e4ad76db33ceb9b5ce1ea3e842513554a1445d632cc6f0141b51c1a",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\nAI全栈工程师\n应届-校园招聘\n工作地点：北京市、上海市、成都市、深圳市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n岗位职责\n1. 参与 AI 应用的全栈开发：负责 AI 产品功能的前端界面（Web/小程序）与后端服务的设计与实现，保障高可用与用户体验；\n2. 大模型能力工程化：参与LLM 应用架构设计与开发，包括 Prompt 模板工程、RAG检索管线搭建、Agent 工作流编排等；\n3. 模型效果调优与评估：参与模型输出的质量评估，分析 Bad Case，优化提示词策略与检索链路，提升 AI 回答的准确率与可用性；\n4. AI 工程基础设施建设：参与模型服务化部署、推理性能优化、流式响应设计，构建高效稳定的 AI 应用底座；\n5. 技术探索与落地：跟踪前沿AI 技术动态，参与从 0 到 1 的 AI 功能创新验证。\n任职要求\n岗位要求\n1. 本科及以上学历，计算机科学、软件工程或相关专业；\n2. 扎实的编程基础：熟练掌握至少一门编程语言（Python / Java / TypeScript / Go 等），具备良好的代码习惯；\n3. 基本功扎实：了解前端框架（React / Vue 等）或后端框架（Spring / Django / Express 等）之一，具备完整 Web 项目开发经验；\n4. AI 素养与好奇心：熟悉大模型基本原理与应用范式，有 ChatGPT / Claude 等工具的深度使用经验，理解 Prompt Engineering 基本技巧；\n5. 学习与解决问题能力：对新技术保持敏感，能快速学习并应用 AI 领域新知识，具备良好的逻辑思维与沟通协作能力。\n6. 有独立完成AI应用（Bot/Agent/自动化工作流）从0到1上线的经历者优先\n工作城市\n北京市、上海市、成都市、深圳市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "audit_note": "正文与完整页面均未写届别；不能从校招标签推断。",
+      "missing_in_captured_source": [
+        "availability",
+        "graduation_year"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_8119f1c2b2ef4a6a838b",
+      "company": "科大讯飞",
+      "title": "AI全栈开发工程师（大量HC）(J14446)",
+      "source_url": "https://iflytek.zhiye.com/campus/detail?jobAdId=b8358011-2f06-4681-8042-39a8d73ed786",
+      "source_id": "official:iflytek",
+      "source_job_id": "https://iflytek.zhiye.com/campus/detail?jobAdId=b8358011-2f06-4681-8042-39a8d73ed786",
+      "locations": [],
+      "job_type": "campus",
+      "raw_content": "AI全栈开发工程师（大量HC）(J14446)\n校园招聘\n安徽省·合肥市,四川省·成都市\n2026-09-15 发布\n工作职责\n【投递提示】合肥城市需求量大，投递竞争较小，欢迎投递！ 1. 参与核心业务系统和 AI 应用的全栈研发，包括需求分析、技术方案设计、核心模块开发、测试验证及上线交付。 2. 参与后端服务、API、数据模型、任务调度、权限体系，以及前端页面、交互流程、组件和工程化能力建设。 3. 基于 LLM、Prompt、Function Calling、Tool Use、RAG 等能力，参与 AI 应用功能设计与工程落地。 4. 深度使用 AI Coding 工具完成研发任务，探索 AI 在代码生成、调试、测试、Review、文档和交付流程中的应用。 5. 参与研发效率和代码质量改进，能够对 AI 生成结果进行判断、验证和优化。\n任职资格\n1. 本科及以上学历，计算机、软件工程、人工智能、自动化、电子信息等相关专业，具备扎实的计算机基础。 2. 熟练掌握Go、Java、Python、TypeScript中至少一门语言，了解主流前端技术及数据库、缓存、消息队列、API、异步任务、CI/CD等工程实践，具备完整项目经验和问题定位能力。 3. 理解LLM、Prompt、Context Window、Function Calling、Tool Use、RAG等基础概念及适用边界。 4. 熟练使用Claude Code、Cursor、Codex、Copilot等至少一种AI Coding工具，能够说明使用AI完成研发任务的完整过程。 5. 学习和自驱能力强，具备良好的问题拆解、沟通协作及结果交付意识。 加分项 1. 有 AI 应用、Agent、RAG、工作流、智能助手、开发者工具等项目经验。 2. 有高质量课程项目、实习项目、开源项目、技术博客或个人 Side Project。 3. 有深度 AI Coding 实践，能展示如何通过 AI 完成需求拆解、代码实现、问题排查、测试验证和效果评估。 此岗位为科大讯飞集团统一招聘岗位，人员通过简历筛选、笔试、初试、复试、终审等环节后录用。\n立即投递\n收藏",
+      "recruitment_context": {},
+      "source_sha256": "16238dfbaf90e3a471dc5f7a71a8e7b2b4035f0d72d1b6d1c069b5e4af685202",
+      "full_page_text": "首页\n校园招聘\n校招答疑\n社会招聘\n星火X计划\n实习生招聘\n探索讯飞\n登录/注册\nAI全栈开发工程师（大量HC）(J14446)\n校园招聘\n安徽省·合肥市,四川省·成都市\n2026-09-15 发布\n工作职责\n【投递提示】合肥城市需求量大，投递竞争较小，欢迎投递！\n1. 参与核心业务系统和 AI 应用的全栈研发，包括需求分析、技术方案设计、核心模块开发、测试验证及上线交付。\n2. 参与后端服务、API、数据模型、任务调度、权限体系，以及前端页面、交互流程、组件和工程化能力建设。\n3. 基于 LLM、Prompt、Function Calling、Tool Use、RAG 等能力，参与 AI 应用功能设计与工程落地。\n4. 深度使用 AI Coding 工具完成研发任务，探索 AI 在代码生成、调试、测试、Review、文档和交付流程中的应用。\n5. 参与研发效率和代码质量改进，能够对 AI 生成结果进行判断、验证和优化。\n任职资格\n1. 本科及以上学历，计算机、软件工程、人工智能、自动化、电子信息等相关专业，具备扎实的计算机基础。\n2. 熟练掌握Go、Java、Python、TypeScript中至少一门语言，了解主流前端技术及数据库、缓存、消息队列、API、异步任务、CI/CD等工程实践，具备完整项目经验和问题定位能力。\n3. 理解LLM、Prompt、Context Window、Function Calling、Tool Use、RAG等基础概念及适用边界。\n4. 熟练使用Claude Code、Cursor、Codex、Copilot等至少一种AI Coding工具，能够说明使用AI完成研发任务的完整过程。\n5. 学习和自驱能力强，具备良好的问题拆解、沟通协作及结果交付意识。\n\n加分项\n1. 有 AI 应用、Agent、RAG、工作流、智能助手、开发者工具等项目经验。\n2. 有高质量课程项目、实习项目、开源项目、技术博客或个人 Side Project。\n3. 有深度 AI Coding 实践，能展示如何通过 AI 完成需求拆解、代码实现、问题排查、测试验证和效果评估。\n此岗位为科大讯飞集团统一招聘岗位，人员通过简历筛选、笔试、初试、复试、终审等环节后录用。\n立即投递\n收藏\n联系我们\n4000-199-199\n校招答疑：campus@iflytek.com\n总部：安徽省合肥市蜀山区望江西路666号科大讯飞语音产业基地\n友情链接\n关于讯飞\n讯飞公益\n科大讯飞集团\n科大讯飞招聘\n科大讯飞招聘\n©2026 科大讯飞招聘官网京ICP备05051632号-16京公网安备 11010802032024号|隐私政策Powered by Beisen",
+      "expected": {
+        "location": "excluded",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "audit_note": "原文为安徽省·合肥市、四川省·成都市，地点提取漏失；职责明确包含基于RAG的AI功能设计与工程落地，但城市不符合。",
+      "missing_in_captured_source": [
+        "availability",
+        "graduation_year"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "excluded",
+      "expected_filter_status": "excluded",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_4e0211c1ed46407a8400",
+      "company": "美团",
+      "title": "AI后端开发工程师",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobUnionId=4697280304",
+      "source_id": "official:meituan",
+      "source_job_id": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4697280304&highlightType=campus",
+      "locations": [
+        "北京市",
+        "上海市",
+        "成都市"
+      ],
+      "job_type": "campus",
+      "raw_content": "AI后端开发工程师 应届-校园招聘\n工作地点：北京市、上海市、成都市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n1. 负责各类后台服务和业务系统的需求分析、系统设计、开发实现；\n2. 参与后端模块、数据平台、基础服务等的开发工作，探索大模型能力（如LLM API调用、RAG检索增强、AI Agent编排等）在业务系统中的集成与落地；\n3. 分析并优化业务流程，参与系统长期架构设计与规划，探索合理、可扩展的系统模型，通过自动化及AI辅助手段提升研发效率，提升需求迭代速度与系统能力；\n4. 保证系统稳定性，提升系统的容灾、降级及应急能力，协同QA保证高质量开发交付，优化系统性能、及时排查线上故障，保证系统稳定；\n5. 积极主动协调相关团队完成项目，促进团队合作，积极影响其它成员。\n任职要求\n【岗位要求】\n1. 本科及以上学历；\n2. 掌握一种以上的开发语言，包括但不限于Java、C、C++、Python、Golang等，了解MySQL等基本使用，熟练使用SQL语句，会常用的shell命令；\n3. 具有扎实的数据结构、操作系统、数据库、算法、网络等计算机基础知识；\n4. 了解大语言模型（LLM）的基本原理与能力边界，有使用主流大模型API（如GPT、Claude、Llama等）或AI编程工具（如Cursor、Copilot等）进行开发的经验；\n5. 优秀的学习能力和自驱力，对新技术有强烈的求知精神，能深入代码研究，能通过英文论文等第一手资料了解业界新技术；\n6. 优秀的逻辑思维能力，善于从复杂系统表象中分析问题，具有较强的解决问题能力；\n7. 善于交流，有良好的团队合作精神和协调沟通能力。\n具备以下经验者优先：\n1. 有参与各级计算机竞赛并获奖经历；\n2. 有原创的技术博客或开源项目；\n3. 有大模型应用开发经验，如使用LangChain/LlamaIndex等框架构建RAG系统、开发AI Agent应用等；\n【岗位亮点】\n1. 美团业务场景复杂，流量超大，后台系统建设非常具有挑战性；\n2. 公司技术氛围浓厚，大牛众多，培训和交流机制完善；\n3. 大模型与业务深度融合，可参与AI原生应用的后端架构设计，在海量用户场景下验证大模型工程化落地的最佳实践。\n工作城市\n北京市、上海市、成都市",
+      "recruitment_context": {},
+      "source_sha256": "42e863eb0588c4c2df761710faf67857528a470794b7bd5a0b2393150f7a2c3b",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\nAI后端开发工程师\n应届-校园招聘\n工作地点：北京市、上海市、成都市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n1. 负责各类后台服务和业务系统的需求分析、系统设计、开发实现；\n2. 参与后端模块、数据平台、基础服务等的开发工作，探索大模型能力（如LLM API调用、RAG检索增强、AI Agent编排等）在业务系统中的集成与落地；\n3. 分析并优化业务流程，参与系统长期架构设计与规划，探索合理、可扩展的系统模型，通过自动化及AI辅助手段提升研发效率，提升需求迭代速度与系统能力；\n4. 保证系统稳定性，提升系统的容灾、降级及应急能力，协同QA保证高质量开发交付，优化系统性能、及时排查线上故障，保证系统稳定；\n5. 积极主动协调相关团队完成项目，促进团队合作，积极影响其它成员。\n任职要求\n【岗位要求】\n1. 本科及以上学历；\n2. 掌握一种以上的开发语言，包括但不限于Java、C、C++、Python、Golang等，了解MySQL等基本使用，熟练使用SQL语句，会常用的shell命令；\n3. 具有扎实的数据结构、操作系统、数据库、算法、网络等计算机基础知识；\n4. 了解大语言模型（LLM）的基本原理与能力边界，有使用主流大模型API（如GPT、Claude、Llama等）或AI编程工具（如Cursor、Copilot等）进行开发的经验；\n5. 优秀的学习能力和自驱力，对新技术有强烈的求知精神，能深入代码研究，能通过英文论文等第一手资料了解业界新技术；\n6. 优秀的逻辑思维能力，善于从复杂系统表象中分析问题，具有较强的解决问题能力；\n7. 善于交流，有良好的团队合作精神和协调沟通能力。\n具备以下经验者优先：\n1. 有参与各级计算机竞赛并获奖经历；\n2. 有原创的技术博客或开源项目；\n3. 有大模型应用开发经验，如使用LangChain/LlamaIndex等框架构建RAG系统、开发AI Agent应用等；\n【岗位亮点】\n1. 美团业务场景复杂，流量超大，后台系统建设非常具有挑战性；\n2. 公司技术氛围浓厚，大牛众多，培训和交流机制完善；\n3. 大模型与业务深度融合，可参与AI原生应用的后端架构设计，在海量用户场景下验证大模型工程化落地的最佳实践。\n工作城市\n北京市、上海市、成都市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "audit_note": "正文与完整页面均未写届别。",
+      "missing_in_captured_source": [
+        "availability",
+        "graduation_year"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_cc132cc56f2e41b39393",
+      "company": "美团",
+      "title": "【北斗】大模型算法工程师 SFT/RL/Agent方向",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobShareType=1&jobUnionId=4683995941",
+      "source_id": "web-search:responses",
+      "source_job_id": "6db81b670083258bf7d724a6",
+      "locations": [
+        "北京市"
+      ],
+      "job_type": null,
+      "raw_content": "【北斗】大模型算法工程师 SFT/RL/Agent方向 应届-北斗计划\n工作地点：北京市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n该岗位将大模型后训练、强化学习与 Agent 技术应用于在线约束资源分配决策系统。调度规模化营销预算，覆盖数亿用户，具备小时级真实反馈闭环。系统求解的核心问题是带全局预算约束的序贯决策——在预算硬约束下确定补贴的对象、额度、形态与时机，使增量转化、长期用户价值与投入产出比等全局目标最优\n【你将参与】\n1. 决策智能体（Agent）：将当前由人工策略规则承担的决策生成环节智能体化。构建面向营销决策的 Agent 系统，覆盖目标解析与任务分解、数据与模型工具链调用、候选策略生成、实验设计与结果归因、闭环迭代。主要技术挑战：长程规划与上下文管理、工具调用的鲁棒性与幂等性，以及高风险场景下的可控性、可解释性与安全边界——Agent 输出直接对应真实资金支出\n2. 模型后训练与强化学习：面向业务语料与决策轨迹的后训练全链路：SFT、拒绝采样、偏好对齐（DPO / GRPO / PPO）、RLVR 与可验证奖励设计\n3. LLM 驱动的因果推断与智能决策：本方向直接承接增量目标与全局耦合：前者要求可信的反事实估计，后者要求在预算约束下完成跨单元的边际效率对齐。团队已有成熟的 uplift、LTV、在线学习与实时决策底座支撑线上业务，本方向探索大模型与该体系的耦合\n4. AutoResearch：策略研究的自动化闭环。营销策略迭代在方法论上等价于科学研究过程：观察 → 假设 → 实验设计 → 执行 → 归因 → 认知修正。该循环当前由人工驱动，速率上限即研究者带宽\n5. Agent 基础设施与评测：噪声反馈意味着线上实验代价高、信号慢，前四个方向的迭代都依赖可信的离线评估作为前置筛选，本方向提供该前提。负责 Harness 设计、离线评测集与仿真环境构建、决策质量自动化评估体系、训练与推理链路、实验平台。\"如何度量决策类 Agent 的能力提升\"本身是开放研究问题，涉及轨迹级评测、rubric 与 LLM-as-judge 的可信度校准、失败模式归因、评测集抗过拟合设计\n任职要求\n【岗位职责】\n必要条件：\n2027届本科及以上学历，计算机/人工智能/统计学等相关专业\n具备扎实的机器学习与深度学习理论基础\n加分项：\n在 WWW/KDD/SIGIR/NeurIPS/ICML/ICLR 等顶会有较为丰富的论文成果\nACM/ICPC、Kaggle 等竞赛获奖经历\n具备Agent 系统构建经验：独立搭建过 Agent 或多 Agent 系统，对 Harness 设计、工具调用协议、上下文工程及 Agent 评测方法论（benchmark 构建、轨迹级评估、自动化 judge、失败模式分析）有系统理解与实践\n自动化研究系统经验：AI for Science / AI Scientist 类工作、自动化假设生成与实验设计、Agent 长期记忆与知识累积机制、自动化数据分析系统等方向的研究或工程实践\n因果推断背景：系统学习或研究过 uplift modeling、CATE 估计、双重机器学习与双重稳健估计、IPW / 离线策略评估、实验设计与因果识别策略；在 LLM 与因果推断交叉方向（LLM 辅助因果发现、反事实推理、causal representation learning）有探索经历者优先\n搜索、推荐、广告算法背景：多目标排序、竞价与机制设计、在线学习与探索利用权衡、大规模稀疏模型的学习、研究或工业实践\n【为什么是我们】\n1.研究环境稀缺：多数 Agent 与后训练研究的评价止于静态 benchmark 或仿真环境。本岗位同时具备硬约束、真实资金代价与小时级无偏反馈，策略优劣由线上实验判定——该量级的实时决策反馈数据与实验能力在学术环境中不可得，在工业界亦不多见。\n2.业务杠杆直接：为年度百亿规模的直接资金投放，分配效率每提升一个百分点即对应可计量的绝对收益。\n3.方法论可外推：带全局约束的序贯资源分配是一类通用问题结构，与流量分配、库存与定价、算力调度同构。本场景中验证有效的奖励设计、约束优化与 Agent 决策范式可迁移至上述问题，成果不局限于单一业务。\n4.能力链路完整：从因果识别、奖励设计、RL 训练到线上部署与实验归因由同一人贯穿，而非承担分工切片中的单一环节；\n5.组织能力及团队氛围：鼓励大胆创新、包容试错探索，为年轻同学创造最好的实战舞台；团队中有多名北斗人才密度高；完善的老带新机制；公平公开、简单清晰的激励及评价体系。\n工作城市\n北京市",
+      "recruitment_context": {},
+      "source_sha256": "01afdaf8db441cb5ddd2150e46f9f1447b21fd48d1703487987c881d6bf56dbb",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\n【北斗】大模型算法工程师 SFT/RL/Agent方向\n应届-北斗计划\n工作地点：北京市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n该岗位将大模型后训练、强化学习与 Agent 技术应用于在线约束资源分配决策系统。调度规模化营销预算，覆盖数亿用户，具备小时级真实反馈闭环。系统求解的核心问题是带全局预算约束的序贯决策——在预算硬约束下确定补贴的对象、额度、形态与时机，使增量转化、长期用户价值与投入产出比等全局目标最优\n【你将参与】\n1. 决策智能体（Agent）：将当前由人工策略规则承担的决策生成环节智能体化。构建面向营销决策的 Agent 系统，覆盖目标解析与任务分解、数据与模型工具链调用、候选策略生成、实验设计与结果归因、闭环迭代。主要技术挑战：长程规划与上下文管理、工具调用的鲁棒性与幂等性，以及高风险场景下的可控性、可解释性与安全边界——Agent 输出直接对应真实资金支出\n2. 模型后训练与强化学习：面向业务语料与决策轨迹的后训练全链路：SFT、拒绝采样、偏好对齐（DPO / GRPO / PPO）、RLVR 与可验证奖励设计\n3. LLM 驱动的因果推断与智能决策：本方向直接承接增量目标与全局耦合：前者要求可信的反事实估计，后者要求在预算约束下完成跨单元的边际效率对齐。团队已有成熟的 uplift、LTV、在线学习与实时决策底座支撑线上业务，本方向探索大模型与该体系的耦合\n4. AutoResearch：策略研究的自动化闭环。营销策略迭代在方法论上等价于科学研究过程：观察 → 假设 → 实验设计 → 执行 → 归因 → 认知修正。该循环当前由人工驱动，速率上限即研究者带宽\n5. Agent 基础设施与评测：噪声反馈意味着线上实验代价高、信号慢，前四个方向的迭代都依赖可信的离线评估作为前置筛选，本方向提供该前提。负责 Harness 设计、离线评测集与仿真环境构建、决策质量自动化评估体系、训练与推理链路、实验平台。\"如何度量决策类 Agent 的能力提升\"本身是开放研究问题，涉及轨迹级评测、rubric 与 LLM-as-judge 的可信度校准、失败模式归因、评测集抗过拟合设计\n任职要求\n【岗位职责】\n必要条件：\n2027届本科及以上学历，计算机/人工智能/统计学等相关专业\n具备扎实的机器学习与深度学习理论基础\n加分项：\n在 WWW/KDD/SIGIR/NeurIPS/ICML/ICLR 等顶会有较为丰富的论文成果\nACM/ICPC、Kaggle 等竞赛获奖经历\n具备Agent 系统构建经验：独立搭建过 Agent 或多 Agent 系统，对 Harness 设计、工具调用协议、上下文工程及 Agent 评测方法论（benchmark 构建、轨迹级评估、自动化 judge、失败模式分析）有系统理解与实践\n自动化研究系统经验：AI for Science / AI Scientist 类工作、自动化假设生成与实验设计、Agent 长期记忆与知识累积机制、自动化数据分析系统等方向的研究或工程实践\n因果推断背景：系统学习或研究过 uplift modeling、CATE 估计、双重机器学习与双重稳健估计、IPW / 离线策略评估、实验设计与因果识别策略；在 LLM 与因果推断交叉方向（LLM 辅助因果发现、反事实推理、causal representation learning）有探索经历者优先\n搜索、推荐、广告算法背景：多目标排序、竞价与机制设计、在线学习与探索利用权衡、大规模稀疏模型的学习、研究或工业实践\n【为什么是我们】\n1.研究环境稀缺：多数 Agent 与后训练研究的评价止于静态 benchmark 或仿真环境。本岗位同时具备硬约束、真实资金代价与小时级无偏反馈，策略优劣由线上实验判定——该量级的实时决策反馈数据与实验能力在学术环境中不可得，在工业界亦不多见。\n2.业务杠杆直接：为年度百亿规模的直接资金投放，分配效率每提升一个百分点即对应可计量的绝对收益。\n3.方法论可外推：带全局约束的序贯资源分配是一类通用问题结构，与流量分配、库存与定价、算力调度同构。本场景中验证有效的奖励设计、约束优化与 Agent 决策范式可迁移至上述问题，成果不局限于单一业务。\n4.能力链路完整：从因果识别、奖励设计、RL 训练到线上部署与实验归因由同一人贯穿，而非承担分工切片中的单一环节；\n5.组织能力及团队氛围：鼓励大胆创新、包容试错探索，为年轻同学创造最好的实战舞台；团队中有多名北斗人才密度高；完善的老带新机制；公平公开、简单清晰的激励及评价体系。\n工作城市\n北京市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "matched"
+      },
+      "audit_note": "标题行的应届—北斗计划体现应届招聘；正文明确2027届。",
+      "missing_in_captured_source": [
+        "availability"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_41900de15cad41329676",
+      "company": "美团",
+      "title": "人力资源数字化与AI产品经理 （人力运营）",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobShareType=1&jobUnionId=4739169757",
+      "source_id": "web-search:responses",
+      "source_job_id": "bba4dccf4e8e0c4ab3aab5bd",
+      "locations": [
+        "北京市",
+        "北京",
+        "成都",
+        "上海",
+        "深圳"
+      ],
+      "job_type": "campus",
+      "raw_content": "人力资源数字化与AI产品经理 （人力运营） 应届-校园招聘\n工作地点：北京市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n工作地点：北京、成都、上海、深圳\n岗位职责：\n1）做真正落地的 AI 项目：把 AI（大模型、Agent、智能体工作流）真实应用到 HR 场景——员工入离职、试用期管理、考勤申诉、员工服务台等。端到端负责调研需求、设计AI时代的新流程、对接研发、推动上线、运营迭代，亲眼看到自己参与设计的服务被数万员工使用。\n2）做既懂管理又懂用户的产品经理：通过业务调研、用户需求洞察、内外部对标等方式，理解公司管理与运营要求，推动数字化及 AI 解决方案落地，帮企业提升运营效率，为员工提供frustration-free的服务。\n任职要求\n岗位要求：\n1）本科及以上学历，计算机、心理学、统计学、商业分析、人力资源等专业优先；\n2）AI 的重度使用者和实践者：对 AI 技术有热情、有真实实践——深度使用过大模型、写过高质量 prompt、搭过 Agent 或自动化工作流，并有真实用户案例；\n3）较强的数据分析能力，能使用 AI工具或Python、SQL、R 等工具处理大量数据，让判断有依据；\n4）良好的沟通协作和项目管理能力，能协同跨部门团队把事情推动落地；\n5）优秀的逻辑思维能力，善于发现事物间的内在联系，以终为始地开展工作，富有责任心。\n岗位亮点：\n1）多元且真实的业务场景：我们是员工体验提升的先行者。你将接触员工在企业全生命周期的多样场景和产品（不局限于 HR 领域），深入业务一线，通过数据分析和调研访谈挖掘改善员工体验的\"点\"，并通过自动化和智能化服务的引入，把这些\"点\"变成员工可感知的体验升级。\n2）AI 时代的前排座位：HR流程及服务是 AI 落地的重要场景之一。在这里不是\"用 AI 讲故事\"，而是端到端重构管理流程和服务模式。\n3）快速的发展通道：发挥自身所长，规划方案并推进落地，作为项目 PM 见证价值创造的完整历程，并有机会将项目方案和成果直接与公司管理层呈现、探讨。\n4）有趣的导师和同事：资深导师带你成长，与众多优秀且不乏有趣的同学成为同事，高效快乐地合作，共同成长。\n投递提示：简历或补充材料中如有 AI 相关实践（项目、作品、博客均可），欢迎一并附上，我们非常期待看到。\n工作城市\n北京市",
+      "recruitment_context": {},
+      "source_sha256": "7051acb41a2d1b1d657b61a85aaf3790d1b1c62ea2c975764fb4ff50ec83165d",
+      "full_page_text": "首页\nLongCat人才招聘\n北斗计划\n社会招聘\n校园招聘\n美团赛事\n了解美团\nGlobal Careers\n登录\n人力资源数字化与AI产品经理 （人力运营）\n应届-校园招聘\n工作地点：北京市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n工作地点：北京、成都、上海、深圳\n岗位职责：\n1）做真正落地的 AI 项目：把 AI（大模型、Agent、智能体工作流）真实应用到 HR 场景——员工入离职、试用期管理、考勤申诉、员工服务台等。端到端负责调研需求、设计AI时代的新流程、对接研发、推动上线、运营迭代，亲眼看到自己参与设计的服务被数万员工使用。\n2）做既懂管理又懂用户的产品经理：通过业务调研、用户需求洞察、内外部对标等方式，理解公司管理与运营要求，推动数字化及 AI 解决方案落地，帮企业提升运营效率，为员工提供frustration-free的服务。\n任职要求\n岗位要求：\n1）本科及以上学历，计算机、心理学、统计学、商业分析、人力资源等专业优先；\n2）AI 的重度使用者和实践者：对 AI 技术有热情、有真实实践——深度使用过大模型、写过高质量 prompt、搭过 Agent 或自动化工作流，并有真实用户案例；\n3）较强的数据分析能力，能使用 AI工具或Python、SQL、R 等工具处理大量数据，让判断有依据；\n4）良好的沟通协作和项目管理能力，能协同跨部门团队把事情推动落地；\n5）优秀的逻辑思维能力，善于发现事物间的内在联系，以终为始地开展工作，富有责任心。\n岗位亮点：\n1）多元且真实的业务场景：我们是员工体验提升的先行者。你将接触员工在企业全生命周期的多样场景和产品（不局限于 HR 领域），深入业务一线，通过数据分析和调研访谈挖掘改善员工体验的\"点\"，并通过自动化和智能化服务的引入，把这些\"点\"变成员工可感知的体验升级。\n2）AI 时代的前排座位：HR流程及服务是 AI 落地的重要场景之一。在这里不是\"用 AI 讲故事\"，而是端到端重构管理流程和服务模式。\n3）快速的发展通道：发挥自身所长，规划方案并推进落地，作为项目 PM 见证价值创造的完整历程，并有机会将项目方案和成果直接与公司管理层呈现、探讨。\n4）有趣的导师和同事：资深导师带你成长，与众多优秀且不乏有趣的同学成为同事，高效快乐地合作，共同成长。\n投递提示：简历或补充材料中如有 AI 相关实践（项目、作品、博客均可），欢迎一并附上，我们非常期待看到。\n工作城市\n北京市\n\n一起成长，一起更好\n\nGrow Together, Better Together\n\n美团\n|\n@2026 美团版权所有\n京ICP备10211739号\n京公网安备 11000002002052号\n|\n隐私政策\n    招聘意见反馈：zhaopin@meituan.com\n关注我们",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "audit_note": "用户明确要求保留AI产品岗；此岗的实际职责包括AI产品需求、流程设计、对接研发、运营迭代，按产品方向保留，不能当作研发职责。原文未写届别。",
+      "missing_in_captured_source": [
+        "availability",
+        "graduation_year"
+      ],
+      "review_status": "assistant_audited_user_scope_confirmed",
+      "expected_review_status": "recommended",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_8987a47e2eb54158b46f",
+      "title": "智能商业分析师（BA/DS）",
+      "company": "美团",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobUnionId=4694982338",
+      "raw_content": "智能商业分析师（BA/DS） 应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n1. 参与业务规划、策略制定、经营分析，为复杂的商业问题设计解决方案；\n2. 使用一流的数据分析工具和技能，洞察商业规律、用户需求，为业务出谋划策；\n3. 参与建设业界一流水平的公司级实验中台，为重大实验决策提供科学方案支撑（数据科学方向）；\n4. 探索大模型在商业分析场景的应用，如利用LLM辅助行业研究、自动化报告生成、智能数据洞察、自然语言数据查询等。\n任职要求\n1. 本科及以上学历，数学、统计、计算机、工科、商科等相关专业背景更佳；\n2. 聪明严谨、积极有韧性，乐于面对挑战、具备优秀的分析能力；\n3. 具备充分的好奇心，有钻研的精神，喜欢从数据中发现问题、分析规律更佳；对商业运作模式和企业经营感兴趣；\n4. 数据科学（DS方向）具备计算机背景或经济学和理工科双学位专业背景更佳；\n5. 了解大语言模型的基本能力，对AI赋能商业分析有探索兴趣，有使用AI工具辅助数据分析或报告撰写的经验者优先。\n具备以下经验者优先：\n1. 有使用AI工具辅助商业研究的实践经验，如利用大模型进行行业报告生成、数据可视化、用户调研分析等；\n2. 了解Text-to-SQL、自然语言数据分析等AI+数据分析前沿方向；\n3. 了解主流 Agent 开发框架（如 LangChain、Dify 等），有将 Agent 应用于数据分析或商业研究场景的经验。\n【岗位亮点】\n1. 距离决策者最近的岗位，数据规律将有机会驱动业务核心决策；\n2. 多元化的业务场景，丰富的商业视角和实战土壤；\n3. 体系化的人才培养机制；\n4. 大模型与商业分析深度融合，可参与构建AI增强的智能分析平台。\n工作城市\n北京市、上海市",
+      "recruitment_context": {},
+      "source_id": "frozen-live",
+      "source_job_id": "job_8987a47e2eb54158b46f",
+      "locations": [
+        "北京市",
+        "上海市"
+      ],
+      "job_type": "campus",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "pending",
+        "graduation_year": "pending"
+      },
+      "review_status": "assistant_audited_new_source_boundary",
+      "audit_note": "探索AI应用不能直接当作研发或产品职责，保留待核实",
+      "source_sha256": "1dc1eea545ed15a00722f95f7a627360d1b5d9d2449162bad15a39407f7ffa20",
+      "expected_review_status": "pending",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_53977b930a254cf99218",
+      "title": "AI数据工程开发",
+      "company": null,
+      "source_url": "https://careers.tencent.com/jobdesc.html?postId=2097954502169767936",
+      "raw_content": "AI数据工程开发 深圳\n分享\n分享岗位\n方式1:复制岗位链接\n点击复制\n方式2:分享岗位海报\n手机扫描二维码分享\n收藏\nCSIG\n点击了解更多BG信息\n技术 五年以上工作经验 更新于2026年09月17日\n在腾讯，技术人解决问题的激情永不熄灭。无论是面对产品、程序的问题，还是生活与人的问题，腾讯技术人都力图交出漂亮的答卷。我们善用科学工具，以强大的思维之力创造世界，为卓越的产品体验保驾护航，也为公司和产品策略提出宝贵的洞见，用技术引领新的变革。这里的每位成员，既传承着长久以来的务实文化，又时刻以创新眼光瞄准大海星辰。我们十分期待你加入这样一个「技术社区」，分享团队能量，尽情发挥所长。\n岗位职责\n1.负责云采购供应领域的 AI 数据与智能应用平台建设，围绕规划、采购、供应保障、库存与风险分析等场景，打造行业标杆 AI 产品，推动 AI 能力规模化落地； 2.围绕 AI 场景构建面向智能应用的数据体系，包括数据资产组织、业务语义建模、Schema 增强与知识沉淀等能力，使供应链数据能够被 AI Agent 和业务应用准确理解、高效消费； 3.推动数据与业务能力的服务化、标准化，建设统一的数据消费与工具调用能力，包括 API、MCP Tool、CLI、Skill、Workflow 等，实现能力的可调用、可组合与可复用； 4.主导复杂平台架构设计与关键技术方案落地，完善 AI Agent 编排、异步任务、服务治理与可观测性等工程能力，保障平台的稳定性、性能、安全性和可扩展性； 5.与云供应、采购及运营团队紧密协作，深入理解服务器与关键部件的业务场景和数据口径，将业务需求沉淀为平台化能力，持续推动云供应链 AI 产品与数据基础设施演进。\n岗位要求\n1.本科及以上学历，计算机、软件工程、数据科学等相关专业，能力突出者可适当放宽； 2.具备 5 年以上后端或平台研发经验，熟悉 Python，拥有扎实的编码、调试和系统设计能力； 3.熟悉数据库与数据处理，具备良好的 SQL 能力，能够理解复杂数据模型、指标口径及分析查询； 4.具备 API、异步任务、缓存、消息队列、权限控制、服务治理等后端系统开发经验； 5.有大模型应用开发经验，理解 Agent、RAG、工具调用、Workflow 等基本机制，并具备真实项目落地经历； 6.具备较强的问题定位和稳定性治理能力，能够系统处理模型调用、工具执行、数据准确性及长任务运行等复杂问题； 7.具备良好的业务抽象和沟通能力，能够从模糊需求中识别核心问题，并独立推动方案设计、开发、上线和持续优化； 8.对 AI 辅助研发有深入实践，能够熟练使用 AI 编程工具提升开发、测试、排障和文档沉淀效率。\n加分项\n1.熟悉 Java 及其主流技术生态，有 Java 后端服务或大型企业系统研发经验； 2.有实时或离线数据计算经验，熟悉批处理、流处理、数据同步、任务调度或大规模数据加工链路； 3.有企业级 AI Agent、知识库、工具平台或智能分析产品的生产落地经验； 4.有企业应用集成、开放平台、机器人、消息系统或办公协同平台接入经验； 5.有从 0 到 1 打造产品或平台、担任核心模块负责人或带领小型项目团队的经历； 6.在同等条件下，通过腾讯云认证或取得同等资格认证的候选人，我们会优先考虑。",
+      "recruitment_context": {},
+      "source_id": "frozen-live",
+      "source_job_id": "job_53977b930a254cf99218",
+      "locations": [],
+      "job_type": null,
+      "expected": {
+        "location": "excluded",
+        "job_type": "pending",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "review_status": "assistant_audited_new_source_boundary",
+      "audit_note": "深圳地点排除；工作年限不是明确招聘类型，不应据此把招聘类型判为社招",
+      "source_sha256": "f0e2d58826749bb75f4a5b8ddc3c4a6063265f7391752887c7e926457c74c28d",
+      "expected_review_status": "excluded",
+      "expected_filter_status": "excluded",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_541eaddadce6487dadeb",
+      "title": "智能体套件-全栈开发工程师-CodeBuddy/WorkBuddy 深圳",
+      "company": null,
+      "source_url": "https://careers.tencent.com/zh-cn/jobdesc.html?postId=2074756587444158464",
+      "raw_content": "智能体套件-全栈开发工程师-CodeBuddy/WorkBuddy 深圳\n分享\n分享岗位\n方式1:复制岗位链接\n点击复制\n方式2:分享岗位海报\n手机扫描二维码分享\n收藏\nCSIG\n点击了解更多BG信息\n技术 三年以上工作经验 更新于2026年10月08日\n岗位职责\n1.负责 WorkBuddy Enterprise 体系的全链路研发工作，覆盖 WorkBuddy / CodeBuddy / Manged Agents、智能体套件、管理端、运营平台等； 2.参与企业版专享部署架构的设计与演进，负责产品标准化、多产品融合等方向的技术方案规划与评审，输出高质量设计文档，协调各团队推动落地； 3.推动企业版研发流程标准化，制定迭代计划并把控交付节奏，保证功能在多客户、多环境下按时高质量交付； 4.构建代码质量与线上质量监控体系，主导性能优化、稳定性治理与体验提升，持续提高企业级产品的内建质量与可运维性； 5.深度参与 AI 智能体的工程化落地，设计模型服务接口与数据交互方案，优化推理效率、资源消耗及企业环境下的合规与隔离能力。\n岗位要求\n1.计算机相关专业本科及以上学历，3 年以上全栈开发经验，主导过复杂系统的全生命周期研发； 2.精通至少两种技术栈组合，例如 TypeScript+Node.js / Python / Java / Go + React，有桌面客户端（Electron 等）或跨平台开发经验者优先； 3.熟悉分布式系统设计，掌握微服务、容器化、CI/CD 等工程实践，有高并发、多租户或私有化交付场景的优化经验者优先； 4.具备出色的技术方案规划能力，能输出符合 Clean Architecture / Domain-Driven Design 原则的设计文档； 5.有 Agent 开发经验，熟悉 Agent 架构设计、Prompt 工程、RAG 应用、大模型推理服务化等 AI 工程化流程，具备智能体编排与工具链集成能力者优先； 6.有 To B 产品、企业级 SaaS / 私有化部署、VPC / 专有云交付相关经验者优先； 7.有沙箱隔离与 Agent Runtime 相关架构经验，有容器沙箱、安全隔离执行环境、Runtime 生命周期管理等实践经验者优先； 8.善用AI 提升生产力， 能高效驾驭AI Coding编程范式(把 AI 当作可委派的执行单元,而非补全工具), 在 spec / context / harness 层面有方法论； 9.强烈的 owner 意识，具备优秀的跨团队协同能力，主导过 5 人以上研发团队协作经验优先。\n加分项\n1.在同等条件下，通过腾讯云认证或取得同等资格认证的候选人，我们会优先考虑。",
+      "recruitment_context": {},
+      "source_id": "frozen-live",
+      "source_job_id": "job_541eaddadce6487dadeb",
+      "locations": [],
+      "job_type": null,
+      "expected": {
+        "location": "excluded",
+        "job_type": "pending",
+        "role": "matched",
+        "graduation_year": "pending"
+      },
+      "review_status": "assistant_audited_new_source_boundary",
+      "audit_note": "深圳地点排除；工作年限不是明确招聘类型，不应据此把招聘类型判为社招",
+      "source_sha256": "0c8fd9bb35108cb09129a52ad03f97a2e17113d60224f32cb16ceaf7a557760f",
+      "expected_review_status": "excluded",
+      "expected_filter_status": "excluded",
+      "captured_availability_status": "UNKNOWN"
+    },
+    {
+      "id": "job_adab9449b8e14c028df7",
+      "title": "广告引擎开发",
+      "company": "美团",
+      "source_url": "https://zhaopin.meituan.com/web/position/detail?highlightType=campus&jobShareType=1&jobUnionId=4697276263",
+      "raw_content": "广告引擎开发 应届-校园招聘\n工作地点：北京市、上海市\n最多可投递3个职位，但同一时间仅有1个职位流程处于进行中，第一志愿将被优先考虑。\n分享\n立即申请\n岗位职责\n岗位职责：\n1. 设计与实现高可用的广告投放系统，承载高并发、低延迟的广告投放需求，利用AI辅助编码工具（如GitHub Copilot/Cursor）与AI Code Review平台提升代码质量与产出效率；\n2. 实现与优化针对不同广告位置的投放策略，不断提高流量变现效率，借助AI辅助架构设计工具进行系统方案优化与代码重构；\n3. 优化广告召回、排序、竞价、流量优选等核心策略，探索AI Agent在策略自动化配置与实时调优中的应用；\n4. 参与高并发、大访问量后台服务的开发与系统调优，利用AI辅助工具进行性能瓶颈定位与根因分析。\n任职要求\n工作要求：\n1. 掌握一种以上的开发语言（包括但不限于Java、C++、Python），对面向对象思想有深入理解，能熟练使用AI辅助编码工具（如GitHub Copilot/Cursor）融入日常开发流程；\n2. 具有扎实的数据结构和算法设计基础，熟悉操作系统、数据库、网络等计算机基础知识；\n3. 熟悉数理统计，数据逻辑清晰，抽象问题能力强，能利用AI工具辅助数据分析与问题诊断；\n4. 责任心强，积极主动，有良好的沟通能力和团队合作能力；\n5. 对spark、kafka、redis等开源组件有了解，了解AI增强的CI/CD工具与智能运维实践；\n6. 掌握分布式系统原理，对存储、队列、计算、集群管理中的一项或多项有深入的理解和认识；\n7. 具备AI辅助架构设计能力者优先，能利用大模型辅助技术方案生成、系统架构优化与代码迁移。\n具备以下条件优先：\n1. 具备高并发、大访问量的后台服务开发、系统调优经验；\n2. 具备大型搜索、广告、推荐系统开发经验；\n3. 有AI辅助开发工具（如Copilot、Cursor、CodeRabbit等）的落地实践者优先。\n岗位亮点：\n1. 前景好：商业增值是公司商业变现的重点方向，业务前景好、个人机会多；\n2. 成长快：完善的新人培养和融入机制，团队同学背景好技术牛，在平台架构、智能算力、算法平台等多个技术方向输出架构实现，得到业界广泛认可；团队已全面引入AI辅助编码工具，人均研发效率提升显著；\n3. 挑战大：广告作为技术方向的明珠，能够直面具有挑战性的工作，参与AI时代广告系统的智能化升级与前沿解决方案建设。\n工作城市\n北京市、上海市",
+      "recruitment_context": {},
+      "source_id": "frozen-live",
+      "source_job_id": "job_adab9449b8e14c028df7",
+      "locations": [
+        "北京市",
+        "上海市"
+      ],
+      "job_type": "campus",
+      "expected": {
+        "location": "matched",
+        "job_type": "matched",
+        "role": "pending",
+        "graduation_year": "pending"
+      },
+      "review_status": "assistant_audited_new_source_boundary",
+      "audit_note": "探索AI应用不能直接当作研发或产品职责，保留待核实",
+      "source_sha256": "756e1a966d14c372d8b820cb7bbd8c0755c45967c65417bb86d61f0ec6ae8e4e",
+      "expected_review_status": "pending",
+      "expected_filter_status": "pending",
+      "captured_availability_status": "UNKNOWN"
+    }
+  ],
+  "human_decision": {
+    "text": "AI 产品岗也要保留",
+    "date": "2026-10-18",
+    "scope": "用户确认保留AI产品方向；其他字段标签为助手逐条原文审计，未逐项获得用户确认"
+  },
+  "display_acceptance": {
+    "version": "view-priority-v1",
+    "reviewed_at": "2026-10-18",
+    "label_provenance": "assistant_audited_user_scope_confirmed; not independent human gold",
+    "availability_policy": "Captured sources have no confirmed open-status evidence; replay UNKNOWN. No live availability claim.",
+    "retrieval_policy": "Compare exact canonical official URLs or explicitly documented aliases against jobs AND leads in the selected real run; report fresh reads separately from cache. Different job selectors never merge."
+  }
+}

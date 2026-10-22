@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import replace
 from types import SimpleNamespace
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 import pytest
 
@@ -35,7 +35,7 @@ ITEM = {"id": "123", "title": "Agent开发工程师", "city_list": [{"name": "�
 
 def test_filters_resolve_live_ids_and_keep_positive_alternatives():
     assert listing_filters(FILTERS, QUERY) == {"location": "sh", "project": "s1,s2"}
-    assert search_keywords(QUERY) == ["agent", "rag", "大模型"]
+    assert search_keywords(QUERY) == ["agent", "rag", "大模型应用开发"]
     assert search_keywords("上海后端校招，不考虑前端") == ["后端"]
     assert listing_filters(FILTERS, "上海或北京校招") == {"location": "sh,bj", "project": ""}
     assert listing_filters(FILTERS, "校招，排除北京") == {"location": "", "project": ""}
@@ -110,8 +110,54 @@ class ListingBrowser:
         return BrowserPageSnapshot(url, url, "校招", html, "岗位列表", recruitment_api=tuple(records))
 
 
+class PortalQueryBrowser(ListingBrowser):
+    """These portals decode URI components, not form-encoded '+' spaces."""
+
+    async def read_search_listing(self, url):
+        page = await super().read_search_listing(url)
+        if urlsplit(url).query:
+            components = dict(part.split("=", 1) for part in urlsplit(url).query.split("&"))
+            page.recruitment_api[0]["request"]["keyword"] = unquote(components["keywords"])
+        return page
+
+
 @pytest.mark.asyncio
-@pytest.mark.parametrize("incomplete,mismatched,observed,count", [(False, False, True, 1), (True, False, True, 1), (False, True, True, 0), (False, False, False, 0)])
+@pytest.mark.parametrize("keyword", ["machine learning", "c++ developer"])
+@pytest.mark.parametrize("company_id,portal_host", [
+    ("bytedance", "jobs.bytedance.com"), ("minimax", "minimax.jobs.feishu.cn"),
+    ("xiaomi", "xiaomi.jobs.f.mioffice.cn"), ("nio", "nio.jobs.feishu.cn"),
+])
+async def test_portal_receives_exact_saved_keyword_with_spaces_and_literal_plus(company_id, portal_host, keyword):
+    query = f"工作地点：上海；岗位方向：{keyword}；招聘类型：校招；届别：2027届"
+    source = SOURCE if company_id == "bytedance" else replace(
+        SOURCE, id=company_id, career_url=f"https://{company_id}.example/careers")
+    entry = f"https://{portal_host}/campus"
+
+    class Reader:
+        async def fetch(self, url):
+            return SimpleNamespace(final_url=url, body=f'<a href="{entry}">校园招聘</a>'.encode())
+
+    class Browser(PortalQueryBrowser):
+        async def read_search_listing(self, url):
+            page = await super().read_search_listing(url)
+            for record in page.recruitment_api:
+                record["url"] = record["url"].replace("jobs.bytedance.com", portal_host)
+            return page
+
+    candidates = []
+    direct = DirectRecruitmentSearch(sources=[source], query=query, reader=Reader(),
+        browser=Browser(), on_event=lambda *_: None, max_jobs=1)
+    await direct.discover(candidates.extend)
+    assert len(candidates) == 1
+    request = direct.evidence[candidates[0].source_url].api_record["request"]
+    assert request["keyword"] == keyword
+    assert request["location_code_list"] == ["sh"]
+    assert request["subject_id_list"] == ["s1", "s2"]
+    assert request["offset"] == 0 and request["limit"] == 10
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("incomplete,mismatched,observed,count", [(False, False, True, 1), (True, False, True, 1), (False, True, True, 1), (False, False, False, 0)])
 async def test_only_observed_scoped_results_can_supply_full_official_facts(incomplete, mismatched, observed, count):
     source = DirectRecruitmentSearch(sources=[SOURCE], query=QUERY, reader=None,
         browser=ListingBrowser(incomplete=incomplete, mismatched=mismatched, observed=observed), on_event=lambda *_: None)
@@ -120,9 +166,13 @@ async def test_only_observed_scoped_results_can_supply_full_official_facts(incom
     assert len(candidates) == count
     if candidates:
         evidence = source.evidence[candidates[0].source_url]
-        assert evidence.full_body is not incomplete
+        assert evidence.full_body == (not incomplete and not mismatched)
         assert evidence.stub.company == SOURCE.company
-        assert evidence.api_record["request"]["location_code_list"] == ["sh"]
+        if mismatched:
+            assert evidence.stub.raw_content == "" and not evidence.api_record
+            assert evidence.listing_html  # DOM discovery grants no API facts.
+        else:
+            assert evidence.api_record["request"]["location_code_list"] == ["sh"]
         assert candidates[0].verification_stub is None  # Provider hints alone grant no trust.
 
 
@@ -131,9 +181,12 @@ async def test_minimax_requires_a_current_official_tenant_link():
     class Reader:
         async def fetch(self, url):
             return SimpleNamespace(final_url=url, body=b'<a href="https://attacker.example/379481/">campus</a>')
+    class Browser(ListingBrowser):
+        async def read_search_listing(self, url):
+            return BrowserPageSnapshot(url, url, "官网", '<a href="https://attacker.example/379481/">campus</a>', "campus")
     events, candidates = [], []
     source = DirectRecruitmentSearch(sources=[replace(SOURCE, id="minimax", career_url="https://minimax.cn/careers")], query=QUERY, reader=Reader(),
-        browser=ListingBrowser(), on_event=lambda k,d: events.append(d))
+        browser=Browser(), on_event=lambda k,d: events.append(d))
     await source.discover(candidates.extend)
     assert not candidates and events[0]["error_code"] == "source_payload_invalid"
 
@@ -163,7 +216,12 @@ async def test_api_origin_and_pagination_must_match_the_requested_page(bad):
     candidates=[]
     source=DirectRecruitmentSearch(sources=[SOURCE],query=QUERY,reader=None,browser=WrongPage(),on_event=lambda *_:None)
     await source.discover(candidates.extend)
-    assert not candidates
+    assert len(candidates) == 1  # The independent DOM link is still usable.
+    evidence = source.evidence[candidates[0].source_url]
+    assert not evidence.full_body and not evidence.api_record
+    assert evidence.stub.raw_content == "" and evidence.stub.locations == []
+    assert source.states[SOURCE.id]["protocol_checkpoint"]["page_number"] == 1
+    assert source.states[SOURCE.id]["status"] != "completed"
 
 
 @pytest.mark.asyncio
@@ -285,8 +343,8 @@ async def test_execution_saves_original_payload_and_filters_without_refetch(db_s
         web_search_direct_sources_enabled=True, web_search_target_jobs=1,
         web_search_max_rounds=1, web_search_budget_seconds=5, web_search_verification_budget_seconds=3))
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args:[SOURCE])
-    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda:{"jobs.bytedance.com"})
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs:[SOURCE])
+    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda **kwargs:{"jobs.bytedance.com"})
     monkeypatch.setattr(execution, "PlaywrightBrowserJobReader", lambda **kwargs: ListingBrowser())
     monkeypatch.setattr(web_search_service, "create_web_search_provider", lambda *args:Provider())
     monkeypatch.setattr(JobLeadService, "verify_url", no_refetch)
@@ -302,3 +360,54 @@ async def test_execution_saves_original_payload_and_filters_without_refetch(db_s
     matches=current_run_matches(db_session,[run])[run.id]
     assert len(matches)==1 and matches[0]["filter_status"]=="matched"
     assert run.analysis_target_count==0
+    assert run.usage_metrics["read_attempts"] == run.usage_metrics["read_successes"] == 1
+    assert run.usage_metrics["new_effective_jobs"] == 1
+    assert run.usage_metrics["first_result_ms"] is not None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("custom_domain", [False, True])
+async def test_verified_new_feishu_source_reuses_listing_reader(custom_domain):
+    host = "recruiting.example.com" if custom_domain else "newco.jobs.feishu.cn"
+    source = CompanySource("newco", "新公司", "C", f"https://{host}/", "discovered_official",
+        resource_hosts=("lf-package-cn.feishucdn.com",) if custom_domain else (),
+        official_homepage_url="https://newco.example", hiring_evidence_url="https://newco.example/careers")
+    class Browser(ListingBrowser):
+        async def read_search_listing(self, url):
+            if urlsplit(url).path == "/":
+                if not custom_domain:
+                    assert host in self.safety_checker.proxy_allowed_hosts
+                return BrowserPageSnapshot(url, url, "官网", '<a href="/982864/">校招职位</a>', "校招职位")
+            page = await super().read_search_listing(url)
+            for record in page.recruitment_api:
+                record["url"] = record["url"].replace("jobs.bytedance.com", host)
+            return replace(page, raw_html=page.raw_html.replace("/campus/", "/982864/"))
+    candidates = []
+    direct = DirectRecruitmentSearch(sources=[source], query=QUERY, reader=None, browser=Browser(),
+                                    on_event=lambda *_: None, max_jobs=1)
+    await direct.discover(candidates.extend)
+    assert len(candidates) == 1
+    assert candidates[0].source_url == f"https://{host}/982864/position/123/detail"
+
+
+def test_unverified_shared_root_is_not_a_direct_source():
+    from src.services.company_search_progress import supports_direct_listing
+    source = replace(SOURCE, id="new", career_url="https://jobs.feishu.cn/")
+    assert not supports_direct_listing(source)
+    assert not supports_direct_listing(replace(source, career_url="https://other.jobs.feishu.cn/"))
+
+
+@pytest.mark.parametrize("requirement,expected", [
+    ("2027届本科、硕士或博士毕业生，计算机等相关专业", "matched"),
+    ("熟悉Python", "pending"),
+    ("2026届本科毕业生", "pending"),
+    ("2027届海外毕业生", "pending"),
+    ("2027届本科毕业生，毕业时间2026年9月至2027年8月", "pending"),
+])
+def test_season_label_does_not_override_explicit_eligibility(requirement, expected):
+    job = payload_stub({**ITEM, "recruit_type": None, "requirement": requirement,
+                        "job_subject": {"name": {"zh_cn": "2027校园招聘"}}},
+                       company="新公司", listing_url="https://recruiting.example.com/982864/")
+    assert job.job_type == "campus"
+    check = next(c for c in classify_discovery_job(job, query=QUERY).checks if c["field"] == "graduation_year")
+    assert check["status"] == expected

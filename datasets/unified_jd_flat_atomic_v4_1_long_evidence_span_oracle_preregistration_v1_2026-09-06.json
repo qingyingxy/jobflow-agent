@@ -1,0 +1,125 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.1-long-evidence-span-oracle-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "objective": "Measure the independent causal contribution of replacing an overlong but self-sufficient exact evidence span with its exact atomic surface to strict v4 schema recovery on the frozen external-holdout raw responses.",
+  "scope": {
+    "data_status": "revealed_frozen_external_holdout_raw",
+    "generalization_claim": false,
+    "production_rule_claim": false,
+    "runtime_observable_oracle": true,
+    "v4_or_v4_1_modification_allowed": false,
+    "external_holdout_rerun_allowed": false,
+    "other_oracle_output_loading_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "frozen_inputs": {
+    "external_holdout_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "external_holdout_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-report-v1-2026-09-06.json",
+      "sha256": "211dcd9489fda6351db15b69ed0f1f1253fdfc79684d9e30fd86e3d6574cee80"
+    },
+    "offline_diagnosis": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-offline-diagnosis-v1-2026-09-06.json",
+      "sha256": "299a12f1c17682b09ee899f022da2f6d885473d9807d30d223f90ee5570d4c8a"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "external_holdout_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_source_freeze_v1_2026-09-06.json",
+      "sha256": "9975c183bab9501b19b11d4c0e01e82ff8fa90acd6c47e8debb0d4c1cb2845c3"
+    },
+    "frozen_v4_live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    },
+    "frozen_fact_contract": {
+      "path": "src/domain/unified_jd_extraction.py",
+      "sha256": "d8197158b9a0c33e763363025a5f157e5c4cae60c31b8d69840999b31a86dcdb"
+    },
+    "frozen_atom_contract": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    }
+  },
+  "frozen_observations": {
+    "baseline_strict_schema_valid_case_count": 0,
+    "overlong_source_text_atom_count": 10,
+    "affected_case_count": 1,
+    "target_case_ids": [
+      "external-ashby-atira-ai-engineer"
+    ],
+    "negative_control_case_ids": [
+      "external-ashby-ravenna-ai-engineer",
+      "external-ashby-thread-ai-applied-ai-engineer",
+      "external-ashby-airwallex-ai-engineer",
+      "external-ashby-notion-ai-applications-engineer"
+    ],
+    "overlong_source_text_length_range": [
+      281,
+      462
+    ],
+    "eligible_surface_item_length_range": [
+      21,
+      146
+    ],
+    "eligible_semantic_equals_surface_count": 10,
+    "negative_control_empty_fact_placeholder_count": 27
+  },
+  "intervention": {
+    "name": "represent_long_self_sufficient_evidence_by_exact_surface",
+    "unit": "one clause_atoms element",
+    "eligibility_predicate": {
+      "source_text_length_greater_than": 240,
+      "surface_item_required": true,
+      "surface_item_max_length": 240,
+      "surface_item_must_be_exact_source_text_substring": true,
+      "semantic_item_must_equal_surface_item": true,
+      "all_conditions_required": true
+    },
+    "operation": "Replace only source_text with the existing surface_item. Preserve semantic_item, surface_item, role, category, level, relation, group_name, allow_other, qualifier, every fact mention, and record metadata exactly.",
+    "single_changed_variable": "self_sufficient_evidence_representation_from_full_overlong_line_to_exact_atomic_surface",
+    "forbidden_changes": [
+      "editing semantic_item or surface_item",
+      "sentence generation or paraphrase",
+      "changing any atom other than an eligible atom's source_text",
+      "changing fact_mentions",
+      "loading or applying the absent-fact omission oracle",
+      "using gold, model, network, parser, or canonicalizer output"
+    ]
+  },
+  "acceptance_gate": {
+    "all_criteria_conjunctive": true,
+    "criteria": [
+      "Exactly 10 eligible source_text values change in only the Atira target.",
+      "Atira changes from strict-schema invalid to strict-schema valid.",
+      "All four negative controls remain strict-schema invalid for their original empty-fact errors and remain byte-identical.",
+      "Every replacement is at most 240 characters and remains an exact substring of both its original source_text and the full job body.",
+      "Every non-source_text atom field, every noneligible atom, and every fact mention remains byte-identical and in order.",
+      "Restoring the ten audited original source_text values reconstructs the frozen raw exactly.",
+      "The frozen raw input hash is identical before and after evaluation.",
+      "No other oracle output, model, network, parser, or canonicalizer is used."
+    ],
+    "full_support_decision": "supported_independent_1_of_5_schema_recovery",
+    "falsification": "Reject this representation mechanism as independently sufficient for Atira if Atira remains invalid, any replacement loses exact anchoring, or any control changes.",
+    "interpretation_limit": "Even full support explains only the observed self-sufficient overlong spans. It does not cover null surfaces, semantic/surface divergence, other long-span forms, or unseen-data generalization."
+  },
+  "execution_protocol": {
+    "runner_count": 1,
+    "run_count": 1,
+    "source_freeze_before_execution": true,
+    "write_new_outputs_only": true,
+    "raw_written_before_report": true,
+    "rerun_after_failure_allowed": false,
+    "other_oracle_output_loaded": false,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "next_allowed_action": "Implement and freeze only the long evidence span oracle runner, then execute it once from the frozen external raw."
+}

@@ -4,7 +4,10 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from src.services.job_header_facts import header_location_evidence
+from src.services.job_header_facts import (
+    header_location_evidence,
+    location_field_values,
+)
 from src.services.url_reader import ParsedHTMLDocument
 
 _JOB_TYPE_PATTERNS: dict[str, tuple[str, ...]] = {
@@ -48,7 +51,7 @@ def verify_page_facts(document: ParsedHTMLDocument) -> VerifiedPageFacts:
     title = document.title
     header_locations = header_location_evidence(text, title)
     locations = _unique([
-        *document.locations, *_body_locations(text),
+        *location_field_values(document.locations), *_body_locations(text),
         *(item["value"] for item in header_locations),
     ])
     header_evidence = {item["value"]: item for item in header_locations}
@@ -285,7 +288,7 @@ def _body_locations(text: str) -> list[str]:
         values.extend(
             item.strip() for item in re.split(r"[,，、/|]", location) if item.strip()
         )
-    return values[:20]
+    return location_field_values(values)[:20]
 
 
 def _graduation_years(text: str) -> list[int]:

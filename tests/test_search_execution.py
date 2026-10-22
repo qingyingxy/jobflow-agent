@@ -355,9 +355,9 @@ async def test_execution_persists_queries_and_page_failures_with_separate_sessio
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(
-        execution, "enabled_company_source_hosts", lambda: {"example.com"}
+        execution, "enabled_company_source_hosts", lambda **kwargs: {"example.com"}
     )
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [])
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [])
     monkeypatch.setattr(web_search_service, "create_web_search_provider", factory)
     monkeypatch.setattr(JobLeadService, "verify_url", fail_verify)
     run = DiscoveryRun(

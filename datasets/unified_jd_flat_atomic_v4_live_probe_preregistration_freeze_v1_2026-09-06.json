@@ -1,0 +1,74 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4-live-probe-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05T17:04:26.879297+00:00",
+  "status": "frozen_before_live_runner_implementation_and_calls",
+  "artifacts": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    },
+    "builder": {
+      "path": "scripts/build_unified_jd_flat_atomic_v4_live_probe_preregistration.py",
+      "sha256": "7c5d2883ff141aa44cb9823855d7bfc3a1457f8ec31707b19f5a957823fb7ec3"
+    }
+  },
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "dev50_labels_for_post_response_evaluation_only": {
+      "path": "artifacts/evaluation/unified-jd-dev50-frozen-v2-2026-09-04.json",
+      "sha256": "58d0e5928f20181d9dd6cf7e598f09b3a7e25b1fdde7a426ab2ff135902fdd43"
+    },
+    "excluded_dev20": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v1-dev20-2026-09-05.json",
+      "sha256": "d354e8c02a1c54b7fb33285ec3843d294474454915d19093bab8521de8a99f81"
+    },
+    "historical_v1_predictions": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v1-dev20-predictions-v1-2026-09-05.json",
+      "sha256": "ea61b70a3ceed3a84bfc90ff0b2977cf547a7af105bbe12bd78056d369b75ee8"
+    },
+    "nested_v3_probe_raw": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-surface-probe-case121-raw-response-2026-09-05.json",
+      "sha256": "2e03cf98ff0fb28faf5e0bba0fd4bb7965b32cd83532793ba1dbd5860516aa4d"
+    },
+    "nested_v3_probe_analysis": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-surface-probe-case121-offline-analysis-2026-09-05.json",
+      "sha256": "a92df8b15dfb876d4ab913aa1f7e9dfbc3a464330d066b9bf2902bbc1491d96d"
+    },
+    "flat_v4_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_preregistration_v1_2026-09-05.json",
+      "sha256": "0f8a7af1a0dc4711b42a1b04e1ca7a65feaedbf7c0ee1703dfe0b070d773f7b4"
+    },
+    "flat_v4_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_source_freeze_v1_2026-09-05.json",
+      "sha256": "f243ea6b9f094baee5e11ed7b6bea4f59c8806876f6532b8852a17fc8a52a74c"
+    },
+    "flat_v4_offline_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "flat_v4_offline_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-report-v1-2026-09-05.json",
+      "sha256": "342d7674dc9d8ebfc9f1011f8505ae0c70b83b267ea622571c911be0bef41b46"
+    }
+  },
+  "checks": {
+    "selected_case_count": 5,
+    "selected_cases_excluded_from_dev20": true,
+    "labels_used_for_selection": false,
+    "external_generalization_claim_allowed": false,
+    "historical_model_call_count": 21,
+    "new_external_transmission_authorized": false,
+    "model_call_count_during_preregistration": 0,
+    "network_call_count_during_preregistration": 0,
+    "canonicalizer_allowed": false
+  },
+  "immutability": "Any change to selected cases, prompt, schema, call budget, retry policy, threshold, or decision rule requires a new preregistration before calls.",
+  "next_allowed_action": "Implement and freeze the isolated live runner and evaluator. Do not execute them until the user explicitly authorizes sending the five frozen full job bodies to api.deepseek.com with at most five new calls."
+}

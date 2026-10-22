@@ -1,0 +1,39 @@
+{
+  "receipt_version": "unified-jd-structured-span-v4-corpus-external-evaluation-receipt-v1",
+  "evaluated_at": "2026-09-04T11:33:53.847708+00:00",
+  "status": "single_use_holdout_evaluated",
+  "label_freeze": {
+    "path": "datasets/unified_jd_structured_span_v4_corpus_external_label_freeze_v1_2026-09-04.json",
+    "sha256": "c2e08912e26dcfa693959b25a4d4bcf6e357a55995c056cd245ca6fb9ebe599d"
+  },
+  "parser": {
+    "path": "src/domain/unified_jd_structured_spans_v4.py",
+    "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094",
+    "run_count_on_holdout": 1
+  },
+  "outputs": {
+    "raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-raw-v1-2026-09-04.json",
+      "sha256": "36b65c1df79d856c7507ae1357ed24c10b7a3e383bad79b9471b124f4999e058"
+    },
+    "report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-report-v1-2026-09-04.json",
+      "sha256": "5a0d53f1d55f7d62c52506c907b2231826f1f2753f653bb97880e1e7ac373dfc"
+    },
+    "findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-findings-v1-2026-09-04.md",
+      "sha256": "282c793f8fdac6675906893391a91169950f0f146a6a7f8a23117265f5ad7055"
+    }
+  },
+  "gate_passed": false,
+  "failed_gates": [
+    "connector_classification_accuracy",
+    "coordination_member_f1",
+    "shared_scope_edge_f1",
+    "example_attachment_edge_f1",
+    "surface_projection_f1",
+    "surface_projection_exact_rate"
+  ],
+  "canonicalizer_allowed": false,
+  "model_call_count": 0
+}

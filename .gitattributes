@@ -1,0 +1,4 @@
+
+# Preserve the byte-bound historical evaluation inputs.
+src/domain/unified_jd_surface_items_v2.py -text
+datasets/frozen_runtime/** -text

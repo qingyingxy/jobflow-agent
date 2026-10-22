@@ -14,6 +14,7 @@ from src.domain.education_dates import (
     validate_education_year,
 )
 from src.domain.fact_provenance import FactProvenance
+from src.domain.graduation import quoted_cohort_years
 
 DegreeLevel = Literal[
     "secondary", "associate", "bachelor", "master", "doctor", "unknown"
@@ -41,12 +42,49 @@ def comparable(value: str) -> str:
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value).casefold())
 
 
+def _english_status_evidence(source: str, status: str) -> bool:
+    """Accept explicit current study/completion, with a nearby degree object."""
+    text = unicodedata.normalize("NFKC", source).casefold()
+    if _english_status_denied(text, status):
+        return False
+    degree = r"\b(?:degree|bachelor|master|ph\.?d|doctorate)\b"
+    object_ahead = rf"(?=[^.;!?\n]{{0,100}}{degree})"
+    predicate = (
+        r"\b(?:currently\s+pursuing|(?:are|is|am)\s+(?:currently\s+)?(?:pursuing|completing))\b"
+        if status == "enrolled"
+        else r"\b(?:(?:have|has)\s+(?:already\s+|recently\s+)?completed|(?:already|recently)\s+completed)\b"
+    )
+    return bool(re.search(predicate + object_ahead, text))
+
+
+def _english_status_denied(source: str, status: str) -> bool:
+    text = unicodedata.normalize("NFKC", source).casefold()
+    predicate = (
+        r"(?:enrolled|pursu(?:e|ing)|completing)"
+        if status == "enrolled"
+        else r"(?:graduated|complet(?:e|ed)|degree\s+awarded)"
+    )
+    return bool(
+        re.search(
+            rf"\b(?:not|never|no\s+longer|will|would|shall|plan\s+to|intend\s+to|expected\s+to)\b[^.;!?\n]{{0,50}}\b{predicate}\b",
+            text,
+        )
+    )
+
+
 def degree_levels(text: str) -> set[str]:
-    text = comparable(text)
+    # Keep word boundaries for English aliases: RoboMaster is a competition,
+    # not a master's degree. Whitespace removal would also merge English words.
+    normalized = unicodedata.normalize("NFKC", text).casefold()
     return {
         level
         for level, terms in DEGREE_ALIASES.items()
-        if any(term in text for term in terms)
+        if any(
+            re.search(rf"(?<![a-z0-9_]){re.escape(term)}(?![a-z0-9_])", normalized)
+            if term.isascii()
+            else term in normalized
+            for term in terms
+        )
     }
 
 
@@ -142,25 +180,35 @@ def validate_education_grounding(education: EducationFacts, source: str) -> None
     ):
         raise ValueError("实际毕业年份需要明确已毕业依据，不能根据日期已过去推断")
     if education.status == "graduated" and (
-        not any(
-            term in normalized
-            for term in ("已毕业", "已获", "取得学位", "graduated", "degreeawarded")
+        (
+            not any(
+                term in normalized
+                for term in ("已毕业", "已获", "取得学位", "graduated", "degreeawarded")
+            )
+            and not _english_status_evidence(source, "graduated")
         )
         or any(term in normalized for term in ("在读", "预计", "expected"))
+        or _english_status_denied(source, "graduated")
     ):
         raise ValueError("不能从学历名称或年份推断已毕业")
-    if education.status == "enrolled" and not any(
-        term in normalized
-        for term in (
-            "在读",
-            "在校",
-            "就读",
-            "至今",
-            "预计",
-            "expected",
-            "present",
-            "enrolled",
+    if education.status == "enrolled" and (
+        (
+            not any(
+                term in normalized
+                for term in (
+                    "在读",
+                    "在校",
+                    "就读",
+                    "至今",
+                    "预计",
+                    "expected",
+                    "present",
+                    "enrolled",
+                )
+            )
+            and not _english_status_evidence(source, "enrolled")
         )
+        or _english_status_denied(source, "enrolled")
     ):
         raise ValueError("在读状态必须有明确原文依据")
 
@@ -230,6 +278,26 @@ class EducationCondition(BaseModel):
     def validate_branches(self):
         if self.relation == "any_of" and len(self.branches) < 2:
             raise ValueError("any_of 至少需要两个学历资格分支")
+        if self.relation == "any_of":
+            # Different predicates may cite the same sentence; repeated
+            # predicates are not distinct alternatives, however.
+            identities = [
+                (
+                    b.degree.operator,
+                    b.degree.level,
+                    b.major.mode,
+                    tuple(sorted(comparable(v) for v in b.major.values)),
+                    b.scope,
+                    tuple(sorted(b.graduation_years or [])),
+                    b.status,
+                    b.unresolved,
+                )
+                for b in self.branches
+            ]
+            if len(set(identities)) != len(identities):
+                raise ValueError(
+                    "any_of 的教育分支必须有不同的资格谓词，不能重复同一条件"
+                )
         return self
 
 
@@ -280,10 +348,20 @@ def validate_condition_grounding(
             for v in major.values
         ):
             raise ValueError("专业名称必须有同分支原文支持")
-        if major.mode == "related" and not any(
-            t in comparable(major.source_text or "") for t in ("相关", "related")
+        major_quote = comparable(major.source_text or "")
+        listed_open_majors = len(major.values) >= 2 and "等专业" in major_quote
+        if major.mode == "related" and not (
+            listed_open_majors or any(t in major_quote for t in ("相关", "related"))
         ):
-            raise ValueError("相关专业需要原文依据")
+            raise ValueError(
+                "相关专业需要原文依据；等理工科等无法表达的开放范围请用 unknown/unresolved"
+            )
+        if major.mode == "exact" and any(
+            t in comparable(major.source_text or "") for t in ("等", "相关", "related")
+        ):
+            raise ValueError(
+                "开放专业范围不能收窄为 exact；请用 related 或 unknown/unresolved"
+            )
         if major.mode == "not_specified" and any(
             t in branch.source_text for t in ("专业", "学科")
         ):
@@ -293,16 +371,47 @@ def validate_condition_grounding(
             or any(
                 year < 1900
                 or year > 2200
-                or str(year) not in branch.graduation_source_text
+                or year not in quoted_cohort_years(branch.graduation_source_text)
                 for year in branch.graduation_years
             )
         ):
             raise ValueError("分支毕业年份需要同分支原文依据；复杂区间请标 unresolved")
-        if branch.status != "any" and branch.status != "unknown":
-            markers = (
-                ("毕业", "学位", "graduated")
-                if branch.status == "graduated"
-                else ("在读", "在校", "enrolled")
+        if branch.graduation_years and re.search(
+            r"以后|之后|之前|以前|及以后|及之后|至|到|[-~～]|[月日]",
+            branch.graduation_source_text or "",
+        ):
+            raise ValueError(
+                "毕业年份区间不能变成单年列表；请保留原文并使用 null + unresolved"
             )
-            if not any(t in comparable(branch.source_text) for t in markers):
-                raise ValueError("毕业或在读限制需要原文依据")
+        if branch.status != "any" and branch.status != "unknown":
+            text = comparable(branch.source_text)
+            if branch.status == "graduated":
+                supported = bool(
+                    re.search(
+                        r"已(?:经)?(?:毕业|获|取得)|毕业于|graduated|degreeawarded",
+                        text,
+                    )
+                )
+                supported = supported and not any(
+                    t in text
+                    for t in (
+                        "未毕业",
+                        "尚未",
+                        "预计",
+                        "预期",
+                        "expected",
+                        "notgraduated",
+                    )
+                )
+            else:
+                supported = any(t in text for t in ("在读", "在校", "就读", "enrolled"))
+                supported = supported and not any(
+                    t in text for t in ("非在读", "不在读", "非在校", "notenrolled")
+                )
+            supported = (
+                supported or _english_status_evidence(branch.source_text, branch.status)
+            ) and not _english_status_denied(branch.source_text, branch.status)
+            if not supported:
+                raise ValueError(
+                    "当前毕业或在读状态需要明确原文；2027届获得学历不是当前已毕业，未明确时 status=any"
+                )

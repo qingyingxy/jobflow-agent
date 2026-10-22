@@ -123,7 +123,7 @@ def test_ai_application_and_campus_title_are_not_rejected():
     match = classify_discovery_job(job, query="2027校招 AI应用开发 Agent开发 RAG开发 Python后端 上海 杭州")
     assert match.filter_status == "pending"
     assert "graduation_year" in match.mismatch_reasons
-    assert "role" not in match.mismatch_reasons
+    assert "role" in match.mismatch_reasons  # Title/requirements do not establish duties.
 
 
 @pytest.mark.asyncio

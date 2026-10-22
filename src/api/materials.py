@@ -13,6 +13,7 @@ from src.api.materials_schemas import (
     CandidatePrivateProfileRead,
     CandidatePrivateProfileUpdate,
     ResumeAssetRead,
+    ResumeParseConfirmation,
     ResumeVersionCreate,
     ResumeVersionRead,
     ResumeVersionUpdate,
@@ -33,38 +34,10 @@ from src.services.candidate_material_service import (
 from src.services.resume_ingestion_service import (
     ResumeEvidenceExtractor,
     ResumeIngestionError,
-    ResumeIngestionService,
-    is_current_resume_asset,
 )
+from src.services.resume_privacy import ResumePrivacyService
 
 router = APIRouter(prefix="/api", tags=["candidate-materials"])
-
-
-async def _ingest_resume_evidence(
-    *,
-    session: DatabaseSession,
-    user_id: str,
-    asset_id: str,
-    media_type: str,
-    content: bytes,
-) -> None:
-    if is_current_resume_asset(
-        session,
-        user_id=user_id,
-        asset_id=asset_id,
-    ):
-        return
-    settings = get_settings()
-    extractor = ResumeEvidenceExtractor(
-        create_structured_model_client(settings),
-        validation_retries=settings.parser_validation_retries,
-    )
-    await ResumeIngestionService(session, extractor).ingest(
-        user_id=user_id,
-        asset_id=asset_id,
-        media_type=media_type,
-        content=content,
-    )
 
 
 def _raise_resume_ingestion_error(exception: Exception) -> None:
@@ -208,13 +181,6 @@ async def upload_resume_asset(
             media_type=file.content_type or "",
             content=content,
         )
-        await _ingest_resume_evidence(
-            session=session,
-            user_id=user_id,
-            asset_id=asset.id,
-            media_type=asset.media_type,
-            content=content,
-        )
     except Exception as exception:
         if asset is not None:
             service.discard_unversioned_resume_asset(
@@ -235,6 +201,34 @@ def list_resume_assets(
         ResumeAssetRead.model_validate(asset)
         for asset in CandidateMaterialService(session).list_resume_assets(user_id)
     ]
+
+
+@router.get("/resumes/assets/{asset_id}/preview")
+def preview_resume(asset_id: str, user_id: CurrentUserId, session: DatabaseSession):
+    from fastapi.responses import JSONResponse
+
+    try:
+        _, preview = ResumePrivacyService(session, CandidateMaterialService(session)).preview(user_id, asset_id)
+    except (ResumeIngestionError, ModelClientError, CandidateMaterialNotFoundError, CandidateMaterialValidationError) as error:
+        _raise_resume_ingestion_error(error)
+    settings = get_settings()
+    preview["model"] = settings.llm_model if settings.structured_model_provider != "fake" else "本地演示模型"
+    return JSONResponse(preview, headers={"Cache-Control": "no-store"})
+
+
+@router.post("/resumes/assets/{asset_id}/parse")
+async def parse_resume(
+    asset_id: str, payload: ResumeParseConfirmation,
+    user_id: CurrentUserId, session: DatabaseSession,
+):
+    try:
+        settings = get_settings()
+        extractor = ResumeEvidenceExtractor(
+            create_structured_model_client(settings), validation_retries=settings.parser_validation_retries,
+        )
+        return await ResumePrivacyService(session, CandidateMaterialService(session)).parse(user_id, asset_id, payload, extractor)
+    except (ResumeIngestionError, ModelClientError, CandidateMaterialNotFoundError, CandidateMaterialValidationError) as error:
+        _raise_resume_ingestion_error(error)
 
 
 @router.get("/resumes/assets/{asset_id}/download", response_class=FileResponse)
@@ -270,17 +264,7 @@ async def create_resume_version(
     try:
         should_activate = payload.is_default or not service.list_resume_versions(user_id)
         if should_activate:
-            asset, path = service.get_resume_download(
-                user_id=user_id,
-                asset_id=payload.asset_id,
-            )
-            await _ingest_resume_evidence(
-                session=session,
-                user_id=user_id,
-                asset_id=asset.id,
-                media_type=asset.media_type,
-                content=path.read_bytes(),
-            )
+            ResumePrivacyService(session, CandidateMaterialService(session)).activate_cached(user_id, payload.asset_id)
         version = service.create_resume_version(
             user_id=user_id,
             **payload.model_dump(),
@@ -320,17 +304,7 @@ async def update_resume_version(
                 user_id=user_id,
                 version_id=version_id,
             )
-            asset, path = service.get_resume_download(
-                user_id=user_id,
-                asset_id=current.asset_id,
-            )
-            await _ingest_resume_evidence(
-                session=session,
-                user_id=user_id,
-                asset_id=asset.id,
-                media_type=asset.media_type,
-                content=path.read_bytes(),
-            )
+            ResumePrivacyService(session, CandidateMaterialService(session)).activate_cached(user_id, current.asset_id)
         version = service.update_resume_version(
             user_id=user_id,
             version_id=version_id,

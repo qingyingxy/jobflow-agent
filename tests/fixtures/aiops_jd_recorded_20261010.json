@@ -1,0 +1,202 @@
+{
+  "source": "Public AIOps JD and the first two archived model outputs, without the failed repair.",
+  "document": {
+    "raw_content": "2027届校园招聘\n公司名称：字节跳动\n官方职位 ID：7664640744187398405\n工作地点：北京、上海\n招聘类型：校园招聘\n\n岗位名称：AIOps研发工程师（AI Agent方向） - 音视频技术\n岗位职责：\n团队介绍：视频与边缘部门承载了字节跳动的媒体内容分发基建及技术中台，支持了字节跳动全系产品，如抖音、今日头条、番茄小说、西瓜视频等APP的点播、直播、实时通信、图片等多媒体业务发展，同时将业务发展过程中沉淀下来的技术能力和工具，通过火山引擎对外输出，面向各行各业用户提供视频云产品和服务，愿景是为内外部业务伙伴提供最低成本、最优画质、最低延时、最安全可靠的富媒体内容分发解决方案，助力业务伙伴降本提效实现持续增长。\n1、参与视频与边缘全球业务智能运维体系的构建，负责AI Agent与基础平台能力的系统设计与开发；\n2、基于大模型（LLM）构建生产级智能Agent，通过Prompt Engineering、RAG、MCP、Skill、多Agent编排、工具调用等技术，实现智能化故障诊断、根因分析、自动化修复、智能客服等能力；\n3、探索AI Coding与AIOps前沿方向，快速原型验证新想法，落地音视频与CDN业务领先的智能流量管理与智能平台建设；参与百万级机器管理、百万级高并发能力构建，保证高代码质量与系统可靠性。\n任职要求：\n1、2027届获得硕士及以上学位，计算机、通信或相关专业优先；\n2、理解数据结构、算法、操作系统、网络等计算机基础知识，对SRE领域理解深入者优先；\n3、对AI Agent有强烈的兴趣与动手能力，理解LLM的能力与边界，用过或亲手搭过基于大模型的应用/Agent（RAG、工具调用、多步任务编排等）；\n4、有旺盛的好奇心和进取心，持续关注AI Coding、AIOps行业和技术动态，热爱研发创造性工作，做事高标准。\n加分项：\n1、有AI Agent/LLM应用的实际项目、开源贡献或竞赛经历；\n2、熟悉音视频、CDN、分布式系统或运维（SRE/AIOps）；有高并发、系统的设计或实践经验。",
+    "source_url": "https://jobs.bytedance.com/campus/position/7664640744187398405/detail",
+    "source_metadata": {
+      "title": "AIOps研发工程师（AI Agent方向） - 音视频技术"
+    }
+  },
+  "outputs": [
+    {
+      "facts": {
+        "job_type": {
+          "value": "campus",
+          "source_text": "招聘类型：校园招聘"
+        },
+        "locations": {
+          "values": [
+            "北京",
+            "上海"
+          ],
+          "source_text": "工作地点：北京、上海"
+        },
+        "graduation_years": null,
+        "education_requirements": null,
+        "major_requirements": null,
+        "deadline": null
+      },
+      "requirements": [
+        {
+          "source_text": "2027届获得硕士及以上学位",
+          "level": "required"
+        },
+        {
+          "source_text": "计算机、通信或相关专业优先",
+          "level": "preferred"
+        },
+        {
+          "source_text": "理解数据结构、算法、操作系统、网络等计算机基础知识",
+          "level": "required"
+        },
+        {
+          "source_text": "对SRE领域理解深入者优先",
+          "level": "preferred"
+        },
+        {
+          "source_text": "理解LLM的能力与边界，用过或亲手搭过基于大模型的应用/Agent（RAG、工具调用、多步任务编排等）",
+          "level": "required"
+        },
+        {
+          "source_text": "有AI Agent/LLM应用的实际项目、开源贡献或竞赛经历",
+          "level": "preferred"
+        },
+        {
+          "source_text": "熟悉音视频、CDN、分布式系统或运维（SRE/AIOps）",
+          "level": "preferred"
+        },
+        {
+          "source_text": "有高并发、系统的设计或实践经验",
+          "level": "preferred"
+        }
+      ],
+      "responsibilities": [
+        "1、参与视频与边缘全球业务智能运维体系的构建，负责AI Agent与基础平台能力的系统设计与开发；",
+        "2、基于大模型（LLM）构建生产级智能Agent，通过Prompt Engineering、RAG、MCP、Skill、多Agent编排、工具调用等技术，实现智能化故障诊断、根因分析、自动化修复、智能客服等能力；",
+        "3、探索AI Coding与AIOps前沿方向，快速原型验证新想法，落地音视频与CDN业务领先的智能流量管理与智能平台建设；参与百万级机器管理、百万级高并发能力构建，保证高代码质量与系统可靠性。"
+      ]
+    },
+    {
+      "decisions": [
+        {
+          "requirement_index": 0,
+          "relation": "all_of",
+          "items": [
+            "2027届获得硕士及以上学位"
+          ],
+          "reason": "该条件要求同一申请学历满足2027届及硕士及以上学位，未提供可替代的学历路径。",
+          "education": {
+            "relation": "all_of",
+            "branches": [
+              {
+                "source_text": "2027届获得硕士及以上学位",
+                "degree": {
+                  "operator": "gte",
+                  "level": "master",
+                  "source_text": "硕士及以上学位"
+                },
+                "major": {
+                  "mode": "not_specified",
+                  "values": [],
+                  "source_text": null
+                },
+                "scope": "application",
+                "scope_source_text": "2027届获得硕士及以上学位",
+                "graduation_years": [
+                  2027
+                ],
+                "graduation_source_text": "2027届",
+                "status": "any",
+                "unresolved": false
+              }
+            ]
+          }
+        },
+        {
+          "requirement_index": 1,
+          "relation": "all_of",
+          "items": [
+            "计算机、通信或相关专业优先"
+          ],
+          "reason": "该表述是对相关专业背景的宽泛优先要求，未明确规定计算机与通信为可独立替代的资格分支。",
+          "education": {
+            "relation": "all_of",
+            "branches": [
+              {
+                "source_text": "计算机、通信或相关专业优先",
+                "degree": {
+                  "operator": "not_specified",
+                  "level": "unknown",
+                  "source_text": null
+                },
+                "major": {
+                  "mode": "related",
+                  "values": [
+                    "计算机",
+                    "通信"
+                  ],
+                  "source_text": "计算机、通信或相关专业"
+                },
+                "scope": "unknown",
+                "scope_source_text": null,
+                "graduation_years": null,
+                "graduation_source_text": null,
+                "status": "any",
+                "unresolved": false
+              }
+            ]
+          }
+        },
+        {
+          "requirement_index": 2,
+          "relation": "all_of",
+          "items": [
+            "理解数据结构、算法、操作系统、网络等计算机基础知识"
+          ],
+          "reason": "该条件描述对计算机基础知识的整体理解，未明确任一方向即可满足。",
+          "education": null
+        },
+        {
+          "requirement_index": 3,
+          "relation": "all_of",
+          "items": [
+            "对SRE领域理解深入者优先"
+          ],
+          "reason": "这是单一的SRE领域理解条件。",
+          "education": null
+        },
+        {
+          "requirement_index": 4,
+          "relation": "all_of",
+          "items": [
+            "理解LLM的能力与边界，用过或亲手搭过基于大模型的应用/Agent（RAG、工具调用、多步任务编排等）"
+          ],
+          "reason": "该条件共同要求理解LLM能力边界及相关应用或Agent使用、搭建经历，括号内容为示例而非明确备选资格。",
+          "education": null
+        },
+        {
+          "requirement_index": 5,
+          "relation": "any_of",
+          "items": [
+            "实际项目",
+            "开源贡献",
+            "竞赛经历"
+          ],
+          "reason": "“实际项目、开源贡献或竞赛经历”明确表示三类经历任一即可作为加分项。",
+          "education": null
+        },
+        {
+          "requirement_index": 6,
+          "relation": "any_of",
+          "items": [
+            "音视频",
+            "CDN",
+            "分布式系统",
+            "运维（SRE/AIOps）"
+          ],
+          "reason": "“音视频、CDN、分布式系统或运维”明确列出可替代的熟悉领域。",
+          "education": null
+        },
+        {
+          "requirement_index": 7,
+          "relation": "all_of",
+          "items": [
+            "有高并发、系统的设计或实践经验"
+          ],
+          "reason": "“设计或实践”描述同一高并发系统经验的方式，不构成可独立替代的资格分支。",
+          "education": null
+        }
+      ]
+    }
+  ]
+}

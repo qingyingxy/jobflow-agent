@@ -18,6 +18,10 @@ def create_product_parser(client, settings):
         ),
         parser_version=settings.product_parser_version,
         validation_retries=settings.parser_validation_retries,
+        transport_retries=settings.product_parse_transport_retries,
+        retry_backoff_seconds=settings.product_parse_retry_backoff_seconds,
+        run_timeout_seconds=settings.product_parse_run_timeout_seconds,
+        max_model_calls=settings.product_parse_max_model_calls,
     )
 
 

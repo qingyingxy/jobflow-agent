@@ -1,0 +1,93 @@
+{
+  "freeze_version": "unified-jd-structured-span-v8-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05T05:32:40.883643+00:00",
+  "status": "frozen_before_v8_implementation",
+  "artifacts": {
+    "classification": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v7-frozen-raw-failure-classification-v1-2026-09-05.json",
+      "sha256": "8d31f2f4db87f41c6739351815c2f056b5c9da7f96973ca6d122103a33cae073"
+    },
+    "classification_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v7-frozen-raw-failure-classification-findings-v1-2026-09-05.md",
+      "sha256": "330943e5e910820d63ff0607d7e3df88df39e3354e2508425842f72d907189dc"
+    },
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v8_preregistration_v1_2026-09-05.json",
+      "sha256": "760b3562650c7dd8283903235b2c51b97ce98cda634dc0680ca70398b0e591f4"
+    },
+    "preregistration_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-preregistration-findings-v1-2026-09-05.md",
+      "sha256": "c192030b23df505b66c0318a7dbfede2f9466093605f4a943258af277d095890"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v8_preregistration.py",
+      "sha256": "104e61d96761bf065efc6c376577cbc6469a2e136cf78ab5d2befe2b815391e3"
+    }
+  },
+  "frozen_inputs": {
+    "raw": {
+      "unified-jd-structured-span-v7-mechanism-development-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v7-mechanism-development-raw-v1-2026-09-05.json",
+        "sha256": "c0be0b0af7a85a0b91b0161a2da37283adbf27cad1c36abecab3902d7a9c9145"
+      },
+      "unified-jd-structured-span-v7-regression-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v7-regression-raw-v1-2026-09-05.json",
+        "sha256": "f324985a9bdc3430181fae5a0e90ba4283f0b1c7d655910bcee48879d56c7377"
+      },
+      "unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+        "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+      },
+      "unified-jd-structured-span-v6-regression-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+        "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+      },
+      "unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05.json",
+        "sha256": "496310332f5abbb4cf8a242be7d07c59262e144632fdc261734897d3bcdaf781"
+      }
+    },
+    "contracts_and_sources": {
+      "unified_jd_structured_span_v7_preregistration_v1_2026-09-05": {
+        "path": "datasets/unified_jd_structured_span_v7_preregistration_v1_2026-09-05.json",
+        "sha256": "8e6fd8abfc67814de11bc6c7d1d4369b942b36c705283a4fcd6c0fc80c5c7afe"
+      },
+      "unified_jd_structured_span_v7_source_freeze_v1_2026-09-05": {
+        "path": "datasets/unified_jd_structured_span_v7_source_freeze_v1_2026-09-05.json",
+        "sha256": "656cbb81c03c83fc42632d88da08ca3f72c04651a27edf93a330dd8dc6d7d639"
+      },
+      "unified_jd_structured_spans_v4": {
+        "path": "src/domain/unified_jd_structured_spans_v4.py",
+        "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+      },
+      "unified_jd_structured_spans_v5": {
+        "path": "src/domain/unified_jd_structured_spans_v5.py",
+        "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+      },
+      "unified_jd_structured_spans_v6": {
+        "path": "src/domain/unified_jd_structured_spans_v6.py",
+        "sha256": "960d0d49f1c0b6b9fece8645ca5edc0a5874cf9ffb250e2f6c780cfcde11ccfd"
+      },
+      "unified_jd_structured_spans_v7": {
+        "path": "src/domain/unified_jd_structured_spans_v7.py",
+        "sha256": "4fa68d538c7494df3247d439bb499b4da314b1e83335e12f26c18e5357eb696a"
+      }
+    }
+  },
+  "checks": {
+    "v8_existed_at_freeze": false,
+    "classification_used_frozen_raw_only": true,
+    "v7_imported_or_executed": false,
+    "v7_modified_or_rerun": false,
+    "E6_implementation_exception_count": 1,
+    "supported_v5_restoration_under_recall_count": 12,
+    "control_supported_v5_false_activation_count": 15,
+    "all_22_controls_required_v6_identical": true,
+    "old_gate_or_threshold_weakened": false,
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "canonicalizer_allowed": false
+  },
+  "immutability": "Any change to a typed-span rule, component edge, activation witness, compatibility veto, conflict precedence, gate, threshold, or frozen input requires a new preregistration before implementation or execution.",
+  "next_allowed_action": "Implement only the frozen v8 mechanism and synthetic tests, freeze source and evaluator, then execute development and regression gates exactly once."
+}

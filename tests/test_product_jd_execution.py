@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 from copy import deepcopy
 from datetime import UTC, datetime
 
@@ -21,9 +22,17 @@ from src.domain.eligibility import (
 from src.domain.graduation import classify_graduation_condition
 from src.domain.job import JobPosting, RawJobDocument
 from src.domain.runs import AgentRun, JobParseResult
-from src.infrastructure.llm_client import FakeModelClient, ModelTimeoutError
+from src.infrastructure.llm_client import (
+    FakeModelClient,
+    ModelResponseError,
+    ModelTimeoutError,
+    ModelUnavailableError,
+    OpenAICompatibleModelClient,
+)
 from src.main import app
+from src.services.analysis_runtime import create_product_parser
 from src.services.eligibility_checker import check_eligibility
+from src.services.jd_parser import JDParserError
 from src.services.job_parse_service import JDParseFailure, JobParseService
 from src.services.product_jd_execution import ProductJDExecutionParser
 
@@ -113,6 +122,205 @@ def outputs(mode):
         if mode == "two_stage"
         else [{"extraction": EXTRACTION, "relations": RELATIONS}]
     )
+
+
+def repair_payload():
+    decision = deepcopy(RELATIONS["decisions"][0])
+    decision.pop("requirement_index")
+    return {
+        "repaired_requirements": [
+            {
+                "requirement_index": 0,
+                "requirement": {**EXTRACTION["requirements"][0], **decision},
+            }
+        ]
+    }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", [408, 429, 500, 502, 503, 524])
+async def test_transport_recovery_counts_real_http_calls_without_nested_retries(status):
+    requests = []
+
+    def handler(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        assert "transport_retries" not in payload
+        if len(requests) == 1:
+            return httpx.Response(status, text="temporary failure")
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {"message": {"content": json.dumps(outputs("single_call")[0])}}
+                ],
+            },
+        )
+
+    client = OpenAICompatibleModelClient(
+        base_url="https://model.example/v1",
+        api_key="test",
+        model="test",
+        max_retries=3,
+        retry_backoff_seconds=0,
+        transport=httpx.MockTransport(handler),
+    )
+    parser = create_product_parser(
+        client,
+        Settings(
+            product_parse_mode="single_call",
+            product_parse_retry_backoff_seconds=0,
+        ),
+    )
+    parsed = await parser.parse(RawJobDocument(raw_content=RAW))
+    assert len(requests) == parsed.diagnostics["model_call_count"] == 2
+    failed, passed = parsed.diagnostics["attempts"]
+    assert failed["status_code"] == status
+    assert failed["retry_scheduled"] is True
+    assert passed["transport_attempt"] == 2
+    assert passed["attempt"] == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", [400, 401, 403, 501, 505, None])
+async def test_permanent_or_invalid_json_failure_is_not_transport_retried(status):
+    error = ModelResponseError("invalid", {"status_code": status})
+    client = ScriptedClient([error, outputs("single_call")[0]])
+    parser = ProductJDExecutionParser(
+        client,
+        mode="single_call",
+        transport_retries=1,
+        retry_backoff_seconds=0,
+    )
+    with pytest.raises(JDParserError) as caught:
+        await parser.parse(RawJobDocument(raw_content=RAW))
+    assert len(client.requests) == caught.value.details["model_call_count"] == 1
+    assert caught.value.details["recovery_skipped"] == "non_retryable"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "error", [ModelTimeoutError("timeout"), ModelUnavailableError("connect")]
+)
+async def test_network_recovery_does_not_consume_validation_repair(error):
+    combined = outputs("single_call")[0]
+    invalid = {"extraction": EXTRACTION, "relations": {"decisions": []}}
+    client = ScriptedClient(
+        [
+            error,
+            invalid,
+            ModelResponseError("gateway", {"status_code": 502}),
+            combined,
+        ]
+    )
+    parsed = await ProductJDExecutionParser(
+        client,
+        mode="single_call",
+        transport_retries=1,
+        retry_backoff_seconds=0,
+    ).parse(RawJobDocument(raw_content=RAW))
+    assert parsed.diagnostics["model_call_count"] == 4
+    attempts = parsed.diagnostics["attempts"]
+    assert [a["attempt"] for a in attempts] == [1, 1, 2, 2]
+    assert [a["status"] for a in attempts] == [
+        "model_error",
+        "validation_failed",
+        "model_error",
+        "passed",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_relation_retry_exhaustion_keeps_checkpoint_for_new_service(db_session):
+    job = posting(db_session)
+    errors = [ModelResponseError("gateway", {"status_code": 524}) for _ in range(2)]
+    client = ScriptedClient([EXTRACTION, *errors])
+    parser = ProductJDExecutionParser(
+        client, transport_retries=1, retry_backoff_seconds=0
+    )
+    with pytest.raises(JDParseFailure) as caught:
+        await JobParseService(db_session, parser).parse(user_id="a", job_id=job.id)
+    assert caught.value.details["model_call_count"] == 3
+    assert caught.value.details["status_code"] == 524
+    assert db_session.scalar(select(JobParseResult)) is None
+    with Session(db_session.bind) as session:
+        resumed = ScriptedClient([RELATIONS])
+        result = await JobParseService(
+            session,
+            ProductJDExecutionParser(
+                resumed,
+                transport_retries=1,
+                retry_backoff_seconds=0,
+            ),
+        ).parse(user_id="a", job_id=job.id)
+        assert len(resumed.requests) == 1
+        assert result.agent_run.validation_result["execution"]["resumed_extraction"]
+
+
+@pytest.mark.asyncio
+async def test_total_parse_deadline_stops_relation_and_preserves_checkpoint(db_session):
+    class SlowRelationClient(ScriptedClient):
+        async def generate(self, request):
+            if request.schema_name == "product_requirement_relations":
+                self.requests.append(request)
+                await asyncio.sleep(1)
+                raise AssertionError("request must be cancelled")
+            return await super().generate(request)
+
+    job = posting(db_session)
+    client = SlowRelationClient([EXTRACTION])
+    with pytest.raises(JDParseFailure) as caught:
+        await JobParseService(
+            db_session,
+            ProductJDExecutionParser(
+                client,
+                transport_retries=1,
+                run_timeout_seconds=0.1,
+            ),
+        ).parse(user_id="a", job_id=job.id)
+    assert caught.value.code == "model_timeout"
+    assert caught.value.details["timeout_scope"] == "parse_run"
+    assert caught.value.details["model_call_count"] == 2
+    assert db_session.scalar(select(AgentRun)).validation_result["checkpoint"]
+    assert db_session.scalar(select(JobParseResult)) is None
+
+
+@pytest.mark.asyncio
+async def test_call_budget_limits_retries_and_new_stages():
+    client = ScriptedClient([EXTRACTION, RELATIONS])
+    with pytest.raises(JDParserError) as caught:
+        await ProductJDExecutionParser(client, max_model_calls=1).parse(
+            RawJobDocument(raw_content=RAW)
+        )
+    assert caught.value.code == "model_call_budget_exhausted"
+    assert len(client.requests) == caught.value.details["model_call_count"] == 1
+
+    client = ScriptedClient([ModelTimeoutError("timeout"), outputs("single_call")[0]])
+    with pytest.raises(JDParserError) as caught:
+        await ProductJDExecutionParser(
+            client,
+            mode="single_call",
+            max_model_calls=1,
+            transport_retries=1,
+            retry_backoff_seconds=0,
+        ).parse(RawJobDocument(raw_content=RAW))
+    assert caught.value.details["recovery_skipped"] == "call_budget"
+    assert len(client.requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_retry_backoff_must_fit_remaining_total_time():
+    client = ScriptedClient([ModelUnavailableError("connect")])
+    with pytest.raises(JDParserError) as caught:
+        await ProductJDExecutionParser(
+            client,
+            mode="single_call",
+            transport_retries=1,
+            retry_backoff_seconds=1,
+            run_timeout_seconds=0.1,
+        ).parse(RawJobDocument(raw_content=RAW))
+    assert caught.value.details["recovery_skipped"] == "time_budget"
+    assert len(client.requests) == 1
 
 
 @pytest.mark.asyncio
@@ -285,7 +493,9 @@ async def test_single_call_repairs_invalid_output_with_full_validation(bad_field
         decision["requirement_index"] = 3
     else:
         bad["extraction"]["requirements"][0]["source_text"] = "正文没有的条件"
-    client = ScriptedClient([bad, good])
+    client = ScriptedClient(
+        [bad, repair_payload() if bad_field in {"education", "scope"} else good]
+    )
     parsed = await ProductJDExecutionParser(client, mode="single_call").parse(
         RawJobDocument(raw_content=RAW)
     )
@@ -367,7 +577,7 @@ async def test_api_uses_selected_single_call_mode(db_session, monkeypatch):
         )
     assert response.status_code == 200, response.text
     assert response.json()["parser_version"].endswith("-single-call")
-    assert [r.schema_name for r in client.requests] == ["product_job_combined"]
+    assert [r.schema_name for r in client.requests] == ["product_job_inline"]
     assert '"EducationCondition"' in client.requests[0].messages[0].content
 
 

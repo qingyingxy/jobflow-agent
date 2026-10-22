@@ -1,4 +1,5 @@
 "use client";
+import { parseApiTimestamp } from "./api-time";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -195,7 +196,7 @@ function formatTime(value: string | null | undefined): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value));
+  }).format(parseApiTimestamp(value));
 }
 
 export default function PacketWorkspace({ apiUrl, userId }: { apiUrl: string; userId: string }) {

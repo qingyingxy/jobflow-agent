@@ -16,7 +16,10 @@ from src.domain.discovery import (
     DiscoverySearchPlan,
     generate_discovery_run_id,
 )
-from src.services.discovery_matching import classify_discovery_job
+from src.services.discovery_matching import (
+    apply_posting_availability,
+    classify_discovery_job,
+)
 from src.services.discovery_sources import JobSourceAdapter, JobStub
 from src.services.job_lead_service import JobLeadService
 from src.services.lead_providers import OfficialAdapterLeadProvider
@@ -74,6 +77,11 @@ class DiscoveryService:
         source_id: str | None = None,
         source_url: str | None = None,
         search_plan: DiscoverySearchPlan | None = None,
+        search_goal_id: str | None = None,
+        search_goal_version: int | None = None,
+        goal_conditions: dict | None = None,
+        library_baseline: dict | None = None,
+        continued_company_id: str | None = None,
     ) -> DiscoveryRun:
         if search_plan is None:
             if self.adapter is None:
@@ -93,6 +101,11 @@ class DiscoveryService:
             source=resolved_source_id,
             source_url=resolved_source_url,
             search_query=search_query,
+            search_goal_id=search_goal_id,
+            search_goal_version=search_goal_version,
+            goal_conditions=goal_conditions,
+            library_baseline=library_baseline,
+            continued_company_id=continued_company_id,
             max_results=max_results,
             status=DiscoveryRunStatus.RUNNING.value,
             search_plan=search_plan.model_dump(mode="json"),
@@ -153,7 +166,8 @@ class DiscoveryService:
                 job_id = verified.posting.id
                 self.processed_job_ids.append(job_id)
                 role_review = await role_reviewer.review(stub, query=run.search_query, session=self.session, user_id=user_id, lead_id=lead.id)
-                match = classify_discovery_job(stub, query=run.search_query, role_review=role_review)
+                match = classify_discovery_job(stub, query=run.search_query, role_review=role_review, conditions=run.goal_conditions)
+                match = apply_posting_availability(match, verified.posting)
                 result_matches.append(match.as_dict(job_posting_id=job_id))
                 if match.match_tier == "strict":
                     self.analysis_job_ids.append(job_id)
@@ -239,13 +253,14 @@ class DiscoveryService:
             analysis_job_posting_ids=list(self.analysis_job_ids),
         )
 
-    def list_runs(self, *, user_id: str) -> list[DiscoveryRun]:
+    def list_runs(self, *, user_id: str, limit: int | None = None, offset: int = 0) -> list[DiscoveryRun]:
         self.recover_stale_runs(user_id=user_id)
         return list(
             self.session.scalars(
                 select(DiscoveryRun)
                 .where(DiscoveryRun.user_id == user_id)
                 .order_by(DiscoveryRun.created_at.desc(), DiscoveryRun.id.desc())
+                .offset(offset).limit(limit)
             ).all()
         )
 

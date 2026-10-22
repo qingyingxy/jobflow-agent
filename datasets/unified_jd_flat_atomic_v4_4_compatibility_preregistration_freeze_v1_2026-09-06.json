@@ -1,0 +1,100 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.4-compatibility-preregistration-freeze-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_v4_4_implementation_and_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_compatibility_preregistration_v1_2026-09-06.json",
+      "sha256": "51289285026f2cbebca8e5b012a920bc7f4a7d1f39378ceda7cebef56b0267a7"
+    },
+    "preregistration_builder": {
+      "path": "scripts/preregister_unified_jd_flat_atomic_v4_4_compatibility.py",
+      "sha256": "4a3710a4bb59096613818be58235a99d43dc551cac25955583ae86370b8cf2b0"
+    }
+  },
+  "frozen_inputs": {
+    "frozen_v4_3_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+      "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+    },
+    "frozen_v4_3_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "955922d4576d4782359f9d4dcbd73f00fc1b611edba6149232cde647dc9d9609"
+    },
+    "frozen_v4_3_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-compatibility-report-v1-2026-09-06.json",
+      "sha256": "fa9d1a51e57dde4e3d811ee2d2dece16ec368122ef2582547397985fe87e1cdb"
+    },
+    "revealed_independent_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.json",
+      "sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+    },
+    "revealed_independent_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "revealed_independent_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-report-v1-2026-09-06.json",
+      "sha256": "7ad3e538dc318eebb88263bc9a763e3e9e33db9a4f6bd4c42f22c89b34062d95"
+    },
+    "revealed_independent_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "4c37610bd648a4db6f9956087297260365dfe9bc3ac6d6085395c7d952ae6b01"
+    },
+    "category_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "0e4dec9018463d255224044517b4e6ff0c48c06bb28984a4559688340df81d90"
+    },
+    "category_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "1e00d4ed7a3533be2e3faada998074d0b5bad71701aef424e5877b676f24ce5d"
+    },
+    "category_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-category-vocabulary-admission-oracle-report-v1-2026-09-06.json",
+      "sha256": "63ab68a30ddb29bca180805b6ef158ecc33bc111e06e8f977c62d142690925ae"
+    },
+    "zero_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_zero_lower_bound_qualifier_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "799bb850a726d1e1645b7d542bbce95acbdb7722695dd12d95ac26c5b73f969a"
+    },
+    "zero_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_zero_lower_bound_qualifier_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "47b14243c999274c3102e761fd06c2de4307d8cdc5b5a2d7f265ef1ed58e2fb1"
+    },
+    "zero_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-zero-lower-bound-qualifier-oracle-report-v1-2026-09-06.json",
+      "sha256": "2c606baac096fc6cebfb5d66e8d651c5e76ae9217ef5dadaa968c99b6fbc87a1"
+    },
+    "legacy_dev20_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "legacy_live_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-raw-responses-v1-2026-09-06.json",
+      "sha256": "81075fd2edaae3a2aa7fca3f13147e5cdeea0d5ae66cfc0ca62850a6f32b1e6b"
+    },
+    "legacy_live_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "legacy_external_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "legacy_external_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "human_category_reference": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_labels_v1_2026-09-04.json",
+      "sha256": "64823eb502b5219254a0376808a234e056b2964fe85cd00c30d898b821a79b54"
+    }
+  },
+  "runtime_contract_frozen": true,
+  "controls_and_thresholds_frozen": true,
+  "formal_execution_count_at_freeze": 0,
+  "new_model_call_count_at_freeze": 0,
+  "network_call_count_at_freeze": 0,
+  "v4_3_modification_allowed": false,
+  "immutability": "Any input, mapping, activation predicate, order, control, threshold, or decision change requires a new preregistration version."
+}

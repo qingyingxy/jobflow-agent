@@ -1,0 +1,46 @@
+{
+  "freeze_version": "unified-jd-structured-span-v6-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05T01:59:26.323090+00:00",
+  "status": "frozen_before_v6_implementation",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v6_preregistration_v1_2026-09-05.json",
+      "sha256": "c2298897d55d8859dff97f9f504ae3bf947daade353a7ea69b1c27527cbdbe99"
+    },
+    "findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-preregistration-findings-v1-2026-09-05.md",
+      "sha256": "724ed0f463caa252ae1c185d57bf729984b39945bb7aac845707e90c6cab9c90"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v6_preregistration.py",
+      "sha256": "7aebe1165e9e2ae8b0ca859423cf78eb46e0d5507dea21a73f8e2cda348125ec"
+    },
+    "classification": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-frozen-regression-classification-v1-2026-09-05.json",
+      "sha256": "e42741673adeca13bdcbadd5464297ba17bc136b1052d7be01c23ed9117f47fa"
+    },
+    "frozen_v4_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "frozen_v5_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v5.py",
+      "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+    }
+  },
+  "checks": {
+    "v6_existed_at_freeze": false,
+    "v4_modified": false,
+    "v5_modified": false,
+    "original_g0_g6_preserved": true,
+    "threshold_or_operator_weakened": false,
+    "effective_legacy_exact_threshold": "20/20",
+    "projection_exact_threshold": "60/60",
+    "classified_observations_required_resolved": "31/31",
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "canonicalizer_allowed": false
+  },
+  "immutability": "Any mechanism, trigger, veto, adjudication, gate, or threshold change requires a new preregistration and freeze version before implementation.",
+  "next_allowed_action": "Implement only the frozen region-local activation/compatibility router in src/domain/unified_jd_structured_spans_v6.py, freeze its source, then run the development and regression gates once."
+}

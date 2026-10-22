@@ -20,8 +20,9 @@ from src.services.job_url import route_fragment
 class URLReaderError(RuntimeError):
     code = "url_read_failed"
 
-    def __init__(self, message: str, *, code: str | None = None) -> None:
+    def __init__(self, message: str, *, code: str | None = None, status_code: int | None = None) -> None:
         super().__init__(message)
+        self.status_code = status_code
         if code is not None:
             self.code = code
 
@@ -169,6 +170,7 @@ class FetchedResponse:
     status_code: int
     content_type: str | None
     body: bytes
+    redirect_chain: tuple[dict, ...] = ()
 
 
 class SafeHTTPReader:
@@ -203,6 +205,7 @@ class SafeHTTPReader:
         requested_url = await self.safety_checker.validate(url)
         current_url = requested_url
         redirect_count = 0
+        redirect_chain = []
 
         client_options: dict[str, object] = {
             "transport": self.transport,
@@ -221,9 +224,11 @@ class SafeHTTPReader:
                         raise URLFetchError("服务器重定向缺少 Location")
                     if redirect_count >= self.max_redirects:
                         raise URLFetchError("重定向次数超过安全限制")
-                    current_url = await self.safety_checker.validate(
+                    target_url = await self.safety_checker.validate(
                         urljoin(current_url, location)
                     )
+                    redirect_chain.append({"url": current_url, "status": response.status_code, "target": target_url})
+                    current_url = target_url
                     redirect_count += 1
                     continue
 
@@ -235,6 +240,7 @@ class SafeHTTPReader:
                     status_code=response.status_code,
                     content_type=content_type,
                     body=body,
+                    redirect_chain=tuple(redirect_chain),
                 )
 
     async def fetch_json(self, url: str) -> tuple[FetchedResponse, Any]:
@@ -317,12 +323,14 @@ class SafeHTTPReader:
                     raise URLFetchError(
                         f"来源服务返回错误状态 {response.status_code}",
                         code="source_server_error",
+                        status_code=response.status_code,
                     )
                 continue
             if response.status_code >= 400:
                 raise URLFetchError(
                     f"来源拒绝请求，状态码为 {response.status_code}",
                     code="source_http_error",
+                    status_code=response.status_code,
                 )
             return response
         raise URLFetchError("读取来源失败")

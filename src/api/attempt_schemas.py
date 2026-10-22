@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.application_attempt import (
     AttemptStatus,
     BlockerStatus,
@@ -77,9 +78,9 @@ class ApplicationBlockerRead(BaseModel):
     next_strategy: str | None
     required_user_action: str | None
     status: BlockerStatus
-    created_at: datetime
-    updated_at: datetime
-    resolved_at: datetime | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
+    resolved_at: UtcTimestamp | None
 
 
 class SubmissionReceiptRead(BaseModel):
@@ -95,8 +96,8 @@ class SubmissionReceiptRead(BaseModel):
     is_valid: bool
     validation_codes: list[str]
     receipt_hash: str
-    captured_at: datetime
-    created_at: datetime
+    captured_at: UtcTimestamp
+    created_at: UtcTimestamp
 
 
 class ApplicationAttemptRead(BaseModel):
@@ -111,11 +112,11 @@ class ApplicationAttemptRead(BaseModel):
     checklist: list[AttemptChecklistRead]
     blockers: list[ApplicationBlockerRead]
     receipt: SubmissionReceiptRead | None
-    created_at: datetime
-    updated_at: datetime
-    form_opened_at: datetime | None
-    ready_at: datetime | None
-    submitted_at: datetime | None
-    failed_at: datetime | None
-    abandoned_at: datetime | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
+    form_opened_at: UtcTimestamp | None
+    ready_at: UtcTimestamp | None
+    submitted_at: UtcTimestamp | None
+    failed_at: UtcTimestamp | None
+    abandoned_at: UtcTimestamp | None
 

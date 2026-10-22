@@ -1,0 +1,400 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v7-preregistration-v1",
+  "created_at": "2026-09-05",
+  "status": "frozen_before_v7_implementation",
+  "scope": {
+    "task": "runtime_observable_node_family_routing_only",
+    "development_data_status": "all_selector_inputs_revealed_not_holdout",
+    "generalization_claim": false,
+    "v4_modification_allowed": false,
+    "v5_modification_allowed": false,
+    "v6_modification_allowed": false,
+    "old_gate_or_threshold_modification_allowed": false,
+    "new_parser_semantics_allowed": false,
+    "fixture_specific_runtime_rules_allowed": false,
+    "category_employer_title_or_source_specific_dispatch_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05.json",
+      "sha256": "496310332f5abbb4cf8a242be7d07c59262e144632fdc261734897d3bcdaf781"
+    },
+    "unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-report-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-report-v1-2026-09-05.json",
+      "sha256": "e07b31f2ac2ef91e680ca145fdf29dbfdab144fcd418f5a2faaf04940ee74afa"
+    },
+    "unified_jd_structured_span_v6_residual_oracles_preregistration_v1_2026-09-05": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "1c5ebe4ff6b12824a2e2ae1dc71e2618509755875c80a95b0cabda41e91a5a23"
+    },
+    "unified_jd_structured_span_v6_residual_oracles_evaluation_receipt_v1_2026-09-05": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_evaluation_receipt_v1_2026-09-05.json",
+      "sha256": "32fddf710894956873a171abbd338ce7c0068ad63367c469e4c6dd1fa9a90cd4"
+    },
+    "unified-jd-structured-span-v6-regression-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+      "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+    },
+    "unified-jd-structured-span-v6-development-regression-report-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-development-regression-report-v1-2026-09-05.json",
+      "sha256": "65a23a95a5fd812fbffbef9e8285cf70f29fa87b0fdf3ade42dec07dfeaefb5d"
+    },
+    "unified-jd-structured-span-v6-mechanism-development-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-mechanism-development-raw-v1-2026-09-05.json",
+      "sha256": "335faa4cfee4620f6ce11d81f919cb16677396e331dd489cb14ef19ee0c38a54"
+    },
+    "unified_jd_structured_span_v5_preregistration_v1_2026-09-04": {
+      "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+      "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8"
+    },
+    "unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+      "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+    },
+    "unified-jd-structured-span-v5-development-regression-report-v1-2026-09-05": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-report-v1-2026-09-05.json",
+      "sha256": "a1a82413a355de58c7e765ec3fd7799cd479657377d04854be401f9bac531d01"
+    },
+    "unified_jd_structured_span_v6_preregistration_v1_2026-09-05": {
+      "path": "datasets/unified_jd_structured_span_v6_preregistration_v1_2026-09-05.json",
+      "sha256": "c2298897d55d8859dff97f9f504ae3bf947daade353a7ea69b1c27527cbdbe99"
+    },
+    "unified_jd_structured_span_v6_source_freeze_v1_2026-09-05": {
+      "path": "datasets/unified_jd_structured_span_v6_source_freeze_v1_2026-09-05.json",
+      "sha256": "3e6a380b4ec91abc48fcd3f813bc4d83b8044b31990074b90f758e32639654e3"
+    },
+    "unified_jd_structured_spans_v4": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "unified_jd_structured_spans_v5": {
+      "path": "src/domain/unified_jd_structured_spans_v5.py",
+      "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+    },
+    "unified_jd_structured_spans_v6": {
+      "path": "src/domain/unified_jd_structured_spans_v6.py",
+      "sha256": "960d0d49f1c0b6b9fece8645ca5edc0a5874cf9ffb250e2f6c780cfcde11ccfd"
+    },
+    "runtime_signal_analysis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-runtime-signal-analysis-v1-2026-09-05.json",
+      "sha256": "e42d9ca9099796b758423750be3dc644f5b5a8b50a7506d90f62f27961692a7a"
+    }
+  },
+  "causal_basis": {
+    "supported": [
+      "E9 establishes that node-family selection is sufficient for 9/9 residual records while changing 16 inexact observable families and retaining 9 exact v6 families.",
+      "The 16 switches can be partitioned into three source-and-graph-observable conflict signatures with counts 6, 5, and 5.",
+      "The E2, E3, E6, and E7 mechanisms remain the only previously supported v5 activation mechanisms."
+    ],
+    "not_supported": [
+      "E9 is gold-directed and does not validate a deployable selector.",
+      "Projection-only E9 records do not validate hidden wrapper, member, scope, or attachment topology.",
+      "No evidence supports fixture, category, company, title, or long-source-substring dispatch.",
+      "No evidence supports changing extraction text with a canonicalizer."
+    ],
+    "known_gate_debt": {
+      "frozen_v6_v5_mechanism_exact": "2/20",
+      "unchanged_required_v5_mechanism_exact": "20/20",
+      "decision": "The 20/20 gate remains mandatory. The 2/20 v6 result is a baseline measurement, never a new threshold."
+    }
+  },
+  "v7_mechanism": {
+    "name": "runtime-observable-node-family-compatibility-router",
+    "implementation_target": "src/domain/unified_jd_structured_spans_v7.py",
+    "behavioral_baseline": "Frozen v6 is the default origin for every family. V7 may select frozen v5 only through supported-family restoration and frozen v4 only through S1, S2, or S3.",
+    "frozen_components": [
+      "src/domain/unified_jd_structured_spans_v4.py",
+      "src/domain/unified_jd_structured_spans_v5.py",
+      "src/domain/unified_jd_structured_spans_v6.py"
+    ],
+    "selection_unit": "A complete node family for one clause or the explicitly registered S3 referential-closure bundle; never an individual node chosen by expected correctness.",
+    "observable_families": [
+      "wrappers",
+      "connector_labels",
+      "coordination_members",
+      "shared_scope_edges",
+      "example_attachment_parents",
+      "example_attachment_edges",
+      "item_candidate_spans",
+      "surface_projection",
+      "example_projection"
+    ],
+    "ordered_stages": [
+      {
+        "order": 1,
+        "name": "load_frozen_parse_candidates",
+        "rule": "For identical source_text and category inputs, obtain the frozen v4, v5, and v6 graphs without changing any frozen source. Category is passed to the parsers but may not be inspected by the router."
+      },
+      {
+        "order": 2,
+        "name": "derive_source_graph_observables",
+        "rule": "Build exact-offset inventories of wrapper markers, connectors and roles, coordination members, scopes, attachment cues/parents/examples, item candidates, envelopes, partitions, and graph references. No gold, fixture metadata, normalized output string, model, or network input is available."
+      },
+      {
+        "order": 3,
+        "name": "restore_supported_v5_families",
+        "rule": "For a family where v5 and v6 differ, select v5 only when every differing node is contained by an E2 wrapper-boundary, E3 innermost connector-role, E6 deictic-header priority-tail, or E7 prepositional-before-example envelope already frozen as supported, and no S1-S3 conflict predicate fires for that family. If even one delta is unlicensed, retain v6 for the complete family.",
+        "purpose": "Keep the unchanged v5 mechanism-development requirement at 20/20 rather than accepting frozen v6's failed 2/20 baseline."
+      },
+      {
+        "order": 4,
+        "name": "apply_s1_implicit_enumeration_partition_conflict",
+        "rule": {
+          "all_required": [
+            "A frozen-v6 attachment has an unprotected implicit cue whose source text is exactly the terminal enumeration marker deng and has at least two example members.",
+            "The cue envelope has no explicit example introducer such as ru, liru, or a protected parenthetical example cue.",
+            "After subtracting only graph-declared wrapper-marker prefixes, the ordered frozen-v4 surface spans form a non-overlapping partition of the same pre-cue source envelope covered by the frozen-v6 example spans.",
+            "At least one partition span is absent from frozen-v6 surface-producing nodes, so the delta is a role transfer rather than a strictly additive attachment."
+          ],
+          "normalization_forbidden": "No item text canonicalization, token synonym table, or expected-output comparison; compare source offsets, coverage, order, and containment only."
+        },
+        "route": "Use the frozen-v4 producer bundle for the implicated implicit-enumeration surface/example families; preserve unrelated frozen-v6 families.",
+        "vetoes": [
+          "Do not activate for an explicit source-anchored example cue.",
+          "Do not activate for a protected parenthetical attachment.",
+          "Do not activate unless coverage and partition conditions are both satisfied."
+        ]
+      },
+      {
+        "order": 5,
+        "name": "apply_s2_atomic_surface_conservation_conflict",
+        "rule": {
+          "all_required": [
+            "A source-anchored frozen-v4 surface atom has no exact frozen-v6 surface-producing span.",
+            "The mismatch is observable as strict enclosure, connector promotion into two or more v6 surface atoms, wrapper/operator contamination at the candidate boundary, or deletion into a non-surface family.",
+            "No explicit attachment cue or protected example attachment inside the minimal changed envelope accounts for the loss.",
+            "The v6 replacement is not a purely additive node that preserves the complete v4 atom as a surface producer."
+          ],
+          "minimal_changed_envelope": "The smallest source interval containing the missing v4 atom and every overlapping v6 surface-producing span; a wrapper may license only its actual marker or structural-delta span, never its entire content span.",
+          "normalization_forbidden": "No semantic lexicon, phrase rewrite, category branch, or gold projection comparison; use only span equality, overlap, containment, connector roles, and graph-declared markers."
+        },
+        "route": "Use the frozen-v4 surface-producer family for the clause when any atom fails the compatibility predicate; keep example, wrapper, scope, and attachment families at their otherwise selected origins.",
+        "vetoes": [
+          "Do not activate when every v4 atom is exactly preserved by v6.",
+          "Do not activate when an explicit source cue creates a source-covering attachment that explains the change.",
+          "Do not treat a wrapper content span as blanket permission for changes outside the minimal structural-delta envelope."
+        ]
+      },
+      {
+        "order": 6,
+        "name": "apply_s3_cross_coordination_attachment_bundle_conflict",
+        "rule": {
+          "all_required": [
+            "V4 and v6 agree on an attachment cue and its ordered example spans.",
+            "The v6 attachment parent strictly crosses a connector labeled surface and contains at least two surface coordination members, while the v4 parent ends within one member before that connector.",
+            "A v6 residual item candidate begins at a source token that either frozen graph independently identifies as a wrapper or shared-scope operator boundary.",
+            "The candidate, scope, attachment-parent, and attachment-edge differences share one connected source-span component."
+          ],
+          "normalization_forbidden": "No conference-name lexicon, source substring exception, category branch, or fixture lookup."
+        },
+        "route": "Atomically use frozen-v4 attachment parents, attachment edges, item candidates, shared scopes, and the derived surface projection for the connected component; keep v6 wrappers, connector labels, coordination members, and example projection.",
+        "vetoes": [
+          "Do not activate on parent-width difference alone.",
+          "Do not activate without the surface-crossing parent and residual-operator conditions together.",
+          "Reject the route if id rebasing cannot preserve every referenced member."
+        ]
+      },
+      {
+        "order": 7,
+        "name": "apply_precedence_and_referential_closure",
+        "rule": "Resolve origins in the fixed order graph validity, S3 bundle, S1 role bundle, S2 surface family, supported v5 restoration, frozen v6 default. Rebase ids by exact source span and reject a non-closed route; never widen a selected source envelope to make references pass."
+      },
+      {
+        "order": 8,
+        "name": "validate_and_project_once",
+        "rule": "Validate source anchoring, unique ids, reference closure, connector ownership, scope targets, and attachment edges, then derive both projections from the merged graph exactly once. Direct projection-list patching and canonicalization are forbidden."
+      }
+    ],
+    "runtime_signals": [
+      {
+        "id": "S1-implicit-enumeration-partition-conflict",
+        "name": "Implicit enumeration partition conflict",
+        "observable_inputs": [
+          "source characters and half-open offsets",
+          "frozen v4 surface-producing spans",
+          "frozen v6 attachment cue, example, parent, and surface-producing spans",
+          "wrapper-marker spans already emitted by either frozen graph"
+        ],
+        "runtime_predicate": {
+          "all_required": [
+            "A frozen-v6 attachment has an unprotected implicit cue whose source text is exactly the terminal enumeration marker deng and has at least two example members.",
+            "The cue envelope has no explicit example introducer such as ru, liru, or a protected parenthetical example cue.",
+            "After subtracting only graph-declared wrapper-marker prefixes, the ordered frozen-v4 surface spans form a non-overlapping partition of the same pre-cue source envelope covered by the frozen-v6 example spans.",
+            "At least one partition span is absent from frozen-v6 surface-producing nodes, so the delta is a role transfer rather than a strictly additive attachment."
+          ],
+          "normalization_forbidden": "No item text canonicalization, token synonym table, or expected-output comparison; compare source offsets, coverage, order, and containment only."
+        },
+        "causal_interpretation": "V6 has promoted an uncued surface enumeration into an example attachment even though the older surface partition still covers the source envelope.",
+        "allowed_route": "Use the frozen-v4 producer bundle for the implicated implicit-enumeration surface/example families; preserve unrelated frozen-v6 families.",
+        "vetoes": [
+          "Do not activate for an explicit source-anchored example cue.",
+          "Do not activate for a protected parenthetical attachment.",
+          "Do not activate unless coverage and partition conditions are both satisfied."
+        ]
+      },
+      {
+        "id": "S2-atomic-surface-conservation-conflict",
+        "name": "Atomic surface conservation conflict",
+        "observable_inputs": [
+          "source characters and connector offsets",
+          "frozen v4 and v6 surface-producing spans",
+          "frozen v4 and v6 wrapper, connector-role, scope, and attachment spans"
+        ],
+        "runtime_predicate": {
+          "all_required": [
+            "A source-anchored frozen-v4 surface atom has no exact frozen-v6 surface-producing span.",
+            "The mismatch is observable as strict enclosure, connector promotion into two or more v6 surface atoms, wrapper/operator contamination at the candidate boundary, or deletion into a non-surface family.",
+            "No explicit attachment cue or protected example attachment inside the minimal changed envelope accounts for the loss.",
+            "The v6 replacement is not a purely additive node that preserves the complete v4 atom as a surface producer."
+          ],
+          "minimal_changed_envelope": "The smallest source interval containing the missing v4 atom and every overlapping v6 surface-producing span; a wrapper may license only its actual marker or structural-delta span, never its entire content span.",
+          "normalization_forbidden": "No semantic lexicon, phrase rewrite, category branch, or gold projection comparison; use only span equality, overlap, containment, connector roles, and graph-declared markers."
+        },
+        "causal_interpretation": "A region-level structural activation has overwritten a surface atom outside the topology that actually licensed the activation.",
+        "allowed_route": "Use the frozen-v4 surface-producer family for the clause when any atom fails the compatibility predicate; keep example, wrapper, scope, and attachment families at their otherwise selected origins.",
+        "vetoes": [
+          "Do not activate when every v4 atom is exactly preserved by v6.",
+          "Do not activate when an explicit source cue creates a source-covering attachment that explains the change.",
+          "Do not treat a wrapper content span as blanket permission for changes outside the minimal structural-delta envelope."
+        ]
+      },
+      {
+        "id": "S3-cross-coordination-attachment-bundle-conflict",
+        "name": "Cross-coordination attachment bundle conflict",
+        "observable_inputs": [
+          "frozen v4 and v6 attachment cue, parent, and example spans",
+          "frozen v6 surface connector and coordination-member spans",
+          "frozen v4 and v6 item-candidate and shared-scope spans",
+          "source-anchored wrapper or operator markers"
+        ],
+        "runtime_predicate": {
+          "all_required": [
+            "V4 and v6 agree on an attachment cue and its ordered example spans.",
+            "The v6 attachment parent strictly crosses a connector labeled surface and contains at least two surface coordination members, while the v4 parent ends within one member before that connector.",
+            "A v6 residual item candidate begins at a source token that either frozen graph independently identifies as a wrapper or shared-scope operator boundary.",
+            "The candidate, scope, attachment-parent, and attachment-edge differences share one connected source-span component."
+          ],
+          "normalization_forbidden": "No conference-name lexicon, source substring exception, category branch, or fixture lookup."
+        },
+        "causal_interpretation": "The attachment parent overreaches a surface coordination boundary and the same boundary error strands an operator inside the residual candidate.",
+        "allowed_route": "Atomically use frozen-v4 attachment parents, attachment edges, item candidates, shared scopes, and the derived surface projection for the connected component; keep v6 wrappers, connector labels, coordination members, and example projection.",
+        "vetoes": [
+          "Do not activate on parent-width difference alone.",
+          "Do not activate without the surface-crossing parent and residual-operator conditions together.",
+          "Reject the route if id rebasing cannot preserve every referenced member."
+        ]
+      }
+    ],
+    "precedence": [
+      "source anchoring, graph validity, and reference closure",
+      "S3 cross-coordination attachment bundle conflict",
+      "S1 implicit enumeration partition conflict",
+      "S2 atomic surface conservation conflict",
+      "supported E2/E3/E6/E7 v5-family restoration",
+      "frozen v6 default"
+    ],
+    "runtime_prohibitions": [
+      "fixture id, corpus id, file path, gold label, expected output, or error-class lookup",
+      "category, employer, job title, URL, or company dispatch",
+      "memorized long source substring or named-entity exception",
+      "surface or example string canonicalization",
+      "post-hoc threshold, precedence, signal, or family-bundle changes",
+      "model or network calls"
+    ]
+  },
+  "acceptance_gates": {
+    "G0-frozen-input-and-validity": {
+      "requirements": [
+        "Frozen v4, v5, and v6 source hashes match this preregistration.",
+        "Every v7 output parses, is source-anchored, has unique ids, and has no dangling scope or attachment reference.",
+        "Model and network call counts are zero."
+      ]
+    },
+    "G1-original-v5-G0-G6-unchanged": {
+      "source": {
+        "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+        "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8",
+        "json_pointer": "/development_acceptance_gates",
+        "canonical_sha256": "a890fbd72d10e594e43e3d7c892ac2db81920ae3de757bad6432cbc04999e7b7"
+      },
+      "requirement": "Run every original G0-G6 criterion with identical operators and numeric thresholds; all must pass."
+    },
+    "G2-v5-mechanism-preservation": {
+      "fixture_count": 20,
+      "reference": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+        "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+      },
+      "frozen_v6_baseline_exact_fixture_count": 2,
+      "required_exact_fixture_count": 20,
+      "requirement": "V7 must equal frozen v5 fixture-by-fixture on wrappers, connector roles, coordination members, shared scopes, attachment parents and edges, item candidates, and both projections for 20/20 fixtures.",
+      "threshold_not_relaxed": true
+    },
+    "G3-e9-residual-runtime-selection": {
+      "target_record_count": 9,
+      "required_exact_record_count": 9,
+      "required_v4_directed_observable_family_count": 16,
+      "required_retained_exact_v6_family_count": 9,
+      "requirements": [
+        "Every target is exact on every frozen layer available for its cohort.",
+        "All 16 E9-inexact observable families equal their frozen v4-compatible references.",
+        "All 9 already-exact v6 observable families remain byte-identical to frozen v6.",
+        "The recorded selector trace uses only S1, S2, S3, supported-v5 restoration, and default-v6 decisions."
+      ],
+      "projection_only_limit": "Hidden topology on projection-only records is judged only by G0 validity, not claimed exact without labels."
+    },
+    "G4-v6-resolved-control-preservation": {
+      "control_count": 22,
+      "required_exact_count": 22,
+      "required_byte_identical_to_v6_count": 22,
+      "requirement": "All 22 controls from the frozen E9 preregistration remain exact and byte-identical to frozen v6 on every observable family."
+    },
+    "G5-legacy-effective-exact": {
+      "fixture_count": 20,
+      "required_exact_fixture_count": 20,
+      "requirement": "Effective 20/20 exactness on every structural and projection layer using only the already-frozen same-character offset adjudication; no runtime exception."
+    },
+    "G6-projection-regression-exact": {
+      "fixture_count": 60,
+      "required_exact_fixture_count": 60,
+      "requirement": "60/60 exact on surface and example projections under the existing evaluator."
+    },
+    "G7-revealed-external-non-regression": {
+      "fixture_count": 20,
+      "requirements": [
+        "Every aggregate primary-layer metric is no worse than frozen v4 and no worse than frozen v6.",
+        "Every per-fixture primary-layer difference count is no greater than both frozen v4 and frozen v6.",
+        "The known open-list wrapper regression remains zero."
+      ]
+    },
+    "G8-tests-and-selector-audit": {
+      "requirements": [
+        "All existing structured-span tests pass unchanged.",
+        "New synthetic tests exercise every required predicate and every veto for S1-S3 plus supported-v5 restoration.",
+        "A static audit finds no runtime reference to fixture ids, corpus paths, gold, expected outputs, categories, employers, titles, URLs, or long source literals.",
+        "The selector trace is deterministic and records signal, family, source envelope, origin, and veto outcome without recording gold."
+      ]
+    }
+  },
+  "evaluation_protocol": {
+    "all_criteria_conjunctive": true,
+    "threshold_or_operator_change_after_freeze_allowed": false,
+    "source_freeze_before_any_v7_fixture_execution": true,
+    "preflight_must_not_import_or_execute_v7": true,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "v7_development_run_count": 1,
+    "v7_regression_run_count": 1,
+    "rerun_after_failure_allowed": false,
+    "failure_policy": "Freeze failed raw and report. Do not modify or rerun v7, change a selector, add an exception, or weaken a gate; diagnose offline and preregister a new version."
+  },
+  "post_gate_protocol": {
+    "on_pass": "Freeze v7 source and one-time results, then preregister and collect a fresh corpus-external blind holdout with no source, job, URL, employer-selection, or annotation overlap with revealed data.",
+    "on_fail": "Keep v4 as the production reference and use only frozen raw for the next causal diagnosis.",
+    "canonicalizer_allowed_after_development_pass": false,
+    "canonicalizer_unlock_condition": "Only a separately preregistered fresh external blind-holdout pass; neither E9 nor the revealed v7 gates unlock canonicalizer work."
+  }
+}

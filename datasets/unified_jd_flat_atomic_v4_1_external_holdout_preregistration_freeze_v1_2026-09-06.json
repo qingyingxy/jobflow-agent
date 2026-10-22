@@ -1,0 +1,25 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.1-external-holdout-preregistration-freeze-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_runner_implementation_and_model_calls",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_preregistration_v1_2026-09-06.json",
+      "sha256": "f2cfc1572fb7572d05448e79e8b24dc9dbac5934936092602357345e89bec901"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "independence_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_independence_receipt_v1_2026-09-06.json",
+      "sha256": "c6dc1f89762da38594a4f1364793c2cf6812d5396486077b3d39dc816cc3dbce"
+    }
+  },
+  "decision_rule_frozen": true,
+  "thresholds_frozen": true,
+  "request_contract_frozen": true,
+  "model_call_count_at_freeze": 0,
+  "network_call_count_at_freeze": 0,
+  "immutability": "Any selection, request, threshold, outcome rule, or compatibility mechanism change requires a new experiment version."
+}

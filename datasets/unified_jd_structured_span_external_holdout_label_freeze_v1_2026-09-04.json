@@ -1,0 +1,29 @@
+{
+  "freeze_version": "unified-jd-structured-span-external-holdout-label-freeze-v1",
+  "frozen_at": "2026-09-04",
+  "status": "labels_frozen_before_first_v3_prediction",
+  "selection": {
+    "path": "datasets/unified_jd_structured_span_external_holdout_selection_v1_2026-09-04.json",
+    "sha256": "809bdc1bbfb4b0fc4ab08f1cac960a1e6655f068233c1de323728bafea9c7e6a",
+    "fixture_count": 20,
+    "unique_case_count": 20
+  },
+  "labels": {
+    "path": "datasets/unified_jd_structured_span_external_holdout_labels_v1_2026-09-04.json",
+    "sha256": "c320e2c308db100bacedd952173add294cd28aa09c0d9951bd94e567c8858bd1",
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "annotation_status": "reviewed_pre_prediction_frozen"
+  },
+  "parser": {
+    "path": "src/domain/unified_jd_structured_spans.py",
+    "sha256": "0ba56a1eafee24f9643cc5015c495e88201cf7652e2a278e305ff821319d863a",
+    "freeze_receipt": "datasets/unified_jd_structured_span_rules_freeze_v3_2026-09-04.json"
+  },
+  "prediction_state": {
+    "v3_prediction_generated_or_viewed": false,
+    "model_call_count": 0
+  },
+  "evaluation_policy": "Run the frozen parser once, retain every raw structured result, and evaluate surface items, examples, source anchoring, and structural invariant failures. Do not modify parser or labels after evaluation.",
+  "canonicalizer_gate": "Canonicalizer work may begin only if every pre-registered gate in the parser freeze receipt passes."
+}

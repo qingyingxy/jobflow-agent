@@ -50,6 +50,14 @@ def assess(job, expected):
             and branch.degree.operator == target["operator"]
             and branch.major.mode == target["major_mode"]
             and ("scope" not in target or branch.scope == target["scope"])
+            and ("status" not in target or branch.status == target["status"])
+            and (
+                "unresolved" not in target or branch.unresolved == target["unresolved"]
+            )
+            and (
+                "graduation_years" not in target
+                or branch.graduation_years == target["graduation_years"]
+            )
             for branch in branches
         )
     for index, target in enumerate(expected["qualifications"]):
@@ -84,16 +92,32 @@ class RecordingClient:
         self.calls.append(record)
         try:
             response = await self.client.generate(request)
-        except BaseException:
-            record["status"] = "failed_or_cancelled"
+        except BaseException as error:
+            record.update(
+                status="failed_or_cancelled",
+                error_code=getattr(error, "code", type(error).__name__),
+            )
+            details = getattr(error, "details", {})
+            record["error_details"] = {
+                k: details[k]
+                for k in ("status_code", "usage", "finish_reason")
+                if k in details
+            }
             raise
-        record.update(status="returned", usage=response.usage, model=response.model)
+        record.update(
+            status="returned",
+            usage=response.usage,
+            model=response.model,
+            output=response.output,
+        )
         return response
 
 
-async def compare(cases, settings, *, run_timeout, persist):
+async def compare(cases, settings, *, run_timeout, persist, concurrency=1):
     results = []
-    for index, case in enumerate(cases):
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def run_case(index, case):
         # Alternate order to reduce a systematic warm-up/order advantage.
         modes = (
             ("two_stage", "single_call")
@@ -149,6 +173,12 @@ async def compare(cases, settings, *, run_timeout, persist):
                 ),
                 flush=True,
             )
+
+    async def bounded_case(index, case):
+        async with semaphore:
+            await run_case(index, case)
+
+    await asyncio.gather(*(bounded_case(i, case) for i, case in enumerate(cases)))
     return results
 
 
@@ -220,10 +250,14 @@ def main():
         type=Path,
         help="Re-evaluate a saved report with the current local cohort classifier; no model calls.",
     )
-    parser.add_argument("--request-timeout", type=float, default=60)
-    parser.add_argument("--run-timeout", type=float, default=120)
+    parser.add_argument("--request-timeout", type=float)
+    parser.add_argument("--run-timeout", type=float)
+    parser.add_argument("--concurrency", type=int, choices=range(1, 5), default=1)
     args = parser.parse_args()
-    settings = Settings(llm_timeout_seconds=args.request_timeout, llm_max_retries=0)
+    settings = Settings(llm_max_retries=0)
+    args.request_timeout = args.request_timeout or settings.llm_timeout_seconds
+    args.run_timeout = args.run_timeout or 4 * args.request_timeout + 40
+    settings = settings.model_copy(update={"llm_timeout_seconds": args.request_timeout})
     corpus = json.loads(args.cases.read_text(encoding="utf-8"))
     if args.output.exists():
         parser.error(
@@ -276,6 +310,7 @@ def main():
         "response_format": settings.llm_response_format,
         "request_timeout": args.request_timeout,
         "run_timeout": args.run_timeout,
+        "concurrency": args.concurrency,
         "validation_retries": settings.parser_validation_retries,
         "http_retries": 0,
         "results": [],
@@ -289,6 +324,9 @@ def main():
             Path("src/services/product_jd_education_parser.py"),
             Path("src/services/product_jd_parser.py"),
             Path("src/domain/product_jd.py"),
+            Path("src/domain/education.py"),
+            Path("src/domain/product_jd_single_call.py"),
+            Path("src/services/product_jd_single_call_prompt.py"),
             Path("src/domain/graduation.py"),
             Path("src/services/eligibility_checker.py"),
             Path("src/services/education_evaluator.py"),
@@ -309,7 +347,11 @@ def main():
     if args.live:
         asyncio.run(
             compare(
-                corpus["cases"], settings, run_timeout=args.run_timeout, persist=persist
+                corpus["cases"],
+                settings,
+                run_timeout=args.run_timeout,
+                persist=persist,
+                concurrency=args.concurrency,
             )
         )
     print(json.dumps(report["summary"], ensure_ascii=False, indent=2))

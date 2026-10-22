@@ -50,7 +50,7 @@ test("workspace keeps job decisions primary and profile status actionable", asyn
   });
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "发现适合你的岗位" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "求职需求" })).toBeVisible();
   await expect(page.getByRole("button", { name: /发现岗位/ })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("button", { name: "快速判断" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /尚未上传简历/ })).toBeVisible();
@@ -71,6 +71,6 @@ test("workspace keeps job decisions primary and profile status actionable", asyn
   const resumeDialog = page.getByRole("dialog");
   await expect(resumeDialog).toBeVisible();
   await expect(page.getByRole("heading", { name: "简历管理" })).toBeVisible();
-  await expect(resumeDialog.getByText("上传后会自动解析经历", { exact: false })).toBeVisible();
+  await expect(resumeDialog.getByText("先核对脱敏预览", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: /发现岗位/ })).toHaveAttribute("aria-current", "page");
 });

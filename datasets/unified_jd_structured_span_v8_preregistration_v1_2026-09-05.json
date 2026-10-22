@@ -1,0 +1,290 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v8-preregistration-v1",
+  "created_at": "2026-09-05",
+  "status": "frozen_before_v8_implementation",
+  "scope": {
+    "task": "typed_E6_repair_component_scoped_supported_restoration_and_control_compatibility",
+    "classification_basis": "frozen_raw_only",
+    "development_data_status": "all_inputs_revealed_not_holdout",
+    "generalization_claim": false,
+    "v4_v5_v6_v7_modification_allowed": false,
+    "v7_rerun_allowed": false,
+    "gate_or_threshold_relaxation_allowed": false,
+    "runtime_record_or_metadata_dispatch_allowed": false,
+    "runtime_category_employer_title_url_dispatch_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "frozen_raw": {
+      "unified-jd-structured-span-v7-mechanism-development-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v7-mechanism-development-raw-v1-2026-09-05.json",
+        "sha256": "c0be0b0af7a85a0b91b0161a2da37283adbf27cad1c36abecab3902d7a9c9145"
+      },
+      "unified-jd-structured-span-v7-regression-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v7-regression-raw-v1-2026-09-05.json",
+        "sha256": "f324985a9bdc3430181fae5a0e90ba4283f0b1c7d655910bcee48879d56c7377"
+      },
+      "unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+        "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+      },
+      "unified-jd-structured-span-v6-regression-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+        "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+      },
+      "unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05.json",
+        "sha256": "496310332f5abbb4cf8a242be7d07c59262e144632fdc261734897d3bcdaf781"
+      }
+    },
+    "frozen_contract_and_sources": {
+      "unified_jd_structured_span_v7_preregistration_v1_2026-09-05": {
+        "path": "datasets/unified_jd_structured_span_v7_preregistration_v1_2026-09-05.json",
+        "sha256": "8e6fd8abfc67814de11bc6c7d1d4369b942b36c705283a4fcd6c0fc80c5c7afe"
+      },
+      "unified_jd_structured_span_v7_source_freeze_v1_2026-09-05": {
+        "path": "datasets/unified_jd_structured_span_v7_source_freeze_v1_2026-09-05.json",
+        "sha256": "656cbb81c03c83fc42632d88da08ca3f72c04651a27edf93a330dd8dc6d7d639"
+      },
+      "unified_jd_structured_spans_v4": {
+        "path": "src/domain/unified_jd_structured_spans_v4.py",
+        "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+      },
+      "unified_jd_structured_spans_v5": {
+        "path": "src/domain/unified_jd_structured_spans_v5.py",
+        "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+      },
+      "unified_jd_structured_spans_v6": {
+        "path": "src/domain/unified_jd_structured_spans_v6.py",
+        "sha256": "960d0d49f1c0b6b9fece8645ca5edc0a5874cf9ffb250e2f6c780cfcde11ccfd"
+      },
+      "unified_jd_structured_spans_v7": {
+        "path": "src/domain/unified_jd_structured_spans_v7.py",
+        "sha256": "4fa68d538c7494df3247d439bb499b4da314b1e83335e12f26c18e5357eb696a"
+      }
+    },
+    "offline_classification": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v7-frozen-raw-failure-classification-v1-2026-09-05.json",
+      "sha256": "8d31f2f4db87f41c6739351815c2f056b5c9da7f96973ca6d122103a33cae073"
+    }
+  },
+  "offline_diagnostic_basis": {
+    "E6_implementation_exception_count": 1,
+    "supported_v5_restoration_under_recall_count": 12,
+    "control_supported_v5_false_activation_count": 15,
+    "preserved_control_count": 7,
+    "causal_read": "The exception, restoration under-recall, and control false activation are separate mechanisms and must not share a single threshold or veto."
+  },
+  "v8_mechanism": {
+    "name": "component-scoped-restoration-with-independent-compatibility",
+    "implementation_target": "src/domain/unified_jd_structured_spans_v8.py",
+    "candidate_parsers": [
+      "src/domain/unified_jd_structured_spans_v4.py",
+      "src/domain/unified_jd_structured_spans_v5.py",
+      "src/domain/unified_jd_structured_spans_v6.py"
+    ],
+    "v7_reuse_policy": "Do not execute or import v7 as a candidate parser. Re-express only the frozen supported mechanisms and conflict predicates specified here, so the frozen E6 exception cannot be inherited.",
+    "selection_unit": "One connected structural delta component and its minimal referential closure, never a whole clause and never an expected-output-selected node.",
+    "ordered_stages": [
+      {
+        "order": 1,
+        "name": "load_frozen_candidate_graphs",
+        "rule": "Obtain frozen v4, v5, and v6 graphs for identical parser inputs. The selector receives only source characters, spans, graph roles, references, and frozen parser provenance."
+      },
+      {
+        "order": 2,
+        "name": "normalize_typed_envelope_inputs",
+        "rule": "Every envelope constructor accepts SourceSpan values only. Convert a wrapper explicitly to its marker and content spans before E6 envelope construction; reject any structural object passed as a span.",
+        "frozen_E6_signature": "Keep the prior deictic-header, separator, direct open-list, and priority-tail requirements unchanged."
+      },
+      {
+        "order": 3,
+        "name": "build_delta_component_graph",
+        "rule": "Represent every v5-v6 and v4-v6 node delta explicitly. Connect nodes only by exact shared boundary, wrapper ownership, coordination membership, scope target, attachment edge, or exact producer span. Plain region co-membership and broad envelope containment do not create an edge."
+      },
+      {
+        "order": 4,
+        "name": "certify_supported_v5_activation",
+        "rule": "A v5 component is activation-eligible only when it contains a frozen E2, E3, E6, or E7 witness and the changed nodes are in the witness's structural dependency closure. E2 requires a changed wrapper boundary used by a changed member, scope, attachment, or producer. E3 requires a changed connector role corroborated by the same changed coordination or attachment topology. E6 and E7 keep their previously frozen exact structural signatures.",
+        "forbidden_shortcut": "A node is not licensed merely because its span lies inside a witness envelope."
+      },
+      {
+        "order": 5,
+        "name": "apply_independent_v6_compatibility_veto",
+        "rule": "Even an activation-eligible component stays v6 if v5 deletes a complete v6 surface partition, performs an unsupported surface-to-example role transfer, loses or reparents a protected attachment, contaminates an atomic producer with a wrapper or operator, changes a scope-bearing atom outside dependency closure, or fails to repair the local structural inconsistency named by its witness.",
+        "independence": "Activation asks whether a supported mechanism is present; compatibility separately asks whether applying it conserves every unimplicated v6 producer and reference. Both must pass."
+      },
+      {
+        "order": 6,
+        "name": "restore_supported_component_closure",
+        "rule": "Use v5 only for a certified, compatible component and its minimal reference closure. Partial family deltas outside that component stay v6; a separate certified component is not rejected because another component in the same family is unlicensed."
+      },
+      {
+        "order": 7,
+        "name": "route_conflicts_component_locally",
+        "rule": "Evaluate the frozen S3, S1, and S2 predicates independently per connected component. A conflict may route only its registered family bundle and may not veto disjoint supported restoration. Within the same component, a certified compatible supported restoration defeats S2; otherwise the frozen S3, S1, S2 order is retained.",
+        "S2_specificity_guard": "S2 may replace a producer only when the v4 counterpart is a complete source-covering counterpart for the minimal changed component and the replacement preserves all exact v6 families outside it."
+      },
+      {
+        "order": 8,
+        "name": "merge_validate_and_project_once",
+        "rule": "Rebase ids by exact source span, reject dangling or multiply-owned references, validate anchoring and unique ids, then derive both projections exactly once from the merged graph."
+      }
+    ],
+    "precedence": [
+      "source anchoring, typed spans, graph validity, and reference closure",
+      "independent v6 compatibility veto",
+      "certified compatible supported-v5 component",
+      "S3 conflict bundle outside certified supported components",
+      "S1 conflict bundle outside certified supported components",
+      "S2 producer replacement outside certified supported components",
+      "frozen v6 default"
+    ],
+    "runtime_prohibitions": [
+      "record identifiers, file paths, expected outputs, or evaluation metadata",
+      "job metadata or source-origin dispatch",
+      "memorized long source substrings or named-entity exceptions",
+      "surface or example string canonicalization",
+      "model or network calls",
+      "whole-clause veto or whole-family replacement caused only by containment"
+    ]
+  },
+  "acceptance_gates": {
+    "G0-frozen-input-validity-and-zero-calls": {
+      "requirements": [
+        "All frozen input hashes and frozen v4-v7 source hashes match.",
+        "Every v8 output parses, validates, is source-anchored, and has closed references.",
+        "Model and network call counts are zero."
+      ]
+    },
+    "G1-v7-behavioral-gates-not-weakened": {
+      "source": {
+        "path": "datasets/unified_jd_structured_span_v7_preregistration_v1_2026-09-05.json",
+        "sha256": "8e6fd8abfc67814de11bc6c7d1d4369b942b36c705283a4fcd6c0fc80c5c7afe",
+        "included_gate_keys": [
+          "G0-frozen-input-and-validity",
+          "G1-original-v5-G0-G6-unchanged",
+          "G2-v5-mechanism-preservation",
+          "G3-e9-residual-runtime-selection",
+          "G4-v6-resolved-control-preservation",
+          "G5-legacy-effective-exact",
+          "G6-projection-regression-exact",
+          "G7-revealed-external-non-regression"
+        ],
+        "canonical_sha256": "d9f6ccf0dc805cdd518b4cc5256e1758b29760b86e8ef71019f85452017404c5"
+      },
+      "requirement": "Run every v7 G0-G7 behavioral criterion with identical operators and numeric thresholds; all must pass. The implementation-specific v7 G8 fixed trace shape is superseded, not weakened, by the v8 G9 component-trace, static-audit, and test requirements."
+    },
+    "G2-three-class-resolution": {
+      "all_criteria_conjunctive": true,
+      "E6_implementation_exception": {
+        "record_ids": [
+          "structured-v5-mechanism-dev-v1-012"
+        ],
+        "required_parse_error_count": 0,
+        "required_exact_to_frozen_v5_count": 1
+      },
+      "supported_v5_restoration_under_recall": {
+        "record_ids": [
+          "structured-v5-mechanism-dev-v1-002",
+          "structured-v5-mechanism-dev-v1-003",
+          "structured-v5-mechanism-dev-v1-004",
+          "structured-v5-mechanism-dev-v1-005",
+          "structured-v5-mechanism-dev-v1-006",
+          "structured-v5-mechanism-dev-v1-008",
+          "structured-v5-mechanism-dev-v1-010",
+          "structured-v5-mechanism-dev-v1-014",
+          "structured-v5-mechanism-dev-v1-016",
+          "structured-v5-mechanism-dev-v1-017",
+          "structured-v5-mechanism-dev-v1-018",
+          "structured-v5-mechanism-dev-v1-019"
+        ],
+        "required_exact_to_frozen_v5_count": 12
+      },
+      "control_supported_v5_false_activation": {
+        "record_ids": [
+          "structured-external-v1-006",
+          "structured-external-v1-007",
+          "canonical-v1-skill-001",
+          "canonical-v1-skill-003",
+          "surface-holdout-v1-010",
+          "surface-holdout-v2-010",
+          "canonical-v1-responsibility-005",
+          "canonical-v1-skill-005",
+          "surface-holdout-v1-009",
+          "structured-external-v1-001",
+          "structured-external-v1-018",
+          "canonical-v1-capability-004",
+          "surface-holdout-v1-015",
+          "surface-holdout-v1-019",
+          "canonical-v1-skill-004"
+        ],
+        "required_exact_to_frozen_v6_count": 15,
+        "required_non_v6_selection_count": 0
+      }
+    },
+    "G3-v5-mechanism-preservation": {
+      "fixture_count": 20,
+      "required_exact_fixture_count": 20,
+      "reference": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+        "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+      },
+      "requirement": "20/20 exact on wrappers, connector roles, coordination members, scope edges, attachment parents and edges, item candidates, and both projections."
+    },
+    "G4-E9-residual-preservation": {
+      "target_record_count": 9,
+      "required_exact_record_count": 9,
+      "required_corrected_family_count": 16,
+      "required_retained_exact_v6_family_count": 9
+    },
+    "G5-control-preservation": {
+      "control_count": 22,
+      "required_exact_and_byte_identical_to_v6_count": 22
+    },
+    "G6-legacy-effective-exact": {
+      "fixture_count": 20,
+      "required_exact_fixture_count": 20
+    },
+    "G7-projection-regression-exact": {
+      "fixture_count": 60,
+      "required_exact_fixture_count": 60
+    },
+    "G8-revealed-external-non-regression": {
+      "fixture_count": 20,
+      "requirements": [
+        "Every aggregate primary metric is no worse than frozen v4 and frozen v6.",
+        "Every per-record primary-layer difference is no greater than frozen v4 and frozen v6.",
+        "The previously registered open-list wrapper regression remains zero."
+      ]
+    },
+    "G9-selector-and-test-audit": {
+      "requirements": [
+        "All existing structured-span tests pass unchanged.",
+        "Synthetic tests cover the typed E6 path, each activation witness, each compatibility veto, component separation, overlap precedence, and reference closure.",
+        "Every trace records component envelope, witness, compatibility result, family origin, and final selection.",
+        "A static audit rejects runtime record identifiers, evaluation metadata, job metadata dispatch, long source literals, canonicalization, and network or model imports."
+      ]
+    }
+  },
+  "evaluation_protocol": {
+    "all_criteria_conjunctive": true,
+    "threshold_or_operator_change_after_freeze_allowed": false,
+    "source_freeze_before_any_v8_record_execution": true,
+    "preflight_must_not_import_or_execute_v8": true,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "v8_development_run_count": 1,
+    "v8_regression_run_count": 1,
+    "rerun_after_failure_allowed": false,
+    "failure_policy": "Freeze failed v8 raw and report. Do not modify or rerun v8, add an exception, or relax a gate; diagnose offline and preregister a new version."
+  },
+  "post_gate_protocol": {
+    "on_pass": "Freeze v8 and collect a separately preregistered fresh external blind holdout before any canonicalizer work.",
+    "on_fail": "Keep the current production reference and use only frozen raw for the next diagnosis.",
+    "canonicalizer_allowed_after_development_pass": false,
+    "canonicalizer_unlock_condition": "Only a separately frozen fresh external blind-holdout pass."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "status_version": "unified-jd-source-status-updates-v1-2026-09-03",
+  "checked_at": "2026-09-03",
+  "policy": "状态更新不覆盖历史来源快照或冻结 JD；已关闭岗位可保留用于离线 Parser 评测，但不得进入实时可申请岗位池。",
+  "checks": {
+    "campus-ai-142": {
+      "company": "蔚来",
+      "title": "校招-AI安全工程师",
+      "source_url": "https://nio.jobs.feishu.cn/campus/position/7673026997753661742/detail",
+      "previous_status": "open_and_apply_enabled",
+      "result_status": "closed",
+      "evidence_type": "explicit_closed",
+      "source_text": "该职位已下线",
+      "status_decision": "mark_as_closed",
+      "confirmed_by": "project_owner",
+      "confirmed_at": "2026-09-03",
+      "keep_historical_snapshot_for_parser_eval": true,
+      "eligible_for_live_discovery": false
+    }
+  }
+}

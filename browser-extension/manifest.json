@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "JobFlow 官网跟进",
+  "version": "0.1.0",
+  "description": "在本机 JobFlow 中一键读取同程校招的申请状态。",
+  "permissions": ["scripting"],
+  "host_permissions": ["https://mhr.ly.com/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_title": "打开 JobFlow" },
+  "content_scripts": [{
+    "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+    "js": ["bridge.js"],
+    "run_at": "document_start"
+  }]
+}

@@ -62,6 +62,23 @@ def test_unloaded_detail_cannot_use_site_title():
         )
 
 
+@pytest.mark.parametrize("host", ["careers.example.com", "jobs.another.org"])
+def test_share_panel_headings_do_not_make_a_unique_job_ambiguous(host):
+    html = '''<main><div class="job-text"><span class="job-title">AI平台工程师</span>
+    <span>工作地点：上海</span></div><section class="recruit-share"><h1>分享岗位</h1>
+    <h2 class="title">方式1:复制岗位链接</h2><h2 class="title">方式2:分享岗位海报</h2>
+    <h1>Share this job</h1></section><h2>岗位职责</h2><p>开发Agent服务和RAG检索模块。</p>
+    <h2>任职要求</h2><p>2027届本科毕业生，熟悉Python。</p></main>'''
+    doc, _ = scope_job_document(html, parse_html_document(html), url=f"https://{host}/jobs/1")
+    assert doc.title == "AI平台工程师"
+    assert "2027届本科毕业生" in doc.text
+    assert verify_page_facts(doc).locations == ["上海"]
+    # A second real job is still ambiguous; utility filtering cannot hide it.
+    html = html.replace('</main>', '<h1>数据开发工程师</h1><p>岗位职责：开发数据管线。</p></main>')
+    with pytest.raises(DetailScopeError):
+        scope_job_document(html, parse_html_document(html), url=f"https://{host}/jobs/1")
+
+
 def test_hidden_closed_banner_is_not_evidence_of_closure():
     html = HTML.replace(
         'class="position-detail-invalid-word"',

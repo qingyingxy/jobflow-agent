@@ -32,6 +32,7 @@ from .ats_assistance import (
     AtsSessionStatus,
     AtsSubmissionAuthorization,
 )
+from .company_source import DiscoveredCompany
 from .discovery import (
     DiscoveryRun,
     DiscoveryRunStatus,
@@ -62,6 +63,7 @@ from .job import (
     JobPosting,
     JobVerificationStatus,
 )
+from .job_correction import JobCorrection
 from .matching import EvidenceRecord, MatchScore, RequirementMatch
 from .materials import (
     AnswerBankEntry,
@@ -134,6 +136,7 @@ __all__ = [
     "CandidatePrivateProfile",
     "CandidateProfileInput",
     "CandidateStatus",
+    "DiscoveredCompany",
     "DiscoveryRun",
     "DiscoveryRunStatus",
     "DomainEvent",
@@ -152,6 +155,7 @@ __all__ = [
     "JobAvailabilityCheck",
     "JobAvailabilityEvidenceType",
     "JobAvailabilityStatus",
+    "JobCorrection",
     "JobLead",
     "JobLeadStatus",
     "JobParseResult",

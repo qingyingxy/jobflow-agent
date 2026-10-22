@@ -1,0 +1,263 @@
+{
+  "query": "工作地点：北京、上海；岗位方向：ai agent、rag、AI产品；招聘类型：校招；届别：2027届",
+  "source_report": "artifacts/source-understanding-final-20261018.json",
+  "mode": "recorded_real_model_output",
+  "captured_at": "2026-10-18",
+  "model_calls_in_original_run": 10,
+  "results": [
+    {
+      "id": "job_34a181a20eb4438b9f3c",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "550bd457c3a6a11aca8a7e8265735fd88c80acc0aa686f73ca66fa6aff1744a5",
+        "output": {
+          "decisions": [
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "岗位负责生成式搜索和交互式对话系统的设计与开发，并明确探索Agent、RAG技术落地，属于目标研发方向。",
+              "evidence_ids": [
+                7
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_735a9a6bf4474c1b84a3",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "a46fcc034c4d773a223954fe06a422690fa92140fc37ac2d703e9404f1cb3aef",
+        "output": {
+          "decisions": [
+            {
+              "field": "graduation_year",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "岗位要求明确接受2026/2027届本科及以上学历；目标2027届属于接受范围。",
+              "evidence_ids": [
+                13
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_438e2c4b6b8d4048b745",
+      "understanding": null
+    },
+    {
+      "id": "job_8119f1c2b2ef4a6a838b",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "db90a1614e45654bf470416ddcdb26dd2b60e4482b10e43cb1dbdaefbfd5f8dc",
+        "output": {
+          "decisions": [
+            {
+              "field": "location",
+              "status": "excluded",
+              "diagnosis": "supported",
+              "reason": "当前岗位办公地点仅为安徽省合肥市、四川省成都市，不包含目标城市北京或上海。",
+              "evidence_ids": [
+                2
+              ]
+            },
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "职责明确要求基于LLM、Prompt、Function Calling、Tool Use、RAG参与AI应用功能设计与工程落地，符合RAG方向。",
+              "evidence_ids": [
+                5
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_4e0211c1ed46407a8400",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "72901c2a4c96129c049b3708341782de562be8616455b377e7f44da984e04e6a",
+        "output": {
+          "decisions": [
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "职责明确承担后端及业务系统开发，并探索将RAG检索增强、AI Agent编排集成并落地到业务系统，属于AI Agent/RAG研发方向。",
+              "evidence_ids": [
+                6,
+                7
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_cc132cc56f2e41b39393",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "4a75cd4cf2e76ce292ad9a2bad5ec39c3cd0f05a6d96f463b0d624fee06046d7",
+        "output": {
+          "decisions": [
+            {
+              "field": "job_type",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "岗位标题明确标注“应届-北斗计划”，属于面向应届生的招聘项目，可判定为校招。",
+              "evidence_ids": [
+                0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_41900de15cad41329676",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "1884d21a3e44edb776f8e97270b5e26abb3c7de38a5c23e2bf8cc7e4eeec6194",
+        "output": {
+          "decisions": [
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "岗位端到端负责AI项目的需求调研、新流程设计、上线及运营迭代，并推动AI解决方案落地，属于AI产品职责。",
+              "evidence_ids": [
+                8,
+                9
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_8987a47e2eb54158b46f",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "b746cad6899b0302ab6f18f20c668d63659906ae45124dd44dcbbba0963bce55",
+        "output": {
+          "decisions": [
+            {
+              "field": "role",
+              "status": "pending",
+              "diagnosis": "ambiguous",
+              "reason": "职责仅明确探索大模型在商业分析中的应用，并称可参与构建AI增强分析平台；未明确本人开发Agent/RAG功能，或承担AI产品需求、方案、迭代或效果责任。",
+              "evidence_ids": [
+                9,
+                24
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_53977b930a254cf99218",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "19e200627981be6535139c79cabf58d226294daf319db088c5a4a9556528b501",
+        "output": {
+          "decisions": [
+            {
+              "field": "location",
+              "status": "excluded",
+              "diagnosis": "supported",
+              "reason": "当前岗位办公地点明确为深圳，不在目标城市北京或上海中。",
+              "evidence_ids": [
+                0
+              ]
+            },
+            {
+              "field": "job_type",
+              "status": "pending",
+              "diagnosis": "source_missing",
+              "reason": "原文仅列出“五年以上工作经验”，未明确招聘性质为校招或社招；工作年限不能单独判断招聘类型。",
+              "evidence_ids": [
+                10
+              ]
+            },
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "职责明确包括建设AI智能应用平台、打造AI产品，并主导AI Agent编排及相关技术方案落地，属于AI Agent研发和AI产品职责。",
+              "evidence_ids": [
+                13
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_541eaddadce6487dadeb",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "0fd59e8f1728848e1ab1d4b724ee99b75909aa37c87b98d2d190655c675a24eb",
+        "output": {
+          "decisions": [
+            {
+              "field": "location",
+              "status": "excluded",
+              "diagnosis": "supported",
+              "reason": "当前岗位标题明确标注办公地点为深圳，目标地点仅为北京、上海。",
+              "evidence_ids": [
+                0
+              ]
+            },
+            {
+              "field": "job_type",
+              "status": "pending",
+              "diagnosis": "source_missing",
+              "reason": "原文未明确说明招聘性质为校招、社招或其他；“三年以上工作经验”不能单独推断招聘类型。",
+              "evidence_ids": [
+                10,
+                14
+              ]
+            },
+            {
+              "field": "role",
+              "status": "matched",
+              "diagnosis": "supported",
+              "reason": "岗位负责智能体套件及AI智能体工程化落地，设计模型服务接口与数据交互方案；并要求Agent开发、RAG应用及智能体编排能力。",
+              "evidence_ids": [
+                12,
+                14
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "job_adab9449b8e14c028df7",
+      "understanding": {
+        "version": "source-understanding-v2-task-boundaries",
+        "fingerprint": "396bf9d0461d2d71cec08c52a2918c25bef1f9072913c026babe9e2d52750349",
+        "output": {
+          "decisions": [
+            {
+              "field": "role",
+              "status": "pending",
+              "diagnosis": "ambiguous",
+              "reason": "职责仅称探索AI Agent在策略自动化配置与实时调优中的应用，未明确本人开发Agent功能或承担AI产品职责。",
+              "evidence_ids": [
+                9
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

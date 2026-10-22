@@ -80,6 +80,76 @@ def test_existing_explicit_metadata_is_not_overwritten():
     )
 
 
+@pytest.mark.parametrize(
+    "inline,expected",
+    [
+        ("上海", ["上海"]),
+        ("北京、深圳", ["北京", "深圳"]),
+        ("我们在上海设有办公室", []),
+        ("北京、未知区域", []),
+    ],
+)
+def test_inline_title_cities_are_literal_fields_with_exact_offsets(inline, expected):
+    raw = f"{TITLE}  {inline}\n正式\n{BODY}"
+    evidence = header_location_evidence(raw, TITLE)
+    assert [e["value"] for e in evidence] == expected
+    assert all(raw[e["start_char"] : e["end_char"]] == e["value"] for e in evidence)
+
+
+@pytest.mark.parametrize(
+    "header,expected",
+    [
+        ("上海市 校招 技术 5人 2026-07-21", ["上海市"]),
+        ("北京市,上海市 新星项目 技术 若干 2026-09-24", ["北京市", "上海市"]),
+        ("中国香港", ["中国香港"]),
+        ("北京、未知区域 校招 技术 5人", []),
+        ("北京 公司计划在上海扩展研发团队", []),
+        ("上海 技术 北京项目", ["上海"]),
+    ],
+)
+def test_compact_header_fields_preserve_exact_city_spans(header, expected):
+    raw = f"{TITLE}\n  {header}\n{BODY}"
+    evidence = header_location_evidence(raw, TITLE)
+    assert [e["value"] for e in evidence] == expected
+    assert all(raw[e["start_char"] : e["end_char"]] == e["value"] for e in evidence)
+
+
+@pytest.mark.parametrize("stored", [["查看工作岗位"], ["View all jobs"]])
+def test_navigation_location_is_repaired_from_header_without_mutation(stored):
+    stub = replace(STUB, locations=stored, raw_content=f"{TITLE} 上海\n{BODY}")
+    assert effective_job_locations(stub) == ["上海"]
+    assert stub.locations == stored
+    check = next(
+        c
+        for c in classify_discovery_job(stub, query=QUERY).checks
+        if c["field"] == "location"
+    )
+    assert check["status"] == "matched" and check["evidence"] == ["上海"]
+
+
+def test_unrecognized_location_is_not_silently_discarded():
+    stub = replace(STUB, locations=["北京", "未知区域"])
+    assert effective_job_locations(stub) == ["北京", "未知区域"]
+    assert (
+        next(
+            c
+            for c in classify_discovery_job(stub, query=QUERY).checks
+            if c["field"] == "location"
+        )["status"]
+        == "pending"
+    )
+
+
+def test_new_page_facts_drop_navigation_labels_and_keep_inline_city():
+    document = parse_html_document(f"<h1>{TITLE}</h1>")
+    raw = f"工作地点：查看工作岗位\n{TITLE} 中国香港\n{BODY}"
+    document = replace(document, text=raw, title=TITLE, locations=["查看工作岗位"])
+    facts = verify_page_facts(document)
+    assert facts.locations == ["中国香港"]
+    evidence = facts.evidence["locations"][0]
+    assert raw[evidence["start_char"] : evidence["end_char"]] == "中国香港"
+
+
 @pytest.mark.parametrize("value", ["北京、未知区域", "北京市 / 未知区域"])
 def test_partial_header_location_list_does_not_become_a_false_exclusion(value):
     html = f"<main><h1>{TITLE}</h1><div>{value}</div><h2>职位描述</h2><p>负责Agent开发。</p><h2>职位要求</h2><p>熟悉Python。</p></main>"
@@ -132,7 +202,10 @@ def test_cohort_decorations_and_repeated_education_statements(
     assert all(quote in raw for quote in cohort_check["evidence"])
 
 
-def test_existing_saved_results_agree_with_list_and_detail_without_mutation(db_session):
+@pytest.mark.parametrize("stored", [[], ["查看工作岗位"]])
+def test_existing_saved_results_agree_with_list_and_detail_without_mutation(
+    db_session, stored
+):
     run = DiscoveryRun(
         id="header-run",
         user_id="header-user",
@@ -150,9 +223,11 @@ def test_existing_saved_results_agree_with_list_and_detail_without_mutation(db_s
         source_url=STUB.detail_url,
         discovery_run_id=run.id,
     )
-    verified = service.verify_stub(user_id="header-user", lead_id=lead.id, stub=STUB)
+    verified = service.verify_stub(
+        user_id="header-user", lead_id=lead.id, stub=replace(STUB, locations=stored)
+    )
     job = verified.posting
-    assert job.locations == []
+    assert job.locations == stored
     client = TestClient(app, headers={"X-User-ID": "header-user"})
     for _ in range(2):
         listing = client.get("/api/candidates").json()
@@ -161,5 +236,5 @@ def test_existing_saved_results_agree_with_list_and_detail_without_mutation(db_s
         assert listing[0]["job"]["locations"] == detail["locations"] == ["上海"]
         assert result["result_matches"][0]["filter_status"] == "matched"
     db_session.refresh(job)
-    assert job.locations == []
+    assert job.locations == stored
     assert job.raw_content == RAW

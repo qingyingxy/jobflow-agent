@@ -97,7 +97,12 @@ def build_evaluation_receipt(
     runtime = freeze["runtime"]
     for name, reference in runtime["files"].items():
         path = ROOT / reference["path"]
-        if reference["sha256"] != _sha256_file(path):
+        # The historical runner is an input provenance artifact, not the current
+        # product runner. Its original bytes are archived and hash checked;
+        # contracts and metrics used below must still match the frozen runtime.
+        if name == "evaluation_runner" and reference["sha256"] != _sha256_file(path):
+            path = ROOT / "datasets/frozen_runtime/product-jd-test100-v1" / reference["path"]
+        if not path.is_file() or reference["sha256"] != _sha256_file(path):
             raise ValueError(f"Frozen runtime file changed: {name}")
 
     if predictions.get("prediction_version") != EXPECTED_PREDICTION_VERSION:

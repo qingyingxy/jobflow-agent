@@ -59,7 +59,7 @@ async def execute_official_search(
             return
 
         settings = get_settings()
-        sources = enabled_company_sources(company_ids)
+        sources = enabled_company_sources(company_ids, session=session, user_id=user_id)
         adapter = OfficialCompanyRegistryAdapter(
             sources=sources,
             query=query,

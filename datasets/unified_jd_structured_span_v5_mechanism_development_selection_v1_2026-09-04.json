@@ -1,0 +1,754 @@
+{
+  "selection_version": "unified-jd-structured-span-v5-mechanism-development-selection-v1",
+  "created_at": "2026-09-04",
+  "status": "revealed_development_selection",
+  "purpose": "Provide new natural occurrences and matched controls for translating the E2/E3/E6/E7 diagnostic mechanisms into a v5 design.",
+  "sampling": {
+    "type": "mechanism_enriched_purposive_sampling",
+    "fixture_count": 20,
+    "unique_job_count": 20,
+    "mechanism_counts": {
+      "E2-wrapper-boundary": 5,
+      "E3-region-first-connector-role": 5,
+      "E6-priority-tail-rejection": 5,
+      "E7-prepositional-wrapper-before-example-split": 5
+    },
+    "role_counts": {
+      "matched_control": 3,
+      "target": 17
+    },
+    "prevalence_claim_allowed": false
+  },
+  "usage_policy": {
+    "eligible_for_v5_design": true,
+    "eligible_for_v5_development_evaluation_after_full_gold": true,
+    "eligible_for_generalization_claim": false,
+    "eligible_as_v5_holdout": false,
+    "full_structural_gold_complete": false,
+    "next_step": "Complete independent full span annotation for these clauses, then preregister and implement v5 against revealed development data only."
+  },
+  "source_corpus": {
+    "path": "datasets/unified_jd_structured_span_v5_mechanism_development_sources_v1_2026-09-04.json",
+    "sha256": "7f08c279a21810d90931bf51325046a6ed001bc0192a8c8f00e7b74f8e5b5fed"
+  },
+  "fixtures": [
+    {
+      "id": "structured-v5-mechanism-dev-v1-001",
+      "job_id": "1072663203",
+      "company": "美团",
+      "title": "HR策略分析师",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=1072663203&jobShareType=1",
+      "raw_content_sha256": "f5dec93d7e4a80e2faba3935670b94a47ef184a5f5513bb4be3a2c2cb480a5b7",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_field": "jobDuty",
+      "source_text": "基于公司战略和组织能力建设需求，通过数据分析、行业研究、内部调研、指标体系构建和结构化诊断，识别组织健康度、人才策略、管理效能等领域的关键问题与机会，为组织决策提供数据支撑，推动从\"数据感知\"到\"决策行动\"的闭环",
+      "clause_span_in_section": {
+        "text": "基于公司战略和组织能力建设需求，通过数据分析、行业研究、内部调研、指标体系构建和结构化诊断，识别组织健康度、人才策略、管理效能等领域的关键问题与机会，为组织决策提供数据支撑，推动从\"数据感知\"到\"决策行动\"的闭环",
+        "start": 204,
+        "end": 310
+      },
+      "clause_span_in_raw_content": {
+        "text": "基于公司战略和组织能力建设需求，通过数据分析、行业研究、内部调研、指标体系构建和结构化诊断，识别组织健康度、人才策略、管理效能等领域的关键问题与机会，为组织决策提供数据支撑，推动从\"数据感知\"到\"决策行动\"的闭环",
+        "start": 209,
+        "end": 315
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E2-wrapper-boundary",
+        "role": "target",
+        "focus_markers": [
+          "基于",
+          "通过",
+          "识别",
+          "为",
+          "推动"
+        ],
+        "selection_reason": "Five clause-local operator regions surround two dense coordinations; wrapper boundaries must be resolved before member construction.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-002",
+      "job_id": "2563696816",
+      "company": "美团",
+      "title": "医药-B2C-药品行业商家运营",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=2563696816&jobShareType=1",
+      "raw_content_sha256": "5b57f976c7a83e92d1758f3bdf699153e9dc9161eacad6c9052725bdd4f979bd",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_field": "jobDuty",
+      "source_text": "结合市场和行业信息，与行业商家共同建立健康有序的合作关系，通过输出标准化规章制度和运营流程，提高整体业务的运行效率，提高消费者满意度，降低行业经营风险，共同维护良好的市场秩序",
+      "clause_span_in_section": {
+        "text": "结合市场和行业信息，与行业商家共同建立健康有序的合作关系，通过输出标准化规章制度和运营流程，提高整体业务的运行效率，提高消费者满意度，降低行业经营风险，共同维护良好的市场秩序",
+        "start": 352,
+        "end": 439
+      },
+      "clause_span_in_raw_content": {
+        "text": "结合市场和行业信息，与行业商家共同建立健康有序的合作关系，通过输出标准化规章制度和运营流程，提高整体业务的运行效率，提高消费者满意度，降低行业经营风险，共同维护良好的市场秩序",
+        "start": 357,
+        "end": 444
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E2-wrapper-boundary",
+        "role": "target",
+        "focus_markers": [
+          "结合",
+          "与",
+          "通过",
+          "提高",
+          "降低",
+          "维护"
+        ],
+        "selection_reason": "Alternating wrappers and result predicates test whether markers contaminate neighboring item spans.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-003",
+      "job_id": "4659090996",
+      "company": "美团",
+      "title": "综合治理产品经理",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4659090996&jobShareType=1",
+      "raw_content_sha256": "46725a801f07a8393842fa7d6fff1c60c7fbe02deb840fab9988e06ba2ba1ded",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟悉大模型能力边界，掌握 Agent、RAG、Workflow 编排等技术栈的产品化方法，有真实的评测、调优、Bad case 治理经验",
+      "clause_span_in_section": {
+        "text": "熟悉大模型能力边界，掌握 Agent、RAG、Workflow 编排等技术栈的产品化方法，有真实的评测、调优、Bad case 治理经验",
+        "start": 19,
+        "end": 87
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟悉大模型能力边界，掌握 Agent、RAG、Workflow 编排等技术栈的产品化方法，有真实的评测、调优、Bad case 治理经验",
+        "start": 349,
+        "end": 417
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E2-wrapper-boundary",
+        "role": "target",
+        "focus_markers": [
+          "熟悉",
+          "掌握",
+          "有"
+        ],
+        "selection_reason": "Three adjacent wrapper regions contain both an example list and a surface list.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-004",
+      "job_id": "4702437501",
+      "company": "美团",
+      "title": "大模型应用算法工程师（智能客服）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4702437501&jobShareType=1",
+      "raw_content_sha256": "6f8a794c9c0e2d0dc0e8695f6f2d17ea12771364aa01389a5766e2d7960bde42",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）者优先",
+      "clause_span_in_section": {
+        "text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）者优先",
+        "start": 305,
+        "end": 386
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）者优先",
+        "start": 552,
+        "end": 633
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E2-wrapper-boundary",
+        "role": "target",
+        "focus_markers": [
+          "具备",
+          "能够",
+          "有"
+        ],
+        "selection_reason": "Wrapper transitions occur around coordination, an embedded parent-first example, and a preference tail.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-005",
+      "job_id": "3466728633",
+      "company": "美团",
+      "title": "Keeta技术-后台工程师（调度系统方向）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3466728633&jobShareType=1",
+      "raw_content_sha256": "d0ffdc0c526accdaf35a0214f71006256ab415900d02e15ad4d31a9a3e097482",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟练使用AI辅助编码工具（如GitHub Copilot/Cursor），能将AI工具融入日常开发流程；与算法团队有协作经验，对机器学习模型等算法相关知识有基础认识者优先",
+      "clause_span_in_section": {
+        "text": "熟练使用AI辅助编码工具（如GitHub Copilot/Cursor），能将AI工具融入日常开发流程；与算法团队有协作经验，对机器学习模型等算法相关知识有基础认识者优先",
+        "start": 142,
+        "end": 227
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟练使用AI辅助编码工具（如GitHub Copilot/Cursor），能将AI工具融入日常开发流程；与算法团队有协作经验，对机器学习模型等算法相关知识有基础认识者优先",
+        "start": 380,
+        "end": 465
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E2-wrapper-boundary",
+        "role": "target",
+        "focus_markers": [
+          "熟练使用",
+          "能将",
+          "与",
+          "对",
+          "有"
+        ],
+        "selection_reason": "Semicolon-separated wrapper regions test boundary locality across examples and preference wording.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-006",
+      "job_id": "2459467874",
+      "company": "美团",
+      "title": "基座大模型算法专家",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=2459467874&jobShareType=1",
+      "raw_content_sha256": "2385180359570f75dda6b473d7649478c657119bb2fa3ee201aa8f3345df0a7d",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "对大模型开发流程有深入认知，熟悉预训练、指令微调、RLHF等流程与框架，具备模型预训练、对齐、训练和推理加速、模型小型化和部署等方面的经验",
+      "clause_span_in_section": {
+        "text": "对大模型开发流程有深入认知，熟悉预训练、指令微调、RLHF等流程与框架，具备模型预训练、对齐、训练和推理加速、模型小型化和部署等方面的经验",
+        "start": 3,
+        "end": 72
+      },
+      "clause_span_in_raw_content": {
+        "text": "对大模型开发流程有深入认知，熟悉预训练、指令微调、RLHF等流程与框架，具备模型预训练、对齐、训练和推理加速、模型小型化和部署等方面的经验",
+        "start": 347,
+        "end": 416
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E3-region-first-connector-role",
+        "role": "target",
+        "focus_markers": [
+          "、",
+          "与",
+          "和"
+        ],
+        "selection_reason": "The same connector inventory expresses example, surface, and shared-scope relations in neighboring regions.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-007",
+      "job_id": "2227465898",
+      "company": "美团",
+      "title": "交易系统平台部-订单履约售后-高级Java开发工程师",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=2227465898&jobShareType=1",
+      "raw_content_sha256": "57785bddd07edc612988031baa1a515c0360034a05b8b6f2a4af9e7d4784586a",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟悉掌握常用的Java类库及开源框架，如多线程、并发处理、I/O与网络通讯、Spring等，掌握Java虚拟机原理，有JVM分析及调优的经验",
+      "clause_span_in_section": {
+        "text": "熟悉掌握常用的Java类库及开源框架，如多线程、并发处理、I/O与网络通讯、Spring等，掌握Java虚拟机原理，有JVM分析及调优的经验",
+        "start": 27,
+        "end": 97
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟悉掌握常用的Java类库及开源框架，如多线程、并发处理、I/O与网络通讯、Spring等，掌握Java虚拟机原理，有JVM分析及调优的经验",
+        "start": 251,
+        "end": 321
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E3-region-first-connector-role",
+        "role": "target",
+        "focus_markers": [
+          "及",
+          "、",
+          "/",
+          "与"
+        ],
+        "selection_reason": "Slash, enumeration punctuation, and surface conjunctions coexist inside and outside an example region.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-008",
+      "job_id": "3008237497",
+      "company": "美团",
+      "title": "Keeta技术-大模型算法工程师/专家",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3008237497&jobShareType=1",
+      "raw_content_sha256": "32f9bed37ba0573b85c6d94ea9b409d1b9a16fddd834a276be9c8dc4ea2d6cb7",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟悉主流大模型，掌握 SFT、RLHF、RAG 等技术；精通 Python、Java 等编程语言，熟悉 TensorFlow、PyTorch 等常用机器学习框架；具备 AI 辅助工程开发的实践经验，能利用 Copilot、AI 实验分析等工具加速模型迭代与评估，以 AI 协作方式提升研发效率",
+      "clause_span_in_section": {
+        "text": "熟悉主流大模型，掌握 SFT、RLHF、RAG 等技术；精通 Python、Java 等编程语言，熟悉 TensorFlow、PyTorch 等常用机器学习框架；具备 AI 辅助工程开发的实践经验，能利用 Copilot、AI 实验分析等工具加速模型迭代与评估，以 AI 协作方式提升研发效率",
+        "start": 128,
+        "end": 274
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟悉主流大模型，掌握 SFT、RLHF、RAG 等技术；精通 Python、Java 等编程语言，熟悉 TensorFlow、PyTorch 等常用机器学习框架；具备 AI 辅助工程开发的实践经验，能利用 Copilot、AI 实验分析等工具加速模型迭代与评估，以 AI 协作方式提升研发效率",
+        "start": 463,
+        "end": 609
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E3-region-first-connector-role",
+        "role": "target",
+        "focus_markers": [
+          "、",
+          "；",
+          "与"
+        ],
+        "selection_reason": "Multiple regions reuse the same punctuation for distinct semantic groups and scopes.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-009",
+      "job_id": "4704716227",
+      "company": "美团",
+      "title": "无人车资深系统BSP开发",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4704716227&jobShareType=1",
+      "raw_content_sha256": "1b6d97b4234386729bb0995a683ad72f1563facc8cd0a1b82af764e21b5058ff",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备丰富的 Linux 驱动和 HAL 开发经验，熟悉常见总线接口（I2C、SPI、UART、CAN、PCIe、Ethernet 等），有 Lidar、Camera、GNSS、Audio 等传感器驱动开发经验者优先",
+      "clause_span_in_section": {
+        "text": "具备丰富的 Linux 驱动和 HAL 开发经验，熟悉常见总线接口（I2C、SPI、UART、CAN、PCIe、Ethernet 等），有 Lidar、Camera、GNSS、Audio 等传感器驱动开发经验者优先",
+        "start": 257,
+        "end": 364
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备丰富的 Linux 驱动和 HAL 开发经验，熟悉常见总线接口（I2C、SPI、UART、CAN、PCIe、Ethernet 等），有 Lidar、Camera、GNSS、Audio 等传感器驱动开发经验者优先",
+        "start": 751,
+        "end": 858
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E3-region-first-connector-role",
+        "role": "target",
+        "focus_markers": [
+          "和",
+          "、"
+        ],
+        "selection_reason": "A surface conjunction and two parent-first example lists require region-first connector classification.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-010",
+      "job_id": "4734808868",
+      "company": "美团",
+      "title": "财务科技—AI产品经理（财务AI应用）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4734808868&jobShareType=1",
+      "raw_content_sha256": "6cb0aa445412bbd7b5e8ba5f848debd3be8b2b4baf039d7d7a899f3387799252",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备较强的动手验证能力，能够使用Cursor、Codex等AI编程工具独立完成交互原型、功能Demo或轻量工具；掌握SQL、API、日志分析等基础能力者优先",
+      "clause_span_in_section": {
+        "text": "具备较强的动手验证能力，能够使用Cursor、Codex等AI编程工具独立完成交互原型、功能Demo或轻量工具；掌握SQL、API、日志分析等基础能力者优先",
+        "start": 196,
+        "end": 274
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备较强的动手验证能力，能够使用Cursor、Codex等AI编程工具独立完成交互原型、功能Demo或轻量工具；掌握SQL、API、日志分析等基础能力者优先",
+        "start": 644,
+        "end": 722
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E3-region-first-connector-role",
+        "role": "target",
+        "focus_markers": [
+          "、",
+          "或",
+          "；"
+        ],
+        "selection_reason": "Example punctuation, an alternation connector, and a new region after the semicolon must not be flattened together.",
+        "expected_behavior": {}
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-011",
+      "job_id": "4684584922",
+      "company": "美团",
+      "title": "商业分析师（运力规划与经营策略）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4684584922&jobShareType=1",
+      "raw_content_sha256": "0870f27fc039070bbf2970c5fa047521467dff1ca2e6bb3ace0527a4682af113",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "本科及以上学历，理工科、管理学及相关交叉学科，如数学、统计学、运筹学、信息管理、商业分析、计量经济学等优先",
+      "clause_span_in_section": {
+        "text": "本科及以上学历，理工科、管理学及相关交叉学科，如数学、统计学、运筹学、信息管理、商业分析、计量经济学等优先",
+        "start": 2,
+        "end": 55
+      },
+      "clause_span_in_raw_content": {
+        "text": "本科及以上学历，理工科、管理学及相关交叉学科，如数学、统计学、运筹学、信息管理、商业分析、计量经济学等优先",
+        "start": 676,
+        "end": 729
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E6-priority-tail-rejection",
+        "role": "target",
+        "focus_markers": [
+          "如",
+          "等优先"
+        ],
+        "selection_reason": "The complete right tail after deng is only the preference operator.",
+        "expected_behavior": {
+          "priority_tail_only_after_deng": true,
+          "attach_priority_as_parent": false
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-012",
+      "job_id": "4735538023",
+      "company": "美团",
+      "title": "美团闪购官旗闪电仓-3C数码品牌运营（手配/小家电/外设产品/摄影摄像等）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4735538023&jobShareType=1",
+      "raw_content_sha256": "3d38ffdceb102cbdccc834fa18d5f0cd37d4568beb600b71164240b2b734cd60",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备以下经验者优先：手配/小家电/外设产品/摄影摄像等优先",
+      "clause_span_in_section": {
+        "text": "具备以下经验者优先：手配/小家电/外设产品/摄影摄像等优先",
+        "start": 204,
+        "end": 233
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备以下经验者优先：手配/小家电/外设产品/摄影摄像等优先",
+        "start": 439,
+        "end": 468
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E6-priority-tail-rejection",
+        "role": "target",
+        "focus_markers": [
+          "：",
+          "/",
+          "等优先"
+        ],
+        "selection_reason": "A second natural terminal deng-priority case uses slash-delimited members and duplicated preference framing.",
+        "expected_behavior": {
+          "priority_tail_only_after_deng": true,
+          "attach_priority_as_parent": false
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-013",
+      "job_id": "4707466438",
+      "company": "美团",
+      "title": "供应计划-数据专家",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4707466438&jobShareType=1",
+      "raw_content_sha256": "d2bde184d4f3b35617f6bd1f5efceb7dce8211c31e89afa247996ace5f3f5294",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "本科及以上学历，3年以上供应链计划领域相关经验，熟练使用SQL、Python等工具优先",
+      "clause_span_in_section": {
+        "text": "本科及以上学历，3年以上供应链计划领域相关经验，熟练使用SQL、Python等工具优先",
+        "start": 2,
+        "end": 45
+      },
+      "clause_span_in_raw_content": {
+        "text": "本科及以上学历，3年以上供应链计划领域相关经验，熟练使用SQL、Python等工具优先",
+        "start": 274,
+        "end": 317
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E6-priority-tail-rejection",
+        "role": "matched_control",
+        "focus_markers": [
+          "、",
+          "等",
+          "工具优先"
+        ],
+        "selection_reason": "Near-neighbor control: a lexical category head remains between deng and the preference operator.",
+        "expected_behavior": {
+          "priority_tail_only_after_deng": false,
+          "preserve_nonempty_parent_head": "工具"
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-014",
+      "job_id": "2348894455",
+      "company": "美团",
+      "title": "大模型应用算法工程师（智能客服）",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=2348894455&jobShareType=1",
+      "raw_content_sha256": "133a68df375026f4a03d3f6fae61e1d7686205abfe2d698c28a84223c4fc4bf4",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/SIGIR等）者优先",
+      "clause_span_in_section": {
+        "text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/SIGIR等）者优先",
+        "start": 305,
+        "end": 376
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/SIGIR等）者优先",
+        "start": 494,
+        "end": 565
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E6-priority-tail-rejection",
+        "role": "matched_control",
+        "focus_markers": [
+          "（",
+          "/",
+          "等）",
+          "者优先"
+        ],
+        "selection_reason": "Near-neighbor control: deng closes a parenthetical example list before the preference operator.",
+        "expected_behavior": {
+          "priority_tail_only_after_deng": false,
+          "deng_inside_parenthetical": true
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-015",
+      "job_id": "4113672979",
+      "company": "美团",
+      "title": "SaaS财务运营",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4113672979&jobShareType=1",
+      "raw_content_sha256": "6bf95faac3d7ddaa9e33c928e72c5c874f261704205368f4ff2f35131c42a750",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "具备AI工具使用能力，熟悉主流大模型工具（如ChatGPT、Copilot等）在财务场景中的应用，有AI辅助数据分析、报告生成等实际经验者优先",
+      "clause_span_in_section": {
+        "text": "具备AI工具使用能力，熟悉主流大模型工具（如ChatGPT、Copilot等）在财务场景中的应用，有AI辅助数据分析、报告生成等实际经验者优先",
+        "start": 87,
+        "end": 158
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备AI工具使用能力，熟悉主流大模型工具（如ChatGPT、Copilot等）在财务场景中的应用，有AI辅助数据分析、报告生成等实际经验者优先",
+        "start": 506,
+        "end": 577
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E6-priority-tail-rejection",
+        "role": "matched_control",
+        "focus_markers": [
+          "如",
+          "等）",
+          "等实际经验者优先"
+        ],
+        "selection_reason": "Near-neighbor control with both parent-first examples and a nonempty head before preference wording.",
+        "expected_behavior": {
+          "priority_tail_only_after_deng": false,
+          "preserve_nonempty_parent_head": "实际经验"
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-016",
+      "job_id": "3021622793",
+      "company": "美团",
+      "title": "AI产品负责人",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3021622793&jobShareType=1",
+      "raw_content_sha256": "e587df15bdb65a024829941dea7d796ba0a70d749d75cac5d047a0288718d59d",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟悉AI技术和人工智能办公工具，对人机交互、自然语言处理等领域有深入了解",
+      "clause_span_in_section": {
+        "text": "熟悉AI技术和人工智能办公工具，对人机交互、自然语言处理等领域有深入了解",
+        "start": 67,
+        "end": 103
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟悉AI技术和人工智能办公工具，对人机交互、自然语言处理等领域有深入了解",
+        "start": 271,
+        "end": 307
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E7-prepositional-wrapper-before-example-split",
+        "role": "target",
+        "focus_markers": [
+          "对",
+          "、",
+          "等领域"
+        ],
+        "selection_reason": "The prepositional wrapper begins immediately before a two-member example region.",
+        "expected_behavior": {
+          "leading_preposition": "对",
+          "exclude_from_first_member": true
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-017",
+      "job_id": "3852641829",
+      "company": "美团",
+      "title": "大模型应用算法工程师 - 商业分析智能体 (BA Agent)",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3852641829&jobShareType=1",
+      "raw_content_sha256": "dc21592cfffaa6f3ce3dbed147cc67647040a7aa8756819b3db6f095f38023ed",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "深厚的商业数据理解力：对商业分析、数据仓库、BI等领域有深刻理解或浓厚兴趣，能够快速将模糊的业务问题转化为清晰的、可量化的技术任务",
+      "clause_span_in_section": {
+        "text": "深厚的商业数据理解力：对商业分析、数据仓库、BI等领域有深刻理解或浓厚兴趣，能够快速将模糊的业务问题转化为清晰的、可量化的技术任务",
+        "start": 39,
+        "end": 104
+      },
+      "clause_span_in_raw_content": {
+        "text": "深厚的商业数据理解力：对商业分析、数据仓库、BI等领域有深刻理解或浓厚兴趣，能够快速将模糊的业务问题转化为清晰的、可量化的技术任务",
+        "start": 403,
+        "end": 468
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E7-prepositional-wrapper-before-example-split",
+        "role": "target",
+        "focus_markers": [
+          "对",
+          "、",
+          "等领域"
+        ],
+        "selection_reason": "A label prefix precedes the prepositional wrapper and a three-member example region.",
+        "expected_behavior": {
+          "leading_preposition": "对",
+          "exclude_from_first_member": true
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-018",
+      "job_id": "4607917737",
+      "company": "美团",
+      "title": "生鲜采控专家",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4607917737&jobShareType=1",
+      "raw_content_sha256": "2ea2fbda36305d810d86476a6140da54fa79a636c410fddee8c4a3b0907a3bdd",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "熟悉电商行业采控岗位整体工作流程，对供应链计划、需求预测、订单执行及履约入库、库存管理等方面，具备0-1标准化体系搭建",
+      "clause_span_in_section": {
+        "text": "熟悉电商行业采控岗位整体工作流程，对供应链计划、需求预测、订单执行及履约入库、库存管理等方面，具备0-1标准化体系搭建",
+        "start": 96,
+        "end": 155
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟悉电商行业采控岗位整体工作流程，对供应链计划、需求预测、订单执行及履约入库、库存管理等方面，具备0-1标准化体系搭建",
+        "start": 273,
+        "end": 332
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E7-prepositional-wrapper-before-example-split",
+        "role": "target",
+        "focus_markers": [
+          "对",
+          "、",
+          "及",
+          "等方面"
+        ],
+        "selection_reason": "Five members mix punctuation and conjunctions under a leading prepositional wrapper.",
+        "expected_behavior": {
+          "leading_preposition": "对",
+          "exclude_from_first_member": true
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-019",
+      "job_id": "4631791354",
+      "company": "美团",
+      "title": "Keeta技术-商城导购Java工程师",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4631791354&jobShareType=1",
+      "raw_content_sha256": "d12f920765bed3dd2abd48d58ed00b30c9a7cad61d40e7bb12fb7031db625fbc",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_field": "jobRequirement",
+      "source_text": "拥有业务架构设计经验，对系统分层、DDD、领域分析建模、平台化等方面有丰富的实战经验者优先",
+      "clause_span_in_section": {
+        "text": "拥有业务架构设计经验，对系统分层、DDD、领域分析建模、平台化等方面有丰富的实战经验者优先",
+        "start": 74,
+        "end": 119
+      },
+      "clause_span_in_raw_content": {
+        "text": "拥有业务架构设计经验，对系统分层、DDD、领域分析建模、平台化等方面有丰富的实战经验者优先",
+        "start": 303,
+        "end": 348
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E7-prepositional-wrapper-before-example-split",
+        "role": "target",
+        "focus_markers": [
+          "对",
+          "、",
+          "等方面"
+        ],
+        "selection_reason": "A four-member example region ends in preference wording without changing the leading wrapper boundary.",
+        "expected_behavior": {
+          "leading_preposition": "对",
+          "exclude_from_first_member": true
+        }
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-020",
+      "job_id": "4688614087",
+      "company": "美团",
+      "title": "智能电销产品运营",
+      "original_url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4688614087&jobShareType=1",
+      "raw_content_sha256": "dfa6b198f2af0daff3316e199a810a0afe5e15d4341e9d4de06a5da8568f4c3a",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_field": "jobDuty",
+      "source_text": "分析总结拨打漏斗数据，精细化运营，对外呼的销售策略、名单策略、ASR能力等方面进行优化",
+      "clause_span_in_section": {
+        "text": "分析总结拨打漏斗数据，精细化运营，对外呼的销售策略、名单策略、ASR能力等方面进行优化",
+        "start": 155,
+        "end": 198
+      },
+      "clause_span_in_raw_content": {
+        "text": "分析总结拨打漏斗数据，精细化运营，对外呼的销售策略、名单策略、ASR能力等方面进行优化",
+        "start": 160,
+        "end": 203
+      },
+      "mechanism_annotation": {
+        "status": "preannotated_mechanism_triage_not_full_span_gold",
+        "mechanism_id": "E7-prepositional-wrapper-before-example-split",
+        "role": "target",
+        "focus_markers": [
+          "对",
+          "、",
+          "等方面"
+        ],
+        "selection_reason": "The preposition starts the final predicate region rather than the whole responsibility clause.",
+        "expected_behavior": {
+          "leading_preposition": "对",
+          "exclude_from_first_member": true
+        }
+      }
+    }
+  ]
+}

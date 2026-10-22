@@ -1,0 +1,5236 @@
+{
+  "labels_version": "unified-jd-structured-span-v5-mechanism-development-labels-v1",
+  "contract_version": "canonical-items-contract-v1",
+  "created_at": "2026-09-04",
+  "status": "two_pass_human_reviewed_revealed_development_frozen",
+  "data_status": "revealed_development_not_holdout",
+  "annotator": "Codex coding agent",
+  "prediction_status_at_labeling": "no_v4_or_v5_predictions_loaded_or_run_for_these_20_fixtures",
+  "model_call_count": 0,
+  "selection": {
+    "path": "datasets/unified_jd_structured_span_v5_mechanism_development_selection_v1_2026-09-04.json",
+    "sha256": "b6da79c5518cf19cb803232dc7234a4adf1d127876f17c56ac8495d9ca0712e9"
+  },
+  "annotation_policy": {
+    "wrapper": "Clause-local operator spans are separated from their exact source content; overlapping prefix and suffix wrappers are allowed when both functions are explicit.",
+    "member": "Coordination members are exact source spans. Nested coordinations are retained when an outer example member has an internal relation.",
+    "connector": "Every connector belonging to an annotated coordination is labeled surface, embedded, example, or quantifier after its local region is identified.",
+    "scope": "A shared prefix, suffix, head, evidence, or result is represented once and linked only to member spans it semantically governs.",
+    "attachment": "Examples attach to an explicit source parent. Terminal 等优先 never supplies the parent; an independent parent-first cue such as 如 remains valid.",
+    "projection": "Surface items and examples are ordered exact source strings; generic wrappers and embedded-only members are excluded.",
+    "prediction_independence": "The frozen selection and source_text were the only per-fixture inputs. No v4/v5 prediction was imported or executed while labeling."
+  },
+  "review": {
+    "passes": 2,
+    "pass_1": "Independent source-only structural annotation.",
+    "pass_2": "Boundary, connector-role, edge-endpoint, projection anchoring, and E6/E7 contrast audit.",
+    "known_scope": "Mechanism-enriched revealed development data; not prevalence evidence and not a generalization holdout."
+  },
+  "fixtures": [
+    {
+      "id": "structured-v5-mechanism-dev-v1-001",
+      "job_id": "1072663203",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "基于公司战略和组织能力建设需求，通过数据分析、行业研究、内部调研、指标体系构建和结构化诊断，识别组织健康度、人才策略、管理效能等领域的关键问题与机会，为组织决策提供数据支撑，推动从\"数据感知\"到\"决策行动\"的闭环",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E2-wrapper-boundary",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "基于",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "公司战略和组织能力建设需求",
+            "start": 2,
+            "end": 15
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "通过",
+            "start": 16,
+            "end": 18
+          },
+          "content_span": {
+            "text": "数据分析、行业研究、内部调研、指标体系构建和结构化诊断",
+            "start": 18,
+            "end": 45
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "识别",
+            "start": 46,
+            "end": 48
+          },
+          "content_span": {
+            "text": "组织健康度、人才策略、管理效能等领域的关键问题与机会",
+            "start": 48,
+            "end": 74
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "为",
+            "start": 75,
+            "end": 76
+          },
+          "content_span": {
+            "text": "组织决策提供数据支撑",
+            "start": 76,
+            "end": 86
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "推动",
+            "start": 87,
+            "end": 89
+          },
+          "content_span": {
+            "text": "从\"数据感知\"到\"决策行动\"的闭环",
+            "start": 89,
+            "end": 106
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 22,
+            "end": 23
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 27,
+            "end": 28
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 32,
+            "end": 33
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 39,
+            "end": 40
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 53,
+            "end": 54
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 58,
+            "end": 59
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 71,
+            "end": 72
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "到",
+            "start": 96,
+            "end": 97
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "公司战略",
+              "start": 2,
+              "end": 6
+            },
+            {
+              "text": "组织能力建设需求",
+              "start": 7,
+              "end": 15
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 6,
+              "end": 7
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "数据分析",
+              "start": 18,
+              "end": 22
+            },
+            {
+              "text": "行业研究",
+              "start": 23,
+              "end": 27
+            },
+            {
+              "text": "内部调研",
+              "start": 28,
+              "end": 32
+            },
+            {
+              "text": "指标体系构建",
+              "start": 33,
+              "end": 39
+            },
+            {
+              "text": "结构化诊断",
+              "start": 40,
+              "end": 45
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 22,
+              "end": 23
+            },
+            {
+              "text": "、",
+              "start": 27,
+              "end": 28
+            },
+            {
+              "text": "、",
+              "start": 32,
+              "end": 33
+            },
+            {
+              "text": "和",
+              "start": 39,
+              "end": 40
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "组织健康度",
+              "start": 48,
+              "end": 53
+            },
+            {
+              "text": "人才策略",
+              "start": 54,
+              "end": 58
+            },
+            {
+              "text": "管理效能",
+              "start": 59,
+              "end": 63
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 53,
+              "end": 54
+            },
+            {
+              "text": "、",
+              "start": 58,
+              "end": 59
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-4",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "关键问题",
+              "start": 67,
+              "end": 71
+            },
+            {
+              "text": "机会",
+              "start": 72,
+              "end": 74
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 71,
+              "end": 72
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-5",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "\"数据感知\"",
+              "start": 90,
+              "end": 96
+            },
+            {
+              "text": "\"决策行动\"",
+              "start": 97,
+              "end": 103
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "到",
+              "start": 96,
+              "end": 97
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "prefix",
+          "span": {
+            "text": "组织健康度、人才策略、管理效能等领域的",
+            "start": 48,
+            "end": 67
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "关键问题",
+              "start": 67,
+              "end": 71
+            },
+            {
+              "text": "机会",
+              "start": 72,
+              "end": 74
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "result",
+          "span": {
+            "text": "的闭环",
+            "start": 103,
+            "end": 106
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "\"数据感知\"",
+              "start": 90,
+              "end": 96
+            },
+            {
+              "text": "\"决策行动\"",
+              "start": 97,
+              "end": 103
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 63,
+            "end": 64
+          },
+          "parent_span": {
+            "text": "领域",
+            "start": 64,
+            "end": 66
+          },
+          "example_spans": [
+            {
+              "text": "组织健康度",
+              "start": 48,
+              "end": 53
+            },
+            {
+              "text": "人才策略",
+              "start": 54,
+              "end": 58
+            },
+            {
+              "text": "管理效能",
+              "start": 59,
+              "end": 63
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "公司战略",
+          "组织能力建设需求",
+          "数据分析",
+          "行业研究",
+          "内部调研",
+          "指标体系构建",
+          "结构化诊断",
+          "领域",
+          "关键问题",
+          "机会",
+          "组织决策提供数据支撑",
+          "从\"数据感知\"到\"决策行动\"的闭环"
+        ],
+        "examples": [
+          "组织健康度",
+          "人才策略",
+          "管理效能"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-002",
+      "job_id": "2563696816",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "结合市场和行业信息，与行业商家共同建立健康有序的合作关系，通过输出标准化规章制度和运营流程，提高整体业务的运行效率，提高消费者满意度，降低行业经营风险，共同维护良好的市场秩序",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E2-wrapper-boundary",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "结合",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "市场和行业信息",
+            "start": 2,
+            "end": 9
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "与行业商家共同建立",
+            "start": 10,
+            "end": 19
+          },
+          "content_span": {
+            "text": "健康有序的合作关系",
+            "start": 19,
+            "end": 28
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "通过输出",
+            "start": 29,
+            "end": 33
+          },
+          "content_span": {
+            "text": "标准化规章制度和运营流程",
+            "start": 33,
+            "end": 45
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "提高",
+            "start": 46,
+            "end": 48
+          },
+          "content_span": {
+            "text": "整体业务的运行效率",
+            "start": 48,
+            "end": 57
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "提高",
+            "start": 58,
+            "end": 60
+          },
+          "content_span": {
+            "text": "消费者满意度",
+            "start": 60,
+            "end": 66
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "降低",
+            "start": 67,
+            "end": 69
+          },
+          "content_span": {
+            "text": "行业经营风险",
+            "start": 69,
+            "end": 75
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "共同维护",
+            "start": 76,
+            "end": 80
+          },
+          "content_span": {
+            "text": "良好的市场秩序",
+            "start": 80,
+            "end": 87
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 4,
+            "end": 5
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 40,
+            "end": 41
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "市场",
+              "start": 2,
+              "end": 4
+            },
+            {
+              "text": "行业",
+              "start": 5,
+              "end": 7
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 4,
+              "end": 5
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "标准化规章制度",
+              "start": 33,
+              "end": 40
+            },
+            {
+              "text": "运营流程",
+              "start": 41,
+              "end": 45
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 40,
+              "end": 41
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "信息",
+            "start": 7,
+            "end": 9
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "市场",
+              "start": 2,
+              "end": 4
+            },
+            {
+              "text": "行业",
+              "start": 5,
+              "end": 7
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "市场",
+          "行业",
+          "健康有序的合作关系",
+          "标准化规章制度",
+          "运营流程",
+          "整体业务的运行效率",
+          "消费者满意度",
+          "行业经营风险",
+          "良好的市场秩序"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-003",
+      "job_id": "4659090996",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟悉大模型能力边界，掌握 Agent、RAG、Workflow 编排等技术栈的产品化方法，有真实的评测、调优、Bad case 治理经验",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E2-wrapper-boundary",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "大模型能力边界",
+            "start": 2,
+            "end": 9
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "掌握",
+            "start": 10,
+            "end": 12
+          },
+          "content_span": {
+            "text": "Agent、RAG、Workflow 编排等技术栈的产品化方法",
+            "start": 13,
+            "end": 44
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有真实的",
+            "start": 45,
+            "end": 49
+          },
+          "content_span": {
+            "text": "评测、调优、Bad case 治理经验",
+            "start": 49,
+            "end": 68
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 18,
+            "end": 19
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 22,
+            "end": 23
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 51,
+            "end": 52
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 54,
+            "end": 55
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Agent",
+              "start": 13,
+              "end": 18
+            },
+            {
+              "text": "RAG",
+              "start": 19,
+              "end": 22
+            },
+            {
+              "text": "Workflow 编排",
+              "start": 23,
+              "end": 34
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 18,
+              "end": 19
+            },
+            {
+              "text": "、",
+              "start": 22,
+              "end": 23
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "评测",
+              "start": 49,
+              "end": 51
+            },
+            {
+              "text": "调优",
+              "start": 52,
+              "end": 54
+            },
+            {
+              "text": "Bad case 治理",
+              "start": 55,
+              "end": 66
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 51,
+              "end": 52
+            },
+            {
+              "text": "、",
+              "start": 54,
+              "end": 55
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "经验",
+            "start": 66,
+            "end": 68
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "评测",
+              "start": 49,
+              "end": 51
+            },
+            {
+              "text": "调优",
+              "start": 52,
+              "end": 54
+            },
+            {
+              "text": "Bad case 治理",
+              "start": 55,
+              "end": 66
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 34,
+            "end": 35
+          },
+          "parent_span": {
+            "text": "技术栈的产品化方法",
+            "start": 35,
+            "end": 44
+          },
+          "example_spans": [
+            {
+              "text": "Agent",
+              "start": 13,
+              "end": 18
+            },
+            {
+              "text": "RAG",
+              "start": 19,
+              "end": 22
+            },
+            {
+              "text": "Workflow 编排",
+              "start": 23,
+              "end": 34
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "大模型能力边界",
+          "技术栈的产品化方法",
+          "评测",
+          "调优",
+          "Bad case 治理"
+        ],
+        "examples": [
+          "Agent",
+          "RAG",
+          "Workflow 编排"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-004",
+      "job_id": "4702437501",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E2-wrapper-boundary",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备优秀的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "算法设计和实现能力",
+            "start": 5,
+            "end": 14
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够独立完成",
+            "start": 15,
+            "end": 21
+          },
+          "content_span": {
+            "text": "算法的需求分析、方案设计、代码实现和效果评估",
+            "start": 21,
+            "end": 43
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有发表",
+            "start": 44,
+            "end": 47
+          },
+          "content_span": {
+            "text": "顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）",
+            "start": 47,
+            "end": 78
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 78,
+            "end": 81
+          },
+          "content_span": {
+            "text": "顶会论文（ACL/AAAI/EMNLP/ICML/ICLR等）",
+            "start": 47,
+            "end": 78
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 9,
+            "end": 10
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 28,
+            "end": 29
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 33,
+            "end": 34
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 38,
+            "end": 39
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 55,
+            "end": 56
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 60,
+            "end": 61
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 66,
+            "end": 67
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 71,
+            "end": 72
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "算法设计",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "实现",
+              "start": 10,
+              "end": 12
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 9,
+              "end": 10
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "需求分析",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "方案设计",
+              "start": 29,
+              "end": 33
+            },
+            {
+              "text": "代码实现",
+              "start": 34,
+              "end": 38
+            },
+            {
+              "text": "效果评估",
+              "start": 39,
+              "end": 43
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 28,
+              "end": 29
+            },
+            {
+              "text": "、",
+              "start": 33,
+              "end": 34
+            },
+            {
+              "text": "和",
+              "start": 38,
+              "end": 39
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "ACL",
+              "start": 52,
+              "end": 55
+            },
+            {
+              "text": "AAAI",
+              "start": 56,
+              "end": 60
+            },
+            {
+              "text": "EMNLP",
+              "start": 61,
+              "end": 66
+            },
+            {
+              "text": "ICML",
+              "start": 67,
+              "end": 71
+            },
+            {
+              "text": "ICLR",
+              "start": 72,
+              "end": 76
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 55,
+              "end": 56
+            },
+            {
+              "text": "/",
+              "start": 60,
+              "end": 61
+            },
+            {
+              "text": "/",
+              "start": 66,
+              "end": 67
+            },
+            {
+              "text": "/",
+              "start": 71,
+              "end": 72
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 12,
+            "end": 14
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "算法设计",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "实现",
+              "start": 10,
+              "end": 12
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "prefix",
+          "span": {
+            "text": "算法的",
+            "start": 21,
+            "end": 24
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "需求分析",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "方案设计",
+              "start": 29,
+              "end": 33
+            },
+            {
+              "text": "代码实现",
+              "start": 34,
+              "end": 38
+            },
+            {
+              "text": "效果评估",
+              "start": 39,
+              "end": 43
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "（",
+            "start": 51,
+            "end": 52
+          },
+          "parent_span": {
+            "text": "顶会论文",
+            "start": 47,
+            "end": 51
+          },
+          "example_spans": [
+            {
+              "text": "ACL",
+              "start": 52,
+              "end": 55
+            },
+            {
+              "text": "AAAI",
+              "start": 56,
+              "end": 60
+            },
+            {
+              "text": "EMNLP",
+              "start": 61,
+              "end": 66
+            },
+            {
+              "text": "ICML",
+              "start": 67,
+              "end": 71
+            },
+            {
+              "text": "ICLR",
+              "start": 72,
+              "end": 76
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "算法设计",
+          "实现",
+          "需求分析",
+          "方案设计",
+          "代码实现",
+          "效果评估",
+          "顶会论文"
+        ],
+        "examples": [
+          "ACL",
+          "AAAI",
+          "EMNLP",
+          "ICML",
+          "ICLR"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-005",
+      "job_id": "3466728633",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟练使用AI辅助编码工具（如GitHub Copilot/Cursor），能将AI工具融入日常开发流程；与算法团队有协作经验，对机器学习模型等算法相关知识有基础认识者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E2-wrapper-boundary",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟练使用",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "AI辅助编码工具（如GitHub Copilot/Cursor）",
+            "start": 4,
+            "end": 36
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能将",
+            "start": 37,
+            "end": 39
+          },
+          "content_span": {
+            "text": "AI工具融入日常开发流程",
+            "start": 39,
+            "end": 51
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "与",
+            "start": 52,
+            "end": 53
+          },
+          "content_span": {
+            "text": "算法团队有协作经验",
+            "start": 53,
+            "end": 62
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有协作经验",
+            "start": 57,
+            "end": 62
+          },
+          "content_span": {
+            "text": "算法团队",
+            "start": 53,
+            "end": 57
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 63,
+            "end": 64
+          },
+          "content_span": {
+            "text": "机器学习模型等算法相关知识有基础认识者优先",
+            "start": 64,
+            "end": 85
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有基础认识者优先",
+            "start": 77,
+            "end": 85
+          },
+          "content_span": {
+            "text": "机器学习模型等算法相关知识",
+            "start": 64,
+            "end": 77
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "/",
+            "start": 28,
+            "end": 29
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "GitHub Copilot",
+              "start": 14,
+              "end": 28
+            },
+            {
+              "text": "Cursor",
+              "start": 29,
+              "end": 35
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 28,
+              "end": 29
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "如",
+            "start": 13,
+            "end": 14
+          },
+          "parent_span": {
+            "text": "AI辅助编码工具",
+            "start": 4,
+            "end": 12
+          },
+          "example_spans": [
+            {
+              "text": "GitHub Copilot",
+              "start": 14,
+              "end": 28
+            },
+            {
+              "text": "Cursor",
+              "start": 29,
+              "end": 35
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 70,
+            "end": 71
+          },
+          "parent_span": {
+            "text": "算法相关知识",
+            "start": 71,
+            "end": 77
+          },
+          "example_spans": [
+            {
+              "text": "机器学习模型",
+              "start": 64,
+              "end": 70
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "AI辅助编码工具",
+          "AI工具融入日常开发流程",
+          "算法团队",
+          "算法相关知识"
+        ],
+        "examples": [
+          "GitHub Copilot",
+          "Cursor",
+          "机器学习模型"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-006",
+      "job_id": "2459467874",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "对大模型开发流程有深入认知，熟悉预训练、指令微调、RLHF等流程与框架，具备模型预训练、对齐、训练和推理加速、模型小型化和部署等方面的经验",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E3-region-first-connector-role",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "大模型开发流程有深入认知",
+            "start": 1,
+            "end": 13
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有深入认知",
+            "start": 8,
+            "end": 13
+          },
+          "content_span": {
+            "text": "大模型开发流程",
+            "start": 1,
+            "end": 8
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 14,
+            "end": 16
+          },
+          "content_span": {
+            "text": "预训练、指令微调、RLHF等流程与框架",
+            "start": 16,
+            "end": 35
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 36,
+            "end": 38
+          },
+          "content_span": {
+            "text": "模型预训练、对齐、训练和推理加速、模型小型化和部署等方面的经验",
+            "start": 38,
+            "end": 69
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 19,
+            "end": 20
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 24,
+            "end": 25
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 32,
+            "end": 33
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 43,
+            "end": 44
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 46,
+            "end": 47
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 49,
+            "end": 50
+          },
+          "role": "embedded"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 54,
+            "end": 55
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 60,
+            "end": 61
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "预训练",
+              "start": 16,
+              "end": 19
+            },
+            {
+              "text": "指令微调",
+              "start": 20,
+              "end": 24
+            },
+            {
+              "text": "RLHF",
+              "start": 25,
+              "end": 29
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 19,
+              "end": 20
+            },
+            {
+              "text": "、",
+              "start": 24,
+              "end": 25
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "流程",
+              "start": 6,
+              "end": 8
+            },
+            {
+              "text": "框架",
+              "start": 33,
+              "end": 35
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 32,
+              "end": 33
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "模型预训练",
+              "start": 38,
+              "end": 43
+            },
+            {
+              "text": "对齐",
+              "start": 44,
+              "end": 46
+            },
+            {
+              "text": "训练和推理加速",
+              "start": 47,
+              "end": 54
+            },
+            {
+              "text": "模型小型化和部署",
+              "start": 55,
+              "end": 63
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 43,
+              "end": 44
+            },
+            {
+              "text": "、",
+              "start": 46,
+              "end": 47
+            },
+            {
+              "text": "、",
+              "start": 54,
+              "end": 55
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-4",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "训练",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "推理",
+              "start": 50,
+              "end": 52
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 49,
+              "end": 50
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-5",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "小型化",
+              "start": 57,
+              "end": 60
+            },
+            {
+              "text": "部署",
+              "start": 61,
+              "end": 63
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 60,
+              "end": 61
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "加速",
+            "start": 52,
+            "end": 54
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "训练",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "推理",
+              "start": 50,
+              "end": 52
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "prefix",
+          "span": {
+            "text": "模型",
+            "start": 2,
+            "end": 4
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "小型化",
+              "start": 57,
+              "end": 60
+            },
+            {
+              "text": "部署",
+              "start": 61,
+              "end": 63
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 29,
+            "end": 30
+          },
+          "parent_span": {
+            "text": "流程与框架",
+            "start": 30,
+            "end": 35
+          },
+          "example_spans": [
+            {
+              "text": "预训练",
+              "start": 16,
+              "end": 19
+            },
+            {
+              "text": "指令微调",
+              "start": 20,
+              "end": 24
+            },
+            {
+              "text": "RLHF",
+              "start": 25,
+              "end": 29
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 63,
+            "end": 64
+          },
+          "parent_span": {
+            "text": "方面",
+            "start": 64,
+            "end": 66
+          },
+          "example_spans": [
+            {
+              "text": "模型预训练",
+              "start": 38,
+              "end": 43
+            },
+            {
+              "text": "对齐",
+              "start": 44,
+              "end": 46
+            },
+            {
+              "text": "训练和推理加速",
+              "start": 47,
+              "end": 54
+            },
+            {
+              "text": "模型小型化和部署",
+              "start": 55,
+              "end": 63
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "大模型开发流程",
+          "流程",
+          "框架",
+          "方面"
+        ],
+        "examples": [
+          "预训练",
+          "指令微调",
+          "RLHF",
+          "模型预训练",
+          "对齐",
+          "训练和推理加速",
+          "模型小型化和部署"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-007",
+      "job_id": "2227465898",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟悉掌握常用的Java类库及开源框架，如多线程、并发处理、I/O与网络通讯、Spring等，掌握Java虚拟机原理，有JVM分析及调优的经验",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E3-region-first-connector-role",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉掌握常用的",
+            "start": 0,
+            "end": 7
+          },
+          "content_span": {
+            "text": "Java类库及开源框架",
+            "start": 7,
+            "end": 18
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "掌握",
+            "start": 2,
+            "end": 4
+          },
+          "content_span": {
+            "text": "Java虚拟机原理",
+            "start": 48,
+            "end": 57
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 58,
+            "end": 59
+          },
+          "content_span": {
+            "text": "JVM分析及调优的经验",
+            "start": 59,
+            "end": 70
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "及",
+            "start": 13,
+            "end": 14
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 23,
+            "end": 24
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 28,
+            "end": 29
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 32,
+            "end": 33
+          },
+          "role": "embedded"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 37,
+            "end": 38
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "及",
+            "start": 64,
+            "end": 65
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Java类库",
+              "start": 7,
+              "end": 13
+            },
+            {
+              "text": "开源框架",
+              "start": 14,
+              "end": 18
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "及",
+              "start": 13,
+              "end": 14
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "多线程",
+              "start": 20,
+              "end": 23
+            },
+            {
+              "text": "并发处理",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "I/O与网络通讯",
+              "start": 29,
+              "end": 37
+            },
+            {
+              "text": "Spring",
+              "start": 38,
+              "end": 44
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 23,
+              "end": 24
+            },
+            {
+              "text": "、",
+              "start": 28,
+              "end": 29
+            },
+            {
+              "text": "、",
+              "start": 37,
+              "end": 38
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "I/O",
+              "start": 29,
+              "end": 32
+            },
+            {
+              "text": "网络通讯",
+              "start": 33,
+              "end": 37
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 32,
+              "end": 33
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-4",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "JVM分析",
+              "start": 59,
+              "end": 64
+            },
+            {
+              "text": "调优",
+              "start": 65,
+              "end": 67
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "及",
+              "start": 64,
+              "end": 65
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "的经验",
+            "start": 67,
+            "end": 70
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "JVM分析",
+              "start": 59,
+              "end": 64
+            },
+            {
+              "text": "调优",
+              "start": 65,
+              "end": 67
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "如",
+            "start": 19,
+            "end": 20
+          },
+          "parent_span": {
+            "text": "Java类库及开源框架",
+            "start": 7,
+            "end": 18
+          },
+          "example_spans": [
+            {
+              "text": "多线程",
+              "start": 20,
+              "end": 23
+            },
+            {
+              "text": "并发处理",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "I/O与网络通讯",
+              "start": 29,
+              "end": 37
+            },
+            {
+              "text": "Spring",
+              "start": 38,
+              "end": 44
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "Java类库",
+          "开源框架",
+          "Java虚拟机原理",
+          "JVM分析",
+          "调优"
+        ],
+        "examples": [
+          "多线程",
+          "并发处理",
+          "I/O与网络通讯",
+          "Spring"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-008",
+      "job_id": "3008237497",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟悉主流大模型，掌握 SFT、RLHF、RAG 等技术；精通 Python、Java 等编程语言，熟悉 TensorFlow、PyTorch 等常用机器学习框架；具备 AI 辅助工程开发的实践经验，能利用 Copilot、AI 实验分析等工具加速模型迭代与评估，以 AI 协作方式提升研发效率",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E3-region-first-connector-role",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "主流大模型",
+            "start": 2,
+            "end": 7
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "掌握",
+            "start": 8,
+            "end": 10
+          },
+          "content_span": {
+            "text": "SFT、RLHF、RAG 等技术",
+            "start": 11,
+            "end": 27
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "精通",
+            "start": 28,
+            "end": 30
+          },
+          "content_span": {
+            "text": "Python、Java 等编程语言",
+            "start": 31,
+            "end": 48
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 49,
+            "end": 51
+          },
+          "content_span": {
+            "text": "TensorFlow、PyTorch 等常用机器学习框架",
+            "start": 52,
+            "end": 80
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 81,
+            "end": 83
+          },
+          "content_span": {
+            "text": "AI 辅助工程开发的实践经验",
+            "start": 84,
+            "end": 98
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能利用",
+            "start": 99,
+            "end": 102
+          },
+          "content_span": {
+            "text": "Copilot、AI 实验分析等工具加速模型迭代与评估",
+            "start": 103,
+            "end": 130
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "以",
+            "start": 131,
+            "end": 132
+          },
+          "content_span": {
+            "text": "AI 协作方式提升研发效率",
+            "start": 133,
+            "end": 146
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 14,
+            "end": 15
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 19,
+            "end": 20
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 37,
+            "end": 38
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 62,
+            "end": 63
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 110,
+            "end": 111
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 127,
+            "end": 128
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "SFT",
+              "start": 11,
+              "end": 14
+            },
+            {
+              "text": "RLHF",
+              "start": 15,
+              "end": 19
+            },
+            {
+              "text": "RAG",
+              "start": 20,
+              "end": 23
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 14,
+              "end": 15
+            },
+            {
+              "text": "、",
+              "start": 19,
+              "end": 20
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Python",
+              "start": 31,
+              "end": 37
+            },
+            {
+              "text": "Java",
+              "start": 38,
+              "end": 42
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 37,
+              "end": 38
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "TensorFlow",
+              "start": 52,
+              "end": 62
+            },
+            {
+              "text": "PyTorch",
+              "start": 63,
+              "end": 70
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 62,
+              "end": 63
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-4",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Copilot",
+              "start": 103,
+              "end": 110
+            },
+            {
+              "text": "AI 实验分析",
+              "start": 111,
+              "end": 118
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 110,
+              "end": 111
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-5",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "迭代",
+              "start": 125,
+              "end": 127
+            },
+            {
+              "text": "评估",
+              "start": 128,
+              "end": 130
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 127,
+              "end": 128
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "prefix",
+          "span": {
+            "text": "模型",
+            "start": 5,
+            "end": 7
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "迭代",
+              "start": 125,
+              "end": 127
+            },
+            {
+              "text": "评估",
+              "start": 128,
+              "end": 130
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 24,
+            "end": 25
+          },
+          "parent_span": {
+            "text": "技术",
+            "start": 25,
+            "end": 27
+          },
+          "example_spans": [
+            {
+              "text": "SFT",
+              "start": 11,
+              "end": 14
+            },
+            {
+              "text": "RLHF",
+              "start": 15,
+              "end": 19
+            },
+            {
+              "text": "RAG",
+              "start": 20,
+              "end": 23
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 43,
+            "end": 44
+          },
+          "parent_span": {
+            "text": "编程语言",
+            "start": 44,
+            "end": 48
+          },
+          "example_spans": [
+            {
+              "text": "Python",
+              "start": 31,
+              "end": 37
+            },
+            {
+              "text": "Java",
+              "start": 38,
+              "end": 42
+            }
+          ]
+        },
+        {
+          "id": "gold-example-3",
+          "cue_span": {
+            "text": "等",
+            "start": 71,
+            "end": 72
+          },
+          "parent_span": {
+            "text": "常用机器学习框架",
+            "start": 72,
+            "end": 80
+          },
+          "example_spans": [
+            {
+              "text": "TensorFlow",
+              "start": 52,
+              "end": 62
+            },
+            {
+              "text": "PyTorch",
+              "start": 63,
+              "end": 70
+            }
+          ]
+        },
+        {
+          "id": "gold-example-4",
+          "cue_span": {
+            "text": "等",
+            "start": 118,
+            "end": 119
+          },
+          "parent_span": {
+            "text": "工具",
+            "start": 119,
+            "end": 121
+          },
+          "example_spans": [
+            {
+              "text": "Copilot",
+              "start": 103,
+              "end": 110
+            },
+            {
+              "text": "AI 实验分析",
+              "start": 111,
+              "end": 118
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "主流大模型",
+          "技术",
+          "编程语言",
+          "常用机器学习框架",
+          "AI 辅助工程开发的实践经验",
+          "工具",
+          "迭代",
+          "评估",
+          "AI 协作方式提升研发效率"
+        ],
+        "examples": [
+          "SFT",
+          "RLHF",
+          "RAG",
+          "Python",
+          "Java",
+          "TensorFlow",
+          "PyTorch",
+          "Copilot",
+          "AI 实验分析"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-009",
+      "job_id": "4704716227",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备丰富的 Linux 驱动和 HAL 开发经验，熟悉常见总线接口（I2C、SPI、UART、CAN、PCIe、Ethernet 等），有 Lidar、Camera、GNSS、Audio 等传感器驱动开发经验者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E3-region-first-connector-role",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备丰富的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "Linux 驱动和 HAL 开发经验",
+            "start": 6,
+            "end": 24
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 25,
+            "end": 27
+          },
+          "content_span": {
+            "text": "常见总线接口（I2C、SPI、UART、CAN、PCIe、Ethernet 等）",
+            "start": 27,
+            "end": 67
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 68,
+            "end": 69
+          },
+          "content_span": {
+            "text": "Lidar、Camera、GNSS、Audio 等传感器驱动开发经验者优先",
+            "start": 70,
+            "end": 107
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 104,
+            "end": 107
+          },
+          "content_span": {
+            "text": "Lidar、Camera、GNSS、Audio 等传感器驱动开发经验",
+            "start": 70,
+            "end": 104
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 14,
+            "end": 15
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 37,
+            "end": 38
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 41,
+            "end": 42
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 46,
+            "end": 47
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 50,
+            "end": 51
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 55,
+            "end": 56
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 75,
+            "end": 76
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 82,
+            "end": 83
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 87,
+            "end": 88
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Linux 驱动",
+              "start": 6,
+              "end": 14
+            },
+            {
+              "text": "HAL 开发",
+              "start": 16,
+              "end": 22
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 14,
+              "end": 15
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "I2C",
+              "start": 34,
+              "end": 37
+            },
+            {
+              "text": "SPI",
+              "start": 38,
+              "end": 41
+            },
+            {
+              "text": "UART",
+              "start": 42,
+              "end": 46
+            },
+            {
+              "text": "CAN",
+              "start": 47,
+              "end": 50
+            },
+            {
+              "text": "PCIe",
+              "start": 51,
+              "end": 55
+            },
+            {
+              "text": "Ethernet",
+              "start": 56,
+              "end": 64
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 37,
+              "end": 38
+            },
+            {
+              "text": "、",
+              "start": 41,
+              "end": 42
+            },
+            {
+              "text": "、",
+              "start": 46,
+              "end": 47
+            },
+            {
+              "text": "、",
+              "start": 50,
+              "end": 51
+            },
+            {
+              "text": "、",
+              "start": 55,
+              "end": 56
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Lidar",
+              "start": 70,
+              "end": 75
+            },
+            {
+              "text": "Camera",
+              "start": 76,
+              "end": 82
+            },
+            {
+              "text": "GNSS",
+              "start": 83,
+              "end": 87
+            },
+            {
+              "text": "Audio",
+              "start": 88,
+              "end": 93
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 75,
+              "end": 76
+            },
+            {
+              "text": "、",
+              "start": 82,
+              "end": 83
+            },
+            {
+              "text": "、",
+              "start": 87,
+              "end": 88
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "经验",
+            "start": 22,
+            "end": 24
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "Linux 驱动",
+              "start": 6,
+              "end": 14
+            },
+            {
+              "text": "HAL 开发",
+              "start": 16,
+              "end": 22
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "（",
+            "start": 33,
+            "end": 34
+          },
+          "parent_span": {
+            "text": "常见总线接口",
+            "start": 27,
+            "end": 33
+          },
+          "example_spans": [
+            {
+              "text": "I2C",
+              "start": 34,
+              "end": 37
+            },
+            {
+              "text": "SPI",
+              "start": 38,
+              "end": 41
+            },
+            {
+              "text": "UART",
+              "start": 42,
+              "end": 46
+            },
+            {
+              "text": "CAN",
+              "start": 47,
+              "end": 50
+            },
+            {
+              "text": "PCIe",
+              "start": 51,
+              "end": 55
+            },
+            {
+              "text": "Ethernet",
+              "start": 56,
+              "end": 64
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 94,
+            "end": 95
+          },
+          "parent_span": {
+            "text": "传感器驱动开发经验",
+            "start": 95,
+            "end": 104
+          },
+          "example_spans": [
+            {
+              "text": "Lidar",
+              "start": 70,
+              "end": 75
+            },
+            {
+              "text": "Camera",
+              "start": 76,
+              "end": 82
+            },
+            {
+              "text": "GNSS",
+              "start": 83,
+              "end": 87
+            },
+            {
+              "text": "Audio",
+              "start": 88,
+              "end": 93
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "Linux 驱动",
+          "HAL 开发",
+          "常见总线接口",
+          "传感器驱动开发经验"
+        ],
+        "examples": [
+          "I2C",
+          "SPI",
+          "UART",
+          "CAN",
+          "PCIe",
+          "Ethernet",
+          "Lidar",
+          "Camera",
+          "GNSS",
+          "Audio"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-010",
+      "job_id": "4734808868",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备较强的动手验证能力，能够使用Cursor、Codex等AI编程工具独立完成交互原型、功能Demo或轻量工具；掌握SQL、API、日志分析等基础能力者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E3-region-first-connector-role",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备较强的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "动手验证能力",
+            "start": 5,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够使用",
+            "start": 12,
+            "end": 16
+          },
+          "content_span": {
+            "text": "Cursor、Codex等AI编程工具独立完成交互原型、功能Demo或轻量工具",
+            "start": 16,
+            "end": 55
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "独立完成",
+            "start": 35,
+            "end": 39
+          },
+          "content_span": {
+            "text": "交互原型、功能Demo或轻量工具",
+            "start": 39,
+            "end": 55
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "掌握",
+            "start": 56,
+            "end": 58
+          },
+          "content_span": {
+            "text": "SQL、API、日志分析等基础能力者优先",
+            "start": 58,
+            "end": 78
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 75,
+            "end": 78
+          },
+          "content_span": {
+            "text": "SQL、API、日志分析等基础能力",
+            "start": 58,
+            "end": 75
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 22,
+            "end": 23
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 43,
+            "end": 44
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 50,
+            "end": 51
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 61,
+            "end": 62
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 65,
+            "end": 66
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Cursor",
+              "start": 16,
+              "end": 22
+            },
+            {
+              "text": "Codex",
+              "start": 23,
+              "end": 28
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 22,
+              "end": 23
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "交互原型",
+              "start": 39,
+              "end": 43
+            },
+            {
+              "text": "功能Demo",
+              "start": 44,
+              "end": 50
+            },
+            {
+              "text": "轻量工具",
+              "start": 51,
+              "end": 55
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 43,
+              "end": 44
+            },
+            {
+              "text": "或",
+              "start": 50,
+              "end": 51
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "SQL",
+              "start": 58,
+              "end": 61
+            },
+            {
+              "text": "API",
+              "start": 62,
+              "end": 65
+            },
+            {
+              "text": "日志分析",
+              "start": 66,
+              "end": 70
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 61,
+              "end": 62
+            },
+            {
+              "text": "、",
+              "start": 65,
+              "end": 66
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 28,
+            "end": 29
+          },
+          "parent_span": {
+            "text": "AI编程工具",
+            "start": 29,
+            "end": 35
+          },
+          "example_spans": [
+            {
+              "text": "Cursor",
+              "start": 16,
+              "end": 22
+            },
+            {
+              "text": "Codex",
+              "start": 23,
+              "end": 28
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 70,
+            "end": 71
+          },
+          "parent_span": {
+            "text": "基础能力",
+            "start": 71,
+            "end": 75
+          },
+          "example_spans": [
+            {
+              "text": "SQL",
+              "start": 58,
+              "end": 61
+            },
+            {
+              "text": "API",
+              "start": 62,
+              "end": 65
+            },
+            {
+              "text": "日志分析",
+              "start": 66,
+              "end": 70
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "动手验证能力",
+          "AI编程工具",
+          "交互原型",
+          "功能Demo",
+          "轻量工具",
+          "基础能力"
+        ],
+        "examples": [
+          "Cursor",
+          "Codex",
+          "SQL",
+          "API",
+          "日志分析"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-011",
+      "job_id": "4684584922",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "本科及以上学历，理工科、管理学及相关交叉学科，如数学、统计学、运筹学、信息管理、商业分析、计量经济学等优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E6-priority-tail-rejection",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "优先",
+            "start": 51,
+            "end": 53
+          },
+          "content_span": {
+            "text": "理工科、管理学及相关交叉学科，如数学、统计学、运筹学、信息管理、商业分析、计量经济学等",
+            "start": 8,
+            "end": 51
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "及",
+            "start": 2,
+            "end": 3
+          },
+          "role": "quantifier"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 11,
+            "end": 12
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "及",
+            "start": 15,
+            "end": 16
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 26,
+            "end": 27
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 30,
+            "end": 31
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 34,
+            "end": 35
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 39,
+            "end": 40
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 44,
+            "end": 45
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "理工科",
+              "start": 8,
+              "end": 11
+            },
+            {
+              "text": "管理学",
+              "start": 12,
+              "end": 15
+            },
+            {
+              "text": "相关交叉学科",
+              "start": 16,
+              "end": 22
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 11,
+              "end": 12
+            },
+            {
+              "text": "及",
+              "start": 15,
+              "end": 16
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "数学",
+              "start": 24,
+              "end": 26
+            },
+            {
+              "text": "统计学",
+              "start": 27,
+              "end": 30
+            },
+            {
+              "text": "运筹学",
+              "start": 31,
+              "end": 34
+            },
+            {
+              "text": "信息管理",
+              "start": 35,
+              "end": 39
+            },
+            {
+              "text": "商业分析",
+              "start": 40,
+              "end": 44
+            },
+            {
+              "text": "计量经济学",
+              "start": 45,
+              "end": 50
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 26,
+              "end": 27
+            },
+            {
+              "text": "、",
+              "start": 30,
+              "end": 31
+            },
+            {
+              "text": "、",
+              "start": 34,
+              "end": 35
+            },
+            {
+              "text": "、",
+              "start": 39,
+              "end": 40
+            },
+            {
+              "text": "、",
+              "start": 44,
+              "end": 45
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "如",
+            "start": 23,
+            "end": 24
+          },
+          "parent_span": {
+            "text": "理工科、管理学及相关交叉学科",
+            "start": 8,
+            "end": 22
+          },
+          "example_spans": [
+            {
+              "text": "数学",
+              "start": 24,
+              "end": 26
+            },
+            {
+              "text": "统计学",
+              "start": 27,
+              "end": 30
+            },
+            {
+              "text": "运筹学",
+              "start": 31,
+              "end": 34
+            },
+            {
+              "text": "信息管理",
+              "start": 35,
+              "end": 39
+            },
+            {
+              "text": "商业分析",
+              "start": 40,
+              "end": 44
+            },
+            {
+              "text": "计量经济学",
+              "start": 45,
+              "end": 50
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "本科及以上学历",
+          "理工科",
+          "管理学",
+          "相关交叉学科"
+        ],
+        "examples": [
+          "数学",
+          "统计学",
+          "运筹学",
+          "信息管理",
+          "商业分析",
+          "计量经济学"
+        ]
+      },
+      "review_note": "Terminal 等优先 cannot become an attachment parent. The explicit preceding 如 still licenses a parent-first attachment to the major-family span."
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-012",
+      "job_id": "4735538023",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备以下经验者优先：手配/小家电/外设产品/摄影摄像等优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E6-priority-tail-rejection",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "以下经验",
+            "start": 2,
+            "end": 6
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 6,
+            "end": 9
+          },
+          "content_span": {
+            "text": "以下经验",
+            "start": 2,
+            "end": 6
+          }
+        },
+        {
+          "kind": "open_list_suffix",
+          "marker_span": {
+            "text": "等",
+            "start": 26,
+            "end": 27
+          },
+          "content_span": {
+            "text": "手配/小家电/外设产品/摄影摄像",
+            "start": 10,
+            "end": 26
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "优先",
+            "start": 27,
+            "end": 29
+          },
+          "content_span": {
+            "text": "手配/小家电/外设产品/摄影摄像等",
+            "start": 10,
+            "end": 27
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "/",
+            "start": 12,
+            "end": 13
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 16,
+            "end": 17
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 21,
+            "end": 22
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "手配",
+              "start": 10,
+              "end": 12
+            },
+            {
+              "text": "小家电",
+              "start": 13,
+              "end": 16
+            },
+            {
+              "text": "外设产品",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "摄影摄像",
+              "start": 22,
+              "end": 26
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 12,
+              "end": 13
+            },
+            {
+              "text": "/",
+              "start": 16,
+              "end": 17
+            },
+            {
+              "text": "/",
+              "start": 21,
+              "end": 22
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "以下经验",
+            "start": 2,
+            "end": 6
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "手配",
+              "start": 10,
+              "end": 12
+            },
+            {
+              "text": "小家电",
+              "start": 13,
+              "end": 16
+            },
+            {
+              "text": "外设产品",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "摄影摄像",
+              "start": 22,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "手配",
+          "小家电",
+          "外设产品",
+          "摄影摄像"
+        ],
+        "examples": []
+      },
+      "review_note": "The colon expands the deictic 以下经验 into direct preferred domains. Terminal 等优先 closes an open surface list and supplies no parent."
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-013",
+      "job_id": "4707466438",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "本科及以上学历，3年以上供应链计划领域相关经验，熟练使用SQL、Python等工具优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E6-priority-tail-rejection",
+      "development_role": "matched_control",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "3年以上",
+            "start": 8,
+            "end": 12
+          },
+          "content_span": {
+            "text": "供应链计划领域相关经验",
+            "start": 12,
+            "end": 23
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟练使用",
+            "start": 24,
+            "end": 28
+          },
+          "content_span": {
+            "text": "SQL、Python等工具优先",
+            "start": 28,
+            "end": 43
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "优先",
+            "start": 41,
+            "end": 43
+          },
+          "content_span": {
+            "text": "SQL、Python等工具",
+            "start": 28,
+            "end": 41
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "及",
+            "start": 2,
+            "end": 3
+          },
+          "role": "quantifier"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 31,
+            "end": 32
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "SQL",
+              "start": 28,
+              "end": 31
+            },
+            {
+              "text": "Python",
+              "start": 32,
+              "end": 38
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 31,
+              "end": 32
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 38,
+            "end": 39
+          },
+          "parent_span": {
+            "text": "工具",
+            "start": 39,
+            "end": 41
+          },
+          "example_spans": [
+            {
+              "text": "SQL",
+              "start": 28,
+              "end": 31
+            },
+            {
+              "text": "Python",
+              "start": 32,
+              "end": 38
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "本科及以上学历",
+          "供应链计划领域相关经验",
+          "工具"
+        ],
+        "examples": [
+          "SQL",
+          "Python"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-014",
+      "job_id": "2348894455",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备优秀的算法设计和实现能力，能够独立完成算法的需求分析、方案设计、代码实现和效果评估，有发表顶会论文（ACL/AAAI/SIGIR等）者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E6-priority-tail-rejection",
+      "development_role": "matched_control",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备优秀的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "算法设计和实现能力",
+            "start": 5,
+            "end": 14
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够独立完成",
+            "start": 15,
+            "end": 21
+          },
+          "content_span": {
+            "text": "算法的需求分析、方案设计、代码实现和效果评估",
+            "start": 21,
+            "end": 43
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有发表",
+            "start": 44,
+            "end": 47
+          },
+          "content_span": {
+            "text": "顶会论文（ACL/AAAI/SIGIR等）",
+            "start": 47,
+            "end": 68
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 68,
+            "end": 71
+          },
+          "content_span": {
+            "text": "顶会论文（ACL/AAAI/SIGIR等）",
+            "start": 47,
+            "end": 68
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 9,
+            "end": 10
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 28,
+            "end": 29
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 33,
+            "end": 34
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 38,
+            "end": 39
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 55,
+            "end": 56
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 60,
+            "end": 61
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "算法设计",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "实现",
+              "start": 10,
+              "end": 12
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 9,
+              "end": 10
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "需求分析",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "方案设计",
+              "start": 29,
+              "end": 33
+            },
+            {
+              "text": "代码实现",
+              "start": 34,
+              "end": 38
+            },
+            {
+              "text": "效果评估",
+              "start": 39,
+              "end": 43
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 28,
+              "end": 29
+            },
+            {
+              "text": "、",
+              "start": 33,
+              "end": 34
+            },
+            {
+              "text": "和",
+              "start": 38,
+              "end": 39
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "ACL",
+              "start": 52,
+              "end": 55
+            },
+            {
+              "text": "AAAI",
+              "start": 56,
+              "end": 60
+            },
+            {
+              "text": "SIGIR",
+              "start": 61,
+              "end": 66
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 55,
+              "end": 56
+            },
+            {
+              "text": "/",
+              "start": 60,
+              "end": 61
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 12,
+            "end": 14
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "算法设计",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "实现",
+              "start": 10,
+              "end": 12
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "prefix",
+          "span": {
+            "text": "算法的",
+            "start": 21,
+            "end": 24
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "需求分析",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "方案设计",
+              "start": 29,
+              "end": 33
+            },
+            {
+              "text": "代码实现",
+              "start": 34,
+              "end": 38
+            },
+            {
+              "text": "效果评估",
+              "start": 39,
+              "end": 43
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "（",
+            "start": 51,
+            "end": 52
+          },
+          "parent_span": {
+            "text": "顶会论文",
+            "start": 47,
+            "end": 51
+          },
+          "example_spans": [
+            {
+              "text": "ACL",
+              "start": 52,
+              "end": 55
+            },
+            {
+              "text": "AAAI",
+              "start": 56,
+              "end": 60
+            },
+            {
+              "text": "SIGIR",
+              "start": 61,
+              "end": 66
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "算法设计",
+          "实现",
+          "需求分析",
+          "方案设计",
+          "代码实现",
+          "效果评估",
+          "顶会论文"
+        ],
+        "examples": [
+          "ACL",
+          "AAAI",
+          "SIGIR"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-015",
+      "job_id": "4113672979",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备AI工具使用能力，熟悉主流大模型工具（如ChatGPT、Copilot等）在财务场景中的应用，有AI辅助数据分析、报告生成等实际经验者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E6-priority-tail-rejection",
+      "development_role": "matched_control",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "AI工具使用能力",
+            "start": 2,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 11,
+            "end": 13
+          },
+          "content_span": {
+            "text": "主流大模型工具（如ChatGPT、Copilot等）在财务场景中的应用",
+            "start": 13,
+            "end": 48
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 49,
+            "end": 50
+          },
+          "content_span": {
+            "text": "AI辅助数据分析、报告生成等实际经验者优先",
+            "start": 50,
+            "end": 71
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 68,
+            "end": 71
+          },
+          "content_span": {
+            "text": "AI辅助数据分析、报告生成等实际经验",
+            "start": 50,
+            "end": 68
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 29,
+            "end": 30
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 58,
+            "end": 59
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "ChatGPT",
+              "start": 22,
+              "end": 29
+            },
+            {
+              "text": "Copilot",
+              "start": 30,
+              "end": 37
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 29,
+              "end": 30
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "AI辅助数据分析",
+              "start": 50,
+              "end": 58
+            },
+            {
+              "text": "报告生成",
+              "start": 59,
+              "end": 63
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 58,
+              "end": 59
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "如",
+            "start": 21,
+            "end": 22
+          },
+          "parent_span": {
+            "text": "主流大模型工具",
+            "start": 13,
+            "end": 20
+          },
+          "example_spans": [
+            {
+              "text": "ChatGPT",
+              "start": 22,
+              "end": 29
+            },
+            {
+              "text": "Copilot",
+              "start": 30,
+              "end": 37
+            }
+          ]
+        },
+        {
+          "id": "gold-example-2",
+          "cue_span": {
+            "text": "等",
+            "start": 63,
+            "end": 64
+          },
+          "parent_span": {
+            "text": "实际经验",
+            "start": 64,
+            "end": 68
+          },
+          "example_spans": [
+            {
+              "text": "AI辅助数据分析",
+              "start": 50,
+              "end": 58
+            },
+            {
+              "text": "报告生成",
+              "start": 59,
+              "end": 63
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "AI工具使用能力",
+          "主流大模型工具",
+          "财务场景中的应用",
+          "实际经验"
+        ],
+        "examples": [
+          "ChatGPT",
+          "Copilot",
+          "AI辅助数据分析",
+          "报告生成"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-016",
+      "job_id": "3021622793",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟悉AI技术和人工智能办公工具，对人机交互、自然语言处理等领域有深入了解",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E7-prepositional-wrapper-before-example-split",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "AI技术和人工智能办公工具",
+            "start": 2,
+            "end": 15
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 16,
+            "end": 17
+          },
+          "content_span": {
+            "text": "人机交互、自然语言处理等领域有深入了解",
+            "start": 17,
+            "end": 36
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有深入了解",
+            "start": 31,
+            "end": 36
+          },
+          "content_span": {
+            "text": "人机交互、自然语言处理等领域",
+            "start": 17,
+            "end": 31
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 21,
+            "end": 22
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "AI技术",
+              "start": 2,
+              "end": 6
+            },
+            {
+              "text": "人工智能办公工具",
+              "start": 7,
+              "end": 15
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 6,
+              "end": 7
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "人机交互",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "自然语言处理",
+              "start": 22,
+              "end": 28
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 21,
+              "end": 22
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 28,
+            "end": 29
+          },
+          "parent_span": {
+            "text": "领域",
+            "start": 29,
+            "end": 31
+          },
+          "example_spans": [
+            {
+              "text": "人机交互",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "自然语言处理",
+              "start": 22,
+              "end": 28
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "AI技术",
+          "人工智能办公工具",
+          "领域"
+        ],
+        "examples": [
+          "人机交互",
+          "自然语言处理"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-017",
+      "job_id": "3852641829",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "深厚的商业数据理解力：对商业分析、数据仓库、BI等领域有深刻理解或浓厚兴趣，能够快速将模糊的业务问题转化为清晰的、可量化的技术任务",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E7-prepositional-wrapper-before-example-split",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "深厚的",
+            "start": 0,
+            "end": 3
+          },
+          "content_span": {
+            "text": "商业数据理解力",
+            "start": 3,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 11,
+            "end": 12
+          },
+          "content_span": {
+            "text": "商业分析、数据仓库、BI等领域有深刻理解或浓厚兴趣",
+            "start": 12,
+            "end": 37
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有深刻理解或浓厚兴趣",
+            "start": 27,
+            "end": 37
+          },
+          "content_span": {
+            "text": "商业分析、数据仓库、BI等领域",
+            "start": 12,
+            "end": 27
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够快速将",
+            "start": 38,
+            "end": 43
+          },
+          "content_span": {
+            "text": "模糊的业务问题转化为清晰的、可量化的技术任务",
+            "start": 43,
+            "end": 65
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 16,
+            "end": 17
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 21,
+            "end": 22
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 32,
+            "end": 33
+          },
+          "role": "embedded"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 56,
+            "end": 57
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "商业分析",
+              "start": 12,
+              "end": 16
+            },
+            {
+              "text": "数据仓库",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "BI",
+              "start": 22,
+              "end": 24
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 16,
+              "end": 17
+            },
+            {
+              "text": "、",
+              "start": 21,
+              "end": 22
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "深刻理解",
+              "start": 28,
+              "end": 32
+            },
+            {
+              "text": "浓厚兴趣",
+              "start": 33,
+              "end": 37
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "或",
+              "start": 32,
+              "end": 33
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "清晰的",
+              "start": 53,
+              "end": 56
+            },
+            {
+              "text": "可量化的",
+              "start": 57,
+              "end": 61
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 56,
+              "end": 57
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "head",
+          "span": {
+            "text": "技术任务",
+            "start": 61,
+            "end": 65
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "清晰的",
+              "start": 53,
+              "end": 56
+            },
+            {
+              "text": "可量化的",
+              "start": 57,
+              "end": 61
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 24,
+            "end": 25
+          },
+          "parent_span": {
+            "text": "领域",
+            "start": 25,
+            "end": 27
+          },
+          "example_spans": [
+            {
+              "text": "商业分析",
+              "start": 12,
+              "end": 16
+            },
+            {
+              "text": "数据仓库",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "BI",
+              "start": 22,
+              "end": 24
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "商业数据理解力",
+          "领域",
+          "模糊的业务问题转化为清晰的、可量化的技术任务"
+        ],
+        "examples": [
+          "商业分析",
+          "数据仓库",
+          "BI"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-018",
+      "job_id": "4607917737",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟悉电商行业采控岗位整体工作流程，对供应链计划、需求预测、订单执行及履约入库、库存管理等方面，具备0-1标准化体系搭建",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E7-prepositional-wrapper-before-example-split",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "电商行业采控岗位整体工作流程",
+            "start": 2,
+            "end": 16
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 17,
+            "end": 18
+          },
+          "content_span": {
+            "text": "供应链计划、需求预测、订单执行及履约入库、库存管理等方面",
+            "start": 18,
+            "end": 46
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 47,
+            "end": 49
+          },
+          "content_span": {
+            "text": "0-1标准化体系搭建",
+            "start": 49,
+            "end": 59
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 23,
+            "end": 24
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 28,
+            "end": 29
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "及",
+            "start": 33,
+            "end": 34
+          },
+          "role": "embedded"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 38,
+            "end": 39
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "供应链计划",
+              "start": 18,
+              "end": 23
+            },
+            {
+              "text": "需求预测",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "订单执行及履约入库",
+              "start": 29,
+              "end": 38
+            },
+            {
+              "text": "库存管理",
+              "start": 39,
+              "end": 43
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 23,
+              "end": 24
+            },
+            {
+              "text": "、",
+              "start": 28,
+              "end": 29
+            },
+            {
+              "text": "、",
+              "start": 38,
+              "end": 39
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "订单执行",
+              "start": 29,
+              "end": 33
+            },
+            {
+              "text": "履约入库",
+              "start": 34,
+              "end": 38
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "及",
+              "start": 33,
+              "end": 34
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 43,
+            "end": 44
+          },
+          "parent_span": {
+            "text": "方面",
+            "start": 44,
+            "end": 46
+          },
+          "example_spans": [
+            {
+              "text": "供应链计划",
+              "start": 18,
+              "end": 23
+            },
+            {
+              "text": "需求预测",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "订单执行及履约入库",
+              "start": 29,
+              "end": 38
+            },
+            {
+              "text": "库存管理",
+              "start": 39,
+              "end": 43
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "电商行业采控岗位整体工作流程",
+          "方面",
+          "0-1标准化体系搭建"
+        ],
+        "examples": [
+          "供应链计划",
+          "需求预测",
+          "订单执行及履约入库",
+          "库存管理"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-019",
+      "job_id": "4631791354",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "拥有业务架构设计经验，对系统分层、DDD、领域分析建模、平台化等方面有丰富的实战经验者优先",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E7-prepositional-wrapper-before-example-split",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "拥有",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "业务架构设计经验",
+            "start": 2,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 11,
+            "end": 12
+          },
+          "content_span": {
+            "text": "系统分层、DDD、领域分析建模、平台化等方面有丰富的实战经验者优先",
+            "start": 12,
+            "end": 45
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有丰富的实战经验者优先",
+            "start": 34,
+            "end": 45
+          },
+          "content_span": {
+            "text": "系统分层、DDD、领域分析建模、平台化等方面",
+            "start": 12,
+            "end": 34
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 16,
+            "end": 17
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 20,
+            "end": 21
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 27,
+            "end": 28
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "系统分层",
+              "start": 12,
+              "end": 16
+            },
+            {
+              "text": "DDD",
+              "start": 17,
+              "end": 20
+            },
+            {
+              "text": "领域分析建模",
+              "start": 21,
+              "end": 27
+            },
+            {
+              "text": "平台化",
+              "start": 28,
+              "end": 31
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 16,
+              "end": 17
+            },
+            {
+              "text": "、",
+              "start": 20,
+              "end": 21
+            },
+            {
+              "text": "、",
+              "start": 27,
+              "end": 28
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 31,
+            "end": 32
+          },
+          "parent_span": {
+            "text": "方面",
+            "start": 32,
+            "end": 34
+          },
+          "example_spans": [
+            {
+              "text": "系统分层",
+              "start": 12,
+              "end": 16
+            },
+            {
+              "text": "DDD",
+              "start": 17,
+              "end": 20
+            },
+            {
+              "text": "领域分析建模",
+              "start": 21,
+              "end": 27
+            },
+            {
+              "text": "平台化",
+              "start": 28,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "业务架构设计经验",
+          "方面"
+        ],
+        "examples": [
+          "系统分层",
+          "DDD",
+          "领域分析建模",
+          "平台化"
+        ]
+      }
+    },
+    {
+      "id": "structured-v5-mechanism-dev-v1-020",
+      "job_id": "4688614087",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "分析总结拨打漏斗数据，精细化运营，对外呼的销售策略、名单策略、ASR能力等方面进行优化",
+      "annotation_status": "two_pass_human_reviewed_revealed_development_frozen",
+      "development_stratum": "E7-prepositional-wrapper-before-example-split",
+      "development_role": "target",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "分析总结",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "拨打漏斗数据",
+            "start": 4,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 17,
+            "end": 18
+          },
+          "content_span": {
+            "text": "外呼的销售策略、名单策略、ASR能力等方面进行优化",
+            "start": 18,
+            "end": 43
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "进行优化",
+            "start": 39,
+            "end": 43
+          },
+          "content_span": {
+            "text": "外呼的销售策略、名单策略、ASR能力等方面",
+            "start": 18,
+            "end": 39
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 25,
+            "end": 26
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 30,
+            "end": 31
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "外呼的销售策略",
+              "start": 18,
+              "end": 25
+            },
+            {
+              "text": "名单策略",
+              "start": 26,
+              "end": 30
+            },
+            {
+              "text": "ASR能力",
+              "start": 31,
+              "end": 36
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 25,
+              "end": 26
+            },
+            {
+              "text": "、",
+              "start": 30,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 36,
+            "end": 37
+          },
+          "parent_span": {
+            "text": "方面",
+            "start": 37,
+            "end": 39
+          },
+          "example_spans": [
+            {
+              "text": "外呼的销售策略",
+              "start": 18,
+              "end": 25
+            },
+            {
+              "text": "名单策略",
+              "start": 26,
+              "end": 30
+            },
+            {
+              "text": "ASR能力",
+              "start": 31,
+              "end": 36
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "拨打漏斗数据",
+          "精细化运营",
+          "方面"
+        ],
+        "examples": [
+          "外呼的销售策略",
+          "名单策略",
+          "ASR能力"
+        ]
+      }
+    }
+  ]
+}

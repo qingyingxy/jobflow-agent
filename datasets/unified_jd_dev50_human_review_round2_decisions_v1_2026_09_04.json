@@ -1,0 +1,490 @@
+{
+  "review_version": "unified-jd-dev50-human-review-round2-decisions-v1",
+  "source_candidate_path": "artifacts/evaluation/unified-jd-dev50-review-candidate-v1-2026-09-04.json",
+  "source_candidate_sha256": "333c4937f47e6ea5462e9407a005835e3b6398183b1ee239c69767b07e70b068",
+  "review_round": 2,
+  "reviewer_role": "project_owner_delegated_independent_semantic_pass",
+  "status": "round2_complete",
+  "policy": "全量复核 50 条 facts、强度、逻辑组、经验限定与逐字证据；项目负责人授权无争议项按既有规则直接确认，只有无法由原文和规则唯一裁定的事项才需再次确认。",
+  "reviewed_case_ids": [
+    "campus-ai-001",
+    "campus-ai-008",
+    "campus-ai-011",
+    "campus-ai-015",
+    "campus-ai-023",
+    "campus-ai-024",
+    "campus-ai-027",
+    "campus-ai-029",
+    "campus-ai-032",
+    "campus-ai-037",
+    "campus-ai-078",
+    "campus-ai-080",
+    "campus-ai-097",
+    "campus-ai-102",
+    "campus-ai-116",
+    "campus-ai-121",
+    "campus-ai-126",
+    "campus-ai-128",
+    "campus-ai-142",
+    "campus-ai-147",
+    "campus-ai-160",
+    "campus-ai-153",
+    "campus-ai-069",
+    "campus-ai-058",
+    "campus-ai-109",
+    "campus-ai-089",
+    "campus-ai-051",
+    "campus-ai-157",
+    "campus-ai-164",
+    "campus-ai-155",
+    "campus-ai-124",
+    "campus-ai-075",
+    "campus-ai-085",
+    "campus-ai-070",
+    "campus-ai-161",
+    "campus-ai-107",
+    "campus-ai-152",
+    "campus-ai-068",
+    "campus-ai-059",
+    "campus-ai-108",
+    "campus-ai-110",
+    "campus-ai-091",
+    "campus-ai-052",
+    "campus-ai-158",
+    "campus-ai-165",
+    "campus-ai-156",
+    "campus-ai-140",
+    "campus-ai-072",
+    "campus-ai-073",
+    "campus-ai-086"
+  ],
+  "user_confirmation_required": [],
+  "changes": {
+    "campus-ai-008": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "在公开数据集或国际竞赛上取得优异成绩者优先"
+        },
+        "changes": {
+          "relation": "any_of",
+          "group_name": "成果渠道"
+        }
+      },
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "能够提出新算法、新架构或新范式"
+        },
+        "changes": {
+          "relation": "any_of",
+          "group_name": "创新形式"
+        }
+      }
+    ],
+    "campus-ai-027": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "有Agent开发、Agent框架、Agent Skills等相关经验者优先"
+        },
+        "changes": {
+          "allow_other": true
+        }
+      }
+    ],
+    "campus-ai-153": [
+      {
+        "operation": "replace_clauses",
+        "match_source_texts": [
+          "设计分层或端到端 Agent 架构，覆盖任务理解、行为规划与 VLA/RL/WBC 动作执行"
+        ],
+        "value": [
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "any_of",
+            "items": [
+              "分层Agent架构",
+              "端到端Agent架构"
+            ],
+            "examples": null,
+            "group_name": "Agent架构形式",
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "设计分层或端到端 Agent 架构"
+          },
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "all_of",
+            "items": [
+              "任务理解",
+              "行为规划",
+              "动作执行"
+            ],
+            "examples": [
+              "VLA",
+              "RL",
+              "WBC"
+            ],
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "覆盖任务理解、行为规划与 VLA/RL/WBC 动作执行"
+          }
+        ]
+      }
+    ],
+    "campus-ai-124": [
+      {
+        "operation": "replace_clauses",
+        "match_source_texts": [
+          "编写清晰的算法设计文档和技术规范，指导FPGA工程师进行硬件逻辑实现或软件工程师进行嵌入式/上位机代码实现"
+        ],
+        "value": [
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "all_of",
+            "items": [
+              "算法设计文档",
+              "技术规范"
+            ],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "编写清晰的算法设计文档和技术规范"
+          },
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "any_of",
+            "items": [
+              "FPGA实现指导",
+              "软件实现指导"
+            ],
+            "examples": [
+              "嵌入式代码",
+              "上位机代码"
+            ],
+            "group_name": "实现指导方向",
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "指导FPGA工程师进行硬件逻辑实现或软件工程师进行嵌入式/上位机代码实现"
+          }
+        ]
+      }
+    ],
+    "campus-ai-142": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "竞赛获奖（ACM/CTF/Kaggle）、顶会论文、SRC漏洞、大模型/Agent项目、LangChain/Garak经验、Physical AI/具身智能安全等领域高质量开源项目"
+        },
+        "changes": {
+          "items": [
+            "竞赛获奖",
+            "顶会论文",
+            "SRC漏洞",
+            "大模型或Agent项目",
+            "Agent开发框架经验",
+            "AI安全相关领域高质量开源项目"
+          ],
+          "examples": [
+            "ACM",
+            "CTF",
+            "Kaggle",
+            "LangChain",
+            "Garak",
+            "Physical AI安全",
+            "具身智能安全"
+          ]
+        }
+      }
+    ],
+    "campus-ai-075": [
+      {
+        "operation": "update_fact_evidence",
+        "field": "graduation_years",
+        "source_text": "【27届校招】智能座舱云端Agent研发工程师（北京）",
+        "replacement_source_text": "招聘项目：小鹏汽车2027届校园招聘"
+      },
+      {
+        "operation": "remove_clause",
+        "match": {
+          "source_text": "【27届校招】智能座舱云端Agent研发工程师（北京）"
+        }
+      }
+    ],
+    "campus-ai-085": [
+      {
+        "operation": "update_fact_evidence",
+        "field": "graduation_years",
+        "source_text": "【2027届秋招】AI Agent 产品经理（平台）",
+        "replacement_source_text": "招聘项目：沐瞳科技2027届秋季校园招聘"
+      }
+    ],
+    "campus-ai-161": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟练掌握 Python 及 PyTorch 等深度学习框架"
+        },
+        "changes": {
+          "items": [
+            "Python",
+            "深度学习框架"
+          ],
+          "examples": [
+            "PyTorch"
+          ]
+        }
+      }
+    ],
+    "campus-ai-068": [
+      {
+        "operation": "remove_fact_value_and_evidence",
+        "field": "graduation_years",
+        "value": 2027,
+        "source_text": "AI开发工程师（C++方向）-2027校招"
+      }
+    ],
+    "campus-ai-059": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟练掌握 Python、PyTorch 等编程语言与深度学习框架"
+        },
+        "changes": {
+          "items": [
+            "编程语言",
+            "深度学习框架"
+          ],
+          "examples": [
+            "Python",
+            "PyTorch"
+          ]
+        }
+      }
+    ],
+    "campus-ai-108": [
+      {
+        "operation": "update_fact_evidence",
+        "field": "graduation_years",
+        "source_text": "【27届校招】Agent算法应用工程师",
+        "replacement_source_text": "招聘项目：信华信2027届AI硕士校招"
+      }
+    ],
+    "campus-ai-110": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟悉NodeJS、Golang、React等主流技术栈"
+        },
+        "changes": {
+          "items": [
+            "主流技术栈"
+          ],
+          "examples": [
+            "NodeJS",
+            "Golang",
+            "React"
+          ]
+        }
+      },
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟悉Langchain、Dify、LlamaIndex 等主流AI应用开发框架"
+        },
+        "changes": {
+          "items": [
+            "主流AI应用开发框架"
+          ],
+          "examples": [
+            "Langchain",
+            "Dify",
+            "LlamaIndex"
+          ]
+        }
+      }
+    ],
+    "campus-ai-052": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "精通Python及PyTorch/TensorFlow等框架"
+        },
+        "changes": {
+          "items": [
+            "Python",
+            "深度学习框架"
+          ],
+          "examples": [
+            "PyTorch",
+            "TensorFlow"
+          ]
+        }
+      }
+    ],
+    "campus-ai-165": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟练掌握 Python 等编程语言"
+        },
+        "changes": {
+          "items": [
+            "编程语言"
+          ],
+          "examples": [
+            "Python"
+          ]
+        }
+      }
+    ],
+    "campus-ai-164": [
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "了解 ROS，了解 PyTorch、TensorFlow 等深度学习框架"
+        },
+        "changes": {
+          "items": [
+            "ROS",
+            "深度学习框架"
+          ],
+          "examples": [
+            "PyTorch",
+            "TensorFlow"
+          ]
+        }
+      },
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "了解 MuJoCo、Gazebo、NVIDIA Isaac 等机器人仿真软件"
+        },
+        "changes": {
+          "items": [
+            "机器人仿真软件"
+          ],
+          "examples": [
+            "MuJoCo",
+            "Gazebo",
+            "NVIDIA Isaac"
+          ]
+        }
+      }
+    ],
+    "campus-ai-072": [
+      {
+        "operation": "replace_clauses",
+        "match_source_texts": [
+          "识别并剥离“低价值、重复性”的日常工作，设计基于大模型（LLM）或自动化算法的解决方案，协同AI工程及IT团队实现落地，以此释放组织效能"
+        ],
+        "value": [
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "all_of",
+            "items": [
+              "低价值重复工作识别"
+            ],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "识别并剥离“低价值、重复性”的日常工作"
+          },
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "any_of",
+            "items": [
+              "大模型解决方案",
+              "自动化算法解决方案"
+            ],
+            "examples": [
+              "LLM"
+            ],
+            "group_name": "解决方案技术路径",
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "设计基于大模型（LLM）或自动化算法的解决方案"
+          },
+          {
+            "category": "responsibility",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "all_of",
+            "items": [
+              "AI工程协作",
+              "IT团队协作",
+              "组织效能"
+            ],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "协同AI工程及IT团队实现落地，以此释放组织效能"
+          }
+        ]
+      }
+    ],
+    "campus-ai-073": [
+      {
+        "operation": "update_fact_evidence",
+        "field": "graduation_years",
+        "source_text": "【27届校招】AI前瞻培训生",
+        "replacement_source_text": "招聘项目：小鹏汽车2027届校园招聘"
+      },
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟练使用Coze/Dify等低代码平台"
+        },
+        "changes": {
+          "items": [
+            "低代码平台"
+          ],
+          "examples": [
+            "Coze",
+            "Dify"
+          ]
+        }
+      }
+    ],
+    "campus-ai-086": [
+      {
+        "operation": "update_fact_evidence",
+        "field": "graduation_years",
+        "source_text": "【2027届秋招】Agent开发工程师（平台）",
+        "replacement_source_text": "招聘项目：沐瞳科技2027届秋季校园招聘"
+      },
+      {
+        "operation": "update_clause",
+        "match": {
+          "source_text": "熟悉 Go、Python等主流编程语言"
+        },
+        "changes": {
+          "items": [
+            "主流编程语言"
+          ],
+          "examples": [
+            "Go",
+            "Python"
+          ]
+        }
+      }
+    ]
+  }
+}

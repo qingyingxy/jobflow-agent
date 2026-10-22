@@ -1,0 +1,113 @@
+{
+  "version": "ai-campus-v33-dev5-selection-v1-2026-09-02",
+  "status": "completed_once",
+  "purpose": "Fresh non-blind v33 structure, relation, strength, and coverage smoke",
+  "source": {
+    "split": "remaining51-dev21",
+    "manifest_path": "artifacts/evaluation/m11-ai-campus-manifest-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+    "manifest_sha256": "28d1460b1f0d0e61aa9274447b86f8a34f56512666abe2a03d1a0e0afe899e51",
+    "label_path": "datasets/ai_campus_label_overrides_v14_remaining51_dev21_reviewed.json",
+    "label_sha256": "9f323bceee3059af513de8753fb08978d6d7d117448da90a963843c8475bc9ea"
+  },
+  "blind_data_policy": {
+    "blind8_included": false,
+    "sealed_holdout_included": false,
+    "prediction_reuse": false
+  },
+  "case_count": 5,
+  "cases": [
+    {
+      "id": "campus-ai-023",
+      "coverage": [
+        "explicit_open_any_of",
+        "agent_project_experience",
+        "preferred_capabilities"
+      ]
+    },
+    {
+      "id": "campus-ai-027",
+      "coverage": [
+        "long_agent_jd",
+        "bounded_any_of",
+        "framework_examples",
+        "direct_required_knowledge"
+      ]
+    },
+    {
+      "id": "campus-ai-116",
+      "coverage": [
+        "negative_any_of",
+        "parent_programming_language",
+        "robotics_project_experience",
+        "required_tool_usage"
+      ]
+    },
+    {
+      "id": "campus-ai-126",
+      "coverage": [
+        "negative_any_of",
+        "explicit_bonus_section",
+        "tool_examples",
+        "cross_platform_experience"
+      ]
+    },
+    {
+      "id": "campus-ai-142",
+      "coverage": [
+        "long_security_jd",
+        "weak_mentions",
+        "required_vs_preferred",
+        "security_granularity"
+      ]
+    }
+  ],
+  "exclusions": {
+    "v31_development_selection": true,
+    "v32_api_smoke_cases": [
+      "campus-ai-001",
+      "campus-ai-011",
+      "campus-ai-015"
+    ],
+    "blind8": true,
+    "sealed_holdout": true
+  },
+  "proposed_api_policy": {
+    "authorized": true,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "concurrency": 1,
+    "case_timeout_seconds": 240,
+    "run_count": 1
+  },
+  "execution_result": {
+    "completed_at": "2026-09-02T15:00:47.034387+00:00",
+    "run_count": 1,
+    "rerun_performed": false,
+    "generation_duration_ms": 1179437.7,
+    "successful_case_count": 1,
+    "successful_case_ids": [
+      "campus-ai-142"
+    ],
+    "failure_count": 4,
+    "failure_counts": {
+      "model_timeout": 2,
+      "structured_output_invalid": 2
+    }
+  },
+  "local_artifacts": {
+    "manifest_path": "artifacts/evaluation/m11-ai-campus-manifest-core-v33-dev-smoke5-2026-09-02.json",
+    "manifest_sha256": "d86059416c11431fa3ec11ac7dda86ae1857766811d832be9d5e317950d0f85b",
+    "review_path": "artifacts/evaluation/m11-ai-campus-review-core-v33-dev-smoke5-2026-09-02.json",
+    "review_sha256": "a9891e0bfc095a219c08e950eb3e745f42d18bf453ffd1dc30704fb639ed5d41",
+    "review_required_count": 0,
+    "request_schema_check": "passed",
+    "predictions_path": "artifacts/evaluation/m11-ai-campus-predictions-core-v33-dev-smoke5-api-2026-09-02.json",
+    "predictions_sha256": "0fdaa5e8df506e11006b0d378406c63a5e950b7470a72dbf6b0f8b9bfa971334",
+    "checkpoint_path": "artifacts/evaluation/m11-ai-campus-predictions-core-v33-dev-smoke5-api-2026-09-02.checkpoint.json",
+    "checkpoint_sha256": "46b016c7271f46aba1e29e156caa7adbf006e147241aca9ed269233ac301e61c",
+    "full_report_path": "artifacts/evaluation/m11-ai-campus-report-core-v33-dev-smoke5-api-2026-09-02.json",
+    "full_report_sha256": "5b1cbd67be8c7007d21ed1e3c31c97759fd8c02f74f3f522e2cf11fd99163137",
+    "successful_only_report_path": "artifacts/evaluation/m11-ai-campus-report-core-v33-dev-smoke5-api-successful-only-2026-09-02.json",
+    "successful_only_report_sha256": "d27880519df9471afcc83edec58744f6b8f8cb3331c5f1ea854be2016374faf2"
+  }
+}

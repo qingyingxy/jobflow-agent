@@ -1,0 +1,53 @@
+{
+  "freeze_version": "unified-jd-surface-holdout-label-freeze-v2",
+  "status": "frozen",
+  "frozen_at": "2026-09-04",
+  "prediction_status": "not_generated_or_viewed",
+  "model_call_count": 0,
+  "files": {
+    "labels": {
+      "path": "datasets/unified_jd_surface_holdout_labels_v2_2026-09-04.json",
+      "sha256": "2524778cd8762258411d5dfa38739503fa5e4da62422ee903ef70bb9f7a18f86",
+      "version": "unified-jd-surface-holdout-labels-v2"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_surface_holdout_selection_v2_2026-09-04.json",
+      "sha256": "df0a107b6803600334e53d54e5787112e19b44c3905f49bd7585ad95d3b8c0eb",
+      "version": "unified-jd-surface-holdout-selection-v2"
+    },
+    "rules_freeze": {
+      "path": "datasets/unified_jd_surface_rules_freeze_v2_2026-09-04.json",
+      "sha256": "8ea0794baa2cbd065418115d1ca7f33509a1b5780a6c19e010134398868a226f",
+      "rules_sha256": "334326f387166ffd414395df1e9373ccaa13b5a40d83a16eef14972d6be6403f",
+      "extractor_version": "unified-jd-surface-items-grammar-v2"
+    },
+    "annotation_contract": {
+      "path": "docs/CANONICAL_ITEMS_CONTRACT_V1.md",
+      "sha256": "f7415a027df83d0f8b27dea05f1cded4c8777078aed0fb2b7755cf63bd3ca55c",
+      "version": "canonical-items-contract-v1"
+    },
+    "source_manifest": {
+      "path": "artifacts/evaluation/unified-jd-dev50-frozen-v2-2026-09-04.json",
+      "sha256": "58d0e5928f20181d9dd6cf7e598f09b3a7e25b1fdde7a426ab2ff135902fdd43",
+      "version": "unified-jd-dev50-frozen-v2-2026-09-04"
+    }
+  },
+  "scope": {
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "categories": [
+      "responsibility",
+      "skill",
+      "experience",
+      "capability"
+    ],
+    "unique_case_per_fixture": true
+  },
+  "gates": {
+    "surface_items_f1_min": 0.85,
+    "surface_exact_set_rate_min": 0.7,
+    "examples_f1_min": 0.8,
+    "unanchored_output_count_max": 0
+  },
+  "immutability_policy": "Any v2 labels or rules change requires new versioned files. The v2 holdout result must not be used to edit these frozen inputs."
+}

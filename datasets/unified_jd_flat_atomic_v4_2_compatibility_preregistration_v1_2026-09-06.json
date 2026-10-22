@@ -1,0 +1,277 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.2-compatibility-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_v4_2_implementation_and_gate_execution",
+  "objective": "Implement one opt-in v4.2 wire-compatibility layer that composes the frozen v4.1 responsibility-role normalization with the independently supported absent-fact omission and long self-sufficient evidence representation mechanisms.",
+  "claim_boundary": "The current external five-job batch is now revealed development data. Passing these gates establishes deterministic recovery and regression safety on frozen data only; it does not establish generalization and does not authorize another model call.",
+  "frozen_inputs": {
+    "external_revealed_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "external_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "external_formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-report-v1-2026-09-06.json",
+      "sha256": "211dcd9489fda6351db15b69ed0f1f1253fdfc79684d9e30fd86e3d6574cee80"
+    },
+    "v4_1_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "80f0c252a3bc8c188963fd673c86f455c2b838ba89f400913522ae6953445cc5"
+    },
+    "v4_1_formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-compatibility-report-v1-2026-09-06.json",
+      "sha256": "9acf3b3c708b2186e4592608727906824b42b3c76483594f337f3c59305926f6"
+    },
+    "v4_live_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-raw-responses-v1-2026-09-06.json",
+      "sha256": "81075fd2edaae3a2aa7fca3f13147e5cdeea0d5ae66cfc0ca62850a6f32b1e6b"
+    },
+    "v4_live_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-report-v1-2026-09-06.json",
+      "sha256": "158be052ff30af5b9834575f297a19efb0f1f585668c56aab2d9eb2861f96726"
+    },
+    "v4_dev20_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "v4_dev20_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-report-v1-2026-09-05.json",
+      "sha256": "342d7674dc9d8ebfc9f1011f8505ae0c70b83b267ea622571c911be0bef41b46"
+    },
+    "omission_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_absent_fact_omission_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "8f75457e3f93422666295d29f91c473d3218dae6cc276a61a67ede300ef90e59"
+    },
+    "omission_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_absent_fact_omission_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "53f3ca7b03c5ec35bb0d8fb9d67870758073f585f28ebc3b0bb6ee0f9ef7d1c9"
+    },
+    "omission_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-absent-fact-omission-oracle-report-v1-2026-09-06.json",
+      "sha256": "3a27083dc78b99fe686cd999118a2948405420828005369ab6faadd18ac7800c"
+    },
+    "long_span_oracle_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_long_evidence_span_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "ae367044d7db6172d21b5919de46372ea2c628759e9efde4db0bdfab8a5860ec"
+    },
+    "long_span_oracle_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_long_evidence_span_oracle_source_freeze_v1_2026-09-06.json",
+      "sha256": "88aea3ac68b675612e420a43b303d8802e46485f60b986fee2717bb93ddea3cc"
+    },
+    "long_span_oracle_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-long-evidence-span-oracle-report-v1-2026-09-06.json",
+      "sha256": "3b77ca3d172758c2f85bd5771886e2b698a42b8c8640dbb7c571d60617235589"
+    }
+  },
+  "frozen_observations": {
+    "external_revealed": {
+      "case_count": 5,
+      "baseline_strict_schema_valid_case_count": 0,
+      "v4_1_role_activation_count": 0,
+      "empty_absent_fact_placeholder_count": 27,
+      "empty_absent_fact_case_count": 4,
+      "eligible_long_evidence_span_count": 10,
+      "eligible_long_evidence_span_case_count": 1,
+      "mechanism_target_sets_disjoint": true,
+      "oracle_partition_covers_all_invalid_cases": true
+    },
+    "v4_live_probe": {
+      "case_count": 5,
+      "v4_1_role_activation_count": 18,
+      "v4_1_role_activation_case_count": 1,
+      "empty_absent_fact_placeholder_count": 0,
+      "eligible_long_evidence_span_count": 0,
+      "v4_1_strict_schema_valid_case_count": 5
+    },
+    "v4_dev20": {
+      "case_count": 20,
+      "atom_count": 427,
+      "v4_1_role_activation_count": 0,
+      "empty_absent_fact_placeholder_count": 0,
+      "eligible_long_evidence_span_count": 0,
+      "strict_schema_valid_case_count": 20
+    }
+  },
+  "v4_2_contract": {
+    "version": "unified-jd-flat-atomic-v4.2-compatibility-v1",
+    "input": "Untrusted parsed JSON-compatible object returned by the frozen flat-v4 request contract.",
+    "output": "A deep-copied JSON-compatible object plus an ordered immutable diagnostic list; the input object is never mutated.",
+    "pipeline_order": [
+      {
+        "order": 1,
+        "mechanism": "frozen_v4_1_responsibility_role_alias",
+        "operation": "Reuse the frozen v4.1 adapter unchanged: role=responsibility becomes item only when category=responsibility and level=mention.",
+        "diagnostic_code": "normalized_responsibility_role_alias"
+      },
+      {
+        "order": 2,
+        "mechanism": "omit_exact_empty_absent_fact_placeholder",
+        "eligibility": "fact mention is an object with raw_items exactly [], source_text exactly empty string, and level exactly null",
+        "operation": "Remove the complete fact element; preserve all other fact elements byte-for-byte and in order.",
+        "diagnostic_code": "omitted_empty_absent_fact_placeholder"
+      },
+      {
+        "order": 3,
+        "mechanism": "represent_long_self_sufficient_evidence_by_exact_surface",
+        "eligibility": "atom source_text length > 240; surface_item is a nonempty string of length <= 240; surface_item is an exact source_text substring; semantic_item equals surface_item",
+        "operation": "Replace only source_text with the existing surface_item.",
+        "diagnostic_code": "normalized_long_self_sufficient_evidence"
+      }
+    ],
+    "fail_closed_policy": [
+      "Malformed roots or arrays are returned unchanged except for independently eligible records in an existing list.",
+      "A partially matching fact placeholder is not omitted.",
+      "A long atom with null, overlong, unanchored, or semantic-divergent surface_item is not changed.",
+      "No missing field, semantic item, surface item, fact, category, level, relation, or qualifier is invented.",
+      "No company, title, URL, case id, corpus id, gold value, or fixture id is a runtime input."
+    ],
+    "audit_and_reversibility": {
+      "diagnostics_preserve_pipeline_order": true,
+      "fact_omission_records_original_index_and_full_value": true,
+      "field_replacement_records_path_before_and_after": true,
+      "reverse_in_strict_reverse_pipeline_order_must_restore_input": true,
+      "unactivated_records_must_equal_input": true
+    }
+  },
+  "scope": {
+    "model_calls_allowed": false,
+    "network_calls_allowed": false,
+    "new_holdout_collection_allowed_before_gate_pass": false,
+    "v4_or_v4_1_modification_allowed": false,
+    "default_parser_modification_or_execution_allowed": false,
+    "canonicalizer_modification_or_execution_allowed": false,
+    "existing_artifact_overwrite_allowed": false,
+    "current_external_five_are_development_data": true
+  },
+  "acceptance_gates": {
+    "G0-frozen-inputs-and-zero-calls": {
+      "requirements": [
+        "Every frozen input hash matches before execution.",
+        "Model and network call counts are zero.",
+        "All treatment and report artifacts are created exclusively."
+      ]
+    },
+    "G1-contract-pipeline-and-reversibility": {
+      "requirements": [
+        "The three mechanisms execute exactly once in the registered order.",
+        "Only registered fields and eligible elements change.",
+        "The input objects remain unchanged.",
+        "Reverse transformation reconstructs each frozen input exactly.",
+        "Diagnostics contain only the three registered codes and exact before/after evidence."
+      ]
+    },
+    "G2-external-revealed-5-of-5-recovery": {
+      "required_strict_schema_valid_case_count": 5,
+      "required_case_count": 5,
+      "required_activation_counts": {
+        "normalized_responsibility_role_alias": 0,
+        "omitted_empty_absent_fact_placeholder": 27,
+        "normalized_long_self_sufficient_evidence": 10
+      },
+      "requirements": [
+        "All five cases become strict flat-v4 schema valid.",
+        "The four omission targets and one long-span target form a disjoint complete recovery partition.",
+        "All source_text and nonnull surface_item values in the output remain exact substrings of the corresponding full job body.",
+        "No atom count, fact value, semantic value, or noneligible evidence value changes."
+      ]
+    },
+    "G3-v4-live-probe-v4_1-exact-preservation": {
+      "required_case_count": 5,
+      "required_strict_schema_valid_case_count": 5,
+      "required_activation_counts": {
+        "normalized_responsibility_role_alias": 18,
+        "omitted_empty_absent_fact_placeholder": 0,
+        "normalized_long_self_sufficient_evidence": 0
+      },
+      "requirements": [
+        "v4.2 output exactly equals the previously frozen v4.1-normalized live output.",
+        "All previously passed live G1, G5, and G6 outcomes remain unchanged.",
+        "The two new mechanisms do not activate."
+      ]
+    },
+    "G4-dev20-exact-zero-regression": {
+      "required_case_count": 20,
+      "required_atom_count": 427,
+      "required_total_activation_count": 0,
+      "requirements": [
+        "Every v4.2 output is byte-equivalent to its frozen dev-20 input.",
+        "All 20 responses remain strict schema valid.",
+        "No fact, atom, evidence, surface, or order changes."
+      ]
+    },
+    "G5-fail-closed-controls": {
+      "positive_controls": [
+        "Eligible responsibility alias changes only role and becomes strict valid.",
+        "Eligible exact empty absent fact is omitted and becomes strict valid.",
+        "Eligible long self-sufficient evidence changes only source_text and becomes strict valid.",
+        "One combined fixture activates all three mechanisms in pipeline order and becomes strict valid."
+      ],
+      "negative_controls": [
+        "Valid item/example roles remain unchanged.",
+        "role=responsibility with category other than responsibility remains unchanged and invalid.",
+        "role=responsibility with level other than mention remains unchanged and invalid.",
+        "An empty fact with nonnull level remains unchanged and invalid.",
+        "An empty-items fact with nonempty source_text remains unchanged and invalid.",
+        "A nonempty-items fact with empty source_text remains unchanged and invalid.",
+        "A source_text of exactly 240 characters remains unchanged.",
+        "A long atom with null surface_item remains unchanged and invalid.",
+        "A long atom with surface_item longer than 240 remains unchanged and invalid.",
+        "A long atom whose surface_item is not an exact source substring remains unchanged and invalid.",
+        "A long atom whose semantic_item differs from surface_item remains unchanged and invalid."
+      ],
+      "requirements": [
+        "Every positive control has exactly its registered activation count and validates after treatment.",
+        "Every negative control has zero activation for the tested mechanism and is byte-equivalent to input.",
+        "No invalid negative control is silently made valid by an unregistered repair."
+      ]
+    },
+    "G6-isolation-static-audit-and-tests": {
+      "runtime_allowed_imports": [
+        "standard library",
+        "frozen v4.1 compatibility adapter"
+      ],
+      "forbidden_runtime_dependencies": [
+        "model or network clients",
+        "default parser",
+        "canonicalizer",
+        "evaluation artifacts",
+        "gold labels",
+        "case or fixture identifiers"
+      ],
+      "requirements": [
+        "The v4.1 adapter and all v4 sources retain their frozen hashes.",
+        "Focused v4.2 tests and the full regression suite pass.",
+        "Static audit finds no forbidden imports, fixture ids, or artifact reads in runtime code.",
+        "Leakage checks inspect request construction and structured fields rather than searching arbitrary words such as expected inside untrusted job text."
+      ]
+    }
+  },
+  "evaluation_protocol": {
+    "all_gates_conjunctive": true,
+    "source_and_tests_frozen_before_formal_gate_execution": true,
+    "formal_gate_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_change_after_freeze_allowed": false,
+    "each_corpus_loaded_independently_from_its_frozen_raw": true,
+    "raw_oracle_outputs_not_used_as_v4_2_inputs": true,
+    "failure_policy": "Keep v4.1 as the latest accepted compatibility layer; retain the failed v4.2 report and diagnose only from frozen inputs."
+  },
+  "post_gate_protocol": {
+    "on_full_pass": [
+      "Freeze the v4.2 source and formal gate report as a development-qualified candidate.",
+      "Do not claim generalization from the revealed external five.",
+      "Only then collect and freeze a new public-job holdout whose URLs, bodies, companies, and responses were unavailable during v4.2 development.",
+      "Prefer at least two non-Ashby ATS hosts to address the current platform limitation.",
+      "Preregister the new holdout and request separate explicit authorization before any external transmission."
+    ],
+    "on_any_failure": [
+      "Do not collect or call a new holdout.",
+      "Do not modify thresholds or rerun v4.2.",
+      "Retain v4.1 and classify the frozen failure offline before any new version."
+    ]
+  },
+  "next_allowed_action": "Implement the isolated v4.2 adapter, evaluator, gate runner, and focused controls exactly as registered; freeze their hashes; then execute the development and regression gates once with zero model and network calls."
+}

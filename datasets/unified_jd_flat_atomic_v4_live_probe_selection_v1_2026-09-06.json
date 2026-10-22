@@ -1,0 +1,112 @@
+{
+  "selection_version": "unified-jd-flat-atomic-v4-live-probe-selection-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_live_runner_implementation",
+  "independence_scope": "Independent of the flat-v4 dev-20 and case121 probe, but drawn from the same frozen dev-50 corpus; this is not an external generalization holdout.",
+  "source_manifest": {
+    "path": "artifacts/evaluation/unified-jd-dev50-frozen-v2-2026-09-04.json",
+    "sha256": "58d0e5928f20181d9dd6cf7e598f09b3a7e25b1fdde7a426ab2ff135902fdd43"
+  },
+  "exclusion_manifest": {
+    "path": "artifacts/evaluation/unified-jd-model-first-v1-dev20-2026-09-05.json",
+    "sha256": "d354e8c02a1c54b7fb33285ec3843d294474454915d19093bab8521de8a99f81"
+  },
+  "selection_policy": "Exclude all dev-20 case ids. On source-only candidate records, fill five strata in fixed order: longest source, shortest-source control, most nonempty lines, most alternative markers, and most example markers. Remove each selected case before the next stratum; break ties by source SHA-256. Frozen labels and prior predictions are not read by selection.",
+  "candidate_count": 30,
+  "excluded_case_count": 20,
+  "selected_case_count": 5,
+  "selected_case_ids": [
+    "campus-ai-109",
+    "campus-ai-070",
+    "campus-ai-124",
+    "campus-ai-142",
+    "campus-ai-086"
+  ],
+  "cases": [
+    {
+      "case_id": "campus-ai-109",
+      "raw_content": "岗位名称：【27届校招】Harness算法工程师\n工作地点：大连\n招聘类型：应届生\n招聘项目：信华信2027届AI硕士校招\n【27届校招】Harness算法工程师\n大连正式研发 - 算法\n职位描述\n1. 负责新一代 Agent Harness 的技术研发，围绕 Agent 的运行时环境、任务执行、上下文管理、Memory、Skill、Tool、Evaluation、Observability 等核心模块构建完整的 Agent Runtime 能力。\n2. 研究 Agent Harness 对任务成功率、稳定性、效率和成本的影响机制，设计并优化 Agent 的 Context Management、Memory Retrieval、Skill Selection、Tool Routing、Task Planning 等关键模块。\n3. 负责 Agent Memory 系统、可演化 Agent Knowledge 系统、 Agent Skill 系统和 Skill Ops 能力建设、 Agent Observability 与 Governance 等相关技术研发。\n4. 构建 Agent Evaluation 与 Optimization 体系，研究 Agent 的长期运行和自我进化机制，通过运行轨迹、用户反馈、任务结果和失败案例构建数据闭环，探索 Memory、Skill、Prompt、Workflow 等外部能力的自动优化，以及 Agent 的持续学习和能力演化。\n5. 针对不同 Agent 场景设计和优化 Harness，通过实验和线上数据分析持续提升 Agent 在长程任务、复杂任务和多工具环境下的执行效果。\n6. 跟踪 Agent Harness、Agent Runtime、Memory、Skill Ops、Evaluation、Agent Governance 等前沿方向，进行论文、开源项目及业界方案调研、复现和技术创新。\n职位要求\n1. 计算机、人工智能、机器学习、自然语言处理、软件工程或相关专业硕士及以上学历。\n2. 对 LLM Agent 的基本运行机制有深入理解，熟悉 Agent Runtime、Context Engineering、Tool Calling、Planning、Memory、RAG、Skill 等核心技术。\n3. 能够独立设计和实现 Agent 的评测与优化体系，具备较强的数据分析、实验设计及 Bad Case 定位能力，具备较强的问题抽象能力和技术判断能力，能够从 Agent 的实际失败案例中抽象出算法问题，并转化为可验证、可迭代的技术方案。\n4. 具备 Python 编程能力，熟悉常见 Agent / LLM 技术栈；具备 Redis、向量数据库、PostgreSQL、消息队列、分布式系统或云原生开发经验者优先。\n5. 有 LangGraph、LangChain、LlamaIndex、OpenClaw、Hermes、Pi 或自研 Agent Harness / Runtime 等项目实践经验者优先。\n6. 有相关论文、开源项目、技术博客、竞赛成果或较大规模 Agent 系统研发经验者优先。\n7. 对 Agent 系统的可解释性、安全性、稳定性和成本优化具有较强意识，有生产级 Agent 平台或复杂 AI 系统经验者优先。",
+      "source_content_sha256": "9f31a52a4ba823e872cbe020188c0c9ddbc816ff48f339c017725219cd128e6b",
+      "observable_features": {
+        "character_count": 1405,
+        "nonempty_line_count": 21,
+        "alternative_marker_count": 7,
+        "example_marker_count": 7,
+        "preference_marker_count": 4,
+        "coordination_marker_count": 86,
+        "contact_marker_count": 0
+      },
+      "selection_stratum": "longest-source",
+      "selection_metric": "character_count",
+      "selection_metric_value": 1405
+    },
+    {
+      "case_id": "campus-ai-070",
+      "raw_content": "岗位名称：2027届-SDK开发工程师\n工作地点：北京/苏州/上海\n招聘类型：应届生\n招聘项目：Momenta 2027届校园招聘\n2027届-SDK开发工程师\n北京、苏州、上海\n2027届校园招聘\n职位描述\n1、参与Momenta大模型算法车端部署C++模块的开发、重构与维护； 2、参与Momenta大模型主线化演进架构设计、工程量产评测体系建设。\n职位要求\n1、本科及以上学历，计算机及相关专业者优先； 2、C++编程、架构设计、问题拆解与沟通能力出众者优先； 3、有智能驾驶及类似AI领域业务实习经历者优先，了解AI模型部署相关工程技术者优先； 4、能熟练使用AI辅助编程者优先。",
+      "source_content_sha256": "63268464cce3193186aaef5290d541a7cb7265c18a9fde1a2bee37c64209543e",
+      "observable_features": {
+        "character_count": 294,
+        "nonempty_line_count": 11,
+        "alternative_marker_count": 2,
+        "example_marker_count": 0,
+        "preference_marker_count": 5,
+        "coordination_marker_count": 17,
+        "contact_marker_count": 0
+      },
+      "selection_stratum": "shortest-source-control",
+      "selection_metric": "character_count",
+      "selection_metric_value": 294
+    },
+    {
+      "case_id": "campus-ai-124",
+      "raw_content": "岗位名称：算法工程师-2027届\n工作地点：苏州/上海/北京/深圳/西安\n招聘类型：应届生\n招聘项目：普源精电2027届校园招聘\n算法工程师-2027届\n20-30K\n苏州、上海、北京、深圳、西安研发 - 算法硕士及以上\n职位描述\n1. 前沿算法研究与设计：\n- 针对公司产品领域的需求，进行相关算法的预研、设计和理论分析。\n- 深入研究并开发包括但不限于：数字信号处理（滤波、谱分析、相关、卷积等）、精密仪器校准与误差补偿算法、数字通信与调制解调算法、高速时钟恢复与抖动分析算法、相位噪声分析算法、电源控制与优化算法等。\n2. 系统建模与仿真：\n- 负责建立相关产品功能的数学模型和系统级仿真平台（如使用MATLAB, Simulink, Python等）。\n- 通过仿真验证算法可行性、评估算法性能，并进行参数优化。\n3. 算法实现与验证支持：\n- 参与制定产品系统方案，提供算法层面的专业分析与规格定义。\n- 编写清晰的算法设计文档和技术规范，指导FPGA工程师进行硬件逻辑实现或软件工程师进行嵌入式/上位机代码实现。\n- 配合团队进行算法在FPGA、DSP、MCU或PC平台的移植、调试、验证与性能优化。\n- 分析测试数据，定位并解决算法在实际应用中遇到的问题。\n4. 技术创新与积累：\n- 跟踪相关领域的最新技术进展，探索新的算法理论与应用。\n- 参与技术专利撰写和技术成果的分享。\n职位要求\n1. 学历专业：硕士及以上学历（博士优先），信号与信息处理、通信工程、电子工程、计算机科学、应用数学、物理学、自动化等相关专业。\n2. 理论基础扎实：\n- 精通数字信号处理（DSP）理论，熟悉随机过程、概率论、矩阵论、优化理论等数学基础。\n- 对以下至少一个或多个领域有深入理解和研究：通信原理、电磁场与微波技术、控制理论、测量理论、数据分析等。\n3. 算法研发能力：\n- 具备较强的算法设计、分析和实现能力，熟悉至少一种主流仿真工具（如MATLAB/Simulink, Python with Scipy/Numpy）。\n- 有实际项目经验，参与过上述职责中提及的至少一类算法（如校准、时钟恢复、抖动分析、信号处理等）的设计、仿真或验证者优先。\n4. 编程与工程素养：\n- 熟悉C/C++或Python编程，具备良好的编程习惯。\n- 对算法在硬件（FPGA/ASIC）或软件（嵌入式/PC）上的实现流程有一定了解。\n5. 综合素质：\n- 具备优秀的逻辑思维、问题分析与解决能力，对技术研究有浓厚兴趣。\n- 学习能力强，求知欲旺盛，能够快速掌握新知识、新工具。\n- 良好的中英文科技文献阅读和撰写能力。\n- 优秀的沟通表达能力和团队协作精神。",
+      "source_content_sha256": "b2f66b59d1e3e5f6ed333654ac4c3f2b6289ac89ecd56ee7f213724d41555e01",
+      "observable_features": {
+        "character_count": 1123,
+        "nonempty_line_count": 38,
+        "alternative_marker_count": 17,
+        "example_marker_count": 8,
+        "preference_marker_count": 2,
+        "coordination_marker_count": 66,
+        "contact_marker_count": 0
+      },
+      "selection_stratum": "most-nonempty-lines",
+      "selection_metric": "nonempty_line_count",
+      "selection_metric_value": 38
+    },
+    {
+      "case_id": "campus-ai-142",
+      "raw_content": "岗位名称：校招-AI安全工程师\n工作地点：上海\n招聘类型：应届生\n招聘项目：蔚来2027届校园招聘\n校招-AI安全工程师\n上海校招正式数字技术 - 数字安全硕士及以上2027届校园招聘-正式批职位 ID：A219781\n职位描述\n寻找对AI安全充满热情的应届生，深度参与AI系统攻防、具身智能／物理AI（Physical AI）安全研发、安全智能体研发、Agentic安全运营等前沿方向。我们的安全战场覆盖网络空间和物理世界，从大模型红队测试，到智能辅助驾驶、智能座舱等整车功能安全保障，从模型研发到架构演进，快速成长。\n岗位职责\n1. AI安全评估：负责LLM/Agent/RAG应用的红队测试与渗透，挖掘Prompt注入、越权、数据泄露等风险；开展Web/API/移动端安全测试，沉淀攻击知识库。\n2. 安全大模型与智能体：参与垂直领域模型训练与微调（SFT/RLHF等）；设计安全Agent及工作流；开发AI驱动的代码扫描、SCA、漏洞研判工具。\n3. Physical AI安全：针对具身智能、智能辅助驾驶等Physical AI系统，进行新型威胁和攻击面的安全评估，参与Physical AI系统的安全能力框架设计。\n4. 安全运营与前沿研究：参与安全告警研判与响应自动化；探索大模型在威胁情报、修复建议中的应用；攻关隐私计算、对抗防御等课题，参与下一代架构设计。\n5. 数据安全与供应链：参与数据安全产品建设，负责SBOM、开源合规及整车AI Safety相关能力研发。\n6. 整车AI安全功能与防护：针对智能辅助驾驶感知/决策算法、VLA/VLM多模态模型、智能座舱交互系统等整车智能功能，开展AI安全评估与测试；参与整车AI Safety功能安全（预期功能安全SOTIF）与数字安全融合设计，构建覆盖“云-车-路”的全链路安全防御体系。\n职位要求\n1. 2027届本科及以上，网络安全、计算机、人工智能AI、Physical AI/具身智能安全等相关专业优先\n2. 扎实编程（Python/Java/C++/Go），熟悉数据结构；了解LLM/Agent/RAG原理及OWASP Top 10 for LLM；熟悉Web漏洞；了解模型微调或云安全/DevSecOps、了解Physical AI/具身智能安全等相关领域者优先。\n3. 强自驱、探索欲、系统思维、团队协作。\n4. 加分项：竞赛获奖（ACM/CTF/Kaggle）、顶会论文、SRC漏洞、大模型/Agent项目、LangChain/Garak经验、Physical AI/具身智能安全等领域高质量开源项目。\n我们提供\n前沿技术挑战、多元发展方向、快速成长平台、产学研融合视野——与顶尖团队共筑AI安全未来。",
+      "source_content_sha256": "cc3b962deda2c4a94b10caeb9855dc1d5cbb7ee828ce2f9acd6b49917c9202a6",
+      "observable_features": {
+        "character_count": 1141,
+        "nonempty_line_count": 22,
+        "alternative_marker_count": 21,
+        "example_marker_count": 10,
+        "preference_marker_count": 3,
+        "coordination_marker_count": 51,
+        "contact_marker_count": 0
+      },
+      "selection_stratum": "most-alternative-markers",
+      "selection_metric": "alternative_marker_count",
+      "selection_metric_value": 21
+    },
+    {
+      "case_id": "campus-ai-086",
+      "raw_content": "岗位名称：【2027届秋招】Agent开发工程师（平台）\n工作地点：上海\n招聘类型：应届生\n招聘项目：沐瞳科技2027届秋季校园招聘\n【2027届秋招】Agent开发工程师（平台）\n上海正式研发 - 大数据技术岗位2027届秋季校园招聘\n职位描述\n1. 参与 AI Agent 平台及智能工作工具的建设，探索 AI 在游戏研发和日常工作中的应用；\n2. 参与 Agent 工作流、上下文工程、知识检索、工具调用和自动化任务等能力的研发与优化；\n3. 参与 Agent、Skill、插件及 AI 应用的接入、调试、发布和复用，推动优秀实践沉淀为标准化能力；\n4. 推动 AI 能力与项目管理、文档、消息及研发工具等现有系统集成，融入真实业务流程；\n5. 参与模型调用、运行追踪、效果评测和成本分析，持续提升 Agent 的稳定性、易用性和任务完成效果；\n6. 跟进大模型、Agent 框架和 AI 编程工具等前沿技术，参与技术调研、原型验证与工程化落地；\n7. 与产品、研发、TA、引擎、工具链等团队协作，理解实际问题并提供 AI Native 的解决方案。\n职位要求\n1. 本科及以上学历，计算机、软件工程、人工智能等相关专业优先；\n2. 具备扎实的编程基础，熟悉 Go、Python等主流编程语言，具备良好的代码习惯和工程意识；\n3. 了解数据结构、算法、操作系统、计算机网络、数据库等基础知识，能够理解并参与平台型系统的设计与开发；\n4. 了解服务端开发基础，熟悉 HTTP/gRPC API、数据库、缓存、消息队列、任务调度、权限控制、日志监控等常见后端开发概念；有 Go 服务端开发经验优先；\n5. 对大模型、AI Agent、开发者工具和智能工作流有浓厚兴趣，并有相关工具的实际使用经验；\n6. 了解 Prompt Engineering、LLM API、RAG、Function Calling / Tool Use、Agent 工作流等基本概念；课程、实习或个人项目经验均可；\n7. 具备较强的学习能力、问题拆解能力和动手能力，能够完成方案分析、原型开发和效果验证；\n8. 具备良好的沟通协作能力，愿意深入游戏研发及不同业务流程理解真实需求，并推动 AI 能力在实际场景中落地。\n\n加分项\n1. 了解 Agent SDK、LangChain、AutoGen、MCP、RAG、上下文工程、Prompt 编排、多 Agent 协作或自动化工作流等相关技术者优先；\n2. 了解 Agent 调试、运行追踪、效果评测、日志分析、Token 成本分析或可观测性建设者优先；\n3. 对 AI Native 产品、人机协作方式、Agent 工作台形态或智能研发工具有自己的思考或实践。",
+      "source_content_sha256": "9e53b5bab4d54ac7921946ee67e028bb2747d1f678c8233b09cb4bb6bd94245a",
+      "observable_features": {
+        "character_count": 1142,
+        "nonempty_line_count": 27,
+        "alternative_marker_count": 7,
+        "example_marker_count": 10,
+        "preference_marker_count": 5,
+        "coordination_marker_count": 83,
+        "contact_marker_count": 0
+      },
+      "selection_stratum": "most-example-markers",
+      "selection_metric": "example_marker_count",
+      "selection_metric_value": 10
+    }
+  ]
+}

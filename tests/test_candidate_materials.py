@@ -20,6 +20,15 @@ from src.main import app
 from src.services.candidate_material_service import CandidateMaterialService
 
 
+async def confirm_parse(client, headers, asset_id):
+    response = await client.get(f"/api/resumes/assets/{asset_id}/preview", headers=headers)
+    assert response.status_code == 200, response.text
+    preview = response.json()
+    response = await client.post(f"/api/resumes/assets/{asset_id}/parse", headers=headers,
+                                json={"confirmed": True, "preview_hash": preview["preview_hash"], "text": preview["text"]})
+    assert response.status_code == 200, response.text
+
+
 @pytest.fixture()
 def private_storage(
     tmp_path: Path,
@@ -249,6 +258,7 @@ async def test_resume_upload_replaces_only_prior_api_extracted_evidence(
                 )
             },
         )
+        await confirm_parse(client, headers, first.json()["id"])
         after_first = await client.get("/api/evidence", headers=headers)
         second = await client.post(
             "/api/resumes/assets",
@@ -261,6 +271,7 @@ async def test_resume_upload_replaces_only_prior_api_extracted_evidence(
                 )
             },
         )
+        await confirm_parse(client, headers, second.json()["id"])
         after_second = await client.get("/api/evidence", headers=headers)
 
     assert manual.status_code == 201
@@ -281,7 +292,7 @@ async def test_resume_upload_replaces_only_prior_api_extracted_evidence(
 
 
 @pytest.mark.asyncio
-async def test_resume_ingestion_failure_removes_new_asset(
+async def test_empty_resume_can_be_stored_but_cannot_be_previewed(
     private_storage: Path,
 ) -> None:
     headers = {"X-User-ID": "empty-resume-owner"}
@@ -300,14 +311,17 @@ async def test_resume_ingestion_failure_removes_new_asset(
         )
         assets = await client.get("/api/resumes/assets", headers=headers)
 
-    assert response.status_code == 422
-    assert response.json()["error"]["code"] == "resume_text_empty"
-    assert assets.json() == []
-    assert list(private_storage.rglob("*.pdf")) == []
+        preview = await client.get(f"/api/resumes/assets/{response.json()['id']}/preview", headers=headers)
+
+    assert response.status_code == 201
+    assert preview.status_code == 422
+    assert preview.json()["error"]["code"] == "resume_text_empty"
+    assert len(assets.json()) == 1
+    assert len(list(private_storage.rglob("*.pdf"))) == 1
 
 
 @pytest.mark.asyncio
-async def test_existing_asset_is_backfilled_when_activated_as_resume_version(
+async def test_approved_extraction_is_reused_when_switching_resume_version(
     private_storage: Path,
     db_session,
 ) -> None:
@@ -331,6 +345,8 @@ async def test_existing_asset_is_backfilled_when_activated_as_resume_version(
     )
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        await confirm_parse(client, headers, second_asset.id)
+        await confirm_parse(client, headers, first_asset.id)
         first_version = await client.post(
             "/api/resumes/versions",
             headers=headers,

@@ -1,0 +1,62 @@
+{
+  "version": "ai-campus-v31-dev15-selection-v1-2026-09-02",
+  "status": "development_not_holdout",
+  "purpose": "Non-blind development and regression set for Core Parser v31",
+  "source": {
+    "split": "remaining51-dev21",
+    "manifest_path": "artifacts/evaluation/m11-ai-campus-manifest-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+    "manifest_sha256": "28d1460b1f0d0e61aa9274447b86f8a34f56512666abe2a03d1a0e0afe899e51",
+    "label_path": "datasets/ai_campus_label_overrides_v14_remaining51_dev21_reviewed.json",
+    "label_sha256": "9f323bceee3059af513de8753fb08978d6d7d117448da90a963843c8475bc9ea"
+  },
+  "blind_data_policy": {
+    "blind8_included": false,
+    "blind8_prediction_reuse": false,
+    "note": "No blind-8 JD or prediction may be used for v31 tuning or replay."
+  },
+  "case_count": 15,
+  "buckets": {
+    "v30_regression": [
+      "campus-ai-008",
+      "campus-ai-024",
+      "campus-ai-037",
+      "campus-ai-078",
+      "campus-ai-147"
+    ],
+    "v31_generalization": [
+      "campus-ai-001",
+      "campus-ai-011",
+      "campus-ai-015",
+      "campus-ai-029",
+      "campus-ai-080",
+      "campus-ai-097",
+      "campus-ai-102",
+      "campus-ai-121",
+      "campus-ai-128",
+      "campus-ai-160"
+    ]
+  },
+  "cases": [
+    {"id": "campus-ai-008", "bucket": "v30_regression", "coverage": ["nested_any_of", "project_experience", "parent_options"]},
+    {"id": "campus-ai-024", "bucket": "v30_regression", "coverage": ["weak_mentions", "negative_any_of", "agent_tools"]},
+    {"id": "campus-ai-037", "bucket": "v30_regression", "coverage": ["open_any_of", "project_experience", "open_source_experience"]},
+    {"id": "campus-ai-078", "bucket": "v30_regression", "coverage": ["direction_any_of", "required_understanding", "robot_experience"]},
+    {"id": "campus-ai-147", "bucket": "v30_regression", "coverage": ["negative_any_of", "internship_experience", "direct_work_abilities"]},
+    {"id": "campus-ai-001", "bucket": "v31_generalization", "coverage": ["multiple_any_of", "open_group", "parallel_requirements"]},
+    {"id": "campus-ai-011", "bucket": "v31_generalization", "coverage": ["parent_category", "framework_examples", "preferred_strength"]},
+    {"id": "campus-ai-015", "bucket": "v31_generalization", "coverage": ["direct_work_abilities", "development_experience", "no_any_of"]},
+    {"id": "campus-ai-029", "bucket": "v31_generalization", "coverage": ["ordinary_enumeration", "open_any_of", "framework_category"]},
+    {"id": "campus-ai-080", "bucket": "v31_generalization", "coverage": ["multiple_any_of", "framework_examples", "inference_engine"]},
+    {"id": "campus-ai-097", "bucket": "v31_generalization", "coverage": ["alias_normalization", "multiple_any_of", "preferred_tools"]},
+    {"id": "campus-ai-102", "bucket": "v31_generalization", "coverage": ["method_any_of", "preferred_examples", "practical_experience"]},
+    {"id": "campus-ai-121", "bucket": "v31_generalization", "coverage": ["required_vs_preferred", "open_any_of", "project_experience"]},
+    {"id": "campus-ai-128", "bucket": "v31_generalization", "coverage": ["preferred_parent_category", "tool_examples", "ordinary_enumeration"]},
+    {"id": "campus-ai-160", "bucket": "v31_generalization", "coverage": ["experience_any_of", "weak_mentions", "preferred_domains"]}
+  ],
+  "evaluation_policy": {
+    "first_api_batch": 5,
+    "full_dev_batch": 15,
+    "no_automatic_retry": true,
+    "qualifier_metric_status": "diagnostic_until_concept_aware_dev_labels_are_reviewed"
+  }
+}

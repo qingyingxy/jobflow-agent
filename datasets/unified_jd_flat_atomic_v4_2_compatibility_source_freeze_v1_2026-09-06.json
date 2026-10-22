@@ -1,0 +1,38 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.2-compatibility-source-freeze-v1",
+  "frozen_at": "2026-09-06T02:34:42.2725804Z",
+  "status": "frozen_before_formal_gate_execution",
+  "preregistration_sha256": "30666ee67adfc5448c6b3cc5b9b8bc8ed01cbb6476c95e78ce582620f47e8b2b",
+  "preregistration_freeze_sha256": "fa1ef9abc1154ea527ae1e55784cb69b1acb2217bf11e84dbab40908110b2a17",
+  "artifacts": {
+    "compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_2_compatibility.py",
+      "sha256": "bed15387369d7f164f7a235c057a87ef5bc61dd394769c20ac1201a834a3cd68"
+    },
+    "compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_2_compatibility.py",
+      "sha256": "c30a6fabaa3316b044852137d05e83f387346df000371b67d5fc96aeea5b9d36"
+    },
+    "gate_runner": {
+      "path": "scripts/evaluate_unified_jd_flat_atomic_v4_2_compatibility_gates.py",
+      "sha256": "67983ee5562c253c3481914b088ecfc7aad62b8a3f905a2ba6dbc8989f7e6b5f"
+    },
+    "focused_tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_2_compatibility.py",
+      "sha256": "7b2125e13d38db6a94affd878e7732643abd93b9fa8353c336cb37e8c6059336"
+    }
+  },
+  "pre_freeze_verification": {
+    "focused_and_related_test_count": 27,
+    "focused_and_related_tests_passed": true,
+    "full_suite_test_count": 922,
+    "full_suite_tests_passed": true,
+    "ruff_check_passed": true,
+    "runtime_static_isolation_passed": true
+  },
+  "implementation_targets_existed_at_preregistration_freeze": false,
+  "new_model_call_count": 0,
+  "network_call_count": 0,
+  "new_holdout_loaded": false,
+  "immutability": "Any source, test, frozen input, activation predicate, pipeline order, or threshold change invalidates the one-time v4.2 formal gate execution."
+}

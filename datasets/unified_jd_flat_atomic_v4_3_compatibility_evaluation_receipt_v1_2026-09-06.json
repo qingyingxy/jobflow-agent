@@ -1,0 +1,68 @@
+{
+  "receipt_version": "unified-jd-flat-atomic-v4.3-compatibility-evaluation-receipt-v1",
+  "recorded_at": "2026-09-06T03:02:11.3033653Z",
+  "status": "formal_gates_passed_development_qualified_candidate",
+  "formal_gate_execution_count": 1,
+  "artifacts": {
+    "source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "955922d4576d4782359f9d4dcbd73f00fc1b611edba6149232cde647dc9d9609"
+    },
+    "treatment": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-compatibility-treated-raw-v1-2026-09-06.json",
+      "sha256": "1abd84f19fb1879968119ea79497e86ee37a0ce486d4f37da57f1d2c42d47bb5"
+    },
+    "report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-compatibility-report-v1-2026-09-06.json",
+      "sha256": "fa9d1a51e57dde4e3d811ee2d2dece16ec368122ef2582547397985fe87e1cdb"
+    }
+  },
+  "decision": "development_and_regression_gates_passed",
+  "gate_results": {
+    "G0-frozen-inputs-source-isolation-and-zero-calls": true,
+    "G1-forward-byte-equivalence": true,
+    "G2-external-revealed-reversibility-recovery": true,
+    "G3-legacy-zero-regression": true,
+    "G4-consecutive-tail-omission-control": true,
+    "G5-fail-closed-reverse-controls": true,
+    "G6-static-audit-and-tests": true
+  },
+  "frozen_results": {
+    "external_strict_schema_valid_case_count": 5,
+    "external_case_count": 5,
+    "external_forward_exactly_equal_to_v4_2": true,
+    "external_v4_2_exact_reverse_restoration_case_count": 1,
+    "external_v4_3_exact_reverse_restoration_case_count": 5,
+    "external_omission_reverse_restoration_case_count": 4,
+    "external_long_evidence_reverse_restoration_case_count": 1,
+    "external_evidence_exactly_anchored": true,
+    "live_case_count": 5,
+    "live_exactly_equal_to_v4_1_and_v4_2": true,
+    "live_exact_reverse_restoration_case_count": 5,
+    "dev20_case_count": 20,
+    "dev20_atom_count": 427,
+    "dev20_exact_reverse_restoration_case_count": 20,
+    "dev20_total_activation_count": 0,
+    "existing_control_count": 16,
+    "existing_controls_passed": true,
+    "tail_control_omission_count": 7,
+    "tail_control_fact_indices": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "tail_control_v4_2_reverse_restores_input": false,
+    "tail_control_v4_3_reverse_restores_input": true,
+    "focused_and_related_test_count": 43,
+    "full_suite_test_count": 938
+  },
+  "model_call_count": 0,
+  "network_call_count": 0,
+  "new_holdout_loaded": false,
+  "claim_limit": "v4.3 is development-qualified on frozen revealed data only; no generalization claim is made.",
+  "next_allowed_action": "Preregister a genuinely new independent public-job holdout, then request separate explicit authorization before transmitting any full job body."
+}

@@ -1,0 +1,73 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05T15:54:51.380157+00:00",
+  "status": "frozen_before_implementation",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_preregistration_v1_2026-09-05.json",
+      "sha256": "0f8a7af1a0dc4711b42a1b04e1ca7a65feaedbf7c0ee1703dfe0b070d773f7b4"
+    },
+    "builder": {
+      "path": "scripts/build_unified_jd_flat_atomic_v4_preregistration.py",
+      "sha256": "d3971da6b98666f737ef1803c01c5a635288a9ed8ab5f801a454673e9757f248"
+    }
+  },
+  "frozen_inputs": {
+    "development_manifest": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v1-dev20-2026-09-05.json",
+      "sha256": "d354e8c02a1c54b7fb33285ec3843d294474454915d19093bab8521de8a99f81"
+    },
+    "v1_predictions_with_raw_responses": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v1-dev20-predictions-v1-2026-09-05.json",
+      "sha256": "ea61b70a3ceed3a84bfc90ff0b2977cf547a7af105bbe12bd78056d369b75ee8"
+    },
+    "v3_layer_projection": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-dev20-layer-projection-2026-09-05.json",
+      "sha256": "b813c388a4fff85fca241ddb9616c319584d0d066c7dba5689700e9cad70e2b5"
+    },
+    "v3_layer_report": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-dev20-report-2026-09-05.json",
+      "sha256": "c7a713a0ccbd42dcb357d10fa311b743142ec11dad580b10df24d2f1701fee4e"
+    },
+    "nested_v3_case121_raw_response": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-surface-probe-case121-raw-response-2026-09-05.json",
+      "sha256": "2e03cf98ff0fb28faf5e0bba0fd4bb7965b32cd83532793ba1dbd5860516aa4d"
+    },
+    "nested_v3_case121_offline_analysis": {
+      "path": "artifacts/evaluation/unified-jd-model-first-v3-surface-probe-case121-offline-analysis-2026-09-05.json",
+      "sha256": "a92df8b15dfb876d4ab913aa1f7e9dfbc3a464330d066b9bf2902bbc1491d96d"
+    },
+    "default_parser": {
+      "path": "src/services/unified_jd_parser.py",
+      "sha256": "86226a5fe7c9bf8e58c53ecb6902661847be7f08e5c44a0ca1aa8b31357ea36e"
+    },
+    "canonicalizer": {
+      "path": "src/domain/unified_jd_canonicalizer.py",
+      "sha256": "5e745b04296407005a063f9c59eb470c093eb9bea43ac3d87f65827100d8ecbf"
+    },
+    "v3_domain_contract": {
+      "path": "src/domain/unified_jd_extraction.py",
+      "sha256": "d8197158b9a0c33e763363025a5f157e5c4cae60c31b8d69840999b31a86dcdb"
+    },
+    "v3_compiler": {
+      "path": "src/services/unified_jd_extraction.py",
+      "sha256": "b28b83f809cba1ff7e9ba8b0ff1987999de70324887589329d8210b8ea7a19eb"
+    },
+    "v3_evaluator": {
+      "path": "src/evaluation/model_first_v3.py",
+      "sha256": "84d1e8aee25bd4b67d148fa8f13089edd71947e62b11c2d27f4f71882efdd9e3"
+    }
+  },
+  "checks": {
+    "implementation_targets_existed_at_freeze": false,
+    "model_call_count_available": 0,
+    "network_call_count_available": 0,
+    "historical_model_call_budget_consumed": 21,
+    "historical_model_call_budget_remaining": 0,
+    "canonicalizer_allowed": false,
+    "nested_model_first_v3_activation_allowed": false,
+    "default_parser_modification_allowed": false
+  },
+  "immutability": "Any change to the atom schema, grouping key, source policy, gate, threshold, or frozen input requires a new preregistration before implementation.",
+  "next_allowed_action": "Implement only the flat atomic v4 contract, deterministic compiler, offline evaluator, runner, and tests; freeze their source, then execute the gates once."
+}

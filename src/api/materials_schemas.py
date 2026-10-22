@@ -1,16 +1,24 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.materials import (
     AnswerScope,
     AnswerSensitivity,
     PrivateFieldState,
     VoluntaryDisclosurePolicy,
 )
+
+
+class ResumeParseConfirmation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    confirmed: Literal[True]
+    preview_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    text: str = Field(min_length=1, max_length=60000)
 
 
 class PrivateStringField(BaseModel):
@@ -135,8 +143,8 @@ class CandidatePrivateProfileRead(BaseModel):
     voluntary_disclosure_policy: VoluntaryDisclosurePolicy
     readiness: Literal["ready", "needs_confirmation"]
     needs_confirmation: list[ConfirmationItem]
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class ResumeAssetRead(BaseModel):
@@ -148,7 +156,7 @@ class ResumeAssetRead(BaseModel):
     media_type: str
     size_bytes: int
     sha256: str
-    created_at: datetime
+    created_at: UtcTimestamp
 
 
 class ResumeVersionCreate(BaseModel):
@@ -193,8 +201,8 @@ class ResumeVersionRead(BaseModel):
     generation_reason: str
     is_default: bool
     asset: ResumeAssetRead
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class AnswerBankCreate(BaseModel):
@@ -239,6 +247,6 @@ class AnswerBankRead(BaseModel):
     scope_type: AnswerScope
     scope_value: str
     sensitivity: AnswerSensitivity
-    confirmed_at: datetime
-    created_at: datetime
-    updated_at: datetime
+    confirmed_at: UtcTimestamp
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, status
 
 from src.api.dependencies import CurrentUserId, DatabaseSession
 from src.api.schemas import (
@@ -25,6 +25,7 @@ from src.services.company_registry import (
     company_source_hosts,
     enabled_company_source_hosts,
     enabled_company_sources,
+    provider_source_options,
 )
 from src.services.discovery_results import current_run_matches
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
@@ -111,9 +112,10 @@ def create_greenhouse_adapter(
 def create_official_search_adapter(
     query: str,
     company_ids: list[str] | None = None,
+    *, sources=None,
 ) -> OfficialCompanyRegistryAdapter:
     settings = get_settings()
-    sources = enabled_company_sources(company_ids)
+    sources = sources if sources is not None else enabled_company_sources(company_ids)
     return OfficialCompanyRegistryAdapter(
         sources=sources,
         query=query,
@@ -193,12 +195,14 @@ def list_job_leads(
     user_id: CurrentUserId,
     session: DatabaseSession,
     lead_status: JobLeadStatus | None = None,
+    discovery_run_id: str | None = None,
 ) -> list[JobLeadRead]:
     return [
         JobLeadRead.model_validate(lead)
         for lead in JobLeadService(session).list_leads(
             user_id=user_id,
             status=lead_status,
+            discovery_run_id=discovery_run_id,
         )
     ]
 
@@ -229,7 +233,7 @@ async def verify_job_lead(
     session: DatabaseSession,
 ) -> JobLeadDetailRead:
     service = JobLeadService(session)
-    official_hosts = enabled_company_source_hosts()
+    official_hosts = enabled_company_source_hosts(session=session, user_id=user_id)
     official_hosts.update(GreenhouseAdapter.supported_hosts)
     try:
         await service.verify_url(
@@ -282,7 +286,7 @@ async def complete_browser_lead_handoff(
     session: DatabaseSession,
 ) -> JobLeadDetailRead:
     service = JobLeadService(session)
-    official_hosts = enabled_company_source_hosts()
+    official_hosts = enabled_company_source_hosts(session=session, user_id=user_id)
     official_hosts.update(GreenhouseAdapter.supported_hosts)
     try:
         await service.verify_browser(
@@ -482,9 +486,51 @@ async def create_official_search(
 ) -> DiscoveryRunRead:
     """Start one bounded search; original job pages are verified before parsing."""
 
+    query, company_ids, goal_metadata = payload.query, payload.company_ids, {}
+    if payload.continue_company_id and (not payload.search_goal_id or payload.source_mode != "web"):
+        raise HTTPException(status_code=422, detail="继续公司查询需要已保存的求职目标")
+    if payload.search_goal_id:
+        from src.services.search_goal_service import SearchGoalService
+
+        goals = SearchGoalService(session)
+        try:
+            goal = goals.get(user_id, payload.search_goal_id)
+        except LookupError as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        if goal.version != payload.search_goal_version:
+            raise HTTPException(status_code=409, detail="求职目标已变更，请刷新后再搜索")
+        # A retry reuses its ongoing execution instead of resetting the budget.
+        existing = next((r for r in DiscoveryService(session).list_runs(user_id=user_id)
+                         if r.search_goal_id == goal.id and r.search_goal_version == goal.version
+                         and r.status == "RUNNING"), None)
+        if existing:
+            if existing.continued_company_id != payload.continue_company_id:
+                raise HTTPException(status_code=409, detail="该目标正在搜索，请等待本次搜索结束")
+            return DiscoveryRunRead.model_validate(existing)
+        query, company_ids = goal.query, goal.company_ids
+        goal_metadata = {"search_goal_id": goal.id, "search_goal_version": goal.version,
+                         "goal_conditions": goal.conditions, "library_baseline": goals.snapshot(user_id, query=goal.query)}
+        if payload.continue_company_id:
+            from src.services.company_search_progress import progress_summaries
+
+            progress = next((item for item in progress_summaries(goal, session)
+                             if item["source_id"] == payload.continue_company_id), None)
+            if not progress or not progress["can_continue"]:
+                raise HTTPException(status_code=409, detail="该公司没有可续查的进度，请先更新搜索")
+            if (progress.get("strategy") == "official_listing"
+                    and not get_settings().web_search_direct_sources_enabled):
+                raise HTTPException(status_code=409, detail="官网定向查询尚未启用")
+            company_ids = [payload.continue_company_id]
+            goal_metadata["continued_company_id"] = payload.continue_company_id
+
+    try:
+        sources = enabled_company_sources(company_ids or None, session=session, user_id=user_id)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail={"code": "unknown_company_source", "message": str(error)}) from error
+    source_options = provider_source_options(company_ids, sources)
     if payload.source_mode == "web":
         try:
-            provider = create_web_search_provider(payload.query, payload.company_ids)
+            provider = create_web_search_provider(query, company_ids, **source_options)
         except WebSearchConfigurationError as error:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -498,23 +544,24 @@ async def create_official_search(
         plan = provider.build_search_plan()
         run = DiscoveryService(session).create_run(
             user_id=user_id,
-            search_query=payload.query,
+            search_query=query,
             max_results=plan.budget.max_results,
             source_id=WEB_SEARCH_RUN_SOURCE_ID,
             source_url=provider.source_url,
             search_plan=plan,
+            **goal_metadata,
         )
         background_tasks.add_task(
             execute_web_search_in_worker,
             run_id=run.id,
             user_id=user_id,
-            query=payload.query,
-            company_ids=payload.company_ids,
+            query=query,
+            company_ids=company_ids,
         )
         return DiscoveryRunRead.model_validate(run)
 
     try:
-        adapter = create_official_search_adapter(payload.query, payload.company_ids)
+        adapter = create_official_search_adapter(query, company_ids, **source_options)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -523,21 +570,22 @@ async def create_official_search(
     service = DiscoveryService(session, adapter)
     run = service.create_run(
         user_id=user_id,
-        search_query=payload.query,
+        search_query=query,
         max_results=20,
+        **goal_metadata,
     )
     background_tasks.add_task(
         execute_official_search_in_worker,
         run_id=run.id,
         user_id=user_id,
-        query=payload.query,
-        company_ids=payload.company_ids,
+        query=query,
+        company_ids=company_ids,
     )
     return DiscoveryRunRead.model_validate(run)
 
 
 @router.get("/discovery/sources", response_model=list[DiscoverySourceRead])
-def list_discovery_sources() -> list[DiscoverySourceRead]:
+def list_discovery_sources(user_id: CurrentUserId, session: DatabaseSession) -> list[DiscoverySourceRead]:
     return [
         DiscoverySourceRead(
             id=source.id,
@@ -549,7 +597,7 @@ def list_discovery_sources() -> list[DiscoverySourceRead]:
                 else "official_page"
             ),
         )
-        for source in enabled_company_sources()
+        for source in enabled_company_sources(session=session, user_id=user_id)
     ]
 
 
@@ -557,8 +605,17 @@ def list_discovery_sources() -> list[DiscoverySourceRead]:
 def list_discovery_runs(
     user_id: CurrentUserId,
     session: DatabaseSession,
+    compact: bool = False,
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
 ) -> list[DiscoveryRunRead]:
-    runs = DiscoveryService(session).list_runs(user_id=user_id)
+    runs = DiscoveryService(session).list_runs(user_id=user_id, limit=limit, offset=offset)
+    # A history summary reports the saved run outcome. Re-evaluate current jobs
+    # through the goal library or full detail endpoint, not every history poll.
+    if compact:
+        outdated = [run for run in runs if _outdated_decisions(run)]
+        matches = current_run_matches(session, outdated)
+        return [_compact_run(run, summary=index > 0, matches=matches.get(run.id)) for index, run in enumerate(runs)]
     matches = current_run_matches(session, runs)
     return [DiscoveryRunRead.model_validate({
         **DiscoveryRunRead.model_validate(run).model_dump(),
@@ -566,15 +623,40 @@ def list_discovery_runs(
     }) for run in runs]
 
 
+def _outdated_decisions(run):
+    from src.services.source_understanding import VERSION, ai_policy_enabled
+
+    return ai_policy_enabled() and any(
+        item.get("filter_version") != VERSION or item.get("decision_policy") != "ai"
+        for item in run.result_matches or []
+    )
+
+
+def _compact_run(run, *, summary=False, matches=None):
+    data = {name: getattr(run, name) for name in DiscoveryRunRead.model_fields}
+    data.update(agent_trace=(run.agent_trace or [])[-1:], search_plan=None)
+    if matches is not None:
+        data["result_matches"] = matches
+    if summary:
+        data["result_matches"] = [{**match, "checks": []} for match in data["result_matches"] or []]
+    return DiscoveryRunRead.model_validate(data)
+
+
 @router.get("/discovery/runs/{run_id}", response_model=DiscoveryRunRead)
 def read_discovery_run(
     run_id: str,
     user_id: CurrentUserId,
     session: DatabaseSession,
+    compact: bool = False,
 ) -> DiscoveryRunRead:
     run = DiscoveryService(session).get_run(user_id=user_id, run_id=run_id)
     if run is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="发现运行不存在")
+    if compact:
+        # Compact only reduces trace payload. Live personal gates and job aliases
+        # must remain identical to the detail view after profile/review changes.
+        matches = current_run_matches(session, [run])[run.id]
+        return _compact_run(run, matches=matches)
     return DiscoveryRunRead.model_validate({
         **DiscoveryRunRead.model_validate(run).model_dump(),
         "result_matches": current_run_matches(session, [run])[run.id],
@@ -619,15 +701,20 @@ async def expand_recruitment_lead(lead_id: str, user_id: CurrentUserId, session:
     from datetime import UTC, datetime
     from urllib.parse import urlsplit
 
+    from src.services.company_registry import within_company_source
     from src.services.lead_providers import LeadCandidate
     from src.services.recruitment_entry import expand_entry
+    from src.services.recruitment_trust import hiring_scope
     service = JobLeadService(session)
     try:
         lead = service.get_lead(user_id=user_id, lead_id=lead_id)
     except JobLeadNotFoundError as error:
         raise HTTPException(status_code=404, detail="岗位线索不存在") from error
-    hosts = enabled_company_source_hosts()
-    allowed = hosts | {urlsplit(lead.source_url).hostname}
+    hosts = enabled_company_source_hosts(session=session, user_id=user_id)
+    acquired = next((source for source in enabled_company_sources(session=session, user_id=user_id)
+                     if source.official_homepage_url and within_company_source(lead.source_url, source)), None)
+    tenant = hiring_scope(acquired.career_url) if acquired else None
+    allowed = hosts if tenant else hosts | {urlsplit(lead.source_url).hostname}
     run = DiscoveryService(session).get_run(user_id=user_id, run_id=lead.discovery_run_id) if lead.discovery_run_id else None
     captured = []
     candidate = LeadCandidate(provider=LeadProvider.EXTERNAL_AGENT, source_url=lead.source_url, discovered_at=datetime.now(UTC), source_id=lead.source_id)
@@ -636,13 +723,18 @@ async def expand_recruitment_lead(lead_id: str, user_id: CurrentUserId, session:
     def capture_detail(link, from_url):
         item = service.capture_candidate(user_id=user_id, discovery_run_id=lead.discovery_run_id,
             candidate=replace(candidate, source_url=link.url, title_hint=link.text or None, search_snippet=link.text or None))
-        if urlsplit(lead.source_url).hostname in hosts:
+        if acquired and within_company_source(link.url, acquired):
+            service.record_official_link(user_id=user_id, lead_id=item.id, source_url=link.url,
+                entry_url=acquired.official_homepage_url, from_url=from_url,
+                scope_url=acquired.career_url, company=acquired.company)
+        elif urlsplit(lead.source_url).hostname in hosts:
             service.record_official_link(user_id=user_id, lead_id=item.id, source_url=link.url,
                 entry_url=lead.source_url, from_url=from_url)
         captured.append(JobLeadRead.model_validate(item))
     try:
         await asyncio.wait_for(expand_entry(lead.source_url, reader=create_lead_reader(),
             browser=create_browser_reader(), allowed_hosts=allowed, official_hosts=hosts,
+            initial_scope=tenant,
             query=run.search_query if run else "", record_snapshot=record_snapshot, on_detail=capture_detail), timeout=50)
     except TimeoutError:
         if not captured:

@@ -167,7 +167,7 @@ def test_team_keyword_does_not_make_infrastructure_an_application_role():
             ).checks
             if c["field"] == "role"
         )["status"]
-        == "matched"
+        == "pending"  # A title alone now needs grounded direction review.
     )
 
 

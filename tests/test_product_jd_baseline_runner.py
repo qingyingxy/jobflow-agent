@@ -34,10 +34,31 @@ def test_product_baseline_runner_rejects_unknown_or_duplicate_case_ids() -> None
         run_product_jd_baseline._filter_dataset(dataset, ["case-2"])
 
 
+@pytest.mark.parametrize(
+    ("parser_variant", "parser_version", "prompt_version", "extraction_prompt_version"),
+    [
+        (
+            "v3",
+            "product-jd-parser-v3",
+            "product-jd-two-stage-v6",
+            "product-jd-extraction-v5",
+        ),
+        (
+            "v4",
+            "product-jd-parser-v4",
+            "product-jd-two-stage-v7",
+            "product-jd-extraction-v6",
+        ),
+    ],
+)
 @pytest.mark.asyncio
 async def test_product_baseline_runner_records_both_api_stages(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
+    parser_variant: str,
+    parser_version: str,
+    prompt_version: str,
+    extraction_prompt_version: str,
 ) -> None:
     source_text = "要求熟悉 Python 或 Java"
     raw_content = f"某公司招聘开发实习生。{source_text}。负责接口开发。"
@@ -91,14 +112,15 @@ async def test_product_baseline_runner_records_both_api_stages(
         concurrency=1,
         validation_retries=0,
         resume=False,
+        parser_variant=parser_variant,
     )
 
     assert len(client.requests) == 2
     assert result["schema_version"] == "product-job-description-v2"
     assert result["prediction_version"] == "product-jd-development70-two-stage-v6"
-    assert result["parser_version"] == "product-jd-parser-v3"
-    assert result["prompt_version"] == "product-jd-two-stage-v6"
-    assert result["extraction_prompt_version"] == "product-jd-extraction-v5"
+    assert result["parser_version"] == parser_version
+    assert result["prompt_version"] == prompt_version
+    assert result["extraction_prompt_version"] == extraction_prompt_version
     assert result["relation_prompt_version"] == "product-jd-relation-v5"
     assert result["reasoning_effort"] == "provider_default"
     assert result["response_format"] == "provider_default"

@@ -1,0 +1,168 @@
+{
+  "receipt_version": "unified-jd-flat-atomic-v4.3-independent-holdout-evaluation-receipt-v1",
+  "recorded_at": "2026-09-06T03:55:31.8402399Z",
+  "status": "formal_one_time_holdout_failed_retained_for_offline_diagnosis",
+  "formal_execution_count": 1,
+  "authorization_scope": {
+    "destination_host": "api.deepseek.com",
+    "complete_public_job_body_count": 5,
+    "maximum_new_model_calls": 5,
+    "maximum_calls_per_case": 1,
+    "transport_retries": 0,
+    "validation_retries": 0
+  },
+  "artifacts": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "independence_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_independence_receipt_v1_2026-09-06.json",
+      "sha256": "aed76c55b6307ad40388d20ee0011edb417e9d5c833802c625cae585c50c4c9d"
+    },
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_preregistration_v1_2026-09-06.json",
+      "sha256": "d0bb16843dcbe17487ab18d7db766e042df02adb40944c46b8eba572642d8744"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_preregistration_freeze_v1_2026-09-06.json",
+      "sha256": "28146d395bb3b7e995fad017c5cd5056f8a9f512db9b5dbf3d089305a663e55f"
+    },
+    "source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_source_freeze_v1_2026-09-06.json",
+      "sha256": "641980218b698e40643ba55aa5a896108ac1ab1dad96bd54e46fce090bdb8790"
+    },
+    "requests": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-requests-v1-2026-09-06.json",
+      "sha256": "2214f3e7ef899656297490fb5539a9acaa1173e10f43039cfb53cbc76d399b88"
+    },
+    "checkpoint": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.checkpoint.json",
+      "sha256": "19203838cfcc53354b8de71898ba2dc4fac118e4c92659ddcc0977a212e624fa"
+    },
+    "raw_responses": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.json",
+      "sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+    },
+    "report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-report-v1-2026-09-06.json",
+      "sha256": "7ad3e538dc318eebb88263bc9a763e3e9e33db9a4f6bd4c42f22c89b34062d95"
+    }
+  },
+  "execution": {
+    "model": "deepseek-v4-flash",
+    "provider": "openai_compatible",
+    "model_call_count": 5,
+    "successful_response_count": 5,
+    "transport_failure_count": 0,
+    "checkpoint_write_count": 5,
+    "total_prompt_tokens": 7750,
+    "total_completion_tokens": 14229,
+    "all_finish_reasons": "stop",
+    "additional_model_calls_for_v4_3": 0,
+    "default_parser_called": false,
+    "canonicalizer_called": false
+  },
+  "decision": "failed",
+  "gate_results": {
+    "G0-authorization-independence-and-budget": true,
+    "G1-raw-capture-completeness": true,
+    "G2-v4-3-strict-schema-restoration": false,
+    "G3-compatibility-intervention-integrity": true,
+    "G4-source-and-surface-anchoring": true,
+    "G5-granularity-noncollapse": false,
+    "G6-fact-layer-compatibility": false,
+    "G7-source-isolation-and-preservation": true,
+    "G8-generalization-decision": false
+  },
+  "frozen_results": {
+    "baseline_strict_schema_valid_case_count": 1,
+    "v4_3_strict_schema_valid_case_count": 2,
+    "required_strict_schema_valid_case_count": 5,
+    "v4_3_activation_count": 11,
+    "v4_3_activation_counts": {
+      "normalized_responsibility_role_alias": 0,
+      "omitted_empty_absent_fact_placeholder": 11,
+      "normalized_long_self_sufficient_evidence": 0
+    },
+    "v4_3_forward_exactly_equals_v4_2": true,
+    "v4_3_reverse_exactly_restores_raw": true,
+    "source_text_localization_rate": 1.0,
+    "nonnull_surface_localization_rate": 1.0,
+    "nonnull_primary_surface_rate": 1.0,
+    "reported_primary_atom_count": 32,
+    "minimum_primary_atom_count": 48,
+    "fact_compatible_case_count": 2
+  },
+  "per_case": [
+    {
+      "case_id": "independent-lever-collate-ai-engineer",
+      "baseline_schema_valid": false,
+      "v4_3_schema_valid": false,
+      "v4_3_activation_count": 0,
+      "residual": {
+        "path": "clause_atoms[10].category",
+        "value": "motivation",
+        "classification": "unsupported_category_value"
+      }
+    },
+    {
+      "case_id": "independent-lever-field-ai-robotics-ai-engineer",
+      "baseline_schema_valid": true,
+      "v4_3_schema_valid": true,
+      "v4_3_activation_count": 0,
+      "residual": null
+    },
+    {
+      "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+      "baseline_schema_valid": false,
+      "v4_3_schema_valid": false,
+      "v4_3_activation_count": 4,
+      "residual": {
+        "path": "clause_atoms[27].qualifier.minimum_months",
+        "value": 0,
+        "classification": "zero_lower_bound_qualifier"
+      }
+    },
+    {
+      "case_id": "independent-greenhouse-optiver-ai-engineer",
+      "baseline_schema_valid": false,
+      "v4_3_schema_valid": true,
+      "v4_3_activation_count": 7,
+      "residual": null
+    },
+    {
+      "case_id": "independent-smartrecruiters-bluescope-ai-engineer",
+      "baseline_schema_valid": false,
+      "v4_3_schema_valid": false,
+      "v4_3_activation_count": 0,
+      "residual": {
+        "path": "clause_atoms[22].category",
+        "value": "knowledge",
+        "classification": "unsupported_category_value"
+      }
+    }
+  ],
+  "offline_causal_classification": {
+    "supported_v4_3_behavior": [
+      "The frozen omission mechanism activated 11 times on two new Greenhouse-delivered jobs.",
+      "Optiver changed from baseline invalid to v4.3 strict valid using only seven eligible omission removals.",
+      "All interventions remained exactly v4.2-forward-equivalent, exactly v4.3-reversible, and fully source anchored."
+    ],
+    "new_residual_mechanisms": [
+      "Open category vocabulary escaped the frozen enum as motivation and knowledge on two otherwise unaffected records.",
+      "An explicit 0-3 years phrase was represented as qualifier.minimum_months=0 although the frozen qualifier schema requires null or an integer at least 1."
+    ],
+    "downstream_failures": {
+      "G5": "Three schema-invalid records contribute zero parsed primary atoms, so the reported 32 is not evidence of source under-recall; the five raw outputs contain 104 clause atoms before strict validation.",
+      "G6": "The same three schema-invalid records cannot enter fact compilation, so fact compatibility 2/5 is downstream of G2 rather than an independent fact-evidence failure."
+    }
+  },
+  "immutability": {
+    "v4_v4_1_v4_2_v4_3_modified_after_execution": false,
+    "holdout_rerun_allowed": false,
+    "additional_calls_allowed": false,
+    "threshold_relaxation_allowed": false
+  },
+  "next_allowed_action": "Use only these frozen raw responses for offline causal oracles that independently test category-vocabulary admission and zero-lower-bound qualifier semantics. Do not modify v4.3 or rerun this holdout."
+}

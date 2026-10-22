@@ -1,0 +1,124 @@
+{
+  "freeze_version": "ai-campus-v39-random-dev5-execution-freeze-v1",
+  "frozen_at": "2026-09-03T14:52:46.9827359+08:00",
+  "purpose": "one Parser v39 same-random-dev5 development comparison",
+  "frozen_contract": {
+    "parser": "jd-core-parser-v39",
+    "prompt": "jd-core-parser-prompt-v24",
+    "schema": "core-job-fields-v10",
+    "skill_ontology": "skill-ontology-v5",
+    "provider": "openai_compatible",
+    "model": "deepseek-v4-flash",
+    "response_format": "json_object",
+    "thinking_mode": "disabled",
+    "max_tokens": 4096,
+    "files": {
+      "src/config.py": {
+        "path": "src/config.py",
+        "sha256": "b05be0e32479459940ad1b6db8e4ed6acd6ff7965322ce7111f8035b40c582f3",
+        "size_bytes": 2187
+      },
+      "src/services/core_jd_parser.py": {
+        "path": "src/services/core_jd_parser.py",
+        "sha256": "665990b5c52ec7d47b1888c7a173df889d62ce644b9d6a277e6e7fa0c5b8d833",
+        "size_bytes": 58562
+      },
+      "src/domain/core_skill_semantics.py": {
+        "path": "src/domain/core_skill_semantics.py",
+        "sha256": "e3ef8a61f763e0e71f94db91f99ac62f5b88d16f703a9c0b67a662911cc63eeb",
+        "size_bytes": 41384
+      },
+      "src/domain/skill_normalizer.py": {
+        "path": "src/domain/skill_normalizer.py",
+        "sha256": "92a0eba4ed113a5f8128d3684e73c48a239dc740f13388212a0a7ba682a45cb5",
+        "size_bytes": 106123
+      },
+      "src/domain/job.py": {
+        "path": "src/domain/job.py",
+        "sha256": "5958a97a7e7da832d413f9ecf0b90c3e0d336653e895a93b14384bc50f75bb59",
+        "size_bytes": 15938
+      },
+      "src/infrastructure/llm_client.py": {
+        "path": "src/infrastructure/llm_client.py",
+        "sha256": "bb80211aa0f078386428c49d1fbd8c0a698c7ea37b333a2ee6f5cbeec5e169f5",
+        "size_bytes": 24494
+      },
+      "src/evaluation/models.py": {
+        "path": "src/evaluation/models.py",
+        "sha256": "fd79fb2337492405aa9543fdb2c602becb9700881d1487345d8704c363f69e6e",
+        "size_bytes": 5400
+      },
+      "src/evaluation/predict.py": {
+        "path": "src/evaluation/predict.py",
+        "sha256": "3cdcf5e58ffb328503009d703282cc5cc16f728500bbcc0b50d52008b2eceaa9",
+        "size_bytes": 17952
+      },
+      "scripts/run_core_v39_random_dev5.py": {
+        "path": "scripts/run_core_v39_random_dev5.py",
+        "sha256": "4ae92cae7ed933a0bccc7d621182faa47e285d677b842f38bc41e9de7cbee516",
+        "size_bytes": 3886
+      }
+    }
+  },
+  "selection": {
+    "path": "datasets/ai_campus_v37_random_dev5_selection_2026_09_03.json",
+    "sha256": "8433343d8fce01b209e726efc8ffd03e62994452dba13f95e575aae06b1a7222",
+    "size_bytes": 2281
+  },
+  "source_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v38-random-dev5-v1-2026-09-03.json",
+    "sha256": "4411a4357044f10c9af106561826d839e9dd8f950fa723fe07ddd38fef325547",
+    "size_bytes": 22706
+  },
+  "manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v39-random-dev5-v1-2026-09-03.json",
+    "sha256": "921c666a9dd2c26a56c448e985d2949ed8bf656fd38f9ff209147307ff19f05c",
+    "size_bytes": 22993
+  },
+  "v38_baseline": {
+    "predictions": {
+      "path": "artifacts/evaluation/m11-ai-campus-predictions-core-v38-random-dev5-v1-api-2026-09-03.json",
+      "sha256": "8456cf7c22f383b364b75fba10b8f39257a230b70abbf3c79a7212eb15c02fc5",
+      "size_bytes": 83309
+    },
+    "report": {
+      "path": "artifacts/evaluation/m11-ai-campus-report-core-v38-random-dev5-v1-api-2026-09-03.json",
+      "sha256": "48c07f5b81533a2b2f7c713fbea513c7e9bd35fd0b6bb33fece2b3a7a3df107b",
+      "size_bytes": 11726
+    },
+    "valid_predictions": 5,
+    "five_field_macro_f1": 0.7255381604696673,
+    "skill_detection_f1": 0.5934065934065934,
+    "skill_concept_f1": 0.6029411764705882,
+    "skill_concept_strength_macro_f1": 0.611466585927907,
+    "any_of_positive_accuracy": 0.3333333333333333,
+    "any_of_false_group_rate": 0.0,
+    "qualifier_f1": 0.1111111111111111
+  },
+  "generic_changes": [
+    "filter generic responsibility actions, business objects, and results",
+    "recover source-explicit direct-or and counted-example any_of groups",
+    "require source-explicit experience scope for qualifiers",
+    "normalize inference-engine categories through skill ontology v5"
+  ],
+  "api_authorization": {
+    "authorized_at": "2026-09-03",
+    "destination": "configured DeepSeek API",
+    "public_jd_count": 5,
+    "run_limit": 1
+  },
+  "run_policy": {
+    "concurrency": 1,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "http_timeout_seconds": 60,
+    "case_timeout_seconds": 90,
+    "failed_case_reruns": 0
+  },
+  "evaluation_scope": {
+    "sample_kind": "development_regression_sample",
+    "sealed_holdout_included": false,
+    "unseen_claimed": false
+  },
+  "prediction_status": "not_generated_at_freeze_time"
+}

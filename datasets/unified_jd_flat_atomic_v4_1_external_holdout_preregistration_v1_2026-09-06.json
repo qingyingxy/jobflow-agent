@@ -1,0 +1,163 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.1-external-holdout-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_external_holdout_runner_implementation_and_calls",
+  "objective": "Run one new external five-job holdout to test whether the already frozen v4.1 responsibility-role compatibility mechanism generalizes beyond all development, revealed, and previously predicted records.",
+  "primary_causal_question": "On new full job bodies, does DeepSeek independently emit the same responsibility/category=responsibility/level=mention role alias, and if so does the frozen one-field v4.1 normalization alone restore strict schema validity without harming unaffected records?",
+  "claim_boundary": "A positive result supports cross-company English-job generalization on Ashby-hosted AI-engineering roles. It does not establish cross-ATS, cross-title-family, canonical-item, or semantic recall generalization.",
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "independence_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_independence_receipt_v1_2026-09-06.json",
+      "sha256": "c6dc1f89762da38594a4f1364793c2cf6812d5396486077b3d39dc816cc3dbce"
+    },
+    "frozen_v4_request_contract": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87",
+      "system_prompt_sha256": "2d0100d6246e9d39dc2c3bb336faaacb3b47ff00e1eeb0c414644c00d0dd2fcc"
+    },
+    "frozen_v4_live_source": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_source_freeze_v1_2026-09-06.json",
+      "sha256": "9d89a14b947e24d7b36f3f4355d760e3910b65f23b99487d76ed0948ff874264"
+    },
+    "frozen_v4_1_compatibility_source": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "80f0c252a3bc8c188963fd673c86f455c2b838ba89f400913522ae6953445cc5"
+    },
+    "compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_compatibility.py",
+      "sha256": "289761d45a87747973a79c0c51f483f8c852f464f0e8c08b7b9c926a282c9379"
+    },
+    "compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_1_compatibility.py",
+      "sha256": "4c2709c9aa0a63778d374cde414ede98c6ace58046775c6d93a53d516acda8b2"
+    },
+    "v4_live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    }
+  },
+  "selection": {
+    "case_count": 5,
+    "case_ids": [
+      "external-ashby-ravenna-ai-engineer",
+      "external-ashby-thread-ai-applied-ai-engineer",
+      "external-ashby-airwallex-ai-engineer",
+      "external-ashby-notion-ai-applications-engineer",
+      "external-ashby-atira-ai-engineer"
+    ],
+    "repository_body_match_count": 0,
+    "repository_url_match_count": 0,
+    "labels_used_for_selection": false,
+    "prior_predictions_used_for_selection": false,
+    "collected_after_v4_1_freeze": true
+  },
+  "request_contract": {
+    "source": "frozen_inputs.frozen_v4_request_contract",
+    "reuse_system_prompt_byte_for_byte": true,
+    "reuse_user_prompt_template_byte_for_byte": true,
+    "reuse_json_schema_byte_for_byte": true,
+    "reuse_max_output_tokens": 8192,
+    "thinking_mode": "disabled",
+    "gold_or_expected_values_in_requests": false
+  },
+  "execution_protocol": {
+    "destination_host": "api.deepseek.com",
+    "external_transmission_authorized": false,
+    "authorization_required_immediately_before_execution": true,
+    "maximum_new_model_calls": 5,
+    "maximum_calls_per_case": 1,
+    "transport_retries": 0,
+    "validation_retries": 0,
+    "concurrency": 1,
+    "request_artifact_written_before_first_call": true,
+    "raw_response_checkpoint_written_after_each_call": true,
+    "stop_on_transport_failure": true,
+    "continue_after_schema_failure": true,
+    "overwrite_existing_outputs": false,
+    "v4_or_v4_1_source_modification_allowed": false,
+    "canonicalizer_allowed": false,
+    "default_parser_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-authorization-destination-and-budget": {
+      "required_case_count": 5,
+      "maximum_new_model_calls": 5,
+      "maximum_calls_per_case": 1,
+      "transport_retries": 0,
+      "validation_retries": 0
+    },
+    "G1-json-and-root-topology": {
+      "required_v4_1_schema_valid_case_count": 5,
+      "requirement": "After only the frozen compatibility normalization, all five outputs validate with exact root and field topology."
+    },
+    "G2-compatibility-intervention-integrity": {
+      "allowed_change": "Only clause_atoms[i].role may change, and only from responsibility to item when category=responsibility and level=mention.",
+      "reverse_transform_must_restore_raw": true,
+      "unactivated_records_must_be_byte_equivalent": true,
+      "other_repairs_allowed": false
+    },
+    "G3-source-and-surface-anchoring": {
+      "required_source_text_localization_rate": 1.0,
+      "required_nonnull_surface_localization_rate": 1.0,
+      "minimum_nonnull_primary_surface_rate": 0.8,
+      "unmapped_surface_repair_allowed": false
+    },
+    "G4-semantic-surface-separation": {
+      "minimum_separated_pair_count": 5,
+      "minimum_cases_with_a_separated_pair": 2
+    },
+    "G5-granularity-noncollapse": {
+      "floor_basis": "Before responses exist, count source-only responsibility/qualification-bearing nonempty paragraphs under role, responsibility, achievement, qualification, profile, or success headings; require at least half as many primary atoms, rounded up.",
+      "source_observable_core_line_counts": {
+        "external-ashby-ravenna-ai-engineer": 19,
+        "external-ashby-thread-ai-applied-ai-engineer": 10,
+        "external-ashby-airwallex-ai-engineer": 16,
+        "external-ashby-notion-ai-applications-engineer": 13,
+        "external-ashby-atira-ai-engineer": 19
+      },
+      "per_case_minimums": {
+        "external-ashby-ravenna-ai-engineer": 10,
+        "external-ashby-thread-ai-applied-ai-engineer": 5,
+        "external-ashby-airwallex-ai-engineer": 8,
+        "external-ashby-notion-ai-applications-engineer": 7,
+        "external-ashby-atira-ai-engineer": 10
+      },
+      "minimum_aggregate_primary_atom_count": 40,
+      "maximum_aggregate_primary_atom_count": 304,
+      "response_or_gold_used_to_set_thresholds": false
+    },
+    "G6-fact-layer-compatibility": {
+      "required_compatible_case_count": 5,
+      "source_unsupported_critical_fact_count": 0
+    },
+    "G7-isolation-and-preservation": {
+      "frozen_input_hashes_must_match": true,
+      "raw_responses_retained_on_failure": true,
+      "gold_unavailable_to_requests": true,
+      "canonicalizer_called": false,
+      "default_parser_called": false
+    },
+    "G8-causal-generalization-decision": {
+      "confirmed": "All G0-G7 gates pass; at least one eligible alias occurs; every activated case is invalid under baseline v4 specifically because of eligible role aliases and becomes valid after v4.1; unaffected cases and fields do not change.",
+      "supported_non_regression_only": "All G0-G7 gates pass; zero eligible aliases occur; baseline v4 is already valid for all five cases and v4.1 changes nothing.",
+      "failed": "Any G0-G7 gate fails, any activated case remains invalid, any ineligible field changes, or any unactivated output regresses."
+    }
+  },
+  "evaluation_protocol": {
+    "baseline_and_v4_1_scored_from_same_raw": true,
+    "baseline_model_calls": 5,
+    "v4_1_additional_model_calls": 0,
+    "all_non_decision_diagnostics_reported": true,
+    "one_time_execution": true,
+    "rerun_after_failure_allowed": false,
+    "threshold_change_after_freeze_allowed": false,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "failure_policy": "Retain the raw and report, diagnose offline, and do not edit v4.1 or rerun this holdout."
+  },
+  "next_allowed_action": "Implement and freeze a dedicated runner, evaluator, and focused tests without changing v4 or v4.1. Then request explicit authorization naming the five full bodies, api.deepseek.com, and the five-call maximum before execution."
+}

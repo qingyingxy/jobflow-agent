@@ -1,0 +1,189 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.3-independent-holdout-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_runner_implementation_and_model_calls",
+  "objective": "Run one genuinely independent five-job holdout to test whether the already frozen v4.3 compatibility layer generalizes beyond all development, revealed, live-probe, and prior external-response data.",
+  "primary_causal_question": "On new cross-surface public job bodies, do the same three observable wire incompatibilities recur, and does frozen v4.3 alone restore exact strict-schema validity while remaining reversible and source anchored?",
+  "claim_boundary": "This establishes repository-level novelty, temporal separation from v4.3 development, and broader ATS/delivery-surface coverage than the revealed Ashby holdout. Selection is purposive rather than random and remains limited to public English-language AI-engineering job bodies.",
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "independence_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_independence_receipt_v1_2026-09-06.json",
+      "sha256": "aed76c55b6307ad40388d20ee0011edb417e9d5c833802c625cae585c50c4c9d"
+    },
+    "collector": {
+      "path": "scripts/collect_unified_jd_flat_atomic_v4_3_independent_holdout.py",
+      "sha256": "85272d62649bc15f683ef494292298e0832a0ab3afa0dd2bf37b26ff4e4ed00a"
+    },
+    "v4_3_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "955922d4576d4782359f9d4dcbd73f00fc1b611edba6149232cde647dc9d9609"
+    },
+    "v4_3_formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-compatibility-report-v1-2026-09-06.json",
+      "sha256": "fa9d1a51e57dde4e3d811ee2d2dece16ec368122ef2582547397985fe87e1cdb"
+    },
+    "v4_3_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_compatibility_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "8ba45fb6bec6b2c863efbad0c2fc44d30b3ea35a65436e94cd4f290bd214a536"
+    },
+    "v4_2_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "2b4053f14931109009dc7e64b867e9e06cf8a29bc77e52d3414425f36cdd7ec5"
+    },
+    "frozen_v4_request_contract": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    },
+    "v4_3_compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+      "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+    },
+    "v4_3_compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_3_compatibility.py",
+      "sha256": "537589df2ac28baaf7967442d396af7a4068652695fb6ff36a32dfd439648f56"
+    }
+  },
+  "selection": {
+    "case_count": 5,
+    "case_ids": [
+      "independent-lever-collate-ai-engineer",
+      "independent-lever-field-ai-robotics-ai-engineer",
+      "independent-greenhouse-simplifynext-ai-engineer-graduate",
+      "independent-greenhouse-optiver-ai-engineer",
+      "independent-smartrecruiters-bluescope-ai-engineer"
+    ],
+    "ats_or_delivery_surfaces": [
+      "Lever",
+      "Greenhouse",
+      "Greenhouse-backed employer page",
+      "SmartRecruiters"
+    ],
+    "repository_novelty_checks_passed": true,
+    "labels_used_for_selection": false,
+    "prior_predictions_used_for_selection": false,
+    "collected_after_v4_3_freeze_and_formal_pass": true
+  },
+  "request_contract": {
+    "source": "frozen_inputs.frozen_v4_request_contract",
+    "reuse_system_prompt_byte_for_byte": true,
+    "reuse_user_prompt_template_byte_for_byte": true,
+    "reuse_json_schema_byte_for_byte": true,
+    "reuse_max_output_tokens": 8192,
+    "thinking_mode": "disabled",
+    "gold_labels_expected_values_or_diagnostics_in_requests": false
+  },
+  "execution_protocol": {
+    "destination_host": "api.deepseek.com",
+    "external_transmission_authorized": false,
+    "separate_explicit_authorization_required_before_execution": true,
+    "transmitted_content": "the five complete public job bodies",
+    "maximum_new_model_calls": 5,
+    "maximum_calls_per_case": 1,
+    "transport_retries": 0,
+    "validation_retries": 0,
+    "concurrency": 1,
+    "request_artifact_written_before_first_call": true,
+    "raw_response_checkpoint_written_after_each_call": true,
+    "stop_on_transport_failure": true,
+    "continue_after_schema_failure": true,
+    "overwrite_existing_outputs": false,
+    "v4_v4_1_v4_2_or_v4_3_source_modification_allowed": false,
+    "default_parser_allowed": false,
+    "canonicalizer_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-authorization-independence-and-budget": {
+      "required_case_count": 5,
+      "all_repository_novelty_checks_must_pass": true,
+      "explicit_destination_and_full-body_authorization_required": true,
+      "maximum_new_model_calls": 5,
+      "maximum_calls_per_case": 1,
+      "transport_retries": 0,
+      "validation_retries": 0
+    },
+    "G1-raw-capture-completeness": {
+      "required_request_count": 5,
+      "required_raw_record_count": 5,
+      "required_unique_case_id_count": 5,
+      "request_body_hash_must_equal_selection_body_hash": true,
+      "request_artifact_precedes_first_call": true,
+      "checkpoint_after_each_successful_call": true
+    },
+    "G2-v4-3-strict-schema-restoration": {
+      "required_v4_3_schema_valid_case_count": 5,
+      "baseline_v4_validity_reported_without_thresholding": true,
+      "requirement": "After only frozen v4.3 forward normalization, all five outputs validate with exact root and field topology."
+    },
+    "G3-compatibility-intervention-integrity": {
+      "allowed_diagnostic_codes": [
+        "normalized_responsibility_role_alias",
+        "omitted_empty_absent_fact_placeholder",
+        "normalized_long_self_sufficient_evidence"
+      ],
+      "forward_output_and_ordered_diagnostics_must_equal_frozen_v4_2": true,
+      "v4_3_reverse_must_exactly_restore_every_raw_output": true,
+      "unactivated_records_must_be_byte_equivalent": true,
+      "other_repairs_allowed": false
+    },
+    "G4-source-and-surface-anchoring": {
+      "required_source_text_localization_rate": 1.0,
+      "required_nonnull_surface_localization_rate": 1.0,
+      "minimum_nonnull_primary_surface_rate": 0.8,
+      "unmapped_surface_repair_allowed": false
+    },
+    "G5-granularity-noncollapse": {
+      "floor_basis": "Before responses exist, manually count source responsibility and qualification statements under explicit role headings; require at least half as many primary atoms, rounded up.",
+      "source_observable_core_statement_counts": {
+        "independent-lever-collate-ai-engineer": 11,
+        "independent-lever-field-ai-robotics-ai-engineer": 19,
+        "independent-greenhouse-simplifynext-ai-engineer-graduate": 25,
+        "independent-greenhouse-optiver-ai-engineer": 14,
+        "independent-smartrecruiters-bluescope-ai-engineer": 23
+      },
+      "per_case_minimums": {
+        "independent-lever-collate-ai-engineer": 6,
+        "independent-lever-field-ai-robotics-ai-engineer": 10,
+        "independent-greenhouse-simplifynext-ai-engineer-graduate": 13,
+        "independent-greenhouse-optiver-ai-engineer": 7,
+        "independent-smartrecruiters-bluescope-ai-engineer": 12
+      },
+      "minimum_aggregate_primary_atom_count": 48,
+      "maximum_aggregate_primary_atom_count": 400,
+      "response_or_gold_used_to_set_thresholds": false
+    },
+    "G6-fact-layer-compatibility": {
+      "required_compatible_case_count": 5,
+      "source_unsupported_critical_fact_count": 0
+    },
+    "G7-source-isolation-and-preservation": {
+      "all_frozen_input_and_source_hashes_must_match": true,
+      "raw_responses_retained_on_any_failure": true,
+      "gold_unavailable_to_requests": true,
+      "default_parser_called": false,
+      "canonicalizer_called": false,
+      "frozen_compatibility_sources_modified": false
+    },
+    "G8-generalization-decision": {
+      "confirmed": "G0-G7 all pass; at least one frozen v4.3 mechanism activates; every activated record is baseline-invalid specifically because of eligible incompatibilities and becomes valid after v4.3.",
+      "supported_non_regression_only": "G0-G7 all pass; no v4.3 mechanism activates; all five baseline outputs are already strict-valid and v4.3 changes nothing.",
+      "failed": "Any G0-G7 gate fails, any activated case remains invalid, any ineligible field changes, or any reverse replay is inexact."
+    }
+  },
+  "evaluation_protocol": {
+    "baseline_and_v4_3_scored_from_same_raw": true,
+    "baseline_model_calls": 5,
+    "v4_3_additional_model_calls": 0,
+    "all_activation_and_non_decision_diagnostics_reported": true,
+    "formal_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_change_after_freeze_allowed": false,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "failure_policy": "Retain requests, checkpoints, raw responses, and report; diagnose offline only; do not edit v4.3 or rerun this holdout."
+  },
+  "next_allowed_action": "Implement and freeze a dedicated runner, evaluator, and focused tests without modifying v4-v4.3; obtain separate explicit authorization naming api.deepseek.com, all five full bodies, the five-call maximum, one call per job, and zero retries before any transmission."
+}

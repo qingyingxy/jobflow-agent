@@ -1,0 +1,38 @@
+import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+test("real saved search shows recommendations, source evidence, continuation and persistent bookmarks", async ({ page }) => {
+  const directory = resolve(process.env.JOBFLOW_PERSONAL_TRIAL || "../artifacts/personal-flow-20261019");
+  const report = JSON.parse(readFileSync(resolve(directory, "initial/report.json"), "utf8"));
+  const target = report.jobs.find((job: { title: string }) => job.title.includes("Agent Harness"));
+  expect(target).toBeTruthy();
+  await page.goto("/");
+  await expect(page.getByLabel("当前求职目标")).toContainText("2027");
+  await expect(page.getByLabel("本轮搜索统计")).toContainText(`${report.metrics.recommended_jobs} 个岗位可优先查看`);
+  await page.getByRole("combobox", { name: "筛选结果", exact: true }).selectOption("recommended");
+  await expect(page.getByRole("button", { name: target.title, exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "查看已找到的岗位 ↓" }).click();
+  await page.getByRole("button", { name: target.title, exact: true }).click();
+  const detail = page.getByRole("dialog");
+  await expect(detail).toBeVisible();
+  await expect(detail).toContainText("筛选依据");
+  await expect(detail).toContainText("2027");
+  await expect(detail.locator(`a[href="${target.source_url}"]`).first()).toBeVisible();
+  await page.screenshot({ path: resolve(directory, `real-detail-${test.info().project.name}.png`), fullPage: true });
+  await page.keyboard.press("Escape");
+  const row = page.locator("tr").filter({ has: page.getByRole("button", { name: target.title, exact: true }) });
+  const save = row.getByRole("button", { name: "保存", exact: true });
+  if (await save.count()) await save.click();
+  await page.reload();
+  await page.getByRole("combobox", { name: "范围", exact: true }).selectOption("saved");
+  await expect(page.getByRole("button", { name: target.title, exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "范围", exact: true }).selectOption("current");
+  await expect(page.locator(".jobs-company-cell").getByRole("button", { name: "继续查找", exact: true }).first()).toBeEnabled();
+  const progress = page.getByLabel("官网查询进度");
+  await progress.locator("summary").click();
+  await expect(progress).toContainText("每家公司本轮最多检查 3 个岗位");
+  await expect(progress).toContainText("列表线索待检查");
+  await page.screenshot({ path: resolve(directory, `real-results-${test.info().project.name}.png`), fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBeTruthy();
+});

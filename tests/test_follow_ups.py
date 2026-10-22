@@ -279,7 +279,10 @@ async def test_follow_up_api_crud_idempotency_ownership_and_timeline(
         )
 
     assert created.status_code == 201, created.text
-    assert created.json()["local_scheduled_at"].startswith("2027-08-25T10:30:00")
+    assert created.json()["local_scheduled_at"] == "2027-08-25T10:30:00+08:00"
+    assert datetime.fromisoformat(created.json()["scheduled_at"]) == datetime(
+        2027, 8, 25, 2, 30, tzinfo=UTC
+    )
     assert duplicate.status_code == 200
     assert duplicate.json()["id"] == task_id
     assert updated.status_code == 200
@@ -413,4 +416,102 @@ def test_follow_up_duplicate_natural_identity_is_idempotent(db_session: Session)
     assert second.created is False
     assert second.view.task.id == first.view.task.id
     assert len(events) == 1
+
+
+def test_tracking_summary_is_owned_current_and_excludes_finished_applications(db_session):
+    from src.api.tracking import tracking_snapshot
+    from src.domain.discovery import DiscoveryRun
+    from src.domain.search_goal import SearchGoal
+
+    owner = "tracking-owner"
+    application = _seed_application(db_session, user_id=owner)
+    foreign = _seed_application(db_session, user_id="tracking-other")
+    closed = _seed_application(db_session, user_id="tracking-closed")
+    service = FollowUpService(db_session)
+    now = datetime.fromisoformat("2026-10-21T10:00:00+08:00")
+    past = _create_task(service, user_id=owner, application_id=application,
+                        title="今天已过时", scheduled_at=now.replace(hour=9))
+    future = _create_task(service, user_id=owner, application_id=application,
+                          title="今天面试", scheduled_at=now.replace(hour=11))
+    _create_task(service, user_id="tracking-other", application_id=foreign,
+                 title="其他用户", scheduled_at=now)
+    _create_task(service, user_id="tracking-closed", application_id=closed,
+                 title="已结束申请", scheduled_at=now)
+    db_session.get(Application, closed).status = "WITHDRAWN"
+    for goal_id, user in [("track-goal", owner), ("foreign-goal", "tracking-other")]:
+        db_session.add(SearchGoal(id=goal_id, user_id=user, name="求职需求", input_text="Agent校招",
+            query="Agent校招", conditions={}, version=2, update_interval_minutes=60))
+    for run_id, version, hour in [("current", 2, 8), ("obsolete", 1, 9)]:
+        db_session.add(DiscoveryRun(id=run_id, user_id=owner, source="web", source_url="https://example.com",
+            search_goal_id="track-goal", search_goal_version=version, status="SUCCEEDED",
+            started_at=now.replace(hour=hour), finished_at=now.replace(hour=hour), new_count=2))
+    db_session.commit()
+
+    result = tracking_snapshot(db_session, owner, now=now, scheduler_running=True)
+    assert result["scheduler_running"] is True
+    assert [s["goal"]["id"] for s in result["searches"]] == ["track-goal"]
+    assert result["searches"][0]["latest_run"]["id"] == "current"
+    assert {t["id"] for t in result["tasks"]} == {past, future}
+    assert result["counts"] == {"scheduled_goals": 1, "today": 2, "overdue": 1, "attention": 2}
+    upcoming = next(t for t in result["tasks"] if t["id"] == future)
+    assert upcoming["reminder_at"] == "2026-10-21T02:30:00+00:00"
+    assert tracking_snapshot(db_session, "tracking-closed", now=now)["tasks"] == []
+
+
+def test_all_day_task_is_due_through_local_day_and_calendar_reminds_at_nine(db_session):
+    from src.api.tracking import tracking_snapshot
+    from src.services.follow_up_calendar import export_calendar
+
+    user = "all-day-owner"
+    application = _seed_application(db_session, user_id=user)
+    service = FollowUpService(db_session)
+    now = datetime.fromisoformat("2026-10-21T14:00:00+08:00")
+    task_id = _create_task(service, user_id=user, application_id=application,
+                           title="材料截止", scheduled_at=now.replace(hour=0))
+    view = service.get(user_id=user, task_id=task_id)
+    view.task.all_day = True
+    db_session.commit()
+    view = service.get(user_id=user, task_id=task_id, now=now)
+    assert not view.is_overdue
+    assert service.list(user_id=user, view="next_7_days", now=now)[0].task.id == task_id
+    assert service.get(user_id=user, task_id=task_id, now=now.replace(day=22, hour=0)).is_overdue
+    assert tracking_snapshot(db_session, user, now=now)["tasks"][0]["reminder_at"] == "2026-10-21T01:00:00+00:00"
+    calendar = export_calendar(view, now=now)
+    assert "DTSTART;VALUE=DATE:20261021\r\n" in calendar
+    assert "DTEND;VALUE=DATE:20261022\r\n" in calendar
+    assert "TRIGGER;VALUE=DATE-TIME:20261021T010000Z\r\n" in calendar
+
+
+@pytest.mark.asyncio
+async def test_calendar_download_is_owned_escaped_and_stable(db_session):
+    user = "calendar-download"
+    application = _seed_application(db_session, user_id=user)
+    service = FollowUpService(db_session)
+    task_id = _create_task(service, user_id=user, application_id=application,
+        title="中文面试" * 20, scheduled_at=datetime.fromisoformat("2026-10-22T10:00:00+08:00"))
+    task = service.get(user_id=user, task_id=task_id).task
+    task.next_action = "准备,材料;复盘\\项目\n准时参加"
+    db_session.commit()
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        path = f"/api/follow-ups/{task_id}/calendar"
+        response = await client.get(path, headers={"X-User-ID": user})
+        other = await client.get(path, headers={"X-User-ID": "someone-else"})
+        snapshot = await client.get("/api/tracking/summary", headers={"X-User-ID": user})
+        await client.post(f"/api/follow-ups/{task_id}/cancel", headers={"X-User-ID": user})
+        cancelled = await client.get(path, headers={"X-User-ID": user})
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/calendar")
+    assert "attachment" in response.headers["content-disposition"]
+    assert other.status_code == 404
+    assert snapshot.status_code == 200
+    assert all(len(line) <= 75 for line in response.content.split(b"\r\n"))
+    unfolded = response.text.replace("\r\n ", "")
+    assert "SUMMARY:" + "中文面试" * 20 in unfolded
+    assert "DESCRIPTION:准备\\,材料\\;复盘\\\\项目\\n准时参加" in unfolded
+    assert "DTSTART:20261022T020000Z" in unfolded
+    assert "DTEND:20261022T030000Z" in unfolded
+    assert "TRIGGER:-PT30M" in unfolded
+    assert f"UID:{task_id}@jobflow.local" in response.text and f"UID:{task_id}@jobflow.local" in cancelled.text
+    assert "STATUS:CANCELLED" in cancelled.text
+    assert "BEGIN:VALARM" not in cancelled.text
 

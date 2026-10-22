@@ -1,0 +1,77 @@
+{
+  "freeze_version": "ai-campus-v34-dev4-freeze-v1-2026-09-03",
+  "frozen_at": "2026-09-03T09:45:05+08:00",
+  "purpose": "one authorized non-blind dev run on four fresh public JDs",
+  "frozen_parser": {
+    "parser": "jd-core-parser-v34",
+    "prompt": "jd-core-parser-prompt-v23",
+    "schema": "core-job-fields-v10",
+    "skill_ontology": "skill-ontology-v4",
+    "files": {
+      "src/services/core_jd_parser.py": {
+        "path": "src/services/core_jd_parser.py",
+        "sha256": "133a4182bcc5ad215a597e787c094b6adb8294cd24661261cdb1d22b1fdd2fb0",
+        "size_bytes": 36780
+      },
+      "src/domain/core_skill_semantics.py": {
+        "path": "src/domain/core_skill_semantics.py",
+        "sha256": "e3ef8a61f763e0e71f94db91f99ac62f5b88d16f703a9c0b67a662911cc63eeb",
+        "size_bytes": 41384
+      },
+      "src/domain/skill_normalizer.py": {
+        "path": "src/domain/skill_normalizer.py",
+        "sha256": "fd8ad6510bf459c6ec734cd9f802f770132cb64014a1797b31eb28503c8b1ced",
+        "size_bytes": 106000
+      },
+      "src/domain/job.py": {
+        "path": "src/domain/job.py",
+        "sha256": "47a76dbdd6e4e4c89e0be115b72d68678f23373397c383ccb464e8f4612df595",
+        "size_bytes": 15901
+      },
+      "src/infrastructure/llm_client.py": {
+        "path": "src/infrastructure/llm_client.py",
+        "sha256": "3d80cdaad153cc7f733242981482a1d2ee94d4ab612a29b93d5676e3219b1662",
+        "size_bytes": 21257
+      }
+    }
+  },
+  "annotation": {
+    "path": "datasets/ai_campus_v34_dev4_label_freeze_v1_2026_09_03.json",
+    "sha256": "b3d50f3ce51646f7cf46148985fa6f3f4563d9595d4af19d7bc1899d4b78274a",
+    "size_bytes": 71220
+  },
+  "raw_source": {
+    "path": "artifacts/evaluation/ai-campus-v34-dev4-raw-v1-2026-09-03.json",
+    "sha256": "31e65094b7b7cb9fff76f84bf8bbbb15f04ba9615b36b446fd58f4cf3586298c",
+    "size_bytes": 8759
+  },
+  "evaluation_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v34-dev4-frozen-v1-2026-09-03.json",
+    "sha256": "13e7bee638c10aa314f6cb2622213d984c27bd1088cc9286e032f85d7214edc6",
+    "size_bytes": 83619
+  },
+  "case_ids": [
+    "external-dev-v34-001",
+    "external-dev-v34-002",
+    "external-dev-v34-003",
+    "external-dev-v34-004"
+  ],
+  "case_count": 4,
+  "api_authorization": {
+    "authorized": true,
+    "authorized_at": "2026-09-03",
+    "destination": "configured DeepSeek API",
+    "scope": "the four public JD texts in raw_source",
+    "run_count_limit": 1
+  },
+  "run_policy": {
+    "concurrency": 1,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "http_timeout_seconds": 180,
+    "case_timeout_seconds": 210,
+    "checkpoint_resume": false,
+    "retry_failures": false
+  },
+  "prediction_status": "not_generated_at_freeze_time"
+}

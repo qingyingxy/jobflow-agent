@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.ats_assistance import (
     AtsFieldAction,
     AtsFieldRisk,
@@ -68,18 +68,18 @@ class AtsSessionRead(BaseModel):
     field_plan: list[AtsFieldPlanRead]
     handoff_reasons: list[dict[str, object]]
     final_summary: dict[str, object]
-    authorization_expires_at: datetime | None
+    authorization_expires_at: UtcTimestamp | None
     authorization_used: bool
-    created_at: datetime
-    updated_at: datetime
-    inspected_at: datetime
-    prepared_at: datetime | None
-    authorized_at: datetime | None
-    submitted_at: datetime | None
-    failed_at: datetime | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
+    inspected_at: UtcTimestamp
+    prepared_at: UtcTimestamp | None
+    authorized_at: UtcTimestamp | None
+    submitted_at: UtcTimestamp | None
+    failed_at: UtcTimestamp | None
 
 
 class AtsAuthorizationGrantRead(BaseModel):
     session: AtsSessionRead
     authorization_token: str
-    expires_at: datetime
+    expires_at: UtcTimestamp

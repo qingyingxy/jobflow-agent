@@ -1,0 +1,18 @@
+{
+  "freeze_version": "unified-jd-dev50-freeze-receipt-v1",
+  "status": "frozen",
+  "frozen_at": "2026-09-04",
+  "case_count": 50,
+  "schema_version": "unified-jd-v1",
+  "source": {
+    "path": "artifacts/evaluation/unified-jd-dev50-human-reviewed-v1-2026-09-04.json",
+    "sha256": "d3edc8b3dc448e499236987d61e322112ebca594a481320f28bd4ec61cc02b0f",
+    "label_status": "human_reviewed"
+  },
+  "frozen_artifact": {
+    "path": "artifacts/evaluation/unified-jd-dev50-frozen-v1-2026-09-04.json",
+    "sha256": "d4d3959009825f4b36448434df0b01d5e0c73eae343df12aa2a62a6715d2cbe7",
+    "label_status": "frozen"
+  },
+  "immutability_policy": "修订时新建版本，不覆盖本文件引用的冻结标签。"
+}

@@ -1,0 +1,356 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v8-residual-oracles-preregistration-v1",
+  "created_at": "2026-09-05",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "purpose": "Use only frozen v8 raw outputs to measure the independent causal contribution of component bridging, E7 compatibility-veto family localization, and S2 admission control to the residual v8 errors.",
+  "scope": {
+    "data_status": "revealed_frozen_development_and_regression_data_only",
+    "generalization_claim": false,
+    "production_rule_claim": false,
+    "gold_directed_oracle_only": true,
+    "runtime_selector_validated": false,
+    "threshold_selection_allowed": false,
+    "v4_v5_v6_v7_v8_modification_allowed": false,
+    "v8_rerun_allowed": false,
+    "parser_import_or_execution_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "v8_development_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-mechanism-development-raw-v1-2026-09-05.json",
+      "sha256": "d1ef02e21645ef135fd9c6efca23e7e6bebefb707c072386a8f02c241ee2f22b"
+    },
+    "v8_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-regression-raw-v1-2026-09-05.json",
+      "sha256": "228f982b40fecf278224e052e5f22c0a0c981d43fc2c2789dfa192f0a3ebba0f"
+    },
+    "v8_offline_gate_reconstruction": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-frozen-raw-offline-gates-v1-2026-09-05.json",
+      "sha256": "995782a2b2b38876ade34a6d84f7a4437da35f30f9d7137f8bfa4628fbb811c8"
+    },
+    "v8_execution_postmortem": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-one-time-execution-postmortem-v1-2026-09-05.json",
+      "sha256": "5431875d33c3734f01824b288225d051d1932a5a0d10545627d899657b880fce"
+    },
+    "v8_source_freeze": {
+      "path": "datasets/unified_jd_structured_span_v8_source_freeze_v1_2026-09-05.json",
+      "sha256": "0e03233a4f18f901e16c19685ffe318f79383a365be9d45868a8c34d2ce15828"
+    },
+    "v8_preregistration": {
+      "path": "datasets/unified_jd_structured_span_v8_preregistration_v1_2026-09-05.json",
+      "sha256": "760b3562650c7dd8283903235b2c51b97ce98cda634dc0680ca70398b0e591f4"
+    },
+    "v8_preregistration_freeze": {
+      "path": "datasets/unified_jd_structured_span_v8_preregistration_freeze_v1_2026-09-05.json",
+      "sha256": "ed7100c22e4ab59b61588d0652cdcd425f1bcd2571686efa2efbac550ccf31be"
+    },
+    "v5_mechanism_reference_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+      "sha256": "56f51ec6a54c0135478d22f9823373c67255e59fc5d90976fe9bed74bf9ec7ae"
+    },
+    "v6_regression_reference_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+      "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+    },
+    "v7_regression_reference_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v7-regression-raw-v1-2026-09-05.json",
+      "sha256": "f324985a9bdc3430181fae5a0e90ba4283f0b1c7d655910bcee48879d56c7377"
+    },
+    "e9_runtime_signal_analysis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-runtime-signal-analysis-v1-2026-09-05.json",
+      "sha256": "e42d9ca9099796b758423750be3dc644f5b5a8b50a7506d90f62f27961692a7a"
+    }
+  },
+  "frozen_observations": {
+    "v8_gate_passed": false,
+    "v8_parse_or_validation_error_count": 0,
+    "supported_v5_restoration_exact_count": 5,
+    "supported_v5_restoration_required_count": 12,
+    "v5_mechanism_exact_count": 13,
+    "v5_mechanism_required_count": 20,
+    "projection_exact_count": 59,
+    "projection_required_count": 60,
+    "revealed_external_record_regression_count": 2,
+    "control_exact_count": 22,
+    "control_required_count": 22,
+    "legacy_exact_count": 20,
+    "legacy_required_count": 20,
+    "causal_partition": {
+      "component_bridge_target_count": 3,
+      "E7_veto_localization_target_count": 4,
+      "S2_false_admission_target_count": 2,
+      "S2_boundary_case_count": 1
+    }
+  },
+  "global_guards": {
+    "experiments_are_independent": true,
+    "each_experiment_starts_from_frozen_v8_raw": true,
+    "no_experiment_loads_another_experiment_output": true,
+    "single_changed_mechanism_per_experiment": true,
+    "all_acceptance_criteria_are_conjunctive": true,
+    "effect_sizes_reported_even_when_full_sufficiency_fails": true,
+    "target_and_control_assignments_frozen_before_runner_implementation": true,
+    "post_hoc_exception_or_threshold_tuning_forbidden": true,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "oracle_run_count_per_experiment": 1,
+    "parser_execution_forbidden": true,
+    "runtime_dispatch_claim_from_fixture_ids_forbidden": true,
+    "projection_rederived_once_when_full_graph_is_available": true,
+    "projection_only_records_may_use_only_frozen_observable_arms": true
+  },
+  "experiments": [
+    {
+      "order": 10,
+      "id": "E10-component-bridge-oracle",
+      "status": "preregistered_not_implemented_not_executed",
+      "hypothesis": "Three v5-restoration failures remain because exact-edge delta components split one local structural region and the witnessless adjacent component cannot inherit an otherwise supported E2 or E3 activation.",
+      "causal_question": "If only the preregistered witnessless adjacent component is joined to its local supported-v5 structural region, do all three records become exact to frozen v5 without changing any already-correct family?",
+      "baseline": "Frozen v8 development raw.",
+      "targets": [
+        {
+          "id": "structured-v5-mechanism-dev-v1-004",
+          "bridge_component_envelopes": ["15-43"],
+          "treatment_node_families": [
+            "wrappers",
+            "coordinations",
+            "shared_scopes",
+            "item_candidates"
+          ],
+          "derived_outcomes": ["surface_projection"]
+        },
+        {
+          "id": "structured-v5-mechanism-dev-v1-006",
+          "bridge_component_envelopes": ["0-13", "16-35"],
+          "treatment_node_families": ["wrappers", "item_candidates"],
+          "derived_outcomes": ["surface_projection"]
+        },
+        {
+          "id": "structured-v5-mechanism-dev-v1-014",
+          "bridge_component_envelopes": ["15-43"],
+          "treatment_node_families": [
+            "wrappers",
+            "coordinations",
+            "shared_scopes",
+            "item_candidates"
+          ],
+          "derived_outcomes": ["surface_projection"]
+        }
+      ],
+      "intervention": "Starting from each frozen v8 graph, replace only v8-v5 delta nodes in the listed witnessless component envelopes and listed node families with the frozen v5 counterparts. Preserve every v8 node outside those envelopes, rebase references, validate, and derive projections exactly once.",
+      "single_changed_variable": "component_activation_closure_across_preregistered_adjacent_witnessless_delta_components",
+      "held_fixed": [
+        "all nodes outside the listed component envelopes",
+        "connector labels and example attachments in every target",
+        "every family already exact to frozen v5",
+        "the other 17 mechanism-development records",
+        "all regression records",
+        "E11 and E12 treatments"
+      ],
+      "baseline_outcomes": {
+        "target_exact_to_v5_count": 0,
+        "incorrect_observable_family_count": 13
+      },
+      "primary_outcomes": [
+        "target exact-to-v5 count",
+        "corrected observable family count",
+        "changed already-correct family count",
+        "reference-closure and source-anchoring validity"
+      ],
+      "acceptance_criteria": [
+        "All 3 targets are exact to frozen v5 on every graph family and both projections.",
+        "All 13 baseline-incorrect observable families are corrected.",
+        "No family already exact to frozen v5 changes by signature.",
+        "Every non-target development and regression record is byte-identical to frozen v8 raw.",
+        "All merged graphs validate, remain source-anchored, and have closed references.",
+        "No parser, model, network, canonicalizer, E11 treatment, or E12 treatment is used."
+      ],
+      "full_support_gate": "accept_component_bridge_as_sufficient_only_if_all_six_criteria_pass",
+      "partial_contribution_rule": "If fewer than 3 targets become exact but at least one preregistered incorrect family is corrected with zero held-fixed changes, report the exact corrected-record and corrected-family counts as partial contribution; do not call the mechanism sufficient.",
+      "falsification": "Reject component bridging as a sufficient explanation if any target remains inexact, any already-correct family changes, or any merged graph is invalid.",
+      "interpretation_limit": "This gold-directed oracle tests whether the missing component closure is causally sufficient on three revealed records. It does not identify a runtime-observable bridge predicate or establish generalization."
+    },
+    {
+      "order": 11,
+      "id": "E11-E7-veto-family-localization-oracle",
+      "status": "preregistered_not_implemented_not_executed",
+      "hypothesis": "Four E7 records remain inexact because an attachment-loss compatibility veto is applied to the entire connected component even though the frozen v8 attachment family is already exact and only non-attachment v5 deltas need restoration.",
+      "causal_question": "If attachment-loss protects only the attachment family and its required endpoints, can the non-attachment supported-v5 deltas be restored while attachments remain byte-identical and exact?",
+      "baseline": "Frozen v8 development raw, independently reloaded without E10 treatment.",
+      "targets": [
+        {
+          "id": "structured-v5-mechanism-dev-v1-016",
+          "E7_component_envelope": "16-36",
+          "localized_v5_node_families": ["item_candidates"],
+          "derived_outcomes": ["surface_projection"]
+        },
+        {
+          "id": "structured-v5-mechanism-dev-v1-017",
+          "E7_component_envelope": "11-37",
+          "localized_v5_node_families": [
+            "wrappers",
+            "coordinations",
+            "shared_scopes",
+            "item_candidates"
+          ],
+          "derived_outcomes": ["surface_projection"]
+        },
+        {
+          "id": "structured-v5-mechanism-dev-v1-018",
+          "E7_component_envelope": "17-46",
+          "localized_v5_node_families": ["item_candidates"],
+          "derived_outcomes": ["surface_projection"]
+        },
+        {
+          "id": "structured-v5-mechanism-dev-v1-019",
+          "E7_component_envelope": "11-45",
+          "localized_v5_node_families": ["item_candidates"],
+          "derived_outcomes": ["surface_projection"]
+        }
+      ],
+      "intervention": "Starting from each frozen v8 graph, retain the frozen v8 attachment nodes, cue spans, parents, example spans, and attachment references byte-for-byte. Replace only the listed non-attachment v8-v5 delta nodes inside the registered E7 component envelope with frozen v5 counterparts, then rebase, validate, and derive projections once.",
+      "single_changed_variable": "compatibility_veto_scope_from_component_wide_to_attachment_family_local",
+      "held_fixed": [
+        "example attachments and example projection",
+        "connector labels already exact to frozen v5",
+        "all non-delta nodes inside each E7 envelope",
+        "all nodes outside each E7 envelope",
+        "the other 16 mechanism-development records",
+        "all regression records",
+        "E10 and E12 treatments"
+      ],
+      "baseline_outcomes": {
+        "target_exact_to_v5_count": 0,
+        "incorrect_observable_family_count": 11,
+        "attachment_exact_target_count": 4
+      },
+      "primary_outcomes": [
+        "target exact-to-v5 count",
+        "corrected non-attachment family count",
+        "byte-identical retained attachment count",
+        "changed already-correct family count",
+        "reference-closure and source-anchoring validity"
+      ],
+      "acceptance_criteria": [
+        "All 4 targets are exact to frozen v5 on every graph family and both projections.",
+        "All 11 baseline-incorrect observable families are corrected.",
+        "Attachment parents, edges, cue spans, example spans, and example projection remain byte-identical to frozen v8 and exact on all 4 targets.",
+        "No family already exact to frozen v5 changes by signature.",
+        "Every non-target development and regression record is byte-identical to frozen v8 raw.",
+        "All merged graphs validate, remain source-anchored, and have closed references.",
+        "No parser, model, network, canonicalizer, E10 treatment, or E12 treatment is used."
+      ],
+      "full_support_gate": "accept_E7_veto_family_localization_as_sufficient_only_if_all_seven_criteria_pass",
+      "partial_contribution_rule": "If fewer than 4 targets become exact but at least one listed non-attachment family is corrected while every attachment remains byte-identical, report the exact corrected-record and corrected-family counts as partial contribution; do not call the mechanism sufficient.",
+      "falsification": "Reject family-local veto as a sufficient explanation if any target remains inexact, any attachment changes, or reference closure fails.",
+      "interpretation_limit": "This oracle localizes a known veto using revealed family labels. It does not establish that a future runtime selector can infer safe family boundaries on unseen clauses."
+    },
+    {
+      "order": 12,
+      "id": "E12-S2-admission-control-oracle",
+      "status": "preregistered_not_implemented_not_executed",
+      "hypothesis": "Two revealed-external regressions are caused by false S2 admission, while five other S2 selections are necessary and must be retained; the remaining projection failure may require more than a binary admit-or-deny decision.",
+      "causal_question": "What fraction of the three S2-associated regression failures is caused by the admission decision alone, and can an oracle binary admission label reject harmful S2 uses without disabling the five already-correct uses?",
+      "baseline": "Frozen v8 regression raw, independently reloaded without E10 or E11 treatment.",
+      "arms": [
+        "frozen_v8_observed_admission",
+        "deny_all_observed_S2",
+        "oracle_binary_admission"
+      ],
+      "false_admission_targets": [
+        {
+          "cohort": "revealed-external-20",
+          "id": "structured-corpus-external-v1-003",
+          "treatment": "deny_S2_and_restore_frozen_v6_item_candidates"
+        },
+        {
+          "cohort": "revealed-external-20",
+          "id": "structured-corpus-external-v1-019",
+          "treatment": "deny_S2_and_restore_frozen_v6_item_candidates"
+        }
+      ],
+      "positive_admission_controls": [
+        {"cohort": "legacy-20", "id": "structured-external-v1-014"},
+        {"cohort": "projection-60", "id": "surface-holdout-v1-001"},
+        {"cohort": "projection-60", "id": "surface-holdout-v1-003"},
+        {"cohort": "projection-60", "id": "surface-holdout-v1-017"},
+        {"cohort": "projection-60", "id": "surface-holdout-v2-002"}
+      ],
+      "boundary_case": {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-005",
+        "frozen_v8_admitted_exact": false,
+        "frozen_v6_denied_exact": false,
+        "frozen_v7_minimal_S2_exact": true,
+        "role": "Measure whether binary admission is insufficient and a later selection-envelope or producer-projection-closure oracle is required."
+      },
+      "excluded_and_held_fixed_E11_records": [
+        "structured-v5-mechanism-dev-v1-016",
+        "structured-v5-mechanism-dev-v1-017",
+        "structured-v5-mechanism-dev-v1-018",
+        "structured-v5-mechanism-dev-v1-019"
+      ],
+      "intervention": "The deny-all arm restores frozen v6 item-candidate output for every listed S2 observation and leaves every other observable family fixed. The oracle-binary arm denies S2 only for the two false-admission targets and retains frozen v8 S2 outputs for the five positive controls and the boundary case. For full-graph records, rederive projections once; for projection-only records, use only the already-frozen v6, v7, and v8 observable arms.",
+      "single_changed_variable": "binary_S2_admission_decision",
+      "held_fixed": [
+        "all non-item-candidate graph families",
+        "projection semantics",
+        "all non-S2 records",
+        "all four E11 target records",
+        "E10 and E11 treatments"
+      ],
+      "baseline_outcomes": {
+        "false_admission_target_non_regression_count": 0,
+        "positive_admission_control_exact_count": 5,
+        "boundary_case_exact_count": 0,
+        "S2_associated_regression_failure_count": 3
+      },
+      "primary_outcomes": [
+        "false-admission targets restored to frozen v6 count",
+        "positive-admission controls retained exact count",
+        "boundary-case exactness by arm",
+        "resolved S2-associated regression count out of 3",
+        "changed held-fixed family count"
+      ],
+      "acceptance_criteria_for_discrimination": [
+        "The oracle-binary arm restores both false-admission targets exactly to frozen v6 on item candidates and all derived projections.",
+        "All 5 positive-admission controls remain byte-identical to frozen v8 and exact.",
+        "Every non-item-candidate family and every non-S2 record remains byte-identical to frozen v8.",
+        "No parser, model, network, canonicalizer, E10 treatment, or E11 treatment is used."
+      ],
+      "full_sufficiency_criterion": "Binary S2 admission is sufficient for all three S2-associated regressions only if the boundary case is also exact under the oracle-binary arm without changing the admitted S2 payload or projection semantics.",
+      "partial_contribution_rule": "If the discrimination gate passes but the boundary case remains inexact, report S2 admission control as an independently supported 2-of-3 partial cause and preregister a separate selection-envelope versus producer-projection-closure oracle before any v9 implementation.",
+      "full_support_gate": "accept_admission_discrimination_only_if_all_four_discrimination_criteria_pass; accept_full_sufficiency_only_if_the_additional_boundary_criterion_passes",
+      "falsification": "Reject binary S2 admission discrimination if either false-admission target is not restored, any positive control becomes inexact, or any held-fixed family changes.",
+      "interpretation_limit": "The oracle uses frozen outcome labels to measure causal contribution. It cannot supply a runtime admission classifier. Projection-only records expose no upstream graph topology, and the boundary case can establish insufficiency but not identify the missing closure mechanism."
+    }
+  ],
+  "decision_rule": {
+    "independent_effect_reporting": "Report baseline and treatment exact counts, corrected observable-family counts, and held-fixed changes separately for E10, E11, and E12. Never accumulate treatment effects or sum them as one observed parser result.",
+    "component_bridge_supported_as_sufficient": "E10 passes every frozen full-support criterion.",
+    "E7_veto_family_localization_supported_as_sufficient": "E11 passes every frozen full-support criterion.",
+    "S2_admission_supported_as_discriminator": "E12 passes every discrimination criterion.",
+    "S2_admission_supported_as_fully_sufficient": "E12 also passes the boundary-case full-sufficiency criterion.",
+    "v9_block": "Do not preregister or implement v9 until all three oracle reports are frozen. If E12 supports only 2-of-3 partial contribution, first preregister and execute the boundary-case selection-envelope versus producer-projection-closure oracle.",
+    "canonicalizer_block": "Canonicalizer work remains forbidden until a later implementation passes frozen development and regression gates and then passes a separately preregistered fresh external blind holdout."
+  },
+  "planned_outputs": {
+    "E10": [
+      "artifacts/evaluation/unified-jd-structured-span-v8-e10-component-bridge-oracle-raw-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e10-component-bridge-oracle-report-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e10-component-bridge-oracle-findings-v1-2026-09-05.md"
+    ],
+    "E11": [
+      "artifacts/evaluation/unified-jd-structured-span-v8-e11-e7-veto-family-localization-oracle-raw-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e11-e7-veto-family-localization-oracle-report-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e11-e7-veto-family-localization-oracle-findings-v1-2026-09-05.md"
+    ],
+    "E12": [
+      "artifacts/evaluation/unified-jd-structured-span-v8-e12-s2-admission-control-oracle-raw-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e12-s2-admission-control-oracle-report-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v8-e12-s2-admission-control-oracle-findings-v1-2026-09-05.md"
+    ]
+  }
+}

@@ -65,6 +65,23 @@ def test_url_dates_do_not_exclude_real_current_jobs():
     )
 
 
+@pytest.mark.parametrize("url", [
+    "https://www.horizon.auto/legal/privacy",
+    "https://jobs.bytedance.com/privacy_policy.html",
+    "https://www.horizon.auto/en/privacy-policy/",
+])
+def test_official_privacy_pages_do_not_consume_recruitment_entry_budget(url):
+    assert search_link_rejection(url, "招聘平台隐私政策", query="2027届北京上海 Agent RAG 校招") == "legal_or_privacy_page"
+
+
+def test_privacy_engineering_jobs_and_company_hiring_links_remain_candidates():
+    for url, title in [
+        ("https://jobs.bytedance.com/campus/position/privacy-engineer/detail", "Privacy Engineer"),
+        ("https://www.horizon.auto/about?tp=4", "加入我们"),
+    ]:
+        assert search_link_rejection(url, title, query="校招") is None
+
+
 def test_canonical_identity_keeps_job_and_tenant_selectors_including_spa():
     assert (
         canonical_job_url("https://example.com/jobs/123?utm_source=a#top")
@@ -102,6 +119,7 @@ async def test_sources_are_filtered_after_metadata_merge_and_full_response_is_ke
                         },
                         {"url": "https://example.com/job/old.pdf", "title": "招聘简章"},
                         {"url": "https://en.wikipedia.org/wiki/AI", "title": "AI"},
+                        {"url": "https://www.horizon.auto/legal/privacy", "title": "隐私政策"},
                     ]
                 },
             },
@@ -126,7 +144,7 @@ async def test_sources_are_filtered_after_metadata_merge_and_full_response_is_ke
         "https://example.com/jobs/2",
     ]
     assert candidates[0].title_hint == "RAG工程师"
-    assert len(provider.last_evidence["rejected_links"]) == 3
+    assert len(provider.last_evidence["rejected_links"]) == 4
     assert json.loads(provider.last_evidence["raw_response"]) == payload
 
 
@@ -358,9 +376,9 @@ async def test_search_workflow_proves_ats_ownership_then_verifies_and_filters(
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(
-        execution, "enabled_company_source_hosts", lambda: {"acme.example"}
+        execution, "enabled_company_source_hosts", lambda **kwargs: {"acme.example"}
     )
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [source])
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [source])
     monkeypatch.setattr(execution, "SafeHTTPReader", lambda **kwargs: Reader())
     monkeypatch.setattr(
         execution,
@@ -392,7 +410,11 @@ async def test_search_workflow_proves_ats_ownership_then_verifies_and_filters(
     )
     assert proof.field_evidence["company"] == "Acme"
     assert proof.field_evidence["snapshot_id"]
-    assert run.result_matches[0]["filter_status"] == "matched"
+    match = run.result_matches[0]
+    # Official ownership and readable duties do not confirm that applications remain open.
+    assert match["filter_status"] == "pending"
+    assert all(c["status"] == "matched" for c in match["checks"] if c["field"] != "availability")
+    assert next(c for c in match["checks"] if c["field"] == "availability")["status"] == "pending"
     assert any(item["tool"] == "official_ownership" for item in run.agent_trace)
 
 

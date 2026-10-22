@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Protocol
 
@@ -22,6 +22,8 @@ class LeadCandidate:
     search_snippet: str | None = None
     verification_stub: JobStub | None = None
     official_entry_url: str | None = None
+    observed_title: bool = False
+    search_context: dict = field(default_factory=dict)
 
 
 class LeadProvider(Protocol):

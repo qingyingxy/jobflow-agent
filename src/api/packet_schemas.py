@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.application_packet import (
     PacketDecisionType,
     PacketStatus,
@@ -74,7 +74,7 @@ class PacketDecisionRead(BaseModel):
     id: str
     decision: PacketDecisionType
     actor_type: Literal["user"]
-    created_at: datetime
+    created_at: UtcTimestamp
 
 
 class PacketRevisionRead(BaseModel):
@@ -107,11 +107,11 @@ class PacketRevisionRead(BaseModel):
     source_changed: bool
     source_change_codes: list[str]
     decisions: list[PacketDecisionRead]
-    created_at: datetime
-    updated_at: datetime
-    submitted_for_review_at: datetime | None
-    approved_at: datetime | None
-    superseded_at: datetime | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
+    submitted_for_review_at: UtcTimestamp | None
+    approved_at: UtcTimestamp | None
+    superseded_at: UtcTimestamp | None
 
 
 class ApplicationPacketRead(BaseModel):
@@ -123,5 +123,5 @@ class ApplicationPacketRead(BaseModel):
     status: PacketStatus
     current_revision: PacketRevisionRead
     revisions: list[PacketRevisionRead]
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp

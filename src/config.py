@@ -36,15 +36,36 @@ class Settings(BaseSettings):
     web_search_role_review_batch_size: int = Field(default=2, ge=1, le=3)
     web_search_role_review_concurrency: int = Field(default=2, ge=1, le=3)
     web_search_role_review_timeout_seconds: float = Field(default=15, gt=0, le=60)
+    web_search_semantic_enabled: bool = True
+    web_search_understanding_mode: Literal["ai", "hybrid"] = "ai"
+    web_search_semantic_listing_max_calls: int = Field(default=6, ge=0, le=20)
+    web_search_semantic_max_calls: int = Field(default=16, ge=0, le=30)
+    web_search_semantic_history_max_calls: int = Field(default=4, ge=0, le=15)
+    web_search_semantic_recovery_max_calls: int = Field(default=4, ge=0, le=10)
+    web_search_semantic_concurrency: int = Field(default=2, ge=1, le=4)
+    web_search_semantic_timeout_seconds: float = Field(default=12, gt=0, le=60)
+    web_search_semantic_retry_timeout_seconds: float = Field(default=30, gt=0, le=60)
     web_search_direct_sources_enabled: bool = False
     web_search_max_rounds: int = 6
     web_search_budget_seconds: int = 300
     web_search_request_timeout_seconds: float = Field(default=60, gt=0, le=120)
     web_search_transient_retries: int = Field(default=1, ge=0, le=2)
     web_search_target_jobs: int = 15
+    web_search_company_target: int = Field(default=3, ge=1, le=10)
+    web_search_company_seconds: float = Field(default=30, gt=0, le=120)
+    web_search_company_concurrency: int = Field(default=4, ge=1, le=4)
+    web_search_company_batch_size: int = Field(default=6, ge=1, le=10)
+    company_discovery_enabled: bool = True
+    company_discovery_request_timeout_seconds: float = Field(default=60, gt=0, le=120)
+    company_discovery_tool_calls: int = Field(default=1, ge=1, le=3)
+    company_discovery_budget_seconds: float = Field(default=90, gt=0, le=90)
+    company_discovery_max_candidates: int = Field(default=2, ge=1, le=3)
     web_search_verification_budget_seconds: int = 180
     web_search_verification_item_seconds: int = 60
     web_search_entry_limit: int = 8
+    web_search_entry_budget_seconds: float = Field(default=45, gt=0, le=120)
+    web_search_entry_item_seconds: float = Field(default=15, gt=0, le=60)
+    web_search_entry_empty_limit: int = Field(default=2, ge=1, le=5)
     web_search_entry_max_pages: int = 6
     web_search_entry_max_details: int = Field(default=20, ge=1, le=100)
     tavily_api_key: str | None = None
@@ -62,9 +83,13 @@ class Settings(BaseSettings):
     llm_retry_backoff_seconds: float = 1.5
     parser_validation_retries: int = 1
     product_parse_mode: Literal["two_stage", "single_call"] = "two_stage"
-    product_prompt_version: str = "product-jd-two-stage-v10"
-    product_single_call_prompt_version: str = "product-jd-single-call-v1"
-    product_parser_version: str = "product-jd-parser-v8"
+    product_prompt_version: str = "product-jd-two-stage-v12"
+    product_single_call_prompt_version: str = "product-jd-single-call-v4-inline"
+    product_parser_version: str = "product-jd-parser-v10"
+    product_parse_transport_retries: int = Field(default=1, ge=0, le=3)
+    product_parse_retry_backoff_seconds: float = Field(default=1.5, ge=0, le=10)
+    product_parse_run_timeout_seconds: float = Field(default=300, gt=0, le=900)
+    product_parse_max_model_calls: int = Field(default=6, ge=1, le=12)
     # Semantic matching sends structured experience to the configured model.
     # Keep local matching until the operator explicitly opts in.
     evidence_matching_mode: Literal["semantic", "local"] = "local"

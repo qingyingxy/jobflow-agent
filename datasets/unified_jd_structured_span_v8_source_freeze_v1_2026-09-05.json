@@ -1,0 +1,33 @@
+{
+  "freeze_version": "unified-jd-structured-span-v8-source-freeze-v1",
+  "frozen_at": "2026-09-05T09:01:26.175129+00:00",
+  "status": "v8_source_tests_evaluator_frozen_before_one_time_gates",
+  "preregistration_version": "unified-jd-structured-span-v8-preregistration-v1",
+  "artifacts": {
+    "v8_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v8.py",
+      "sha256": "3613f99fc10efc383020ab488fc00fce21df23d26cd668e8dda5141f9731a75a"
+    },
+    "v8_synthetic_tests": {
+      "path": "tests/test_unified_jd_structured_spans_v8.py",
+      "sha256": "7cc80cad824593f3816dee431e3d32795286cb37564579d99d62e14c298da517"
+    },
+    "v8_one_time_evaluator": {
+      "path": "scripts/evaluate_unified_structured_span_v8_gates.py",
+      "sha256": "4586e223d02bf5ac037f87f0516e51038641d4fe9aed1c94ada8fa5628090a2a"
+    },
+    "v8_preregistration": {
+      "path": "datasets/unified_jd_structured_span_v8_preregistration_v1_2026-09-05.json",
+      "sha256": "760b3562650c7dd8283903235b2c51b97ce98cda634dc0680ca70398b0e591f4"
+    }
+  },
+  "checks": {
+    "development_run_count_before_freeze": 0,
+    "regression_run_count_before_freeze": 0,
+    "v8_imported_or_executed_by_freeze": false,
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "canonicalizer_allowed": false
+  },
+  "immutability": "Any parser, test, evaluator, component edge, witness, veto, precedence, threshold, or input change requires a new preregistration."
+}

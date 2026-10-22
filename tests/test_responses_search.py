@@ -8,6 +8,32 @@ from src.services.web_search_service import WebSearchPayloadError
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["supported", "unsupported", "ignored"])
+async def test_company_search_tool_budget_is_sent_and_actual_support_is_reported(mode):
+    calls = []
+
+    def handle(request):
+        body = json.loads(request.content)
+        calls.append(body)
+        if mode == "unsupported" and "max_tool_calls" in body:
+            return httpx.Response(400, text="unsupported parameter: max_tool_calls")
+        return httpx.Response(200, json={"status": "completed", "output": [
+            {"type": "web_search_call", "status": "completed", "action": {"query": "one", "sources": []}}
+            for _ in range(2 if mode == "ignored" else 1)]})
+
+    provider = ResponsesSearchProvider(query="agent 公司官网", base_url="https://api.example.com/v1",
+        api_key="test", model="test", transport=httpx.MockTransport(handle))
+    provider.search_purpose = "companies"
+    provider.max_tool_calls = 1
+    await provider.discover()
+    assert calls[0]["max_tool_calls"] == 1
+    assert provider.last_evidence["tool_limit_status"] == {
+        "supported": "within_limit", "unsupported": "unsupported", "ignored": "exceeded"}[mode]
+    if mode == "unsupported":
+        assert len(calls) == 2 and "max_tool_calls" not in calls[1]
+
+
+@pytest.mark.asyncio
 async def test_search_links_remain_untrusted_and_are_deduplicated():
     def handle(request):
         body = json.loads(request.content)

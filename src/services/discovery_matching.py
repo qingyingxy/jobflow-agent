@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from src.domain.graduation import (
@@ -15,6 +16,7 @@ from src.services.job_header_facts import (
     recruitment_type_conflicts,
 )
 from src.services.search_constraints import select_term_groups
+from src.services.search_vocabulary import _LOCATION_GROUPS, _ROLE_GROUPS
 
 MatchTier = Literal["strict", "expanded"]
 
@@ -26,6 +28,32 @@ class DiscoveryJobMatch:
     mismatch_labels: tuple[str, ...]
     filter_status: Literal["matched", "pending", "excluded"] = "pending"
     checks: tuple[dict[str, object], ...] = ()
+    preference_score: int = 0
+    body_verified: bool = False
+    decision_policy: str = "hybrid"
+    decision_version: str = "query-filters-v13-duty-grounded-scope"
+
+    @property
+    def review_status(self) -> Literal["recommended", "pending", "excluded"]:
+        """Viewing priority is independent of strict eligibility and search quotas."""
+        required = [c for c in self.checks if c.get("required", True)]
+        if self.filter_status == "excluded" or any(c["status"] == "excluded" for c in required):
+            return "excluded"
+        if self.filter_status == "matched":
+            return "recommended"
+        if not self.body_verified:
+            return "pending"
+        # Missing cohorts are reviewable; uninterpreted eligibility clauses may
+        # still contain a conflict and must not become a recommendation.
+        if any(c["field"] == "graduation_year" and c["status"] == "pending"
+               and c.get("diagnosis") != "source_missing" for c in required):
+            return "pending"
+        # Only cohort and availability may remain unknown. A missing direction,
+        # city, recruitment type or other hard constraint must stay in review.
+        core = [c for c in required if c["field"] not in {"graduation_year", "availability"}]
+        if core and all(c["status"] == "matched" for c in core):
+            return "recommended"
+        return "pending"
 
     def as_dict(self, *, job_posting_id: str) -> dict[str, object]:
         return {
@@ -34,75 +62,60 @@ class DiscoveryJobMatch:
             "mismatch_reasons": list(self.mismatch_reasons),
             "mismatch_labels": list(self.mismatch_labels),
             "filter_status": self.filter_status,
+            "review_status": self.review_status,
+            "review_version": "view-priority-v1",
             "checks": list(self.checks),
-            "filter_version": "query-filters-v10",
+            "filter_version": self.decision_version,
+            "decision_policy": self.decision_policy,
+            "preference_score": self.preference_score,
         }
 
 
-_LOCATION_GROUPS: tuple[tuple[str, ...], ...] = (
-    ("北京", "beijing"),
-    ("上海", "shanghai"),
-    ("深圳", "shenzhen"),
-    ("广州", "guangzhou"),
-    ("杭州", "hangzhou"),
-    ("成都", "chengdu"),
-    ("南京", "nanjing"),
-    ("武汉", "wuhan"),
-    ("苏州", "suzhou"),
-    ("西安", "xi'an", "xian"),
-    ("天津", "tianjin"),
-    ("重庆", "chongqing"),
-    ("厦门", "xiamen"),
-    ("新加坡", "singapore"),
-    ("香港", "hong kong"),
-    ("圣何塞", "san jose"),
-    ("西雅图", "seattle"),
-)
+def apply_posting_availability(match: DiscoveryJobMatch, job, *, now=None) -> DiscoveryJobMatch:
+    """Use the same availability gate for saved results and live search quotas."""
+    now = now or datetime.now(UTC)
+    match = replace(match, body_verified=job.verification_status in {"VERIFIED_OFFICIAL", "VERIFIED_SOURCE"})
+    verified = job.last_verified_at
+    if verified and verified.tzinfo is None:
+        verified = verified.replace(tzinfo=UTC)
+    from src.services.recruitment_context import current_batch_availability
 
-_ROLE_GROUPS: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
-    (
-        ("ai应用", "ai 应用", "人工智能应用"),
-        ("ai应用", "ai 应用", "人工智能应用", "agent", "智能体", "rag", "大模型"),
-    ),
-    (("agent", "智能体"), ("agent", "智能体")),
-    (
-        ("llm", "大模型", "大语言模型", "large language model"),
-        (
-            "llm",
-            "大模型",
-            "大语言模型",
-            "large language model",
-            "foundation model",
-            "generative ai",
-        ),
-    ),
-    (
-        ("算法", "algorithm"),
-        (
-            "算法",
-            "algorithm",
-            "machine learning",
-            "机器学习",
-            "deep learning",
-            "深度学习",
-            "推荐",
-            "搜索",
-            "计算机视觉",
-        ),
-    ),
-    (("rag", "检索增强"), ("rag", "检索增强")),
-    (("nlp", "自然语言处理"), ("nlp", "自然语言处理")),
-    (("计算机视觉", "computer vision", "cv"), ("计算机视觉", "computer vision", "cv")),
-    (("数据", "data"), ("数据", "data")),
-    (("后端", "backend", "back-end"), ("后端", "backend", "back-end")),
-    (("前端", "frontend", "front-end"), ("前端", "frontend", "front-end")),
-    (("测试", "qa"), ("测试", "quality assurance", "qa")),
-    (("产品", "product"), ("产品", "product")),
-)
+    batch_status = current_batch_availability(getattr(job, "recruitment_context", {}), job.source_url or "", now=now)
+    closed = job.availability_status == "CLOSED" or batch_status.get("value") == "CLOSED"
+    availability_checked = getattr(job, "last_availability_checked_at", None) or verified
+    if availability_checked and availability_checked.tzinfo is None:
+        availability_checked = availability_checked.replace(tzinfo=UTC)
+    stale = not verified or now - verified > timedelta(days=7) or not availability_checked or now - availability_checked > timedelta(days=7)
+    uncertain = (
+        job.availability_status != "ACTIVE"
+        or job.verification_status == "LEGACY_UNVERIFIED"
+    )
+    if not (closed or stale or uncertain):
+        return match
+    status = "excluded" if closed else "pending"
+    reason = (
+        "关联招聘批次已结束或已过投递截止日期" if closed and job.availability_status != "CLOSED"
+        else "岗位已关闭" if closed
+        else "开放状态待更新：尚未核验或核验已超过7天" if stale
+        else "开放状态未知" if match.body_verified
+        else "岗位正文或开放状态待核实"
+    )
+    return replace(
+        match,
+        filter_status="excluded" if match.filter_status == "excluded" else status,
+        match_tier="expanded",
+        mismatch_reasons=(*match.mismatch_reasons, "closed" if closed else "stale"),
+        mismatch_labels=(*match.mismatch_labels, reason),
+        checks=(*match.checks, {
+            "field": "availability", "status": status, "reason": reason,
+            "evidence": [batch_status["source_text"]] if closed and batch_status.get("source_text") else [],
+            "source_url": batch_status.get("source_url") or job.source_url or "",
+        }),
+    )
 
 
 def classify_discovery_job(
-    job: JobStub, *, query: str | None, role_review=None
+    job: JobStub, *, query: str | None, role_review=None, conditions=None, primary=None
 ) -> DiscoveryJobMatch:
     """Filter verified page facts. Missing evidence never proves a conflict."""
     normalized_query = (query or "").casefold()
@@ -124,14 +137,34 @@ def classify_discovery_job(
             reasons.append(code or field)
             labels.append(reason)
 
-    wanted_locations, denied_locations = select_term_groups(
-        normalized_query, _LOCATION_GROUPS
-    )
+    if conditions is None:
+        conditions = search_filter_conditions(query)
+    else:
+        from src.domain.search_goal import SearchGoalConditions
+        from src.services.search_intent import conditions_query
+
+        conditions = SearchGoalConditions.model_validate(conditions).model_dump()
+        # Every semantic helper consumes the same effective, editable scope.
+        # The original input may no longer agree after a user edits fields.
+        query = conditions_query(SearchGoalConditions(**conditions))
+        normalized_query = query.casefold()
+    from src.services.search_vocabulary import location_aliases
+
+    wanted_locations = [location_aliases(v) for v in conditions["locations"]]
+    denied_locations = [location_aliases(v) for v in conditions["excluded_locations"]]
+    preferred_locations = [
+        location_aliases(v) for v in conditions["preferred_locations"]
+    ]
+    preference_score = 0
     if wanted_locations or denied_locations:
         locations = effective_job_locations(job)
         location_text = " ".join(locations).casefold()
         known = [
-            g for g in _LOCATION_GROUPS if any(_contains(location_text, t) for t in g)
+            g
+            for g in dict.fromkeys(
+                (*_LOCATION_GROUPS, *wanted_locations, *denied_locations)
+            )
+            if any(_contains(location_text, t) for t in g)
         ]
         complete = all(
             any(_contains(location.casefold(), t) for g in known for t in g)
@@ -150,9 +183,7 @@ def classify_discovery_job(
         elif wanted_locations and not any(
             _contains(location_text, t) for g in wanted_locations for t in g
         ):
-            uncertain = not complete or bool(
-                re.search(r"优先|最好|首选", normalized_query)
-            )
+            uncertain = not complete
             record(
                 "location",
                 "pending" if uncertain else "excluded",
@@ -162,12 +193,35 @@ def classify_discovery_job(
         else:
             record("location", "matched", "已确认地点符合搜索条件", locations)
 
+    if preferred_locations:
+        locations = effective_job_locations(job)
+        preference_score = int(
+            any(
+                _contains(" ".join(locations).casefold(), term)
+                for group in preferred_locations
+                for term in group
+            )
+        )
+        checks.append(
+            {
+                "field": "preferred_location",
+                "status": "matched",
+                "reason": "命中优先地点，优先展示"
+                if preference_score
+                else "未命中优先地点，仍可展示",
+                "evidence": locations,
+                "source_url": job.detail_url,
+                "required": False,
+            }
+        )
+
     type_groups = (
         ("校招", "校园招聘", "应届", "应届生"),
         ("实习", "internship", "intern"),
         ("社招", "社会招聘", "正式岗", "全职", "full-time"),
     )
-    wanted_types, denied_types = select_term_groups(normalized_query, type_groups)
+    wanted_types = [g for g in type_groups if g[0] in conditions["job_types"]]
+    denied_types = [g for g in type_groups if g[0] in conditions["excluded_job_types"]]
     type_names = dict(zip(type_groups, ("campus", "internship", "full_time")))
     if wanted_types or denied_types:
         evidence = [job.job_type] if job.job_type else []
@@ -195,10 +249,11 @@ def classify_discovery_job(
         else:
             record("job_type", "matched", "已确认招聘类型符合搜索条件", evidence)
 
-    _, excluded_roles = select_term_groups(
-        normalized_query, [g[0] for g in _ROLE_GROUPS]
-    )
-    requested_roles = requested_role_terms(query)
+    excluded_roles = [
+        next((aliases for aliases, _ in _ROLE_GROUPS if role in aliases), (role,))
+        for role in conditions["excluded_roles"]
+    ]
+    requested_roles = requested_role_terms(query, conditions=conditions)
     ai_terms = ("ai", "人工智能", "artificial intelligence")
     _, excluded_ai = select_term_groups(normalized_query, [ai_terms])
     from src.services.job_role_review import (
@@ -244,7 +299,12 @@ def classify_discovery_job(
                 "excluded_role",
             )
         elif domain_conflict:
-            record("role", "excluded", "岗位职责为芯片设计流程，未承担目标软件前后端研发", domain_conflict)
+            record(
+                "role",
+                "excluded",
+                "岗位职责为芯片设计流程，未承担目标软件前后端研发",
+                domain_conflict,
+            )
             checks[-1]["method"] = "local_domain"
         elif accepted_review:
             decision = accepted_review["decision"]
@@ -260,6 +320,11 @@ def classify_discovery_job(
             record(
                 "role", "pending", "关键词或岗位标题不足以确认目标研发职责", [job.title]
             )
+        elif requested_roles:
+            record(
+                "role", "pending", "方向关键词尚未绑定实际职责，待语义复核",
+                _source_quotes(role_text, hits)[:3],
+            )
         else:
             record(
                 "role",
@@ -270,12 +335,31 @@ def classify_discovery_job(
                 _source_quotes(role_text, hits)[:3] if hits else [job.title],
             )
 
-    conditions = search_filter_conditions(query)
+    for role in conditions["preferred_roles"]:
+        evidence = local_duty_evidence(job, f"岗位方向：{role}")
+        preference_score += int(bool(evidence))
+        checks.append({
+            "field": "preferred_role", "status": "matched", "required": False,
+            "reason": f"实际职责覆盖优先方向：{role}" if evidence else f"优先方向尚未确认：{role}，仍可展示",
+            "evidence": evidence, "source_url": job.detail_url,
+        })
+
     years = conditions["graduation_years"]
     if years:
         # A season title or date is not an eligibility cohort. Keep the complete
         # sentence so regional qualifications and ranges cannot be dropped.
         fragments = cohort_source_fragments(job.raw_content or "", title=job.title)
+        from src.services.recruitment_context import cohort_context
+
+        fragments, from_batch = cohort_context(job, fragments)
+        # A recruitment-season header is not eligibility. It also must not
+        # obscure an explicit, matching graduation requirement below it.
+        explicit = [simple_cohort_years(s) for s in fragments if simple_cohort_years(s)]
+        if explicit:
+            fragments = [s for s in fragments if not (
+                re.fullmatch(r"(?:招聘项目[:：]\s*)?(20\d{2})\s*(?:校园招聘|校招)", s.strip())
+                and all(years == {int(re.search(r"20\d{2}", s)[0])} for years in explicit)
+            )]
         simple = [_simple_search_cohort(s) for s in fragments]
         cohorts = {
             int(y)
@@ -292,11 +376,11 @@ def classify_discovery_job(
                 fragments = list(dict.fromkeys([*fragments, *conflicts]))
                 certain = False
         if re.search(
-            r"(?:不考虑|排除|不接受).*20\d{2}|20\d{2}.*(?:至|到|[-~～]).*20\d{2}",
+            r"(?:不考虑|排除|不接受)[^，,；;。\n]*20\d{2}|20\d{2}[^，,；;。\n]*(?:至|到|[-~～])[^，,；;。\n]*20\d{2}",
             normalized_query,
         ):
             certain = False
-        if certain and set(years) <= cohorts:
+        if certain and set(years) & cohorts:
             record("graduation_year", "matched", "岗位明确接受目标届别", fragments)
         elif certain and not set(years) & cohorts:
             record(
@@ -309,9 +393,15 @@ def classify_discovery_job(
             record(
                 "graduation_year",
                 "pending",
-                "适用届别待核实：原文缺失或含有附加条件",
+                "适用届别待核实：原文含有附加条件或尚未完成理解" if fragments
+                else "当前岗位正文及已关联批次未写明适用届别",
                 fragments,
             )
+            checks[-1]["diagnosis"] = "ambiguous" if fragments else "source_missing"
+        if from_batch:
+            checks[-1]["source_url"] = job.recruitment_context["source_url"]
+            checks[-1]["snapshot_id"] = job.recruitment_context.get("snapshot_id")
+            checks[-1]["method"] = "associated_recruitment_batch"
     for keyword in conditions["keywords"]:
         quotes = _source_quotes(
             "\n".join([job.title or "", job.raw_content or ""]), [keyword]
@@ -322,6 +412,23 @@ def classify_discovery_job(
             f"岗位内容包含关键词：{keyword}" if quotes else f"关键词待核实：{keyword}",
             quotes[:2],
         )
+    for keyword in conditions["preferred_keywords"]:
+        quotes = _source_quotes(
+            "\n".join([job.title or "", job.raw_content or ""]), [keyword]
+        )
+        preference_score += int(bool(quotes))
+        checks.append(
+            {
+                "field": "preferred_keyword",
+                "status": "matched",
+                "reason": f"命中优先关键词：{keyword}"
+                if quotes
+                else f"未命中优先关键词：{keyword}，仍可展示",
+                "evidence": quotes[:2],
+                "source_url": job.detail_url,
+                "required": False,
+            }
+        )
     if conditions["pending_conditions"]:
         record(
             "additional",
@@ -329,6 +436,37 @@ def classify_discovery_job(
             "附加条件待核实：" + "、".join(conditions["pending_conditions"]),
             [],
         )
+
+    from src.services.source_understanding import (
+        VERSION,
+        ai_policy_enabled,
+        checked_decisions,
+        requested_fields,
+    )
+
+    if primary is None:
+        primary = ai_policy_enabled() or (job.recruitment_context or {}).get("understanding_policy") == "ai"
+    interpreted = checked_decisions(job, conditions, primary=primary)
+    if primary:
+        # Rules remain useful for retrieval hints. They do not pre-empt the
+        # source-bound semantic decision or hide a job awaiting interpretation.
+        targets = requested_fields(conditions)
+        decisions = {field: interpreted.get(field, {
+            "field": field, "status": "pending", "reason": "原文已保存，等待当前版本AI理解（旧判断不再沿用）",
+            "evidence": [], "source_url": job.detail_url, "diagnosis": "not_extracted",
+            "method": "source_semantics", "version": VERSION,
+        }) for field in targets}
+        seen = {c["field"] for c in checks}
+        checks = [decisions.get(c["field"], c) for c in checks]
+        checks.extend(decisions[field] for field in targets if field not in seen)
+    elif interpreted:
+        checks = [interpreted.get(c["field"], c) if c["status"] == "pending" else c for c in checks]
+    if interpreted or primary:
+        reasons = [c["field"] for c in checks if c["status"] != "matched"]
+        labels = [c["reason"] for c in checks if c["status"] != "matched"]
+    for check in checks:
+        if check["status"] == "pending" and check["field"] in {"location", "job_type", "graduation_year", "role"}:
+            check.setdefault("diagnosis", "ambiguous" if check["evidence"] else "not_extracted")
 
     states = {check["status"] for check in checks}
     status = (
@@ -344,14 +482,25 @@ def classify_discovery_job(
         mismatch_labels=tuple(labels),
         filter_status=status,
         checks=tuple(checks),
+        preference_score=preference_score,
+        decision_policy="ai" if primary else "hybrid",
+        decision_version=VERSION if primary else "query-filters-v13-duty-grounded-scope",
     )
 
 
-def requested_role_terms(query):
+def requested_role_terms(query, *, conditions=None):
     """Share the positive direction scope with model-exclusion validation."""
     text = (query or "").casefold()
-    positive, _ = select_term_groups(text, [g[0] for g in _ROLE_GROUPS])
-    terms = [values for aliases, values in _ROLE_GROUPS if aliases in positive]
+    roles = (conditions if conditions is not None else search_filter_conditions(query))[
+        "roles"
+    ]
+    terms = [
+        next(
+            (values for aliases, values in _ROLE_GROUPS if role in aliases),
+            ("ai", "人工智能", "artificial intelligence") if role == "ai" else (role,),
+        )
+        for role in roles
+    ]
     if re.search(r"(?:大模型|大语言模型|llm)\s*(?:应用|application)", text):
         terms = [
             (
@@ -368,9 +517,7 @@ def requested_role_terms(query):
             else values
             for values in terms
         ]
-    ai = ("ai", "人工智能", "artificial intelligence")
-    positive_ai, _ = select_term_groups(text, [ai])
-    return terms or ([ai] if positive_ai else [])
+    return terms
 
 
 def mixed_frontend_boundary(job, denied_terms):
@@ -405,7 +552,11 @@ def local_role_needs_review(job, requested_roles):
 
     if (
         terms
-        and terms <= (SPECIFIC_DIRECTION_TERMS | {"后端", "backend", "back-end", "前端", "frontend", "front-end"})
+        and terms
+        <= (
+            SPECIFIC_DIRECTION_TERMS
+            | {"后端", "backend", "back-end", "前端", "frontend", "front-end"}
+        )
         and specific_direction_needs_evidence(job, " ".join(terms))
     ):
         return True
@@ -416,6 +567,7 @@ def role_title_needs_review(job, requested_roles):
     """A planning/design title needs semantic interpretation of R&D wording."""
     terms = {t for group in requested_roles for t in group}
     engineering = {
+        "ai agent",
         "agent",
         "智能体",
         "rag",
@@ -433,13 +585,14 @@ def role_title_needs_review(job, requested_roles):
         return False
     return bool(
         re.search(
-            r"产品(?:经理|运营|实习生|助理)|校园大使|(?:销售|商务|市场|人力资源|行政|运营)(?:经理|专员|顾问|实习生)|"
+            r"产品(?:经理|运营|实习生|助理)|校园大使|数据策略|(?:销售|商务|市场|人力资源|行政|运营)(?:经理|专员|顾问|实习生)|"
             r"(?:产品|视觉|交互|平面|UI|UX|用户体验)设计师|"
             r"\b(?:product manager|talent partner|recruiter)\b",
             job.title or "",
             re.IGNORECASE,
         )
-    )
+    ) or bool(re.search(r"^官网职能分类：[^\n]*(?:运营|产品|销售|市场)",
+                        job.raw_content or "", re.MULTILINE))
 
 
 def _simple_search_cohort(sentence):
@@ -458,72 +611,9 @@ def _source_quotes(text: str, terms: list[str]) -> list[str]:
 
 
 def search_filter_conditions(query: str | None) -> dict[str, object]:
-    """Expose the local filter scope without asking users to confirm each field."""
-    text = (query or "").casefold()
-    locations, excluded_locations = select_term_groups(text, _LOCATION_GROUPS)
-    roles, excluded_roles = select_term_groups(text, [g[0] for g in _ROLE_GROUPS])
-    types, excluded_types = select_term_groups(
-        text,
-        (
-            ("校招", "校园招聘", "应届", "应届生"),
-            ("实习", "internship", "intern"),
-            ("社招", "社会招聘", "正式岗", "全职", "full-time"),
-        ),
-    )
-    year_pattern = r"(20\d{2})\s*(?:年)?\s*(?:届|校招|应届|毕业)"
-    years = sorted({int(m.group(1)) for m in re.finditer(year_pattern, text)})
-    pending, keywords = [], []
-    aliases = sorted(
-        {
-            alias
-            for group in (
-                *_LOCATION_GROUPS,
-                *(g[0] for g in _ROLE_GROUPS),
-                *types,
-                *excluded_types,
-                ("ai", "人工智能", "artificial intelligence"),
-            )
-            for alias in group
-        },
-        key=len,
-        reverse=True,
-    )
-    for clause in re.split(r"[，,；;。\n]", text):
-        if re.search(
-            r"本科|硕士|博士|学历|专业|薪资|月薪|年薪|\d+\s*[kw万千]|远程|居家|毕业时间|毕业日期|以前|以后|之前|之后|至少|以上|及以上|经验|双休|加班",
-            clause,
-        ):
-            pending.append(clause.strip())
-            continue
-        rest = re.sub(year_pattern, "", clause)
-        for alias in aliases:
-            pattern = (
-                rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"
-                if alias.isascii()
-                else re.escape(alias)
-            )
-            rest = re.sub(pattern, " ", rest)
-        rest = re.sub(
-            r"应用开发|应用|研发|开发|工程师|岗位|职位|相关|方向|机会|招聘|想找|帮我|搜索|寻找|不限|接受|优先|首选|最好|只考虑|只要|仅限|不排除|不考虑|不接受|不要|排除|考虑|以及|并且|excluding|exclude|except|not\s+in|campus|[请找的和或也都]",
-            " ",
-            rest,
-        )
-        parts = re.findall(r"[a-z0-9][a-z0-9+#.-]*|[\u4e00-\u9fff]+", rest)
-        if parts and re.search(r"不考虑|不接受|不要|排除|except|exclude", clause):
-            pending.append(clause.strip())
-        else:
-            keywords.extend(parts)
-    return {
-        "locations": [g[0] for g in locations],
-        "excluded_locations": [g[0] for g in excluded_locations],
-        "roles": [g[0] for g in roles],
-        "excluded_roles": [g[0] for g in excluded_roles],
-        "job_types": [g[0] for g in types],
-        "excluded_job_types": [g[0] for g in excluded_types],
-        "graduation_years": years,
-        "keywords": list(dict.fromkeys(keywords)),
-        "pending_conditions": pending,
-    }
+    from src.services.search_intent import parse_conditions
+
+    return parse_conditions(query).model_dump()
 
 
 def _expected_job_types(query: str) -> tuple[set[str], str]:

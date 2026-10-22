@@ -1,0 +1,21 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.2-compatibility-preregistration-freeze-v1",
+  "frozen_at": "2026-09-06T02:05:10.5721402Z",
+  "status": "frozen_before_v4_2_implementation_and_gate_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_preregistration_v1_2026-09-06.json",
+      "sha256": "30666ee67adfc5448c6b3cc5b9b8bc8ed01cbb6476c95e78ce582620f47e8b2b"
+    }
+  },
+  "preregistered_frozen_input_count": 15,
+  "all_preregistered_input_paths_existed_at_freeze": true,
+  "all_preregistered_input_hashes_matched_at_freeze": true,
+  "pipeline_order_and_activation_predicates_frozen": true,
+  "acceptance_gates_and_failure_policy_frozen": true,
+  "current_external_five_classification": "revealed_development_data",
+  "v4_2_runtime_targets_existed_at_freeze": false,
+  "new_model_call_count_at_freeze": 0,
+  "network_call_count_at_freeze": 0,
+  "new_holdout_use_authorized_at_freeze": false
+}

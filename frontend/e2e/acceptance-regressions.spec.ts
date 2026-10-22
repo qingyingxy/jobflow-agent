@@ -36,7 +36,7 @@ test("loaded results preserve query, fit mobile and retry the same job after fai
   await expect(page.getByRole("button", { name: "应用开发", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   await page.getByRole("button", { name: "应用开发", exact: true }).click();
-  await page.getByRole("button", { name: "打开完整匹配与申请" }).click();
+  await page.getByRole("button", { name: "查看匹配结果" }).click();
   await expect(page.getByText("原文未明确", { exact: true })).toBeVisible();
   await expect(page.getByText("要求全部满足", { exact: true })).toBeVisible();
   await expect(page.getByText("education qualification 0", { exact: false })).toHaveCount(0);

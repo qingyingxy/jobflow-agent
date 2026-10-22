@@ -297,14 +297,14 @@ async def test_real_orchestration_resumes_after_failed_bytedance_detail_verifica
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(
-        execution, "enabled_company_source_hosts", lambda: {"jobs.bytedance.com"}
+        execution, "enabled_company_source_hosts", lambda **kwargs: {"jobs.bytedance.com"}
     )
     monkeypatch.setattr(
         execution,
         "enabled_company_sources",
-        lambda *args: [
+        lambda *args, **kwargs: [
             SimpleNamespace(
-                id="bytedance", company="字节跳动", career_url="https://jobs.bytedance.com/campus"
+                id="bytedance", company="字节跳动", career_url="https://jobs.bytedance.com/campus", enabled=True
             )
         ],
     )

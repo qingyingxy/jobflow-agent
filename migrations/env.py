@@ -8,11 +8,15 @@ import src.domain.application
 import src.domain.application_attempt
 import src.domain.application_packet
 import src.domain.ats_assistance
+import src.domain.company_source
 import src.domain.discovery
 import src.domain.follow_up
+import src.domain.job_correction
 import src.domain.materials
 import src.domain.models
+import src.domain.portal_tracking
 import src.domain.runs
+import src.domain.search_goal
 import src.domain.suggestion  # noqa: F401
 from src.config import get_settings
 from src.infrastructure.database import Base

@@ -162,7 +162,7 @@ async def test_default_official_search_never_constructs_resume_analysis(
         )
 
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [])
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [])
     monkeypatch.setattr(
         execution, "OfficialCompanyRegistryAdapter", lambda **kwargs: Adapter()
     )
@@ -229,9 +229,9 @@ async def test_default_web_search_publishes_and_defers_with_retryable_status(
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(
-        execution, "enabled_company_source_hosts", lambda: {"example.com"}
+        execution, "enabled_company_source_hosts", lambda **kwargs: {"example.com"}
     )
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [])
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [])
     monkeypatch.setattr(
         web_search_service, "create_web_search_provider", lambda *args: Provider()
     )

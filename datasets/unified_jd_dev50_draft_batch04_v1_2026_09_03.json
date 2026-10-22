@@ -1,0 +1,607 @@
+{
+  "label_version": "unified-jd-dev50-draft-batch04-v1",
+  "dataset_version": "unified-jd-dev50-draft-batch04-v1-2026-09-03",
+  "annotation_status": "draft",
+  "source_skeleton_sha256": "32bef503019cb774f11f8668dc98e80ae7fc6c97353c4963841a7726ac4024a3",
+  "annotation_policy": "机器辅助逐字标注草稿；未读取 Unified prediction，未复制旧 Parser 技能标签，必须人工复核后才能进入评测。",
+  "cases": {
+    "campus-ai-121": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、软件工程、云计算、自动化等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京/上海"},
+            {"field": "graduation_years", "source_text": "2027届本科及以上学历"},
+            {"field": "education_requirements", "source_text": "2027届本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程、云计算、自动化等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["CPU资源调度平台", "K8s集群", "资源利用率", "任务运行效率"],
+            "source_text": "参与 MiniMax CPU 资源调度平台建设，面向大规模 K8s 集群提升资源利用率和任务运行效率"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["kube-scheduler", "Volcano", "Koordinator", "调度体系优化", "二次开发"],
+            "source_text": "参与 kube-scheduler、Volcano、Koordinator 等调度体系的优化与二次开发"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["在线离线混部", "优先级调度", "资源画像", "弹性伸缩", "负载感知调度"],
+            "source_text": "建设在线 / 离线任务混部、优先级调度、资源画像、弹性伸缩、负载感知调度等能力"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["集群容量治理", "资源碎片优化", "调度稳定性", "任务运行质量"],
+            "source_text": "参与集群容量治理、资源碎片优化、调度稳定性和任务运行质量保障"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "2027届本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "云计算", "自动化", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、软件工程、云计算、自动化等相关专业优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["操作系统", "调度算法", "分布式系统"],
+            "source_text": "熟悉操作系统、调度算法、分布式系统基础"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Kubernetes基础原理"],
+            "source_text": "熟悉 Kubernetes 基础原理"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["kube-scheduler", "调度队列", "资源模型", "亲和性", "反亲和性"],
+            "source_text": "了解 kube-scheduler、调度队列、资源模型、亲和性 / 反亲和性等机制优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Go", "Python", "C++"],
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟悉 Go / Python / C++ 中至少一种语言"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["工程素养"],
+            "source_text": "具备良好工程素养"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["K8s调度器", "Volcano", "Koordinator", "在离线混部", "资源利用率优化"],
+            "group_name": "资源调度经历方向",
+            "allow_other": false,
+            "source_text": "有 K8s 调度器、Volcano、Koordinator、在离线混部、资源利用率优化相关项目、实习或开源经历优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred"],
+      "review_notes": ["末条同时允许项目、实习或开源三种经历类型，当前 qualifier 无法表达多种类型，故保留为空。"]
+    },
+    "campus-ai-126": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "杭州", "重庆"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、软件工程等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京/杭州/重庆"},
+            {"field": "graduation_years", "source_text": "2027届获得本科及以上学历"},
+            {"field": "education_requirements", "source_text": "2027届获得本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["iOS开发", "Android开发", "鸿蒙开发", "基础技术建设", "性能优化", "稳定性治理", "技术选型"],
+            "source_text": "负责iOS、Android、鸿蒙三端客户端核心业务开发、基础技术建设、性能优化与稳定性治理等工作，参与产品需求讨论、落地和技术选型"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI Native工程化", "AI产研流程", "人机协作", "端到端交付"],
+            "source_text": "参与AI Native工程化能力体系建设，探索AI在需求开发、质量保障等产研流程中的落地实践，探索并优化人机协作新范式"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI Coding准确率评估", "研发工作流优化"],
+            "source_text": "参与AI Coding准确率评估和研发工作流优化，持续提升研发效率和交付质量"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI驱动软件研发", "研发提效", "AI业务落地"],
+            "source_text": "探索AI驱动的软件研发新范式，推动AI在研发提效和业务场景中的落地实践"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、软件工程等相关专业优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["编程基础", "工程能力", "技术问题解决"],
+            "source_text": "具备扎实的编程基础、良好的工程能力和技术问题解决能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["AI Coding工具"],
+            "examples": ["Trae", "Claude Code", "Codex"],
+            "source_text": "关注并使用Trae、Claude Code、Codex等AI Coding工具"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["AI Coding相关项目经验"],
+            "qualifier": {"experience_type": "project", "domain": "AI Coding"},
+            "source_text": "有相关项目经验者优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["问题定义", "问题分析", "问题抽象", "复杂问题拆解", "技术方案设计"],
+            "source_text": "具备良好的问题定义、分析与抽象能力，能够将复杂问题拆解为清晰、可执行的技术方案"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["KMP", "RN"],
+            "source_text": "熟悉KMP、RN等跨平台技术"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["iOS多端开发项目", "Android多端开发项目", "鸿蒙多端开发项目"],
+            "group_name": "多端开发项目",
+            "allow_other": false,
+            "qualifier": {"experience_type": "project", "domain": "多端开发"},
+            "source_text": "拥有iOS、Android、鸿蒙等多端开发项目经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["全栈开发经验"],
+            "qualifier": {"experience_type": "development", "domain": "全栈"},
+            "source_text": "全栈开发经验者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["Agent系统项目", "RAG项目", "多智能体项目"],
+            "qualifier": {"experience_type": "project", "domain": "Agent"},
+            "source_text": "有Agent系统、RAG、多智能体等相关项目经验"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["LLM技术原理"],
+            "source_text": "了解LLM技术原理者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["‘有相关项目经验者优先’依据同一句限定为 AI Coding 项目，不向其他条款传播。"]
+    },
+    "campus-ai-128": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士研究生及以上学历"],
+          "major_requirements": ["力学、机械、车辆工程、航空航天、机器人工程等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：上海"},
+            {"field": "graduation_years", "source_text": "2027届硕士研究生及以上学历"},
+            {"field": "education_requirements", "source_text": "2027届硕士研究生及以上学历"},
+            {"field": "major_requirements", "source_text": "力学、机械、车辆工程、航空航天、机器人工程等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["有限元建模", "力学仿真", "强度分析", "刚度分析", "模态分析", "疲劳分析"],
+            "source_text": "参与机器人整机及关键结构件的有限元建模与力学仿真，覆盖强度、刚度、模态、疲劳等分析方向"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["载荷边界", "约束条件", "仿真方案", "安全裕度", "可靠性风险"],
+            "source_text": "结合典型工况开展载荷边界、约束条件和仿真方案设计，评估结构安全裕度和可靠性风险"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["仿真结果后处理", "结构优化", "轻量化", "可靠性", "可制造性"],
+            "source_text": "参与仿真结果后处理和结构优化建议输出，支持轻量化、可靠性和可制造性提升"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["测试仿真对标", "模型修正", "仿真流程沉淀"],
+            "source_text": "参与测试数据与仿真结果对标，推动模型修正和仿真分析流程沉淀"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士研究生及以上学历"],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["力学", "机械", "车辆工程", "航空航天", "机器人工程", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "力学、机械、车辆工程、航空航天、机器人工程等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["材料力学", "结构力学", "有限元方法", "结构件受力", "疲劳模式", "失效模式"],
+            "source_text": "具备材料力学、结构力学、有限元方法基础，理解常见结构件受力、疲劳和失效模式"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["Ansys", "Abaqus", "Nastran", "HyperWorks", "LS-DYNA"],
+            "group_name": "CAE工具",
+            "allow_other": true,
+            "source_text": "熟悉Ansys、Abaqus、Nastran、HyperWorks、LS-DYNA等CAE工具中的一种或多种者优先"
+          },
+          {
+            "category": "capability",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["Python数据处理或仿真自动化", "MATLAB数据处理或仿真自动化"],
+            "group_name": "数据处理或仿真自动化",
+            "allow_other": true,
+            "source_text": "具备Python/MATLAB等数据处理或仿真自动化能力者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["机器人关节CAE分析", "机器人整机CAE分析", "复杂结构件CAE分析", "竞赛车队CAE分析", "工程项目CAE分析"],
+            "group_name": "CAE分析经历",
+            "allow_other": false,
+            "source_text": "有机器人关节/整机、复杂结构件、竞赛车队或工程项目CAE分析经验"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group"],
+      "review_notes": ["Python/MATLAB 与数据处理/仿真自动化形成交叉选择，当前用两个复合 items 近似表达。"]
+    },
+    "campus-ai-142": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上", "本科及以上"],
+          "major_requirements": ["网络安全、计算机、人工智能AI、Physical AI/具身智能安全等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：上海"},
+            {"field": "graduation_years", "source_text": "2027届本科及以上"},
+            {"field": "education_requirements", "source_text": "数字安全硕士及以上2027届校园招聘-正式批"},
+            {"field": "education_requirements", "source_text": "2027届本科及以上"},
+            {"field": "major_requirements", "source_text": "网络安全、计算机、人工智能AI、Physical AI/具身智能安全等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["LLM安全测试", "Agent安全测试", "RAG安全测试", "Prompt注入", "越权", "数据泄露", "Web安全", "API安全", "移动端安全"],
+            "source_text": "负责LLM/Agent/RAG应用的红队测试与渗透，挖掘Prompt注入、越权、数据泄露等风险；开展Web/API/移动端安全测试"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["安全模型训练", "模型微调", "安全Agent", "代码扫描", "SCA", "漏洞研判"],
+            "examples": ["SFT", "RLHF"],
+            "source_text": "参与垂直领域模型训练与微调（SFT/RLHF等）；设计安全Agent及工作流；开发AI驱动的代码扫描、SCA、漏洞研判工具"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Physical AI安全评估", "威胁建模", "攻击面评估", "安全框架设计"],
+            "source_text": "针对具身智能、智能辅助驾驶等Physical AI系统，进行新型威胁和攻击面的安全评估，参与Physical AI系统的安全能力框架设计"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["安全告警研判", "响应自动化", "威胁情报", "修复建议", "隐私计算", "对抗防御"],
+            "source_text": "参与安全告警研判与响应自动化；探索大模型在威胁情报、修复建议中的应用；攻关隐私计算、对抗防御等课题"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["数据安全产品", "SBOM", "开源合规", "整车AI Safety"],
+            "source_text": "参与数据安全产品建设，负责SBOM、开源合规及整车AI Safety相关能力研发"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["整车AI安全评估", "SOTIF", "数字安全融合", "云车路安全防御"],
+            "source_text": "参与整车AI Safety功能安全（预期功能安全SOTIF）与数字安全融合设计，构建覆盖“云-车-路”的全链路安全防御体系"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届本科及以上"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上"],
+            "source_text": "数字安全硕士及以上2027届校园招聘-正式批"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上"],
+            "source_text": "2027届本科及以上"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["网络安全", "计算机", "人工智能AI", "Physical AI", "具身智能安全", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "网络安全、计算机、人工智能AI、Physical AI/具身智能安全等相关专业优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["编程"],
+            "examples": ["Python", "Java", "C++", "Go"],
+            "source_text": "扎实编程（Python/Java/C++/Go）"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["数据结构"],
+            "source_text": "熟悉数据结构"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["LLM原理", "Agent原理", "RAG原理", "OWASP Top 10 for LLM"],
+            "source_text": "了解LLM/Agent/RAG原理及OWASP Top 10 for LLM"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Web漏洞"],
+            "source_text": "熟悉Web漏洞"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["模型微调", "云安全", "DevSecOps", "Physical AI安全", "具身智能安全"],
+            "group_name": "安全相关领域",
+            "allow_other": true,
+            "source_text": "了解模型微调或云安全/DevSecOps、了解Physical AI/具身智能安全等相关领域者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["ACM竞赛获奖", "CTF竞赛获奖", "Kaggle竞赛获奖", "顶会论文", "SRC漏洞", "大模型项目", "Agent项目", "LangChain经验", "Garak经验", "Physical AI安全开源项目", "具身智能安全开源项目"],
+            "group_name": "AI安全加分成果",
+            "allow_other": false,
+            "source_text": "竞赛获奖（ACM/CTF/Kaggle）、顶会论文、SRC漏洞、大模型/Agent项目、LangChain/Garak经验、Physical AI/具身智能安全等领域高质量开源项目"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "mixed_strength"],
+      "review_notes": ["页面元数据写硕士及以上，职位要求写本科及以上，二者冲突；草稿保留两条事实和两条 required clause，必须人工裁决。"]
+    },
+    "campus-ai-147": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["深圳"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["专业不限"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：深圳"},
+            {"field": "graduation_years", "source_text": "招聘项目：影石创新2027届秋季校园招聘"},
+            {"field": "education_requirements", "source_text": "本科及以上学历"},
+            {"field": "major_requirements", "source_text": "专业不限"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI Agent产品", "Skill", "场景化AI应用", "产品设计", "搭建", "开发", "调试", "上线", "工程化落地"],
+            "source_text": "负责AI Agent、技能（Skill）及场景化AI应用的产品设计、搭建、开发、调试与上线，主导AI应用在实际业务场景（如AI翻译、AI内容生成等）的工程化落地"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["业务需求分析", "AI应用场景", "技术方案", "AI业务融合"],
+            "source_text": "对接业务需求，梳理AI应用落地场景，设计合理的技术方案，推动AI能力与业务场景深度融合"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI应用运维", "效果监控", "Bad Case分析", "模型调用优化", "Prompt工程", "应用逻辑优化"],
+            "source_text": "负责AI应用的日常运维、效果监控与迭代优化，收集并分析Bad Case，优化模型调用、Prompt工程及应用逻辑"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["主流大模型", "Agent框架", "Harness工程", "AI应用开发"],
+            "source_text": "关注AI领域前沿技术（主流大模型、Agent框架、Harness工程等），将新技术、新方法融入实际工作"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "mention",
+            "items": ["专业不限"],
+            "source_text": "专业不限"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["技术理解"],
+            "source_text": "具备基本的技术理解力"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["大模型", "Prompt工程", "Agent"],
+            "source_text": "了解大模型、Prompt工程、Agent等AI核心概念"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["Python使用经验", "低代码平台使用经验"],
+            "group_name": "开发工具使用经验",
+            "allow_other": false,
+            "qualifier": {"experience_type": "practical"},
+            "source_text": "有Python或低代码平台使用经验者加分"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["产品实习", "AI相关项目", "创业经历"],
+            "group_name": "产品或AI经历",
+            "allow_other": false,
+            "source_text": "有产品实习、AI相关项目或创业经历者优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["需求分析", "逻辑拆解", "文档撰写"],
+            "source_text": "具备良好的需求分析、逻辑拆解与文档撰写能力"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "fact_missing"],
+      "review_notes": ["专业不限作为显式 major fact，并用 mention fact clause 表示它不是门槛。"]
+    }
+  }
+}

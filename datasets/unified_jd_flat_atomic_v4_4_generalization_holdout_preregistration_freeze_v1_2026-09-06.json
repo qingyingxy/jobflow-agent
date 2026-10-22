@@ -1,0 +1,47 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.4-generalization-holdout-preregistration-freeze-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_source_discovery_selection_and_model_calls",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_generalization_holdout_preregistration_v1_2026-09-06.json",
+      "sha256": "31a53c4f3d39a6f191761fefb3279a5ae4cde4a7923c7ef3c24067cedd32f86f"
+    },
+    "preregistration_builder": {
+      "path": "scripts/preregister_unified_jd_flat_atomic_v4_4_generalization_holdout.py",
+      "sha256": "1bce9f88ea0b4116e194679a8d80d47c958c01400cf7b31bfd0b5f70b55d9b1d"
+    }
+  },
+  "frozen_inputs": {
+    "v4_4_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "1ac826d08793db719c1b645d7c10f69507991a4770fc6f19577c9cdb26fee02f"
+    },
+    "v4_4_formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-4-compatibility-report-v1-2026-09-06.json",
+      "sha256": "019b63080b619d640d280adf53fd5158fe13f49234d7c5bb45a05bce42355410"
+    },
+    "v4_4_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_compatibility_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "cebf57e68cb5ff440555dcc5b224c2be6ed0aaecb9ef8b9849c9be9dbc7a43db"
+    },
+    "v4_4_compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_4_compatibility.py",
+      "sha256": "3152d457da8bbd04a3494a259bcb16afcc6e3685d464e8f1f47d735d7b34dac8"
+    },
+    "v4_4_compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_4_compatibility.py",
+      "sha256": "204b7aa2e7c2a7d89b179ee0275af53faebdf16eb8dfd5e0ea540d5f4a2be13e"
+    },
+    "frozen_v4_request_contract": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    }
+  },
+  "selection_exists_at_freeze": false,
+  "model_call_count_at_freeze": 0,
+  "network_model_call_count_at_freeze": 0,
+  "full_body_transmission_authorized_at_freeze": false,
+  "strata_thresholds_and_decision_rule_frozen": true,
+  "immutability": "Any selection rule, stratum, threshold, budget, or decision change requires a new preregistration version."
+}

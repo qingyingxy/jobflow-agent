@@ -97,7 +97,7 @@ class DiscoverySearchPlan(BaseModel):
 
     version: str = Field(default="bounded-discovery-v1", min_length=1, max_length=80)
     planner: str = Field(default="deterministic_policy", min_length=1, max_length=80)
-    query: str | None = Field(default=None, max_length=500)
+    query: str | None = Field(default=None, max_length=2000)
     allowed_source_ids: list[str] = Field(min_length=1, max_length=40)
     routes: list[DiscoveryPlanRoute] = Field(min_length=1, max_length=40)
     budget: DiscoveryPlanBudget
@@ -156,6 +156,7 @@ class JobLead(Base):
     title_hint: Mapped[str | None] = mapped_column(String(160), nullable=True)
     search_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)
     extracted_fields: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict, server_default=text("'{}'"))
+    retry_state: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict, server_default=text("'{}'"))
     status: Mapped[str] = mapped_column(
         String(32),
         nullable=False,
@@ -250,6 +251,13 @@ class DiscoveryRun(Base):
     """One user-triggered synchronization with a configured public source."""
 
     __tablename__ = "discovery_runs"
+
+    search_goal_id: Mapped[str | None] = mapped_column(String(40), nullable=True, index=True)
+    search_goal_version: Mapped[int | None] = mapped_column(nullable=True)
+    continued_company_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    goal_conditions: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    library_baseline: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    usage_metrics: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)

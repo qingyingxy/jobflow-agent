@@ -1,0 +1,193 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v4-residual-experiments-preregistration-v1",
+  "created_at": "2026-09-04",
+  "status": "frozen_before_execution",
+  "scope": {
+    "data_status": "revealed_development_only",
+    "generalization_claim": false,
+    "production_rule_claim": false,
+    "threshold_selection_allowed": false,
+    "v4_modification_allowed": false,
+    "v5_implementation_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "synthesis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-e1-e5-synthesis-v1-2026-09-04.json",
+      "sha256": "d7206f33d1af47d84f989aeea11a32b05972a609fefe3604879d8e13b389e073"
+    },
+    "frozen_v4_source": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "rules_freeze": {
+      "path": "datasets/unified_jd_structured_span_rules_freeze_v4_2026-09-04.json",
+      "sha256": "6a8a1d9ccce7c1069a483c7cc387221164de52800a133308922d57ff75ad6a12"
+    },
+    "e5_final_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-e5-example-attachment-three-toggle-raw-v1-2026-09-04.json",
+      "sha256": "8d38a34ee72aa969f2f04efdc139dc3d0c8c22b262286eb49902cc2ab7bec592"
+    },
+    "corpus_external_baseline_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-raw-v1-2026-09-04.json",
+      "sha256": "36b65c1df79d856c7507ae1357ed24c10b7a3e383bad79b9471b124f4999e058"
+    }
+  },
+  "baseline_anchors": {
+    "e5_arm": "toggle3_parent_ranked",
+    "e5_final_arm_sha256_by_fixture": {
+      "structured-corpus-external-v1-002": "8f66376ca86561ffe2a93e34eff896cc5a31529a0f62ec0647624e42902ab26a",
+      "structured-corpus-external-v1-005": "998cf1386d7c25c636052bc4de9d46fae6934636bb54fb30860879cc3aa94de3",
+      "structured-corpus-external-v1-019": "4195b336b79c05f63c9e6432ea571548ebf34fa618753a360aea5a47e4b0974a",
+      "structured-corpus-external-v1-006": "b3625902064da30ed7e86e80c54ccce5196f9b39eb39e795539a96452a4fd6b5",
+      "structured-corpus-external-v1-018": "c3d22cf3bf9a49c418c5f35b817da01ac38d722a599978dff5aa5a7c1d0762d8"
+    },
+    "additional_e7_control_009_record_sha256": "cb5f8788e87e827d9f250b5c3a46c741abb1e02336cfba0a82f2429af5a00352"
+  },
+  "global_guards": {
+    "experiments_are_independent": true,
+    "e7_must_not_include_e6_treatment": true,
+    "single_changed_mechanism_per_experiment": true,
+    "all_acceptance_criteria_are_conjunctive": true,
+    "post_hoc_exception_or_threshold_tuning_forbidden": true,
+    "record_raw_and_report_before_interpretation": true,
+    "stop_after_e6_e7": "Do not merge either residual mechanism into v5 until its own frozen gate has been evaluated."
+  },
+  "experiments": [
+    {
+      "order": 6,
+      "id": "E6-priority-tail-rejection",
+      "status": "preregistered_not_executed",
+      "residual_id": "R1-priority-tail-false-attachment",
+      "hypothesis": "Category-neutral attachment detection conflates enumeration closure deng followed solely by a priority or preference operator with a genuine example-to-parent attachment.",
+      "causal_question": "Does rejecting attachment eligibility only when the complete right tail is a priority or preference operator remove the 006 false attachment while preserving genuine attachments?",
+      "baseline": {
+        "source": "E5 toggle3_parent_ranked arm",
+        "target_observation": {
+          "fixture_id": "structured-corpus-external-v1-006",
+          "cue_span": {
+            "text": "等",
+            "start": 32,
+            "end": 33
+          },
+          "right_tail_span": {
+            "text": "优先",
+            "start": 33,
+            "end": 35
+          },
+          "attachment_count": 1,
+          "gold_attachment_count": 0
+        }
+      },
+      "intervention": "Change only attachment eligibility after category-neutral topology detection: reject a candidate when its complete right tail is a priority or preference operator.",
+      "single_changed_variable": "priority_tail_attachment_eligibility",
+      "held_fixed": [
+        "category-neutral candidate detection",
+        "cue discovery and cue spans",
+        "example member splitting and spans",
+        "parent candidate generation and ranking",
+        "wrapper, connector, scope, and projection inputs",
+        "all retained attachment cue, parent, and member spans"
+      ],
+      "target_fixture_ids": [
+        "structured-corpus-external-v1-006"
+      ],
+      "control_fixture_ids": [
+        "structured-corpus-external-v1-002",
+        "structured-corpus-external-v1-005",
+        "structured-corpus-external-v1-019",
+        "structured-corpus-external-v1-018"
+      ],
+      "primary_outcomes": [
+        "006 false attachment count",
+        "006 false example-member count",
+        "006 false attachment-edge count",
+        "byte equality of every control final-arm payload"
+      ],
+      "acceptance_criteria": [
+        "006 has zero attachments, example members, example items, and attachment edges.",
+        "019 retains the E5-discovered attachment.",
+        "All four control final-arm payloads are byte-identical to their E5 baselines.",
+        "No cue, parent, or member span changes in any retained attachment."
+      ],
+      "acceptance_gate": "accept_only_if_all_four_criteria_pass",
+      "falsification": "Reject if 006 retains any false attachment output, 019 discovery is lost, any control payload changes, or a retained span changes.",
+      "interpretation_limit": "This is single-case revealed-development causality, not evidence for a production lexical blacklist or generalized priority rule."
+    },
+    {
+      "order": 7,
+      "id": "E7-prepositional-wrapper-before-example-split",
+      "status": "preregistered_not_executed",
+      "residual_id": "R2-prepositional-wrapper-in-example-member",
+      "hypothesis": "019 includes leading dui in its first example because leading prepositional-wrapper normalization occurs after example splitting.",
+      "causal_question": "Does moving only the leading prepositional-wrapper boundary before example splitting make 019 exact without creating changes in clauses where dui is a legitimate wrapper but no attachment exists?",
+      "baseline": {
+        "source": "Independent reconstruction of the E5 toggle3_parent_ranked state; E6 treatment is absent. Control 009 is added from the frozen corpus-external baseline.",
+        "target_observation": {
+          "fixture_id": "structured-corpus-external-v1-019",
+          "first_example_before": {
+            "text": "对大模型评测",
+            "start": 17,
+            "end": 23
+          },
+          "first_example_expected": {
+            "text": "大模型评测",
+            "start": 18,
+            "end": 23
+          },
+          "cue_span": {
+            "text": "等",
+            "start": 33,
+            "end": 34
+          },
+          "parent_span": {
+            "text": "领域",
+            "start": 34,
+            "end": 36
+          }
+        }
+      },
+      "intervention": "Move only the leading prepositional-wrapper exclusion boundary ahead of example-member splitting for the attachment-bearing region.",
+      "single_changed_variable": "leading_prepositional_wrapper_boundary_order_before_example_split",
+      "held_fixed": [
+        "attachment existence and attachment count",
+        "cue discovery and cue span",
+        "parent candidates, ranking, and selected parent span",
+        "all non-leading example member spans",
+        "connector roles, shared scopes, and non-example projection",
+        "E6 priority-tail treatment is absent"
+      ],
+      "target_fixture_ids": [
+        "structured-corpus-external-v1-019"
+      ],
+      "control_fixture_ids": [
+        "structured-corpus-external-v1-002",
+        "structured-corpus-external-v1-005",
+        "structured-corpus-external-v1-006",
+        "structured-corpus-external-v1-009",
+        "structured-corpus-external-v1-018"
+      ],
+      "control_rationale": {
+        "structured-corpus-external-v1-009": "Starts with a legitimate dui prefix wrapper and has no example attachment; it detects accidental global preposition stripping."
+      },
+      "primary_outcomes": [
+        "019 first-example exact boundary",
+        "019 example-member exactness",
+        "019 example projection exactness",
+        "019 attachment-edge exactness",
+        "control payload and attachment-count stability"
+      ],
+      "acceptance_criteria": [
+        "019 first example changes exactly from 17:23 to 18:23 and no other target span changes.",
+        "019 example members, example projection, and all attachment edges are exact.",
+        "019 cue 33:34 and parent 34:36 remain unchanged.",
+        "No control payload or attachment count changes, including control 009."
+      ],
+      "acceptance_gate": "accept_only_if_all_four_criteria_pass",
+      "falsification": "Reject if any change exceeds the single leading boundary, target edges remain inexact, cue or parent moves, or any control changes.",
+      "interpretation_limit": "This tests operation ordering on one revealed target. Passing does not establish a generalized prepositional-wrapper implementation."
+    }
+  ]
+}

@@ -85,7 +85,7 @@ def _analysis_response(
         analysis_version=analysis.analysis_version,
         agent_run_ids=agent_run_ids,
         structured_jd=ground_runtime_facts(
-            StructuredJobDescription.model_validate(parse_result.structured_jd), posting.raw_content,
+            StructuredJobDescription.model_validate(analysis.structured_jd or parse_result.structured_jd), posting.raw_content,
         ),
         eligibility=eligibility,
         matches=matches,

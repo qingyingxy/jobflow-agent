@@ -348,7 +348,7 @@ def test_job_lead_api_verifies_url_and_returns_audit_history(
     monkeypatch.setattr(
         discovery_api,
         "enabled_company_source_hosts",
-        lambda: {"careers.example.com"},
+        lambda **kwargs: {"careers.example.com"},
     )
 
     verified = client.post(

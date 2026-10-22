@@ -111,13 +111,13 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
     monkeypatch.setattr(
-        execution, "enabled_company_source_hosts", lambda: {"example.com"}
+        execution, "enabled_company_source_hosts", lambda **kwargs: {"example.com"}
     )
     monkeypatch.setattr(
         execution,
         "enabled_company_sources",
-        lambda *args: [
-            SimpleNamespace(id="example", company="Example", career_url="https://example.com/careers")
+        lambda *args, **kwargs: [
+                SimpleNamespace(id="example", company="Example", career_url="https://example.com/careers", enabled=True)
         ],
     )
     monkeypatch.setattr(execution, "create_structured_model_client", client_factory)
@@ -227,8 +227,8 @@ async def test_target_reached_during_decision_prevents_another_provider_call(
     )
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
-    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda: set())
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [])
+    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda **kwargs: set())
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [])
     monkeypatch.setattr(
         execution, "create_structured_model_client", lambda _: DecisionClient()
     )

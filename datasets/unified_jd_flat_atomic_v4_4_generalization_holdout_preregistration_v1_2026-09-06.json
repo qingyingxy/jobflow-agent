@@ -1,0 +1,217 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.4-generalization-holdout-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_source_discovery_selection_and_model_calls",
+  "objective": "Test frozen v4.4 on five new public job bodies selected only from source-observable category and experience surface cues.",
+  "claim_boundary": "This purposive five-job holdout can test cross-job and cross-delivery-surface behavior of the two frozen compatibility mechanisms. It cannot estimate population accuracy or justify broader ontology aliases.",
+  "frozen_inputs": {
+    "v4_4_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "1ac826d08793db719c1b645d7c10f69507991a4770fc6f19577c9cdb26fee02f"
+    },
+    "v4_4_formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-4-compatibility-report-v1-2026-09-06.json",
+      "sha256": "019b63080b619d640d280adf53fd5158fe13f49234d7c5bb45a05bce42355410"
+    },
+    "v4_4_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_4_compatibility_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "cebf57e68cb5ff440555dcc5b224c2be6ed0aaecb9ef8b9849c9be9dbc7a43db"
+    },
+    "v4_4_compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_4_compatibility.py",
+      "sha256": "3152d457da8bbd04a3494a259bcb16afcc6e3685d464e8f1f47d735d7b34dac8"
+    },
+    "v4_4_compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_4_compatibility.py",
+      "sha256": "204b7aa2e7c2a7d89b179ee0275af53faebdf16eb8dfd5e0ea540d5f4a2be13e"
+    },
+    "frozen_v4_request_contract": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    }
+  },
+  "selection_protocol": {
+    "case_count": 5,
+    "strata": [
+      {
+        "stratum": "C1-knowledge-positive",
+        "case_count": 1,
+        "source_only_predicate": "A responsibility or qualification statement contains a case-insensitive whole-phrase match for 'knowledge of', 'knowledge in', or 'working knowledge'.",
+        "purpose": "Test category-vocabulary behavior near the knowledge cue."
+      },
+      {
+        "stratum": "C2-motivation-positive",
+        "case_count": 1,
+        "source_only_predicate": "A responsibility or qualification statement contains a case-insensitive whole-word match for motivation, motivated, passion, curiosity, curious, drive, or enthusiasm.",
+        "purpose": "Test category-vocabulary behavior near attitude cues."
+      },
+      {
+        "stratum": "Z1-zero-lower-bound-positive",
+        "case_count": 1,
+        "source_only_predicate": "A qualification statement contains an explicit 0-N years/months range with integer N greater than zero, using hyphen, en dash, em dash, or 'to'.",
+        "purpose": "Test the zero-lower-bound compatibility mechanism."
+      },
+      {
+        "stratum": "C0-formal-category-negative-control",
+        "case_count": 1,
+        "source_only_predicate": "A responsibility or qualification statement explicitly uses skill, skills, capability, or capabilities and contains none of the registered C1/C2 cue phrases in that statement.",
+        "purpose": "Detect category alias over-activation on already formal language."
+      },
+      {
+        "stratum": "Z0-positive-lower-bound-negative-control",
+        "case_count": 1,
+        "source_only_predicate": "A qualification statement contains a positive experience lower bound such as 1-N years, 2+ years, or minimum 1 year and contains no explicit 0-N years/months range.",
+        "purpose": "Detect zero-lower-bound over-activation."
+      }
+    ],
+    "assignment": "Select the first eligible repository-novel posting found for each stratum in the frozen query order; freeze its stratum assignment even if the body also matches another stratum.",
+    "frozen_query_order": [
+      "site:myworkdayjobs.com AI engineer knowledge of",
+      "site:jobs.workable.com AI engineer knowledge of",
+      "site:jobs.lever.co AI engineer motivation curiosity passion",
+      "site:job-boards.greenhouse.io AI engineer 0-3 years",
+      "site:jobs.smartrecruiters.com AI engineer skills capabilities",
+      "site:careers.* AI engineer 2+ years"
+    ],
+    "search_result_rule": "Within each query, inspect results in displayed rank order and record every rejection reason before accepting the first eligible result.",
+    "eligibility": [
+      "Publicly accessible complete English-language job body.",
+      "AI/ML engineer or directly equivalent hands-on technical role.",
+      "At least 1500 Unicode characters after deterministic normalization.",
+      "Contains separately identifiable responsibilities and qualifications.",
+      "Posting is open or publicly displayed at collection time.",
+      "Unique company, source URL, and job body within this holdout.",
+      "Not an AI-campus source and not an employer/job used in prior JSON data."
+    ],
+    "delivery_surface_requirements": {
+      "minimum_distinct_surface_count": 3,
+      "minimum_surfaces_absent_from_revealed_independent_5": 1
+    },
+    "forbidden_selection_inputs": [
+      "model output or diagnostics",
+      "v4.3 or v4.4 activation behavior",
+      "strict-schema result",
+      "gold labels",
+      "manual preference after an eligible first result is found"
+    ],
+    "repository_novelty_audit": {
+      "roots": [
+        "datasets/**/*.json",
+        "artifacts/evaluation/**/*.json"
+      ],
+      "required_zero_matches": [
+        "source and retrieval URL",
+        "normalized complete body",
+        "company plus title co-occurrence",
+        "three deterministic 200-character body anchors"
+      ]
+    },
+    "source_collection_network_access_allowed": true,
+    "external_model_transmission_during_selection_allowed": false
+  },
+  "source_freeze_requirements": {
+    "selection_and_independence_receipt_written_before_runner_implementation": true,
+    "complete_bodies_and_body_hashes_frozen": true,
+    "cue spans_and_stratum_predicates_frozen": true,
+    "discovery_queries_ranks_and_rejections_frozen": true,
+    "source_statement_counts_frozen_before_predictions": true,
+    "no_semantic_gold_labels_created": true
+  },
+  "future_request_contract": {
+    "destination_host": "api.deepseek.com",
+    "external_transmission_authorized": false,
+    "separate_explicit_authorization_required": true,
+    "transmitted_content": "five complete public job bodies",
+    "maximum_new_model_calls": 5,
+    "maximum_calls_per_case": 1,
+    "transport_retries": 0,
+    "validation_retries": 0,
+    "concurrency": 1,
+    "request_artifact_before_first_call": true,
+    "checkpoint_after_each_call": true,
+    "stop_on_transport_failure": true,
+    "continue_after_schema_failure": true,
+    "overwrite_allowed": false
+  },
+  "evaluation_protocol": {
+    "same_frozen_raw_for_v4_3_baseline_and_v4_4_treatment": true,
+    "v4_4_additional_model_calls": 0,
+    "formal_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_change_after_source_freeze_allowed": false,
+    "frozen_v4_4_modification_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-authorization-independence-and-budget": {
+      "required_case_count": 5,
+      "all_repository_novelty_checks_must_pass": true,
+      "selection_must_postdate_v4_4_freeze_and_formal_pass": true,
+      "explicit_full-body_authorization_required_before_calls": true,
+      "maximum_new_model_calls": 5,
+      "maximum_calls_per_case": 1,
+      "retry_count": 0
+    },
+    "G1-source-strata-and-capture": {
+      "required_stratum_case_counts": {
+        "C1-knowledge-positive": 1,
+        "C2-motivation-positive": 1,
+        "Z1-zero-lower-bound-positive": 1,
+        "C0-formal-category-negative-control": 1,
+        "Z0-positive-lower-bound-negative-control": 1
+      },
+      "minimum_distinct_delivery_surfaces": 3,
+      "required_request_and_raw_record_count": 5,
+      "request_body_hash_must_equal_frozen_selection_body_hash": true
+    },
+    "G2-v4-4-strict-schema": {
+      "required_v4_4_strict_schema_valid_case_count": 5,
+      "baseline_v4_3_validity_reported_without_thresholding": true
+    },
+    "G3-five-stage-intervention-integrity": {
+      "allowed_diagnostic_codes": [
+        "normalized_responsibility_role_alias",
+        "omitted_empty_absent_fact_placeholder",
+        "normalized_long_self_sufficient_evidence",
+        "normalized_category_vocabulary_alias",
+        "normalized_zero_lower_bound_to_absent_minimum"
+      ],
+      "required_pipeline_order": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "v4_4_reverse_must_exactly_restore_all_raw_outputs": true,
+      "unactivated_fields_must_be_unchanged": true,
+      "other_repairs_allowed": false
+    },
+    "G4-runtime-specificity-controls": {
+      "C0_new_category_activation_count": 0,
+      "Z0_new_zero_lower_bound_activation_count": 0,
+      "unknown_category_fallback_allowed": false,
+      "positive_minimum_to_null_allowed": false
+    },
+    "G5-source-surface-and-granularity": {
+      "required_source_text_localization_rate": 1.0,
+      "required_nonnull_surface_localization_rate": 1.0,
+      "per_case_primary_atom_floor": "Half the source-observable responsibility and qualification statement count, rounded up and frozen before requests.",
+      "maximum_aggregate_primary_atom_count": 400
+    },
+    "G6-isolation-and-preservation": {
+      "all_frozen_hashes_must_match": true,
+      "raw_responses_retained_on_failure": true,
+      "default_parser_called": false,
+      "canonicalizer_called": false,
+      "v4_4_source_modified": false,
+      "model_calls_outside_frozen_five_requests": 0
+    }
+  },
+  "decision_rule": {
+    "confirmed_both_mechanisms_generalize": "G0-G6 pass; both new v4.4 diagnostic codes activate at least once; every newly activated case is v4.3-invalid only for an eligible incompatibility and becomes v4.4-valid.",
+    "partial_mechanism_generalization": "G0-G6 pass; exactly one new mechanism activates and restores all of its eligible invalid cases; the other positive stratum remains valid without needing its compatibility mechanism.",
+    "supported_non_regression_only": "G0-G6 pass; no new mechanism activates and all five raw outputs are already strict-valid under v4.3.",
+    "failed": "Any G0-G6 gate fails, an eligible activation does not restore strict validity, a negative control activates, or reverse replay is inexact."
+  },
+  "stop_condition": "After preregistration, collect and freeze five source bodies only. Stop before creating or sending requests until separate user authorization."
+}

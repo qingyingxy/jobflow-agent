@@ -1,0 +1,63 @@
+{
+  "freeze_version": "unified-jd-structured-span-v8-residual-oracles-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v8_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "36314c3079aefe8c244bd99820ed6f68aa6579551770a0f491a41ee960c38f7b"
+    },
+    "preregistration_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-residual-oracles-preregistration-findings-v1-2026-09-05.md",
+      "sha256": "204381db827014fa75b82113972b4ccc9e0d49316e08fc80088976c2be7af359"
+    },
+    "v8_development_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-mechanism-development-raw-v1-2026-09-05.json",
+      "sha256": "d1ef02e21645ef135fd9c6efca23e7e6bebefb707c072386a8f02c241ee2f22b"
+    },
+    "v8_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-regression-raw-v1-2026-09-05.json",
+      "sha256": "228f982b40fecf278224e052e5f22c0a0c981d43fc2c2789dfa192f0a3ebba0f"
+    },
+    "v8_offline_gate_reconstruction": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-frozen-raw-offline-gates-v1-2026-09-05.json",
+      "sha256": "995782a2b2b38876ade34a6d84f7a4437da35f30f9d7137f8bfa4628fbb811c8"
+    },
+    "v8_execution_postmortem": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v8-one-time-execution-postmortem-v1-2026-09-05.json",
+      "sha256": "5431875d33c3734f01824b288225d051d1932a5a0d10545627d899657b880fce"
+    },
+    "v8_source_freeze": {
+      "path": "datasets/unified_jd_structured_span_v8_source_freeze_v1_2026-09-05.json",
+      "sha256": "0e03233a4f18f901e16c19685ffe318f79383a365be9d45868a8c34d2ce15828"
+    }
+  },
+  "frozen_design": {
+    "experiment_ids": [
+      "E10-component-bridge-oracle",
+      "E11-E7-veto-family-localization-oracle",
+      "E12-S2-admission-control-oracle"
+    ],
+    "experiments_independent": true,
+    "cumulative_treatment_allowed": false,
+    "E10_target_count": 3,
+    "E11_target_count": 4,
+    "E12_false_admission_target_count": 2,
+    "E12_positive_admission_control_count": 5,
+    "E12_boundary_case_count": 1,
+    "all_gates_conjunctive": true,
+    "effect_sizes_required_on_failure": true,
+    "oracle_run_count_per_experiment": 1,
+    "parser_import_or_execution_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "v8_modification_or_rerun_allowed": false
+  },
+  "output_state_at_freeze": {
+    "planned_output_count": 9,
+    "existing_output_count": 0
+  },
+  "immutability": "The three target partitions, component envelopes, family interventions, S2 arms, controls, held-fixed payloads, gates, thresholds, and interpretation limits are frozen. Any change requires a new preregistration version before execution.",
+  "next_allowed_action": "Implement three separate offline write-new runners. Each runner must validate every referenced hash, must not import or execute a parser, must start from frozen v8 raw, must not load another oracle output, and must be source-frozen before one execution."
+}

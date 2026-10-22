@@ -20,7 +20,8 @@ from src.infrastructure.llm_client import (
     create_structured_model_client,
 )
 
-VERSION = "job-role-review-v16"
+VERSION = "job-role-review-v22-duty-object-evidence"
+_DOCUMENTATION_NOUN = r"(?:文档|指南|手册|教程|说明书|documentation|manuals?|guides?|tutorials?)"
 SOFTWARE_DIRECTION_TERMS = {
     "后端",
     "backend",
@@ -42,6 +43,7 @@ TEAM_HANDOFF = re.compile(
     r"(?<!参)与[^。；;，,]{0,24}(?:前后端|前端|后端)[^。；;，,]{0,16}(?:团队|协作)"
 )
 SPECIFIC_DIRECTION_TERMS = {
+    "ai agent",
     "agent",
     "智能体",
     "rag",
@@ -62,10 +64,16 @@ QUALIFICATIONS = re.compile(
 
 
 def duty_text(job):
+    from src.services.source_understanding import semantic_sections
+
+    sections = semantic_sections(job)
+    if sections:
+        return "\n".join(sections["duties"])
     text = job.raw_content or ""
     headers = list(DUTIES.finditer(text))
     if not headers:
-        return text
+        end = QUALIFICATIONS.search(text)
+        return text[:end.start()] if end else text
     start = headers[-1].end()
     end = QUALIFICATIONS.search(text, start)
     section = text[start : end.start() if end else len(text)].strip(" \t\r\n：:")
@@ -80,6 +88,10 @@ def duty_text(job):
 
 
 def has_duty_sections(job):
+    from src.services.source_understanding import semantic_sections
+
+    if semantic_sections(job):
+        return True
     headers = list(DUTIES.finditer(job.raw_content or ""))
     return bool(
         job.title
@@ -92,9 +104,9 @@ def complete_duties(job):
     return has_duty_sections(job) and len(duty_text(job)) >= 40
 
 
-def fingerprint(job, query):
+def fingerprint(job, query, *, version=VERSION):
     value = [
-        VERSION,
+        version,
         query or "",
         job.title or "",
         job.raw_content or "",
@@ -191,14 +203,26 @@ def resolve_citations(output, passages):
     }
 
 
+def direction_terms(query):
+    """Normalize equivalent names for evidence guards, preserving other directions."""
+    from src.services.discovery_matching import requested_role_terms
+
+    terms = {re.sub(r"^ai\s+agent$", "agent", re.sub(r"(?:开发|研发)$", "", term))
+             for group in requested_role_terms(query) for term in group}
+    for aliases in ({"agent", "智能体"}, {"rag", "检索增强"}):
+        if terms & aliases:
+            terms |= aliases
+    return terms
+
+
 def target_development_evidence(job, query):
     """A direct development duty can contradict a model's blanket exclusion."""
-    from src.services.discovery_matching import _contains, requested_role_terms
+    from src.services.discovery_matching import _contains
 
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     if terms and terms <= SOFTWARE_DIRECTION_TERMS:
         return local_duty_evidence(job, query)
-    if terms and terms <= SPECIFIC_DIRECTION_TERMS:
+    if terms and {re.sub(r"(?:开发|研发)$", "", t) for t in terms} <= SPECIFIC_DIRECTION_TERMS:
         # For a narrow application query, developing infrastructure *for* Agent
         # does not contradict exclusion. Require a target implementation object.
         return local_duty_evidence(job, query)
@@ -222,19 +246,22 @@ def target_development_evidence(job, query):
 
 def local_duty_evidence(job, query):
     """Confirm explicit work on a target object; leave keyword proximity to review."""
-    from src.services.discovery_matching import requested_role_terms
 
     # A short explicit duty can prove inclusion. Exclusion/review still needs
     # the more complete body checked by complete_duties().
-    if not has_duty_sections(job) or len(duty_text(job)) < 10:
+    duties = duty_text(job)
+    if len(duties) < 5 or (
+        not has_duty_sections(job)
+        and not re.search(r"负责|承担|主导|^(?:build|develop|design)\b", duties, re.IGNORECASE)
+    ):
         return []
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     objects, implementation_targets = [], []
     if terms & {"agent", "智能体"}:
         objects.append(
-            r"(?:(?<![a-z0-9])(?:ai\s*)?agent(?![a-z0-9])|智能体)\s*"
-            r"(?:(?:基础|开发|评测|编排|协作|运行时|自进化)?(?:系统|应用|工具|框架|服务|工作流|算法|架构|业务|平台|runtime|harness|引擎)|"
-            r"(?=[、，,。；;/（()）]|$)|(?=的(?:设计|研发|开发|架构))|(?=搭建|开发|研发|建设))"
+            r"(?:(?<![a-z0-9])(?:ai\s*)?agent(?![a-z0-9])|智能体)\s*(?:的\s*)?"
+            r"(?:(?:通用)?(?:基础|工程|开发|评测|编排|协作|协同|运行时|自进化|业务)?(?:系统|应用|产品|工具|框架|服务|工作流|算法|架构|平台|方案|组件|调度逻辑|任务规划|runtime|harness|引擎|platforms?|services?|systems?|tools?|workflows?)|"
+            r"(?=[、，,。；;/（()）与和及]|$)|(?=的(?:设计|研发|开发|架构))|(?=搭建|开发|研发|建设))"
         )
         implementation_targets.append(
             r"(?:(?<![a-z0-9])(?:ai\s*)?agent(?![a-z0-9])|智能体)"
@@ -252,10 +279,24 @@ def local_duty_evidence(job, query):
         objects.append(
             r"(?:前端|(?<![a-z0-9])front[ -]?end(?![a-z0-9]))\s*(?:组件|界面|系统|模块|架构)?"
         )
+    if "llm" in terms:
+        objects.append(r"(?:大模型|大语言模型|\bllm\b)\s*(?:算法|系统|服务|应用|训练)?")
     if not objects:
-        return []
-    target = "(?:" + "|".join(objects) + ")"
-    action = r"(?:研发|开发|构建|建设|搭建|设计(?:并|与|和)?(?:实现|开发|研发)?)"
+        # Arbitrary complete directions can be confirmed by an explicit duty.
+        # Exact scope is required here; paraphrases belong to semantic review.
+        from src.services.search_constraints import term_pattern
+
+        target = "(?:" + "|".join(term_pattern(t) for t in terms) + ")"
+        if not terms:
+            return []
+        return [
+            passage for passage in duty_passages(job)
+            if re.search(rf"(?:负责|承担|主导)\s*(?:公司|业务)?\s*{target}(?=$|[，,。；;、与和]|工作|任务|开发|研发|研究)", passage, re.IGNORECASE)
+            and not re.search(r"不负责|不承担|不涉及|无需|经验|优先|加分|团队介绍|愿景", passage)
+        ][:3]
+    # A system's development guide is a document, not the system being built.
+    target = "(?:" + "|".join(objects) + ")" + rf"(?!\s*(?:的\s*)?(?:(?:开发|使用|技术|操作)\s*)?{_DOCUMENTATION_NOUN})"
+    action = rf"(?:研发|开发|构建|建设|搭建|设计(?:并|与|和)?(?:实现|开发|研发)?|\bbuild(?:\s+and\s+operate)?\b|\bdevelop\b)(?!\s*{_DOCUMENTATION_NOUN})"
     quotes = []
     for passage in duty_passages(job):
         # Qualifications, examples, team goals and negations are not current
@@ -298,16 +339,23 @@ def local_duty_evidence(job, query):
             r"不(?:负责|涉及|承担|参与)|无需|不需要|仅需|只需|愿景|团队介绍|例如|售前|"
             r"需求规划|产品规划|路线图|(?:^|[，,])\s*(?:\d+[、.]\s*)?(?:熟悉|了解|具有|有)"
         )
+        # A trailing skill preference does not erase an earlier concrete duty.
+        # Keep qualification clauses out of the decision, but retain the entire
+        # original passage as its evidence (including any negative statements).
+        implementation_duty = re.split(
+            r"[，,]\s*(?:熟悉|了解|具有|有)", passage, maxsplit=1
+        )[0]
         implementation = (
             implementation_targets
-            and not re.search(implementation_blocked, passage, re.IGNORECASE)
+            and not re.search(implementation_blocked, implementation_duty, re.IGNORECASE)
+            and not re.search(r"不(?:负责|涉及|承担|参与)|无需|不需要|仅需|只需", passage)
             and re.search(
                 rf"(?:基于|通过|利用)[^。；;\n]{{0,60}}{specific}[^。；;\n]{{0,50}}"
                 rf"(?:构建|开发|研发|实现|搭建)[^。；;\n]{{0,24}}(?:知识库|助手|问答|智能分析|自动化流程)|"
                 rf"(?:将|把|引入)[^。；;\n]{{0,40}}{specific}(?:技术|能力)?[^。；;\n]{{0,20}}"
                 r"(?:落地到|引入|嵌入)[^。；;\n]{0,24}(?:系统|流程|场景)|"
                 rf"{specific}(?:业务)?设计与软件架构",
-                passage,
+                implementation_duty,
                 re.IGNORECASE,
             )
         )
@@ -322,9 +370,8 @@ def software_domain_conflict(job, query):
     A title alone cannot exclude a mixed job: explicit software development
     duties elsewhere in the same JD keep it in scope.
     """
-    from src.services.discovery_matching import requested_role_terms
 
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     if not terms or not terms <= SOFTWARE_DIRECTION_TERMS or not complete_duties(job):
         return []
     if not re.search(
@@ -340,13 +387,13 @@ def software_domain_conflict(job, query):
 
 def cited_target_tasks(quotes, query):
     """Model approval may cite concrete research/application work, not just R&D verbs."""
-    from src.services.discovery_matching import _contains, requested_role_terms
+    from src.services.discovery_matching import _contains
 
-    terms = {t for group in requested_role_terms(query) for t in group}
-    action = r"(?:研究|优化|搭建|构建|实现|开发|研发|引入|落地)"
+    terms = direction_terms(query)
+    action = rf"(?:研究|优化|搭建|构建|实现|开发|研发|引入|落地)(?!\s*{_DOCUMENTATION_NOUN})"
     for quote in quotes:
         if re.search(
-            r"不(?:负责|涉及|承担|参与)|无需|不需要|仅需了解|只需了解|团队介绍|愿景",
+            r"不(?:负责|涉及|承担|参与)|无需|不需要|仅需了解|只需了解|团队介绍|愿景|熟悉|了解|优先|加分|经验",
             quote,
         ):
             continue
@@ -361,7 +408,7 @@ def cited_target_tasks(quotes, query):
         for term in terms:
             if not _contains(quote.casefold(), term):
                 continue
-            target = re.escape(term)
+            target = re.escape(term) + rf"(?!\s*(?:(?:系统|应用|产品|工具|框架|服务|工作流|算法|架构|平台|组件)\s*)?(?:的\s*)?(?:(?:开发|使用|技术|操作)\s*)?{_DOCUMENTATION_NOUN})"
             if re.search(
                 rf"(?:服务于|支撑|面向)[^。；;\n]{{0,24}}{target}[^。；;\n]{{0,8}}(?:场景|生态|业务)",
                 quote,
@@ -378,9 +425,8 @@ def cited_target_tasks(quotes, query):
 
 
 def target_task_conflicts(job, query):
-    from src.services.discovery_matching import requested_role_terms
 
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     if not terms or not terms <= SPECIFIC_DIRECTION_TERMS:
         return []
     return [
@@ -390,9 +436,8 @@ def target_task_conflicts(job, query):
 
 def hands_on_implementation_evidence(job, query):
     """Planning titles may mention development frameworks without coding them."""
-    from src.services.discovery_matching import requested_role_terms
 
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     targets = "(?:" + "|".join(re.escape(t) for t in terms) + ")"
     if not terms:
         return []
@@ -409,9 +454,9 @@ def hands_on_implementation_evidence(job, query):
 
 
 def engineering_title_conflict(job, query):
-    from src.services.discovery_matching import _contains, requested_role_terms
+    from src.services.discovery_matching import _contains
 
-    terms = {t for group in requested_role_terms(query) for t in group}
+    terms = direction_terms(query)
     engineering = {"后端", "backend", "back-end", "前端", "frontend", "front-end"}
     return not software_domain_conflict(job, query) and any(
         _contains((job.title or "").casefold(), term) for term in terms & engineering
@@ -494,41 +539,43 @@ def valid_review(review, job, query):
     return {**review, **guard, "decision": decision.model_dump()}
 
 
+def cites_supported_duty(quotes, supported):
+    # Literal citations may keep the source sentence's final punctuation.
+    normalize = lambda quote: quote.strip(" \t\r\n。；;")
+    return any(normalize(q) == normalize(s) for q in (quotes or []) for s in supported)
+
+
 def specific_direction_needs_evidence(job, query, *, model_evidence=None):
     """Narrow Agent/RAG queries cannot pass on team/context mentions alone."""
     from src.services.discovery_matching import (
-        _contains,
         requested_role_terms,
         role_title_needs_review,
     )
 
     groups = requested_role_terms(query)
-    terms = {t for group in groups for t in group}
+    terms = direction_terms(query)
+    # Occupational suffixes do not bypass evidence guards. Keep the full
+    # expression in the model request; use its base only for guard coverage.
+    terms = {re.sub(r"(?:开发|研发)$", "", t) for t in terms}
     if role_title_needs_review(job, groups):
         implementation = hands_on_implementation_evidence(job, query)
-        return not any(q in implementation for q in (model_evidence or []))
+        return not cites_supported_duty(model_evidence, implementation)
     if terms and terms <= SOFTWARE_DIRECTION_TERMS:
         if model_evidence is not None:
             # Collaboration and IC terminology cannot prove software ownership.
             explicit = local_duty_evidence(job, query)
-            return not any(q in explicit for q in model_evidence) and all(
+            return not cites_supported_duty(model_evidence, explicit) and all(
                 CHIP_TASKS.search(q)
                 or NETWORK_KERNEL_TASKS.search(q)
                 or TEAM_HANDOFF.search(q)
                 for q in model_evidence
             )
-        if engineering_title_conflict(job, query) and not CHIP_TASKS.search(
-            job.title or ""
-        ):
-            return False
         return not local_duty_evidence(job, query)
     if not terms or not terms <= SPECIFIC_DIRECTION_TERMS:
         return False
-    if any(_contains((job.title or "").casefold(), term) for term in terms):
-        return False
     if model_evidence is not None:
         quotes = [q for q in model_evidence if q in duty_text(job)]
-        if any(q in local_duty_evidence(job, query) for q in quotes):
+        if cites_supported_duty(quotes, local_duty_evidence(job, query)):
             return False
         return not cited_target_tasks(quotes, query)
     return not local_duty_evidence(job, query)
@@ -536,17 +583,37 @@ def specific_direction_needs_evidence(job, query, *, model_evidence=None):
 
 def load_role_review(session, *, user_id, job, query):
     key = fingerprint(job, query)
-    record = session.scalar(
+    previous_keys = {fingerprint(job, query, version=version) for version in (
+        "job-role-review-v21-implementation-objects", "job-role-review-v20-duty-before-qualification",
+    )}
+    records = session.scalars(
         select(LeadVerification)
         .where(
             LeadVerification.user_id == user_id,
             LeadVerification.result == "ROLE_REVIEW",
-            LeadVerification.content_hash == key,
+            LeadVerification.content_hash.in_([key, *previous_keys]),
         )
-        .order_by(LeadVerification.checked_at.desc())
-        .limit(1)
+        .order_by((LeadVerification.content_hash == key).desc(), LeadVerification.checked_at.desc())
     )
-    return valid_review(record.field_evidence, job, query) if record else None
+    for record in records:
+        evidence = record.field_evidence
+        if record.content_hash in previous_keys:
+            # This upgrade changes deterministic evidence guards only. Recheck
+            # the recorded proposal bound to the exact same source/query, without
+            # inventing a new model answer or discarding every user's cached job.
+            if evidence.get("fingerprint") != record.content_hash:
+                continue
+            try:
+                output = resolve_citations(evidence.get("proposed_output") or evidence["decision"], duty_passages(job))
+            except (KeyError, TypeError, ValueError):
+                continue
+            evidence = {k: v for k, v in evidence.items() if k not in {"match_guard", "exclusion_guard"}}
+            evidence = {**evidence, "fingerprint": key, "version": VERSION,
+                        "decision": output, "revalidated_from_version": record.field_evidence.get("version")}
+        checked = valid_review(evidence, job, query)
+        if checked:
+            return checked
+    return None
 
 
 class JobRoleReviewer:
@@ -750,7 +817,7 @@ class JobRoleReviewer:
         # Source-backed local confirmations need no semantic call. Weak keyword
         # hits and intersecting duties still enter the bounded review below.
         if any(
-            c["field"] == "role" and c.get("method") == "local_duties"
+            c["field"] == "role" and c.get("method") in {"local_duties", "source_semantics"}
             for c in local.checks
         ):
             self.on_event(
@@ -796,7 +863,13 @@ class JobRoleReviewer:
                         "保留限定词的含义：大模型应用开发不等于所有大模型训练、推理基础设施或底层算子岗位；"
                         "用户只搜大模型时不要擅自收窄为应用。对前后端、产品、设计等其他方向使用同样原则。"
                         "按用户实际给出的限定判断，不得自行增加行业、业务层级或岗位名称限制。"
-                        "用户未要求目标方向占主要工作量时，明确职责中承担目标方向研发、研究或应用实践即可符合；"
+                        "区分目标岗位的专业工作与其他岗位使用的一般技能：判断本人承担的工作对象、行动和具体交付，而不是词语是否出现在职责中。"
+                        "跨职能岗位不要求标题相同，也不要求目标方向占多数工时，但必须明确承担可辨认的目标专业工作；"
+                        "泛称分析客户需求、跟踪指标、使用AI或协调开发不证明承担数据分析、AI研发或软件开发岗位工作。"
+                        "例如销售用数据了解客户、行政人员用工具整理信息，仍可能只是履行销售或行政职责；"
+                        "完整职责明确只有其他方向且仅借用一般技能时excluded，交叉工作范围或交付不清时pending，不得为凑够岗位数放行。"
+                        "数据分析方向应有明确的分析交付，如专题分析/归因、实验设计与分析、指标建模或分析报告；"
+                        "仅泛称数据驱动或具备分析能力不够。其他方向也按相应专业交付判断，不能只按出现一个动词或关键词判断。"
                         "为其他业务系统引入Agent/RAG并实现功能也属于实际应用，不能仅因其为辅助功能排除。"
                         "仅使用现成工具处理日常工作、公司愿景或团队场景关键词仍不足以通过。"
                         "用户搜索Agent/智能体研发时，实际设计实现Agent系统、工具、工作流或算法的研究、安全、数据生产等子方向都属于该方向；"

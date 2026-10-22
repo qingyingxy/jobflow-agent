@@ -1,0 +1,71 @@
+{
+  "freeze_version": "unified-jd-surface-rules-freeze-v2",
+  "status": "frozen",
+  "frozen_at": "2026-09-04",
+  "extractor_version": "unified-jd-surface-items-grammar-v2",
+  "frozen_rules": {
+    "path": "src/domain/unified_jd_surface_items_v2.py",
+    "sha256": "334326f387166ffd414395df1e9373ccaa13b5a40d83a16eef14972d6be6403f"
+  },
+  "contract": {
+    "path": "docs/CANONICAL_ITEMS_CONTRACT_V1.md",
+    "sha256": "f7415a027df83d0f8b27dea05f1cded4c8777078aed0fb2b7755cf63bd3ca55c",
+    "version": "canonical-items-contract-v1"
+  },
+  "development_fixture": {
+    "path": "datasets/unified_jd_surface_v2_development_v1_2026-09-04.json",
+    "sha256": "0b4e7af68dc75c3fae140f9d1fa98e00ba0319028af7013670571a7397998bcc",
+    "version": "unified-jd-surface-v2-development-v1",
+    "case_ids": [
+      "campus-ai-001",
+      "campus-ai-011",
+      "campus-ai-015",
+      "campus-ai-023",
+      "campus-ai-024",
+      "campus-ai-027",
+      "campus-ai-029",
+      "campus-ai-051",
+      "campus-ai-052",
+      "campus-ai-069",
+      "campus-ai-072",
+      "campus-ai-073",
+      "campus-ai-085",
+      "campus-ai-089",
+      "campus-ai-091",
+      "campus-ai-097",
+      "campus-ai-102",
+      "campus-ai-108",
+      "campus-ai-109",
+      "campus-ai-110",
+      "campus-ai-124",
+      "campus-ai-142",
+      "campus-ai-157",
+      "campus-ai-158",
+      "campus-ai-165"
+    ],
+    "fixture_count": 40
+  },
+  "development_report": {
+    "path": "artifacts/evaluation/unified-jd-surface-items-v2-development-2026-09-04.json",
+    "sha256": "74bc5e55d6fb37281248078977c728ef12a62ee9b856470a1dddfb9684491f30",
+    "surface_exact_set_rate": 1.0,
+    "examples_exact_set_rate": 1.0
+  },
+  "holdout_protocol": {
+    "selection_version": "unified-jd-surface-holdout-selection-v2",
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "exclude_development_case_ids": true,
+    "unique_case_per_fixture": true,
+    "selection_method": "SHA-256 rank of selection version, case id, clause index, and source content hash; category-balanced without replacement",
+    "labels_visible_during_rule_development": false,
+    "rules_may_change_after_selection": false,
+    "gates": {
+      "surface_items_f1_min": 0.85,
+      "surface_exact_set_rate_min": 0.7,
+      "examples_f1_min": 0.8,
+      "unanchored_output_count_max": 0
+    }
+  },
+  "immutability_policy": "Any v2 rule change requires a new extractor and freeze version. The v2 holdout result must not be used to edit this frozen rules file."
+}

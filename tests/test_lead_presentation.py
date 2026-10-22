@@ -14,10 +14,25 @@ from src.services.url_reader import FetchedResponse
     ("https://example.com/jobs/list", "工程师招聘", "entry"),
     ("https://example.com/jobs/detail/123", None, "job"),
     ("https://example.com/beisen?job_id=12", None, "job"),
+    ("https://example.com/tenant/pb/posDetail.html?postId=abc&postType=campus", None, "job"),
+    ("https://example.com/jobs/list?postId=abc", None, "entry"),
     ("https://example.com/campus/position/123", "AI应用工程师", "job"),
 ])
 def test_link_kinds(url,title,kind):
     assert discovery_kind(url,title) == kind
+
+
+@pytest.mark.parametrize("path", ["/top-talent/", "/graduate-program/", "/campaign-2027/"])
+def test_generated_job_title_cannot_turn_campaign_into_detail(path):
+    assert discovery_kind("https://unknown.example" + path, "Agent算法工程师（官方项目页）") == "entry"
+    assert discovery_kind("https://unknown.example" + path, "Agent算法工程师") == "entry"
+
+
+@pytest.mark.parametrize("title", ["Agent工程师", "Agent研究员", "RAG Research Scientist"])
+def test_observed_card_title_preserves_irregular_detail_links(title):
+    assert discovery_kind("https://unknown.example/opening-abc", title, observed_title=True) == "job"
+    assert discovery_kind("https://unknown.example/campus/", "Agent工程师", observed_title=True) == "entry"
+    assert discovery_kind("https://unknown.example/careers/agent-engineer", None) == "job"
 
 
 @pytest.mark.asyncio

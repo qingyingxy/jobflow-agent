@@ -1,0 +1,261 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.3-compatibility-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_v4_3_implementation_and_gate_execution",
+  "objective": "Correct only the grouped reverse replay order for multiple omitted fact placeholders while preserving the frozen v4.2 forward normalization, eligibility predicates, diagnostics, and all accepted non-regression behavior byte-for-byte.",
+  "claim_boundary": "This is an audit-reversibility correction on revealed frozen development data. Passing establishes deterministic recovery and regression safety only; it does not establish generalization and does not authorize a new holdout or any model call.",
+  "frozen_inputs": {
+    "v4_2_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_preregistration_v1_2026-09-06.json",
+      "sha256": "30666ee67adfc5448c6b3cc5b9b8bc8ed01cbb6476c95e78ce582620f47e8b2b"
+    },
+    "v4_2_preregistration_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_preregistration_freeze_v1_2026-09-06.json",
+      "sha256": "fa1ef9abc1154ea527ae1e55784cb69b1acb2217bf11e84dbab40908110b2a17"
+    },
+    "v4_2_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "2b4053f14931109009dc7e64b867e9e06cf8a29bc77e52d3414425f36cdd7ec5"
+    },
+    "v4_2_treatment": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-2-compatibility-treated-raw-v1-2026-09-06.json",
+      "sha256": "130e6ffa8d6db5b030be78ca780825987b340ec5af3cc872ce213ab76c0bf720"
+    },
+    "v4_2_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-2-compatibility-report-v1-2026-09-06.json",
+      "sha256": "ffd8f360b3d8215f03d7cda75e25cd68e04710721236e04c89d616ee02d4b99c"
+    },
+    "v4_2_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "970fa7acfdcb81b9ab0fdaf4612464031d8de4fefa709a12919c471588be9319"
+    },
+    "external_revealed_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "external_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "v4_live_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-raw-responses-v1-2026-09-06.json",
+      "sha256": "81075fd2edaae3a2aa7fca3f13147e5cdeea0d5ae66cfc0ca62850a6f32b1e6b"
+    },
+    "v4_live_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "v4_live_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    },
+    "v4_dev20_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "v4_1_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "80f0c252a3bc8c188963fd673c86f455c2b838ba89f400913522ae6953445cc5"
+    }
+  },
+  "frozen_observations": {
+    "v4_2_decision": "v4_2_rejected_keep_v4_1",
+    "v4_2_external_forward": {
+      "case_count": 5,
+      "baseline_strict_schema_valid_case_count": 0,
+      "treatment_strict_schema_valid_case_count": 5,
+      "activation_counts": {
+        "normalized_responsibility_role_alias": 0,
+        "omitted_empty_absent_fact_placeholder": 27,
+        "normalized_long_self_sufficient_evidence": 10
+      },
+      "target_partition_disjoint_and_complete": true,
+      "all_evidence_exactly_anchored": true
+    },
+    "v4_2_reverse_failure": {
+      "affected_omission_case_count": 4,
+      "ascending_original_fact_index_reinsert_restored_case_count": 4,
+      "descending_original_fact_index_reinsert_restored_case_count": 0,
+      "role_alias_reverse_affected": false,
+      "long_evidence_reverse_affected": false,
+      "forward_treatment_affected": false
+    },
+    "accepted_non_regression_results": {
+      "v4_live_case_count": 5,
+      "v4_live_role_activation_count": 18,
+      "v4_live_strict_schema_valid_case_count": 5,
+      "v4_live_output_exactly_equal_to_v4_1": true,
+      "dev20_case_count": 20,
+      "dev20_atom_count": 427,
+      "dev20_total_activation_count": 0,
+      "dev20_exactly_unchanged": true,
+      "existing_control_count": 16,
+      "existing_controls_passed": true
+    }
+  },
+  "v4_3_contract": {
+    "version": "unified-jd-flat-atomic-v4.3-compatibility-v1",
+    "forward_normalization": {
+      "operation": "Delegate to the frozen v4.2 forward normalizer without modifying its output or diagnostics.",
+      "required_equivalence": "For every input, the v4.3 normalized output and ordered diagnostic dictionaries must equal v4.2 exactly.",
+      "new_activation_predicates_allowed": false,
+      "new_diagnostic_codes_allowed": false,
+      "existing_diagnostic_shape_changes_allowed": false
+    },
+    "reverse_replay": {
+      "input": "A deep-copied normalized output and its frozen ordered v4.2 diagnostic sequence.",
+      "stage_order": [
+        {
+          "order": 1,
+          "forward_pipeline_order": 3,
+          "mechanism": "normalized_long_self_sufficient_evidence",
+          "within_stage_order": "descending original diagnostic position"
+        },
+        {
+          "order": 2,
+          "forward_pipeline_order": 2,
+          "mechanism": "omitted_empty_absent_fact_placeholder",
+          "within_stage_order": "ascending original fact_index, with original diagnostic position as a stable tie-breaker"
+        },
+        {
+          "order": 3,
+          "forward_pipeline_order": 1,
+          "mechanism": "normalized_responsibility_role_alias",
+          "within_stage_order": "descending original diagnostic position"
+        }
+      ],
+      "omission_invariant": "Each fact_index must be a unique nonnegative integer; reinsert a deep copy of the full before value at that original index.",
+      "failure_behavior": "Unknown codes, duplicate omission fact_index values, invalid paths, stage/code mismatches, or before/after mismatches raise without returning a partial restoration.",
+      "input_mutation_allowed": false
+    },
+    "allowed_source_delta": "One new v4.3 compatibility adapter and its evaluator/tests/runner. Existing v4, v4.1, and frozen v4.2 files may not change.",
+    "semantic_or_schema_changes_allowed": false
+  },
+  "new_regression_control": {
+    "control_id": "consecutive-tail-empty-fact-omissions",
+    "input_shape": {
+      "fact_mentions": "Two valid fact mentions at original indices 0 and 1, followed by seven independently eligible empty absent-fact placeholders at original indices 2 through 8.",
+      "clause_atoms": []
+    },
+    "required_forward_result": {
+      "retained_fact_indices": [
+        0,
+        1
+      ],
+      "diagnostic_code": "omitted_empty_absent_fact_placeholder",
+      "diagnostic_fact_indices": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "v4_3_output_and_diagnostics_equal_v4_2": true
+    },
+    "required_reverse_result": {
+      "v4_2_restore_exactly_equals_input": false,
+      "v4_3_restore_exactly_equals_input": true,
+      "fact_order_and_full_values_exactly_restored": true
+    }
+  },
+  "scope": {
+    "model_calls_allowed": false,
+    "network_calls_allowed": false,
+    "new_holdout_collection_or_loading_allowed_before_full_pass": false,
+    "v4_v4_1_or_v4_2_modification_allowed": false,
+    "forward_rule_or_threshold_change_allowed": false,
+    "default_parser_modification_or_execution_allowed": false,
+    "canonicalizer_modification_or_execution_allowed": false,
+    "existing_artifact_overwrite_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-frozen-inputs-source-isolation-and-zero-calls": {
+      "requirements": [
+        "All frozen input and transitive source hashes match before execution.",
+        "No existing v4, v4.1, or v4.2 source or artifact changes.",
+        "Model calls, network calls, default parser calls, and canonicalizer calls are zero.",
+        "Formal outputs are created exclusively."
+      ]
+    },
+    "G1-forward-byte-equivalence": {
+      "requirements": [
+        "On external revealed raw, live raw, dev-20, all 16 existing controls, and the new tail control, v4.3 forward outputs exactly equal frozen v4.2 outputs.",
+        "Ordered diagnostic dictionaries exactly equal v4.2.",
+        "External activations remain role=0, omission=27, and long-evidence=10.",
+        "Live activations remain role=18 and both new mechanisms=0.",
+        "Dev-20 total activations remain 0."
+      ]
+    },
+    "G2-external-revealed-reversibility-recovery": {
+      "required_case_count": 5,
+      "required_strict_schema_valid_case_count": 5,
+      "required_exact_reverse_restoration_case_count": 5,
+      "required_omission_reverse_restoration_case_count": 4,
+      "requirements": [
+        "The v4.3 forward treatment equals the frozen v4.2 treatment exactly.",
+        "All five outputs remain strict schema valid and fully source anchored.",
+        "All four multi-omission records now reverse exactly to frozen raw.",
+        "The long-evidence-only record continues to reverse exactly.",
+        "No record metadata, atom, retained fact, semantic value, evidence value, or order changes beyond the frozen v4.2 forward treatment."
+      ]
+    },
+    "G3-legacy-zero-regression": {
+      "requirements": [
+        "The five-case live output still exactly equals frozen v4.1 and frozen v4.2 forward output; prior G1, G5, and G6 remain unchanged.",
+        "All 20 dev records and 427 atoms remain byte-equivalent with zero activations.",
+        "All 16 existing positive and negative controls retain their frozen v4.2 forward outcomes and pass reverse restoration under v4.3.",
+        "Inputs remain unmodified."
+      ]
+    },
+    "G4-consecutive-tail-omission-control": {
+      "requirements": [
+        "Exactly seven omission diagnostics occur at fact indices 2 through 8.",
+        "The v4.3 forward output and diagnostics exactly equal v4.2.",
+        "Frozen v4.2 reverse does not reproduce the control input.",
+        "v4.3 reverse reproduces the entire input exactly, including fact order and full values.",
+        "No other mechanism activates."
+      ]
+    },
+    "G5-fail-closed-reverse-controls": {
+      "requirements": [
+        "A singleton omission, role-only treatment, long-evidence-only treatment, and the combined three-stage treatment all reverse exactly.",
+        "Unknown codes, duplicate omission indices, wrong pipeline_order values, invalid indices, and output/diagnostic mismatches raise without mutating the supplied output.",
+        "An empty diagnostic sequence returns an equal deep copy."
+      ]
+    },
+    "G6-static-audit-and-tests": {
+      "requirements": [
+        "The v4.3 runtime adapter imports only the standard library and frozen v4.2 compatibility symbols.",
+        "Static audit finds no network/model clients, parser, canonicalizer, artifact paths, gold values, case IDs, or fixture IDs in runtime code.",
+        "Focused v4.3 tests and the full regression suite pass before source freeze.",
+        "Frozen source hashes still match during formal execution."
+      ]
+    }
+  },
+  "evaluation_protocol": {
+    "all_gates_conjunctive": true,
+    "source_and_tests_frozen_before_formal_gate_execution": true,
+    "formal_gate_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_or_control_change_after_freeze_allowed": false,
+    "frozen_v4_2_treatment_used_as_equivalence_reference_only": true,
+    "v4_2_report_or_receipt_not_used_as_runtime_input": true,
+    "failure_policy": "Keep v4.1 as the latest accepted compatibility layer, retain the failed v4.3 artifacts, and diagnose only from frozen data."
+  },
+  "post_gate_protocol": {
+    "on_full_pass": [
+      "Freeze the v4.3 source and formal report as a development-qualified candidate.",
+      "Do not claim generalization from any revealed corpus.",
+      "Only then preregister a genuinely new independent public-job holdout.",
+      "Require separate explicit authorization before transmitting any full job body."
+    ],
+    "on_any_failure": [
+      "Do not modify or rerun v4.3.",
+      "Do not collect, load, or call a new holdout.",
+      "Keep v4.1 and classify the frozen failure offline before another version."
+    ]
+  },
+  "next_allowed_action": "Implement only the isolated v4.3 reverse-replay adapter plus evaluator, controls, and gate runner; prove forward byte-equivalence synthetically, run focused and full tests, freeze source hashes, then execute the offline gates once."
+}

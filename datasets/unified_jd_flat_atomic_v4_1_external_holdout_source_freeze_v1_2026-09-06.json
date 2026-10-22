@@ -1,0 +1,75 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.1-external-holdout-source-freeze-v1",
+  "frozen_at": "2026-09-06T01:31:20.783674+00:00",
+  "status": "frozen_before_external_holdout_calls",
+  "preregistration_sha256": "f2cfc1572fb7572d05448e79e8b24dc9dbac5934936092602357345e89bec901",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_preregistration_v1_2026-09-06.json",
+      "sha256": "f2cfc1572fb7572d05448e79e8b24dc9dbac5934936092602357345e89bec901"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_preregistration_freeze_v1_2026-09-06.json",
+      "sha256": "a835313e5f703b491b9cf56b17bf6fc8b81f60fbb19e05a9ec17fa697fa8653f"
+    },
+    "evaluator": {
+      "path": "src/evaluation/model_first_v4_1_external_holdout.py",
+      "sha256": "49117621b99f41002339e1bdd227baa583c3e04337b26290849e5b056766a2b1"
+    },
+    "runner": {
+      "path": "scripts/run_unified_jd_flat_atomic_v4_1_external_holdout.py",
+      "sha256": "26600c305ae8c176c9a76bedcb6387820a1c26d6b9986bcaa24890dbbb4b2b48"
+    },
+    "freeze_script": {
+      "path": "scripts/freeze_unified_jd_flat_atomic_v4_1_external_holdout.py",
+      "sha256": "27f6e77c710be704b2616ce86549afcf77ac5992a251ffa9b637e33568cbff2b"
+    },
+    "tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_1_external_holdout.py",
+      "sha256": "6ee067ddd059c2ee4f5e21a6628d1ad560eea0bc4e687be38640dbca77d88f66"
+    }
+  },
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "independence_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_independence_receipt_v1_2026-09-06.json",
+      "sha256": "c6dc1f89762da38594a4f1364793c2cf6812d5396486077b3d39dc816cc3dbce"
+    },
+    "frozen_v4_request_contract": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87",
+      "system_prompt_sha256": "2d0100d6246e9d39dc2c3bb336faaacb3b47ff00e1eeb0c414644c00d0dd2fcc"
+    },
+    "frozen_v4_live_source": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_source_freeze_v1_2026-09-06.json",
+      "sha256": "9d89a14b947e24d7b36f3f4355d760e3910b65f23b99487d76ed0948ff874264"
+    },
+    "frozen_v4_1_compatibility_source": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "80f0c252a3bc8c188963fd673c86f455c2b838ba89f400913522ae6953445cc5"
+    },
+    "compatibility_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_compatibility.py",
+      "sha256": "289761d45a87747973a79c0c51f483f8c852f464f0e8c08b7b9c926a282c9379"
+    },
+    "compatibility_evaluator": {
+      "path": "src/evaluation/model_first_v4_1_compatibility.py",
+      "sha256": "4c2709c9aa0a63778d374cde414ede98c6ace58046775c6d93a53d516acda8b2"
+    },
+    "v4_live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    }
+  },
+  "verification_before_freeze": {
+    "focused_tests": "4 passed",
+    "full_suite": "902 passed, 1 warning",
+    "ruff_check": "passed",
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "immutability": "Any edit to the selection, preregistration, evaluator, runner, tests, v4 request contract, or frozen v4.1 compatibility mechanism invalidates this one-time external holdout."
+}

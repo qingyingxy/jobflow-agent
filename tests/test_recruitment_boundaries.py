@@ -120,7 +120,7 @@ def test_technical_keywords_in_a_product_role_need_review_when_model_unavailable
     job = replace(BASE, title="AI产品经理（大模型方向）", raw_content=BASE.raw_content.replace(
         "负责Agent系统的设计与研发。", "规划RAG、Tools及智能体Agent开发框架，推进产品需求和跨部门协同落地。"))
     assert check(job,"role")["status"] == "pending"
-    assert check(job,"role",query="上海产品经理校招")["status"] == "matched"
+    assert check(job,"role",query="上海产品经理校招")["status"] == "pending"  # Planning duties require semantic review.
 
 
 @pytest.mark.parametrize("title,duty,status", [

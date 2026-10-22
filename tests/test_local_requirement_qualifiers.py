@@ -174,3 +174,31 @@ def test_independent_all_of_conditions_can_use_distinct_records():
     )
     assert result.support_level == "supported"
     assert result.evidence_ids == ["ev_0", "ev_1"]
+
+
+@pytest.mark.parametrize("wrapper", ["等其中一种语言", "其中任意一种编程语言", "中至少一门语言"])
+@pytest.mark.parametrize("claim,expected", [
+    ("熟悉Python。", "supported"),
+    ("用Python写过课程脚本。", "partial"),
+    ("没有Python开发经验。", "needs_confirmation"),
+])
+def test_language_alternatives_accept_one_complete_branch(wrapper, claim, expected):
+    result = match(
+        f"熟悉C++/Golang/Python/Java{wrapper}", claim,
+        items=["C++", "Golang", "Python", "Java"], relation="any_of",
+    )
+    assert result.support_level == expected
+
+
+@pytest.mark.parametrize("suffix,claim,expected", [
+    ("等其中一种语言，并有三年开发经验", "熟悉Python，并有五年开发经验", "supported"),
+    ("等其中一种语言，并有三年开发经验", "熟悉Python，并有一年开发经验", "partial"),
+    ("等其中一种语言，并且能够实现论文算法", "熟悉Python", "partial"),
+    ("等其中至少两种语言", "熟悉Python", "partial"),
+])
+def test_language_wrapper_does_not_discard_other_requirements(suffix, claim, expected):
+    result = match(
+        f"熟悉C++/Golang/Python/Java{suffix}", claim,
+        items=["C++", "Golang", "Python", "Java"], relation="any_of",
+    )
+    assert result.support_level == expected

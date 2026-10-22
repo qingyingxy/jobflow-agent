@@ -26,6 +26,9 @@ from src.infrastructure.llm_client import (
 )
 from src.services.jd_parser import JDParserError
 from src.services.product_jd_parser import ProductJDParser
+from src.services.product_jd_runtime_parser import (
+    ProductJDParser as RuntimeProductJDParser,
+)
 
 DEFAULT_DATASET = (
     ROOT
@@ -116,6 +119,7 @@ async def generate_predictions(
     resume: bool,
     retry_failures: bool = False,
     prediction_version: str = DEFAULT_PREDICTION_VERSION,
+    parser_variant: str = "v3",
 ) -> dict[str, Any]:
     if concurrency < 1 or concurrency > 4:
         raise ValueError("concurrency must be between 1 and 4")
@@ -123,6 +127,8 @@ async def generate_predictions(
         raise ValueError("validation_retries must be 0 or 1")
     if retry_failures and not resume:
         raise ValueError("retry_failures requires resume=True")
+    if parser_variant not in {"v3", "v4"}:
+        raise ValueError("parser_variant must be v3 or v4")
     settings = get_settings()
     base_client = create_structured_model_client(settings)
     reasoning_effort = (
@@ -143,7 +149,8 @@ async def generate_predictions(
             return True
 
     client = _BudgetedModelClient(base_client, reserve_call)
-    parser = ProductJDParser(client, validation_retries=validation_retries)
+    parser_class = ProductJDParser if parser_variant == "v3" else RuntimeProductJDParser
+    parser = parser_class(client, validation_retries=validation_retries)
     if resume:
         if not predictions_path.exists():
             raise ValueError("--resume requires an existing predictions file")
@@ -284,6 +291,7 @@ async def generate_predictions(
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run a Product JD evaluation")
+    parser.add_argument("--parser-variant", choices=("v3", "v4"), default="v3")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--predictions", type=Path, default=DEFAULT_PREDICTIONS)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
@@ -310,6 +318,10 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = _parse_args()
+    if args.parser_variant == "v4" and (
+        args.predictions == DEFAULT_PREDICTIONS or args.report == DEFAULT_REPORT
+    ):
+        raise ValueError("v4 requires explicit --predictions and --report paths")
     dataset = _filter_dataset(
         json.loads(args.dataset.read_text(encoding="utf-8")),
         args.case_ids,
@@ -328,6 +340,7 @@ def main() -> int:
                 resume=args.resume,
                 retry_failures=args.retry_failures,
                 prediction_version=args.prediction_version,
+                parser_variant=args.parser_variant,
             )
         )
     report = evaluate_product_dataset(dataset, predictions)

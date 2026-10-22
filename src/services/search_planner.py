@@ -15,10 +15,24 @@ from src.services.search_constraints import has_exclusions, select_term_groups
 class SearchTask:
     query: str
     strategy: str
+    company_id: str | None = None
 
 
 def query_identity(query: str) -> str:
     return " ".join(unicodedata.normalize("NFKC", query).casefold().split())
+
+
+def diversity_task(query, sources, represented, completed):
+    """One unvisited employer query, keeping every original constraint intact."""
+    seen = {query_identity(value) for value in completed}
+    names = {query_identity(name) for name in represented if name}
+    for source in sources:
+        if query_identity(source.company) in names:
+            continue
+        task = SearchTask(f"{query} {source.company} site:{urlsplit(source.career_url).hostname}", "补充公司来源")
+        if query_identity(task.query) not in seen:
+            return task
+    return None
 
 
 def build_agent_search_tasks(query, sources=()):
@@ -54,7 +68,7 @@ def build_agent_search_tasks(query, sources=()):
 
 
 def build_search_tasks(query, sources=()):
-    if has_exclusions(query):
+    if has_exclusions(query) or re.search(r"(?:^|；)(?:岗位方向|优先方向|工作地点|招聘类型)：", query):
         # Splitting a negated query into keywords would erase its meaning.
         return build_agent_search_tasks(query, sources)
     lowered = query.casefold()

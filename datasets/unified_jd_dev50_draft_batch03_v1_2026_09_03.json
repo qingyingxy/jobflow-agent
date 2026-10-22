@@ -1,0 +1,596 @@
+{
+  "label_version": "unified-jd-dev50-draft-batch03-v1",
+  "dataset_version": "unified-jd-dev50-draft-batch03-v1-2026-09-03",
+  "annotation_status": "draft",
+  "source_skeleton_sha256": "32bef503019cb774f11f8668dc98e80ae7fc6c97353c4963841a7726ac4024a3",
+  "annotation_policy": "机器辅助逐字标注草稿；未读取 Unified prediction，未复制旧 Parser 技能标签，必须人工复核后才能进入评测。",
+  "cases": {
+    "campus-ai-078": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "杭州"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上学历", "博士"],
+          "major_requirements": ["计算机、人工智能、机器人、自动化等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京/杭州"},
+            {"field": "graduation_years", "source_text": "招聘项目：千寻智能2027届秋季校园招聘"},
+            {"field": "education_requirements", "source_text": "计算机、人工智能、机器人、自动化等相关专业硕士及以上学历，博士优先"},
+            {"field": "major_requirements", "source_text": "计算机、人工智能、机器人、自动化等相关专业硕士及以上学历"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["全模态世界模型架构", "训练方法", "算法迭代", "多模态统一建模"],
+            "examples": ["语言", "视觉", "视频", "动作", "触觉"],
+            "source_text": "负责全模态世界模型的架构设计、训练方法与算法迭代，探索语言、视觉、视频、动作、触觉等模态的统一建模"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["物理场景理解", "未来状态预测", "动作生成", "交互结果模拟", "机器人策略学习"],
+            "source_text": "推进世界模型在物理场景理解、未来状态预测、动作生成、交互结果模拟、机器人策略学习等方向的技术攻关"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["统一动作表示", "机器人数据体系"],
+            "examples": ["双臂系统", "轮式人形", "全尺寸人形机器人", "灵巧手"],
+            "source_text": "面向从双臂系统、轮式人形到全尺寸人形机器人等多种机器人形态，并进一步探索灵巧手等高自由度系统，构建统一的动作表示与数据体系"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["机器人多模态数据采集", "数据清洗", "模型训练", "模型评测", "闭环迭代", "真机验证"],
+            "source_text": "参与机器人多模态数据的采集、清洗、训练、评测与闭环迭代，推动模型在真实机器人任务中的验证与落地"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["多模态大模型", "视频生成", "具身智能", "World Model", "Robot Learning", "技术预研"],
+            "source_text": "持续跟踪多模态大模型、视频生成、具身智能、world model、robot learning 等前沿方向，形成技术预研、论文和核心技术壁垒"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "计算机、人工智能、机器人、自动化等相关专业硕士及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "preferred",
+            "items": ["博士"],
+            "source_text": "博士优先"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "人工智能", "机器人", "自动化", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、人工智能、机器人、自动化等相关专业硕士及以上学历"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["深度学习", "大模型", "Python", "PyTorch"],
+            "source_text": "具备扎实的深度学习和大模型基础，熟练掌握 Python / PyTorch"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["论文复现", "模型训练", "工程实现"],
+            "source_text": "具备较强的论文复现、模型训练和工程实现能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["多模态大模型", "视频生成", "世界模型", "VLA", "模仿学习", "强化学习", "机器人学习"],
+            "group_name": "算法方向",
+            "allow_other": false,
+            "source_text": "熟悉多模态大模型、视频生成、世界模型、VLA、模仿学习、强化学习、机器人学习中的一个或多个方向"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["机器人感知", "机器人动作", "时序决策", "跨场景泛化"],
+            "source_text": "理解真实机器人系统中的感知、动作、时序决策和跨场景泛化问题"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["机器人相关经验"],
+            "qualifier": {"experience_type": "practical", "domain": "机器人"},
+            "source_text": "有机器人相关经验优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["英文文献阅读", "技术判断"],
+            "source_text": "具备优秀的英文文献阅读能力、技术判断力"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier"],
+      "review_notes": ["博士既是 education fact 的可接受值，也是相对于硕士门槛的 preferred fact clause。"]
+    },
+    "campus-ai-080": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "杭州"],
+          "graduation_years": [2027],
+          "education_requirements": null,
+          "major_requirements": null,
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京/杭州"},
+            {"field": "graduation_years", "source_text": "招聘项目：千寻智能2027届秋季校园招聘"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["千卡训练系统性能优化", "MFU优化"],
+            "source_text": "负责具身智能大模型千卡大规模训练系统性能优化及MFU优化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["VLM分布式推理系统", "端到端部署"],
+            "source_text": "负责多模态大模型（VLM）在云端的高性能分布式推理系统设计、开发与全链路端到端部署"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["VLA端侧推理系统", "模型加速算法"],
+            "source_text": "负责具身智能VLA模型在端侧的推理系统的研发和模型加速算法研究"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["GPU体系结构", "CUDA", "Triton"],
+            "source_text": "熟悉GPU体系结构，熟练掌握CUDA/triton"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["C++", "Python"],
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟练掌握C++或Python语言"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["PyTorch架构", "PyTorch运行原理", "大模型训练多维并行架构"],
+            "examples": ["Tensor并行", "流水线并行", "序列并行"],
+            "source_text": "深入了解PyTorch等深度学习框架的架构和运行原理，深入理解大模型训练多维并行架构，如Tensor并行、流水线并行、序列并行等"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["多模态模型结构"],
+            "examples": ["ViT", "DiT"],
+            "source_text": "深入理解多模态模型结构，如ViT、DiT等"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["开源多模态大模型结构"],
+            "examples": ["qwen-vl", "llama"],
+            "source_text": "了解开源多模态大模型结构，如qwen-vl、llama等"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["vLLM", "SGLang", "TensorRT-LLM", "Nvidia Dynamo"],
+            "group_name": "开源推理引擎",
+            "allow_other": true,
+            "source_text": "熟悉至少一种主流开源推理引擎（如 vLLM、SGLang、TensorRT-LLM、Nvidia Dynamo等）的底层机制与源码魔改"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["量化", "剪枝", "蒸馏", "投机推理", "步数蒸馏", "模型小型化"],
+            "source_text": "熟悉量化、剪枝、蒸馏、投机推理、步数蒸馏等前沿推理加速及模型小型化技术方案"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "mention", "any_of", "open_group", "fact_missing"],
+      "review_notes": ["JD 未写学历或专业，两个 facts 保持 null。"]
+    },
+    "campus-ai-097": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、软件工程、人工智能、自动化等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京/上海"},
+            {"field": "graduation_years", "source_text": "2027届本科及以上学历"},
+            {"field": "education_requirements", "source_text": "2027届本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程、人工智能、自动化等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型训练可观测平台", "推理可观测平台", "Agent可观测平台"],
+            "source_text": "参与 MiniMax 面向大模型训练、推理和 Agent 场景的新一代可观测平台建设"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["指标采集", "日志采集", "Trace采集", "事件采集", "数据存储", "数据查询", "数据分析"],
+            "source_text": "参与指标、日志、Trace、事件等数据采集、存储、查询和分析链路开发"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["硬件观测", "网络观测", "存储观测", "训练作业观测", "推理服务观测"],
+            "source_text": "建设硬件、网络、存储、训练作业、推理服务等多层信号的统一观测能力"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["故障归因", "异常检测", "成本分析", "链路回放", "AI Infra可观测"],
+            "source_text": "参与故障归因、异常检测、成本分析、链路回放等 AI Infra 可观测能力建设"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "2027届本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "人工智能", "自动化", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、软件工程、人工智能、自动化等相关专业优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["操作系统", "网络", "数据库", "分布式系统"],
+            "group_name": "系统基础",
+            "allow_other": false,
+            "source_text": "熟悉操作系统、网络、数据库或分布式系统基础"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["Prometheus", "Grafana", "OpenTelemetry", "ClickHouse", "ElasticSearch"],
+            "group_name": "可观测技术",
+            "allow_other": true,
+            "source_text": "熟悉 Prometheus、Grafana、OpenTelemetry、ClickHouse、ElasticSearch 等任一技术优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["工程能力"],
+            "source_text": "具备良好工程能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Go", "Python", "Java", "C++"],
+            "group_name": "编程语言",
+            "allow_other": true,
+            "source_text": "熟悉 Go / Python / Java / C++ 中至少一种语言"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["大模型训练可观测", "推理服务可观测", "Agent运行链路可观测"],
+            "source_text": "对大模型训练、推理服务、Agent 运行链路的可观测问题有兴趣"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred"],
+      "review_notes": ["‘操作系统、网络、数据库或分布式系统’按原文明示的或标为 any_of。"]
+    },
+    "campus-ai-102": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士研究生及以上学历", "硕士/博士"],
+          "major_requirements": ["机器人、人工智能、自动化、计算机、控制等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：上海"},
+            {"field": "graduation_years", "source_text": "2027届硕士研究生及以上学历"},
+            {"field": "education_requirements", "source_text": "2027届硕士研究生及以上学历，机器人、人工智能、自动化、计算机、控制等相关专业，硕士/博士优先"},
+            {"field": "major_requirements", "source_text": "机器人、人工智能、自动化、计算机、控制等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["强化学习机器人控制", "模仿学习机器人控制", "上肢与灵巧手操作", "下肢移动", "全身协同控制"],
+            "source_text": "参与基于强化学习/模仿学习的机器人运动控制策略开发，覆盖上肢和灵巧手操作、下肢移动、全身协同控制等方向"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["仿真训练环境", "任务场景", "域随机化", "策略鲁棒性", "策略泛化"],
+            "source_text": "参与仿真训练环境、任务场景和域随机化策略建设，提升策略在真实环境中的鲁棒性和泛化能力"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Sim2Real部署", "真机调试", "仿真现实差异分析", "策略迭代"],
+            "source_text": "参与Sim2Real部署与真机调试，协助分析仿真与现实差异并推动策略迭代"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["学习型控制算法真机落地"],
+            "source_text": "推动学习型控制算法在实体机器人上的稳定落地"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士研究生及以上学历"],
+            "source_text": "2027届硕士研究生及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["硕士", "博士"],
+            "group_name": "优先学历",
+            "allow_other": false,
+            "source_text": "硕士/博士优先"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["机器人", "人工智能", "自动化", "计算机", "控制", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "机器人、人工智能、自动化、计算机、控制等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["强化学习", "模仿学习", "深度学习"],
+            "group_name": "学习方法",
+            "allow_other": false,
+            "source_text": "熟悉强化学习、模仿学习、深度学习中的一种或多种方法"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["PPO", "SAC", "BC", "Diffusion Policy"],
+            "source_text": "理解PPO、SAC、BC、Diffusion Policy等基本思想者优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["机器人运动学", "机器人动力学", "控制理论"],
+            "source_text": "具备机器人运动学、动力学、控制理论基础"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["MPC", "全身控制", "轨迹跟踪", "平衡控制"],
+            "source_text": "了解MPC、全身控制、轨迹跟踪、平衡控制等方法"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Python"],
+            "source_text": "熟练使用Python"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["代码实现", "实验分析"],
+            "source_text": "具备良好的代码实现和实验分析能力"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["仿真平台经验"],
+            "examples": ["Isaac Gym", "MuJoCo", "Isaac Sim"],
+            "qualifier": {"experience_type": "practical", "domain": "机器人仿真"},
+            "source_text": "有仿真平台、Isaac Gym/MuJoCo/Isaac Sim等经验者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["足式机器人真机部署", "机械臂真机部署", "人形机器人真机部署"],
+            "group_name": "机器人真机部署",
+            "allow_other": false,
+            "qualifier": {"experience_type": "practical", "domain": "机器人"},
+            "source_text": "有足式机器人、机械臂、人形机器人真机部署经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["机器人顶会论文", "机器人竞赛", "机器人开源项目"],
+            "group_name": "机器人成果",
+            "allow_other": false,
+            "source_text": "机器人顶会论文、竞赛、开源项目成果"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["‘硕士/博士优先’与硕士及以上硬门槛语义重复，保留原文 preferred fact 供人工复核。"]
+    },
+    "campus-ai-116": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["深圳"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上学历"],
+          "major_requirements": ["计算机，自动化及软件工程等相关专业背景"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：深圳"},
+            {"field": "graduation_years", "source_text": "招聘项目：自变量机器人27届校园招聘"},
+            {"field": "education_requirements", "source_text": "硕士及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机，自动化及软件工程等相关专业背景"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["具身智能系统集成交付", "量产项目生命周期"],
+            "source_text": "负责具身智能系统高质量集成交付流程的持续优化与维护，深度参与量产项目的完整生命周期"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["自动化验收工具链", "系统鲁棒性评估", "功能完整性评估"],
+            "source_text": "负责具身智能系统自动化验收工具链开发与优化，高效评估系统鲁棒性/功能完整性"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["系统资源分配", "系统性能优化"],
+            "source_text": "负责具身智能系统资源分配方案设计与落实，与算法及业务团队紧密合作优化系统性能"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["系统功能验证", "联合调试", "准出管控", "产品级交付"],
+            "source_text": "负责具身智能系统的功能验证，联合调试及准出管控，交付产品级具身智能系统"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "硕士及以上学历，计算机，自动化及软件工程等相关专业背景"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "自动化", "软件工程", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机，自动化及软件工程等相关专业背景"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["具身智能项目经验", "具身智能实习经验"],
+            "group_name": "具身智能经历",
+            "allow_other": false,
+            "source_text": "参与过具身智能项目经验或实习经验者优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["面向对象编程语言"],
+            "source_text": "掌握至少一门面向对象编程语言"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["ROS2", "ROS"],
+            "group_name": "ROS框架",
+            "allow_other": false,
+            "source_text": "熟悉ROS2或ROS框架及通信框架者优先"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["通信框架"],
+            "source_text": "熟悉ROS2或ROS框架及通信框架者优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["软件质量意识", "代码审查"],
+            "source_text": "具备良好的软件质量意识，注重代码审查"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["AI coding工具"],
+            "source_text": "熟练使用AI coding工具"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["ROS2/ROS 是备选，通信框架是并列 preferred；拆成两条以避免错误地三选一。"]
+    }
+  }
+}

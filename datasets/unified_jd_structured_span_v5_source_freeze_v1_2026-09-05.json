@@ -1,0 +1,67 @@
+{
+  "freeze_version": "unified-jd-structured-span-v5-source-freeze-v1",
+  "frozen_at": "2026-09-05",
+  "status": "v5_source_frozen_before_one_time_gates",
+  "purpose": "Freeze the preregistered clause-local region graph v5 parser, its one-time gate runner, and mechanism-only synthetic tests before any v5 development or regression fixture is executed.",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+      "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8"
+    },
+    "frozen_v4_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "v5_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v5.py",
+      "sha256": "8abdb1df73af8731caf565d0f0c74ad824302bf99cdae2b1c6a4e2e13ad541da"
+    },
+    "one_time_gate_runner": {
+      "path": "scripts/evaluate_unified_structured_span_v5_gates.py",
+      "sha256": "eefccf0d02c039e5c3bc1314fbf29960072983712f113235e69379fd22190802"
+    },
+    "synthetic_mechanism_tests": {
+      "path": "tests/test_unified_jd_structured_spans_v5.py",
+      "sha256": "b20d75ef51afae9c935889a824bfd2dc996e11976b376089a5cd4ad47dd47c6e"
+    }
+  },
+  "checks_before_freeze": {
+    "ruff_check_passed": true,
+    "ruff_format_check_passed": true,
+    "python_compile_passed": true,
+    "synthetic_mechanism_test_count": 7,
+    "synthetic_mechanism_tests_passed": 7,
+    "development_fixture_run_count": 0,
+    "regression_fixture_run_count": 0,
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "fixture_specific_runtime_branch_present": false,
+    "employer_or_title_specific_runtime_branch_present": false,
+    "category_specific_patch_dispatch_present": false,
+    "canonicalizer_present": false
+  },
+  "one_time_outputs": [
+    {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v5-raw-v1-2026-09-05.json",
+      "existed_at_freeze": false
+    },
+    {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-regression-raw-v1-2026-09-05.json",
+      "existed_at_freeze": false
+    },
+    {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-report-v1-2026-09-05.json",
+      "existed_at_freeze": false
+    },
+    {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-findings-v1-2026-09-05.md",
+      "existed_at_freeze": false
+    },
+    {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-development-regression-receipt-v1-2026-09-05.json",
+      "existed_at_freeze": false
+    }
+  ],
+  "immutability": "The v5 parser, gate runner, synthetic tests, and preregistered thresholds must not change after this freeze. A failed gate requires diagnosis from frozen raw output and a new preregistration version.",
+  "next_allowed_action": "Run scripts/evaluate_unified_structured_span_v5_gates.py once without changing any frozen artifact."
+}

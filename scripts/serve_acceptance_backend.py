@@ -217,6 +217,12 @@ def main():
             EVIDENCE_MATCHING_MODE="semantic" if args.fixture_semantic else "local",
             WEB_SEARCH_PROVIDER="responses",
             WEB_SEARCH_DECISION_MODE="rule",
+            # This fixture implements requirement matching, but no source-
+            # understanding model. Live source judgments have separate audits.
+            WEB_SEARCH_UNDERSTANDING_MODE="hybrid",
+            WEB_SEARCH_SEMANTIC_ENABLED="false",
+            WEB_SEARCH_DIRECT_SOURCES_ENABLED="false",
+            COMPANY_DISCOVERY_ENABLED="false",
             WEB_SEARCH_MAX_ROUNDS="1",
             WEB_SEARCH_TARGET_JOBS="2",
             WEB_SEARCH_BUDGET_SECONDS="15",
@@ -280,10 +286,20 @@ def main():
             )
 
         discovery.create_greenhouse_adapter = fixture_adapter
-        from src.services import multiround_search, web_search_service
+        from src.services import company_registry, multiround_search, web_search_service
         from src.services.responses_search import ResponsesSearchProvider
 
-        def fixture_search(query, company_ids=None):
+        # Saved goals now rotate registered companies. Supply an isolated
+        # registry so all readers and trust checks use the same synthetic host.
+        registry = Path(temporary.name) / "company_sources.json"
+        registry.write_text(json.dumps([{
+            "id": "fixture", "company": "链路验收公司", "priority": "A",
+            "career_url": "https://careers.fixture.example/jobs",
+            "entry_type": "official_career_page", "enabled": True,
+        }], ensure_ascii=False), encoding="utf-8")
+        company_registry.REGISTRY_PATH = registry
+
+        def fixture_search(query, company_ids=None, **kwargs):
             return ResponsesSearchProvider(
                 query=query,
                 base_url=f"http://127.0.0.1:{args.fixture_port}/v1",
@@ -293,10 +309,6 @@ def main():
 
         discovery.create_web_search_provider = fixture_search
         web_search_service.create_web_search_provider = fixture_search
-        multiround_search.enabled_company_source_hosts = lambda: {
-            "careers.fixture.example"
-        }
-        multiround_search.enabled_company_sources = lambda *args: []
         multiround_search.SafeHTTPReader = lambda **kwargs: ExternalFixtureReader()
         Base.metadata.create_all(engine)
     try:

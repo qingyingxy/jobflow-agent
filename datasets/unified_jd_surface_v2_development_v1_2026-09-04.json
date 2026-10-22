@@ -1,0 +1,1306 @@
+{
+  "development_version": "unified-jd-surface-v2-development-v1",
+  "contract_version": "canonical-items-contract-v1",
+  "status": "development_only_revealed",
+  "built_at": "2026-09-04",
+  "model_call_count": 0,
+  "sources": {
+    "original_contract": {
+      "path": "datasets/unified_jd_canonical_items_contract_v1.json",
+      "sha256": "1053371c0a787c7f246522a89b6df2234aba5f3385d59f28ae6065949d7e3c65",
+      "fixture_count": 20
+    },
+    "promoted_v1_holdout_labels": {
+      "path": "datasets/unified_jd_surface_holdout_labels_v1_2026-09-04.json",
+      "sha256": "a567166266c152e636f3900121a0a70b4e567751008f7f8e30c4b06cb01ead1e",
+      "fixture_count": 20
+    },
+    "promoted_v1_holdout_freeze": {
+      "path": "datasets/unified_jd_surface_holdout_label_freeze_v1_2026-09-04.json",
+      "sha256": "aac11d018aa5e462b6ea52ed09450a555164ec1a172a0600d109ea5bfc21868c"
+    },
+    "promoted_v1_holdout_report": {
+      "path": "artifacts/evaluation/unified-jd-surface-holdout-v1-2026-09-04.json",
+      "sha256": "739d4389255bc8574f09e9d2cc0217b8cbeb3df6d722e49c6040460a787c728d",
+      "gate_passed": false
+    }
+  },
+  "scope": {
+    "case_ids": [
+      "campus-ai-001",
+      "campus-ai-011",
+      "campus-ai-015",
+      "campus-ai-023",
+      "campus-ai-024",
+      "campus-ai-027",
+      "campus-ai-029",
+      "campus-ai-051",
+      "campus-ai-052",
+      "campus-ai-069",
+      "campus-ai-072",
+      "campus-ai-073",
+      "campus-ai-085",
+      "campus-ai-089",
+      "campus-ai-091",
+      "campus-ai-097",
+      "campus-ai-102",
+      "campus-ai-108",
+      "campus-ai-109",
+      "campus-ai-110",
+      "campus-ai-124",
+      "campus-ai-142",
+      "campus-ai-157",
+      "campus-ai-158",
+      "campus-ai-165"
+    ],
+    "categories": [
+      "capability",
+      "experience",
+      "responsibility",
+      "skill"
+    ],
+    "fixture_count": 40,
+    "fixtures_per_category": {
+      "capability": 10,
+      "experience": 10,
+      "responsibility": 10,
+      "skill": 10
+    }
+  },
+  "fixtures": [
+    {
+      "id": "canonical-v1-responsibility-001",
+      "case_id": "campus-ai-011",
+      "clause_index": 0,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "从事大语言模型（LLM）的预训练、后训练（SFT/RLHF）及应用落地算法研究",
+      "surface_items": [
+        "预训练",
+        "后训练",
+        "应用落地算法研究"
+      ],
+      "canonical_items": [
+        "大语言模型预训练",
+        "大语言模型后训练",
+        "应用落地算法研究"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "预训练",
+          "support_text": "大语言模型（LLM）的预训练",
+          "canonical_item": "大语言模型预训练"
+        },
+        {
+          "surface_item": "后训练",
+          "support_text": "后训练（SFT/RLHF）",
+          "canonical_item": "大语言模型后训练"
+        },
+        {
+          "surface_item": "应用落地算法研究",
+          "support_text": "应用落地算法研究",
+          "canonical_item": "应用落地算法研究"
+        }
+      ],
+      "examples": [
+        "SFT",
+        "RLHF"
+      ],
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_subject",
+        "examples_not_items"
+      ]
+    },
+    {
+      "id": "canonical-v1-responsibility-002",
+      "case_id": "campus-ai-069",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "针对具体业务场景，构建体系化知识库，并结合线上数据反馈，不断优化RAG和Agent系统的整体效果",
+      "surface_items": [
+        "体系化知识库",
+        "线上数据反馈",
+        "RAG",
+        "Agent系统"
+      ],
+      "canonical_items": [
+        "知识库",
+        "线上数据反馈",
+        "RAG优化",
+        "Agent优化"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "体系化知识库",
+          "support_text": "构建体系化知识库",
+          "canonical_item": "知识库"
+        },
+        {
+          "surface_item": "线上数据反馈",
+          "support_text": "线上数据反馈",
+          "canonical_item": "线上数据反馈"
+        },
+        {
+          "surface_item": "RAG",
+          "support_text": "不断优化RAG和Agent系统的整体效果",
+          "canonical_item": "RAG优化"
+        },
+        {
+          "surface_item": "Agent系统",
+          "support_text": "不断优化RAG和Agent系统的整体效果",
+          "canonical_item": "Agent优化"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "predicate_distribution",
+        "action_nominalization"
+      ]
+    },
+    {
+      "id": "canonical-v1-responsibility-003",
+      "case_id": "campus-ai-085",
+      "clause_index": 1,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "深入了解用户在需求分析、内容生产、开发、测试和协作中的实际问题，提炼产品需求并设计解决方案",
+      "surface_items": [
+        "深入了解用户在需求分析、内容生产、开发、测试和协作中的实际问题",
+        "提炼产品需求",
+        "设计解决方案"
+      ],
+      "canonical_items": [
+        "用户问题洞察",
+        "需求提炼",
+        "解决方案设计"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "深入了解用户在需求分析、内容生产、开发、测试和协作中的实际问题",
+          "support_text": "深入了解用户在需求分析、内容生产、开发、测试和协作中的实际问题",
+          "canonical_item": "用户问题洞察"
+        },
+        {
+          "surface_item": "提炼产品需求",
+          "support_text": "提炼产品需求",
+          "canonical_item": "需求提炼"
+        },
+        {
+          "surface_item": "设计解决方案",
+          "support_text": "设计解决方案",
+          "canonical_item": "解决方案设计"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "multi_action",
+        "action_nominalization"
+      ]
+    },
+    {
+      "id": "canonical-v1-responsibility-004",
+      "case_id": "campus-ai-091",
+      "clause_index": 0,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "负责端到端模型的算法设计、训练与端侧部署落地",
+      "surface_items": [
+        "端到端模型",
+        "算法设计",
+        "训练",
+        "端侧部署落地"
+      ],
+      "canonical_items": [
+        "端到端模型",
+        "算法设计",
+        "模型训练",
+        "端侧部署"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "端到端模型",
+          "support_text": "端到端模型",
+          "canonical_item": "端到端模型"
+        },
+        {
+          "surface_item": "算法设计",
+          "support_text": "端到端模型的算法设计",
+          "canonical_item": "算法设计"
+        },
+        {
+          "surface_item": "训练",
+          "support_text": "端到端模型的算法设计、训练",
+          "canonical_item": "模型训练"
+        },
+        {
+          "surface_item": "端侧部署落地",
+          "support_text": "端侧部署落地",
+          "canonical_item": "端侧部署"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_object",
+        "multi_action"
+      ]
+    },
+    {
+      "id": "canonical-v1-responsibility-005",
+      "case_id": "campus-ai-072",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "设计基于大模型（LLM）或自动化算法的解决方案",
+      "surface_items": [
+        "大模型（LLM）",
+        "自动化算法"
+      ],
+      "canonical_items": [
+        "大模型解决方案",
+        "自动化算法解决方案"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "大模型（LLM）",
+          "support_text": "基于大模型（LLM）或自动化算法的解决方案",
+          "canonical_item": "大模型解决方案"
+        },
+        {
+          "surface_item": "自动化算法",
+          "support_text": "基于大模型（LLM）或自动化算法的解决方案",
+          "canonical_item": "自动化算法解决方案"
+        }
+      ],
+      "examples": [
+        "LLM"
+      ],
+      "relation": "any_of",
+      "group_name": "解决方案技术路径",
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_suffix",
+        "explicit_alternative"
+      ]
+    },
+    {
+      "id": "canonical-v1-skill-001",
+      "case_id": "campus-ai-069",
+      "clause_index": 7,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉至少一种主流语言（Java/Python/C++等）",
+      "surface_items": [
+        "Java",
+        "Python",
+        "C++"
+      ],
+      "canonical_items": [
+        "Java",
+        "Python",
+        "C++"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "Java",
+          "support_text": "Java",
+          "canonical_item": "Java"
+        },
+        {
+          "surface_item": "Python",
+          "support_text": "Python",
+          "canonical_item": "Python"
+        },
+        {
+          "surface_item": "C++",
+          "support_text": "C++",
+          "canonical_item": "C++"
+        }
+      ],
+      "examples": null,
+      "relation": "any_of",
+      "group_name": "编程语言",
+      "allow_other": true,
+      "pattern_tags": [
+        "at_least_one",
+        "slash_candidates",
+        "open_group"
+      ]
+    },
+    {
+      "id": "canonical-v1-skill-002",
+      "case_id": "campus-ai-069",
+      "clause_index": 9,
+      "category": "skill",
+      "level": "required",
+      "source_text": "理解并掌握RAG架构、Agent工作机制、检索算法（如倒排索引、语义检索）、Prompt工程、微调与对齐技术等核心能力",
+      "surface_items": [
+        "RAG架构",
+        "Agent工作机制",
+        "检索算法",
+        "Prompt工程",
+        "微调",
+        "对齐技术"
+      ],
+      "canonical_items": [
+        "RAG架构",
+        "Agent工作机制",
+        "检索算法",
+        "Prompt工程",
+        "模型微调",
+        "模型对齐"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "RAG架构",
+          "support_text": "RAG架构",
+          "canonical_item": "RAG架构"
+        },
+        {
+          "surface_item": "Agent工作机制",
+          "support_text": "Agent工作机制",
+          "canonical_item": "Agent工作机制"
+        },
+        {
+          "surface_item": "检索算法",
+          "support_text": "检索算法（如倒排索引、语义检索）",
+          "canonical_item": "检索算法"
+        },
+        {
+          "surface_item": "Prompt工程",
+          "support_text": "Prompt工程",
+          "canonical_item": "Prompt工程"
+        },
+        {
+          "surface_item": "微调",
+          "support_text": "微调与对齐技术",
+          "canonical_item": "模型微调"
+        },
+        {
+          "surface_item": "对齐技术",
+          "support_text": "微调与对齐技术",
+          "canonical_item": "模型对齐"
+        }
+      ],
+      "examples": [
+        "倒排索引",
+        "语义检索"
+      ],
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "mixed_direct_and_normalized_items",
+        "examples_not_items"
+      ]
+    },
+    {
+      "id": "canonical-v1-skill-003",
+      "case_id": "campus-ai-085",
+      "clause_index": 16,
+      "category": "skill",
+      "level": "preferred",
+      "source_text": "了解 Prompt Engineering、RAG、MCP、Tool Use、Agent 工作流等概念",
+      "surface_items": [
+        "Prompt Engineering",
+        "RAG",
+        "MCP",
+        "Tool Use",
+        "Agent 工作流"
+      ],
+      "canonical_items": [
+        "Prompt Engineering",
+        "RAG",
+        "MCP",
+        "Tool Use",
+        "Agent工作流"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "Prompt Engineering",
+          "support_text": "Prompt Engineering",
+          "canonical_item": "Prompt Engineering"
+        },
+        {
+          "surface_item": "RAG",
+          "support_text": "RAG",
+          "canonical_item": "RAG"
+        },
+        {
+          "surface_item": "MCP",
+          "support_text": "MCP",
+          "canonical_item": "MCP"
+        },
+        {
+          "surface_item": "Tool Use",
+          "support_text": "Tool Use",
+          "canonical_item": "Tool Use"
+        },
+        {
+          "surface_item": "Agent 工作流",
+          "support_text": "Agent 工作流",
+          "canonical_item": "Agent工作流"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "internal_space_normalization",
+        "named_technologies"
+      ]
+    },
+    {
+      "id": "canonical-v1-skill-004",
+      "case_id": "campus-ai-072",
+      "clause_index": 11,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟练掌握至少一门编程语言，如：Python、R、Matlab",
+      "surface_items": [
+        "编程语言"
+      ],
+      "canonical_items": [
+        "编程语言"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "编程语言",
+          "support_text": "至少一门编程语言",
+          "canonical_item": "编程语言"
+        }
+      ],
+      "examples": [
+        "Python",
+        "R",
+        "Matlab"
+      ],
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "upper_level_item",
+        "introduced_examples"
+      ]
+    },
+    {
+      "id": "canonical-v1-skill-005",
+      "case_id": "campus-ai-072",
+      "clause_index": 14,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉当前大语言模型（LLM）的原理、Prompt Engineering或RAG架构",
+      "surface_items": [
+        "大语言模型（LLM）的原理",
+        "Prompt Engineering",
+        "RAG架构"
+      ],
+      "canonical_items": [
+        "大语言模型原理",
+        "Prompt Engineering",
+        "RAG架构"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "大语言模型（LLM）的原理",
+          "support_text": "大语言模型（LLM）的原理",
+          "canonical_item": "大语言模型原理"
+        },
+        {
+          "surface_item": "Prompt Engineering",
+          "support_text": "Prompt Engineering",
+          "canonical_item": "Prompt Engineering"
+        },
+        {
+          "surface_item": "RAG架构",
+          "support_text": "RAG架构",
+          "canonical_item": "RAG架构"
+        }
+      ],
+      "examples": [
+        "LLM"
+      ],
+      "relation": "any_of",
+      "group_name": "LLM相关知识",
+      "allow_other": false,
+      "pattern_tags": [
+        "explicit_alternative",
+        "parenthetical_alias"
+      ]
+    },
+    {
+      "id": "canonical-v1-experience-001",
+      "case_id": "campus-ai-011",
+      "clause_index": 9,
+      "category": "experience",
+      "level": "required",
+      "source_text": "有PyTorch/PaddlePaddle等深度学习框架使用经验",
+      "surface_items": [
+        "深度学习框架使用经验"
+      ],
+      "canonical_items": [
+        "深度学习框架使用经验"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "深度学习框架使用经验",
+          "support_text": "PyTorch/PaddlePaddle等深度学习框架使用经验",
+          "canonical_item": "深度学习框架使用经验"
+        }
+      ],
+      "examples": [
+        "PyTorch",
+        "PaddlePaddle"
+      ],
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "experience_head_preserved",
+        "examples_not_choices"
+      ]
+    },
+    {
+      "id": "canonical-v1-experience-002",
+      "case_id": "campus-ai-011",
+      "clause_index": 10,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有大模型训练、NLP或相关方向研究/项目经历者优先",
+      "surface_items": [
+        "大模型训练",
+        "NLP",
+        "相关方向"
+      ],
+      "canonical_items": [
+        "大模型训练研究或项目经历",
+        "NLP研究或项目经历",
+        "相关方向研究或项目经历"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "大模型训练",
+          "support_text": "大模型训练、NLP或相关方向研究/项目经历",
+          "canonical_item": "大模型训练研究或项目经历"
+        },
+        {
+          "surface_item": "NLP",
+          "support_text": "大模型训练、NLP或相关方向研究/项目经历",
+          "canonical_item": "NLP研究或项目经历"
+        },
+        {
+          "surface_item": "相关方向",
+          "support_text": "大模型训练、NLP或相关方向研究/项目经历",
+          "canonical_item": "相关方向研究或项目经历"
+        }
+      ],
+      "examples": null,
+      "relation": "any_of",
+      "group_name": "研究或项目方向",
+      "allow_other": true,
+      "pattern_tags": [
+        "shared_experience_suffix",
+        "open_alternative"
+      ]
+    },
+    {
+      "id": "canonical-v1-experience-003",
+      "case_id": "campus-ai-085",
+      "clause_index": 17,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有 AI 产品、开发者工具、平台型产品或效率工具相关项目经验",
+      "surface_items": [
+        "AI 产品",
+        "开发者工具",
+        "平台型产品",
+        "效率工具"
+      ],
+      "canonical_items": [
+        "AI产品项目",
+        "开发者工具项目",
+        "平台型产品项目",
+        "效率工具项目"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "AI 产品",
+          "support_text": "AI 产品、开发者工具、平台型产品或效率工具相关项目经验",
+          "canonical_item": "AI产品项目"
+        },
+        {
+          "surface_item": "开发者工具",
+          "support_text": "AI 产品、开发者工具、平台型产品或效率工具相关项目经验",
+          "canonical_item": "开发者工具项目"
+        },
+        {
+          "surface_item": "平台型产品",
+          "support_text": "AI 产品、开发者工具、平台型产品或效率工具相关项目经验",
+          "canonical_item": "平台型产品项目"
+        },
+        {
+          "surface_item": "效率工具",
+          "support_text": "AI 产品、开发者工具、平台型产品或效率工具相关项目经验",
+          "canonical_item": "效率工具项目"
+        }
+      ],
+      "examples": null,
+      "relation": "any_of",
+      "group_name": "相关项目经验",
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_project_suffix",
+        "explicit_alternative"
+      ]
+    },
+    {
+      "id": "canonical-v1-experience-004",
+      "case_id": "campus-ai-085",
+      "clause_index": 18,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "使用过 ChatGPT、Claude、Cursor、Claude Code、Copilot、Codex 等 AI 工具",
+      "surface_items": [
+        "AI 工具"
+      ],
+      "canonical_items": [
+        "AI工具使用经验"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "AI 工具",
+          "support_text": "使用过 ChatGPT、Claude、Cursor、Claude Code、Copilot、Codex 等 AI 工具",
+          "canonical_item": "AI工具使用经验"
+        }
+      ],
+      "examples": [
+        "ChatGPT",
+        "Claude",
+        "Cursor",
+        "Claude Code",
+        "Copilot",
+        "Codex"
+      ],
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "upper_level_experience",
+        "examples_not_choices"
+      ]
+    },
+    {
+      "id": "canonical-v1-experience-005",
+      "case_id": "campus-ai-091",
+      "clause_index": 11,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "真实机器人、自动驾驶、无人机或具身仿真环境上的端到端策略实战经验",
+      "surface_items": [
+        "真实机器人",
+        "自动驾驶",
+        "无人机",
+        "具身仿真环境"
+      ],
+      "canonical_items": [
+        "真实机器人端到端策略实战",
+        "自动驾驶端到端策略实战",
+        "无人机端到端策略实战",
+        "具身仿真环境端到端策略实战"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "真实机器人",
+          "support_text": "真实机器人、自动驾驶、无人机或具身仿真环境上的端到端策略实战经验",
+          "canonical_item": "真实机器人端到端策略实战"
+        },
+        {
+          "surface_item": "自动驾驶",
+          "support_text": "真实机器人、自动驾驶、无人机或具身仿真环境上的端到端策略实战经验",
+          "canonical_item": "自动驾驶端到端策略实战"
+        },
+        {
+          "surface_item": "无人机",
+          "support_text": "真实机器人、自动驾驶、无人机或具身仿真环境上的端到端策略实战经验",
+          "canonical_item": "无人机端到端策略实战"
+        },
+        {
+          "surface_item": "具身仿真环境",
+          "support_text": "真实机器人、自动驾驶、无人机或具身仿真环境上的端到端策略实战经验",
+          "canonical_item": "具身仿真环境端到端策略实战"
+        }
+      ],
+      "examples": null,
+      "relation": "any_of",
+      "group_name": "端到端策略场景",
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_practice_suffix",
+        "explicit_alternative"
+      ]
+    },
+    {
+      "id": "canonical-v1-capability-001",
+      "case_id": "campus-ai-069",
+      "clause_index": 12,
+      "category": "capability",
+      "level": "preferred",
+      "source_text": "具备项目落地与迭代优化能力者优先",
+      "surface_items": [
+        "项目落地",
+        "迭代优化"
+      ],
+      "canonical_items": [
+        "项目落地",
+        "迭代优化"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "项目落地",
+          "support_text": "项目落地与迭代优化能力",
+          "canonical_item": "项目落地"
+        },
+        {
+          "surface_item": "迭代优化",
+          "support_text": "项目落地与迭代优化能力",
+          "canonical_item": "迭代优化"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_ability_suffix",
+        "coordinated_capabilities"
+      ]
+    },
+    {
+      "id": "canonical-v1-capability-002",
+      "case_id": "campus-ai-085",
+      "clause_index": 11,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的用户洞察、逻辑分析和问题拆解能力，能够将复杂问题转化为清晰的产品方案",
+      "surface_items": [
+        "用户洞察",
+        "逻辑分析",
+        "问题拆解",
+        "将复杂问题转化为清晰的产品方案"
+      ],
+      "canonical_items": [
+        "用户洞察",
+        "逻辑分析",
+        "问题拆解",
+        "复杂问题转化为产品方案"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "用户洞察",
+          "support_text": "用户洞察、逻辑分析和问题拆解能力",
+          "canonical_item": "用户洞察"
+        },
+        {
+          "surface_item": "逻辑分析",
+          "support_text": "用户洞察、逻辑分析和问题拆解能力",
+          "canonical_item": "逻辑分析"
+        },
+        {
+          "surface_item": "问题拆解",
+          "support_text": "用户洞察、逻辑分析和问题拆解能力",
+          "canonical_item": "问题拆解"
+        },
+        {
+          "surface_item": "将复杂问题转化为清晰的产品方案",
+          "support_text": "能够将复杂问题转化为清晰的产品方案",
+          "canonical_item": "复杂问题转化为产品方案"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_ability_suffix",
+        "outcome_nominalization"
+      ]
+    },
+    {
+      "id": "canonical-v1-capability-003",
+      "case_id": "campus-ai-085",
+      "clause_index": 15,
+      "category": "capability",
+      "level": "required",
+      "source_text": "学习能力和执行力强，愿意深入技术原理和游戏研发流程理解真实需求",
+      "surface_items": [
+        "学习能力",
+        "执行力",
+        "技术原理",
+        "游戏研发流程"
+      ],
+      "canonical_items": [
+        "学习能力",
+        "执行力",
+        "技术原理理解",
+        "游戏研发流程理解"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "学习能力",
+          "support_text": "学习能力和执行力强",
+          "canonical_item": "学习能力"
+        },
+        {
+          "surface_item": "执行力",
+          "support_text": "学习能力和执行力强",
+          "canonical_item": "执行力"
+        },
+        {
+          "surface_item": "技术原理",
+          "support_text": "深入技术原理和游戏研发流程理解真实需求",
+          "canonical_item": "技术原理理解"
+        },
+        {
+          "surface_item": "游戏研发流程",
+          "support_text": "深入技术原理和游戏研发流程理解真实需求",
+          "canonical_item": "游戏研发流程理解"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "mixed_ability_forms",
+        "shared_understanding_suffix"
+      ]
+    },
+    {
+      "id": "canonical-v1-capability-004",
+      "case_id": "campus-ai-091",
+      "clause_index": 8,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的工程实现与调参能力，能将算法跑通到真实任务并定位失效原因",
+      "surface_items": [
+        "工程实现",
+        "调参",
+        "将算法跑通到真实任务",
+        "定位失效原因"
+      ],
+      "canonical_items": [
+        "工程实现",
+        "调参",
+        "真实任务落地",
+        "失效原因定位"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "工程实现",
+          "support_text": "工程实现与调参能力",
+          "canonical_item": "工程实现"
+        },
+        {
+          "surface_item": "调参",
+          "support_text": "工程实现与调参能力",
+          "canonical_item": "调参"
+        },
+        {
+          "surface_item": "将算法跑通到真实任务",
+          "support_text": "将算法跑通到真实任务",
+          "canonical_item": "真实任务落地"
+        },
+        {
+          "surface_item": "定位失效原因",
+          "support_text": "定位失效原因",
+          "canonical_item": "失效原因定位"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "shared_ability_suffix",
+        "outcome_nominalization"
+      ]
+    },
+    {
+      "id": "canonical-v1-capability-005",
+      "case_id": "campus-ai-072",
+      "clause_index": 10,
+      "category": "capability",
+      "level": "required",
+      "source_text": "极强好奇心，具备数学思维与逻辑建模能力， 能够透过复杂的业务表象看到底层的数学逻辑，擅长将非标准化的管理问题转化为数学模型",
+      "surface_items": [
+        "好奇心",
+        "数学思维",
+        "逻辑建模",
+        "底层的数学逻辑",
+        "将非标准化的管理问题转化为数学模型"
+      ],
+      "canonical_items": [
+        "好奇心",
+        "数学思维",
+        "逻辑建模",
+        "底层数学逻辑洞察",
+        "管理问题数学建模"
+      ],
+      "surface_to_canonical": [
+        {
+          "surface_item": "好奇心",
+          "support_text": "极强好奇心",
+          "canonical_item": "好奇心"
+        },
+        {
+          "surface_item": "数学思维",
+          "support_text": "数学思维与逻辑建模能力",
+          "canonical_item": "数学思维"
+        },
+        {
+          "surface_item": "逻辑建模",
+          "support_text": "数学思维与逻辑建模能力",
+          "canonical_item": "逻辑建模"
+        },
+        {
+          "surface_item": "底层的数学逻辑",
+          "support_text": "透过复杂的业务表象看到底层的数学逻辑",
+          "canonical_item": "底层数学逻辑洞察"
+        },
+        {
+          "surface_item": "将非标准化的管理问题转化为数学模型",
+          "support_text": "将非标准化的管理问题转化为数学模型",
+          "canonical_item": "管理问题数学建模"
+        }
+      ],
+      "examples": null,
+      "relation": "all_of",
+      "group_name": null,
+      "allow_other": false,
+      "pattern_tags": [
+        "multi_capability",
+        "outcome_nominalization"
+      ]
+    },
+    {
+      "id": "surface-holdout-v1-001",
+      "case_id": "campus-ai-052",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "跟踪LLM与Agent领域的国际前沿技术动态，推动技术创新在业务场景中的落地应用，重点突破复杂推理、数据洞察、AI搜索、文案创作、图像连续编辑等方向的应用创新",
+      "surface_items": [
+        "LLM",
+        "Agent领域",
+        "技术创新",
+        "业务场景中的落地应用",
+        "复杂推理",
+        "数据洞察",
+        "AI搜索",
+        "文案创作",
+        "图像连续编辑"
+      ],
+      "examples": null,
+      "review_note": "The two frontier domains and the business-landing outcome are separately inspectable; the trailing list names direct work directions."
+    },
+    {
+      "id": "surface-holdout-v1-002",
+      "case_id": "campus-ai-124",
+      "clause_index": 3,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "通过仿真验证算法可行性、评估算法性能，并进行参数优化",
+      "surface_items": [
+        "仿真验证算法可行性",
+        "评估算法性能",
+        "参数优化"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-003",
+      "case_id": "campus-ai-142",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "针对具身智能、智能辅助驾驶等Physical AI系统，进行新型威胁和攻击面的安全评估，参与Physical AI系统的安全能力框架设计",
+      "surface_items": [
+        "Physical AI系统",
+        "新型威胁",
+        "攻击面",
+        "安全能力框架设计"
+      ],
+      "examples": [
+        "具身智能",
+        "智能辅助驾驶"
+      ],
+      "review_note": "具身智能 and 智能辅助驾驶 are examples introduced before the upper-level Physical AI system concept."
+    },
+    {
+      "id": "surface-holdout-v1-004",
+      "case_id": "campus-ai-109",
+      "clause_index": 1,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "设计并优化 Agent 的 Context Management、Memory Retrieval、Skill Selection、Tool Routing、Task Planning 等关键模块",
+      "surface_items": [
+        "Context Management",
+        "Memory Retrieval",
+        "Skill Selection",
+        "Tool Routing",
+        "Task Planning"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-005",
+      "case_id": "campus-ai-029",
+      "clause_index": 0,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "负责AI Agent的架构设计与核心功能开发，包括设计并实现基于LLM的AI Agent核心架构，包括规划、推理、记忆管理、工具使用能力等",
+      "surface_items": [
+        "AI Agent",
+        "架构设计",
+        "核心功能开发",
+        "规划",
+        "推理",
+        "记忆管理",
+        "工具使用能力"
+      ],
+      "examples": null,
+      "review_note": "The repeated architecture wording introduces the trailing capabilities; it does not create a second architecture item."
+    },
+    {
+      "id": "surface-holdout-v1-006",
+      "case_id": "campus-ai-015",
+      "clause_index": 8,
+      "category": "skill",
+      "level": "required",
+      "source_text": "对基础大模型技术有深入理解，熟悉模型预训练、微调和强化学习等技术流程",
+      "surface_items": [
+        "基础大模型技术",
+        "模型预训练",
+        "微调",
+        "强化学习"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-007",
+      "case_id": "campus-ai-097",
+      "clause_index": 11,
+      "category": "skill",
+      "level": "mention",
+      "source_text": "对大模型训练、推理服务、Agent 运行链路的可观测问题有兴趣",
+      "surface_items": [
+        "大模型训练",
+        "推理服务",
+        "Agent 运行链路"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-008",
+      "case_id": "campus-ai-157",
+      "clause_index": 10,
+      "category": "skill",
+      "level": "preferred",
+      "source_text": "熟悉 Triton、CUDA 等 GPU 编程与优化者优先",
+      "surface_items": [
+        "GPU 编程",
+        "优化"
+      ],
+      "examples": [
+        "Triton",
+        "CUDA"
+      ],
+      "review_note": "Triton and CUDA illustrate the explicit upper-level GPU programming and optimization skill."
+    },
+    {
+      "id": "surface-holdout-v1-009",
+      "case_id": "campus-ai-027",
+      "clause_index": 9,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉大语言模型相关技术：Prompt Engineering、RAG（检索增强生成）、Function Calling、Fine-Tuning数据工程、长文本处理等",
+      "surface_items": [
+        "Prompt Engineering",
+        "RAG（检索增强生成）",
+        "Function Calling",
+        "Fine-Tuning数据工程",
+        "长文本处理"
+      ],
+      "examples": [
+        "检索增强生成"
+      ],
+      "review_note": "检索增强生成 is the expanded alias inside the RAG surface item."
+    },
+    {
+      "id": "surface-holdout-v1-010",
+      "case_id": "campus-ai-102",
+      "clause_index": 11,
+      "category": "skill",
+      "level": "mention",
+      "source_text": "了解MPC、全身控制、轨迹跟踪、平衡控制等方法",
+      "surface_items": [
+        "MPC",
+        "全身控制",
+        "轨迹跟踪",
+        "平衡控制"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-011",
+      "case_id": "campus-ai-089",
+      "clause_index": 13,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有开源项目核心贡献，或 Kaggle/国际比赛 Top 名次",
+      "surface_items": [
+        "开源项目核心贡献",
+        "Kaggle",
+        "国际比赛"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-012",
+      "case_id": "campus-ai-023",
+      "clause_index": 14,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "对AI driven IDE有大量实践经验",
+      "surface_items": [
+        "AI driven IDE"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-013",
+      "case_id": "campus-ai-158",
+      "clause_index": 12,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有 Agent 或 LLM 应用系统开发经验",
+      "surface_items": [
+        "Agent",
+        "LLM"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-014",
+      "case_id": "campus-ai-073",
+      "clause_index": 10,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有项目经验的优先",
+      "surface_items": [
+        "项目经验"
+      ],
+      "examples": null,
+      "review_note": "No surrounding clause text supports narrowing this generic project experience to an Agent framework."
+    },
+    {
+      "id": "surface-holdout-v1-015",
+      "case_id": "campus-ai-001",
+      "clause_index": 12,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有良好的学术会议/期刊发表记录优先(如NeurIPS/ICML/ICLR/AAAI/IJCAI等)",
+      "surface_items": [
+        "学术会议/期刊发表记录"
+      ],
+      "examples": [
+        "NeurIPS",
+        "ICML",
+        "ICLR",
+        "AAAI",
+        "IJCAI"
+      ]
+    },
+    {
+      "id": "surface-holdout-v1-016",
+      "case_id": "campus-ai-108",
+      "clause_index": 13,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备较强的源码阅读和二次开发能力",
+      "surface_items": [
+        "源码阅读",
+        "二次开发"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-017",
+      "case_id": "campus-ai-110",
+      "clause_index": 14,
+      "category": "capability",
+      "level": "preferred",
+      "source_text": "对汽车行业/汽车互联网业务有浓厚兴趣和了解",
+      "surface_items": [
+        "汽车行业",
+        "汽车互联网业务",
+        "兴趣",
+        "了解"
+      ],
+      "examples": null,
+      "review_note": "The two domains and two attitudes are explicit surface units; their Cartesian interpretation belongs downstream."
+    },
+    {
+      "id": "surface-holdout-v1-018",
+      "case_id": "campus-ai-024",
+      "clause_index": 9,
+      "category": "capability",
+      "level": "required",
+      "source_text": "能够在AI辅助下，进行有质量保证的编程工作",
+      "surface_items": [
+        "AI辅助",
+        "有质量保证的编程工作"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-019",
+      "case_id": "campus-ai-051",
+      "clause_index": 10,
+      "category": "capability",
+      "level": "required",
+      "source_text": "能将复杂问题转化为简洁、高效的实现方案",
+      "surface_items": [
+        "将复杂问题转化为简洁、高效的实现方案"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v1-020",
+      "case_id": "campus-ai-165",
+      "clause_index": 8,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的团队合作和沟通能力",
+      "surface_items": [
+        "团队合作",
+        "沟通"
+      ],
+      "examples": null
+    }
+  ],
+  "evaluation_policy": "This revealed set may be used for v2 development but must not be used as the v2 generalization holdout."
+}

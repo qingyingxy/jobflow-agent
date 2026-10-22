@@ -23,6 +23,7 @@ datasets/m11_evaluation_profile.json
 frontend/node_modules/
 frontend/.next/
 frontend/.next-integration/
+frontend/.next-tracking-build/
 frontend/.env.local
 frontend/next-env.d.ts
 frontend/tsconfig.tsbuildinfo
@@ -32,3 +33,4 @@ frontend/playwright-report/
 # Personal resume data drafts
 data/local_resume_profile_draft.json
 data/private/
+data/local-runtime/

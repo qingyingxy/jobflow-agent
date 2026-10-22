@@ -1,0 +1,51 @@
+{
+  "freeze_version": "unified-jd-structured-span-v6-residual-oracles-preregistration-freeze-v1",
+  "frozen_at": "2026-09-05",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "1c5ebe4ff6b12824a2e2ae1dc71e2618509755875c80a95b0cabda41e91a5a23"
+    },
+    "v6_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+      "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+    },
+    "v6_gate_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-development-regression-report-v1-2026-09-05.json",
+      "sha256": "65a23a95a5fd812fbffbef9e8285cf70f29fa87b0fdf3ade42dec07dfeaefb5d"
+    },
+    "v5_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-regression-raw-v1-2026-09-05.json",
+      "sha256": "d386a0e0e2e3834abf9c033a54702b7b4a12d81eee3f181605725b8e64819285"
+    },
+    "v4_legacy_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v4-raw-v1-2026-09-04.json",
+      "sha256": "8513bc0e1db960f1e0928d7d8707e4f3f0a314a9a921ad7a1b24875e341ad9d7"
+    },
+    "v6_source_freeze": {
+      "path": "datasets/unified_jd_structured_span_v6_source_freeze_v1_2026-09-05.json",
+      "sha256": "3e6a380b4ec91abc48fcd3f813bc4d83b8044b31990074b90f758e32639654e3"
+    }
+  },
+  "frozen_design": {
+    "experiment_ids": [
+      "E8-attachment-replacement-activation-veto-oracle",
+      "E9-region-versus-node-family-merge-oracle"
+    ],
+    "target_count": 9,
+    "control_count": 22,
+    "experiments_independent": true,
+    "all_gates_conjunctive": true,
+    "parser_execution_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false,
+    "v6_modification_allowed": false
+  },
+  "output_state_at_freeze": {
+    "planned_output_count": 6,
+    "existing_output_count": 0
+  },
+  "immutability": "The target/control split, interventions, held-fixed families, exact 9/9 and 22/22 gates, independence requirement, and interpretation limits are frozen. Any change requires a new preregistration version before execution.",
+  "next_allowed_action": "Implement two offline write-new runners that validate these hashes and never import or execute a parser, then freeze each runner and execute E8 and E9 once independently."
+}

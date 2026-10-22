@@ -1,0 +1,148 @@
+{
+  "receipt_version": "unified-jd-flat-atomic-v4.3-independent-holdout-independence-receipt-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_preregistration_runner_and_model_calls",
+  "selection": {
+    "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+    "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+  },
+  "audit": {
+    "roots": [
+      "datasets/**/*.json",
+      "artifacts/evaluation/**/*.json"
+    ],
+    "new_holdout_artifacts_excluded_from_search": true,
+    "json_files_scanned": 681,
+    "string_values_scanned": 518708,
+    "matching_policy": "For each case, case-fold and NFKC-normalize prior JSON string values; require zero exact-substring matches for the public page URL, public retrieval URL, normalized full body, new case ID, company+title cooccurrence, and three deterministic 200-character long-paragraph anchors selected at the first, middle, and last eligible positions.",
+    "case_results": [
+      {
+        "case_id": "independent-lever-collate-ai-engineer",
+        "source_url_match_paths": [],
+        "retrieval_url_match_paths": [],
+        "normalized_full_body_match_paths": [],
+        "case_id_match_paths": [],
+        "company_title_cooccurrence_paths": [],
+        "anchor_fragments": [
+          {
+            "text": "Collate is an AI document generation platform for life sciences. We automate paperwork with AI, helping our customers get life-saving innovations to patients years faster. Collate is an end-to-end sol",
+            "match_paths": []
+          },
+          {
+            "text": "We’re looking for an AI Engineer to help build and productionize the models and systems that power Collate’s products. You’ll work at the intersection of machine learning, software engineering, and pr",
+            "match_paths": []
+          },
+          {
+            "text": "The base salary range for this role is depending on experience and level (Tier 1, San Francisco) AI Engineer: $158-215K; Senior AI Engineer: $188-275K; Staff AI Engineer: $228-310K; Principal AI Engin",
+            "match_paths": []
+          }
+        ]
+      },
+      {
+        "case_id": "independent-lever-field-ai-robotics-ai-engineer",
+        "source_url_match_paths": [],
+        "retrieval_url_match_paths": [],
+        "normalized_full_body_match_paths": [],
+        "case_id_match_paths": [],
+        "company_title_cooccurrence_paths": [],
+        "anchor_fragments": [
+          {
+            "text": "Field AI is transforming how robots interact with the real world. We are building risk-aware, reliable, and field-ready AI systems that address the most complex challenges in robotics, unlocking the f",
+            "match_paths": []
+          },
+          {
+            "text": "Why Join Field AI? We are solving one of the world’s most complex challenges: deploying robots in unstructured, previously unknown environments. Our Field Foundational Models™ set a new standard in pe",
+            "match_paths": []
+          },
+          {
+            "text": "We celebrate diversity and are committed to creating an inclusive environment for all employees. Candidates and employees are always evaluated based on merit, qualifications, and performance. We will ",
+            "match_paths": []
+          }
+        ]
+      },
+      {
+        "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+        "source_url_match_paths": [],
+        "retrieval_url_match_paths": [],
+        "normalized_full_body_match_paths": [],
+        "case_id_match_paths": [],
+        "company_title_cooccurrence_paths": [],
+        "anchor_fragments": [
+          {
+            "text": "SimplifyNext is a Singapore-headquartered digital engineering firm, with offices in Thailand and Malaysia, working across three converged areas: agentic AI, AI-enabled application modernisation, and i",
+            "match_paths": []
+          },
+          {
+            "text": "As an AI Engineer at SimplifyNext, you will be part of a hands-on engineering team building real-world AI and machine learning solutions that create meaningful impact for clients across ASEAN. You wil",
+            "match_paths": []
+          },
+          {
+            "text": "At SimplifyNext, we’re committed to building a team of curious, driven, and forward-thinking individuals who care deeply about creating meaningful impact through technology. If you’re excited by the o",
+            "match_paths": []
+          }
+        ]
+      },
+      {
+        "case_id": "independent-greenhouse-optiver-ai-engineer",
+        "source_url_match_paths": [],
+        "retrieval_url_match_paths": [],
+        "normalized_full_body_match_paths": [],
+        "case_id_match_paths": [],
+        "company_title_cooccurrence_paths": [],
+        "anchor_fragments": [
+          {
+            "text": "We are seeking a highly skilled and experienced AI Engineer to join our dynamic team. In this hands-on role, you’ll design, build, and deploy sophisticated agents that orchestrate data, workflows, and",
+            "match_paths": []
+          },
+          {
+            "text": "You’ll join a culture of collaboration and excellence, where you’ll be surrounded by curious thinkers and creative problem solvers. Motivated by a passion for continuous improvement, you’ll thrive in ",
+            "match_paths": []
+          },
+          {
+            "text": "Extensive office perks, including breakfast, lunch and dinner, world-class barista coffee, in-house physio and chair massages, organized sports and leisure activities, and Friday afternoon drinks",
+            "match_paths": []
+          }
+        ]
+      },
+      {
+        "case_id": "independent-smartrecruiters-bluescope-ai-engineer",
+        "source_url_match_paths": [],
+        "retrieval_url_match_paths": [],
+        "normalized_full_body_match_paths": [],
+        "case_id_match_paths": [],
+        "company_title_cooccurrence_paths": [],
+        "anchor_fragments": [
+          {
+            "text": "BlueScope is an Australian born, global success story, spanning 18 countries, with a team of over 16,500 people. We're driven by innovation and are proud that the technologies in our products and bran",
+            "match_paths": []
+          },
+          {
+            "text": "Contribute to technical product ownership for AI platforms and products, including requirements shaping, roadmap input, adoption support, technical documentation and engagement with internal teams and",
+            "match_paths": []
+          },
+          {
+            "text": "We're dedicated to supporting our people, rewarding successes and helping individuals grow. We foster workplace flexibility and an inclusive environment that welcomes people of all backgrounds. Togeth",
+            "match_paths": []
+          }
+        ]
+      }
+    ],
+    "all_repository_novelty_checks_passed": true
+  },
+  "temporal_independence": {
+    "v4_3_source_freeze_precedes_collection": true,
+    "v4_3_formal_gate_report_and_receipt_precede_collection": true,
+    "used_for_v4_v4_1_v4_2_or_v4_3_development": false,
+    "labels_available_during_selection": false,
+    "predictions_available_during_selection": false
+  },
+  "surface_independence": {
+    "company_count": 5,
+    "country_or_region_count": 4,
+    "ats_or_delivery_surface_count": 4,
+    "all_prior_external_holdout_ats_reused": false,
+    "prior_external_holdout_was_ashby_only": true,
+    "new_holdout_contains_ashby": false
+  },
+  "claim_boundary": "This establishes repository-level novelty, temporal separation from v4.3 development, and broader ATS/delivery-surface coverage than the revealed Ashby holdout. Selection is purposive rather than random and remains limited to public English-language AI-engineering job bodies."
+}

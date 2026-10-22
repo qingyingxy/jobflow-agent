@@ -1,0 +1,901 @@
+{
+  "review_version": "unified-jd-dev50-human-review-round1-decisions-v1",
+  "source_draft_path": "artifacts/evaluation/unified-jd-dev50-draft-v1-2026-09-03.json",
+  "source_draft_sha256": "269b06f1ea88a76a055f4c2b448ebcd36dcdcdd064a6ae8b37e39bfc74868de3",
+  "review_round": 1,
+  "reviewer_role": "project_owner",
+  "status": "round1_complete",
+  "policy": "记录用户逐条明确确认的语义决策，以及用户授权后按既有规则自动确认的无争议 case；第一轮完成仍不得升级为 human_reviewed。",
+  "matching_policies": {
+    "internship_arrangement": {
+      "status": "confirmed",
+      "parser_policy": "同一次 JD 解析保留 internship_duration_months、weekly_days、earliest_start_date 及原文证据；远程限制和转正机会保留在完整 JD 快照中展示。",
+      "matching_policy": "实习安排不与简历比较，不生成资格检查，也不影响申请建议或自动淘汰；实习岗位类型只通过 job_type=internship 判断。",
+      "non_gating_fields": [
+        "internship_duration_months",
+        "weekly_days",
+        "earliest_start_date",
+        "remote_policy",
+        "conversion_opportunity"
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "我觉得可以"
+    }
+  },
+  "decisions": {
+    "campus-ai-001": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "major_requirements any_of allow_other",
+      "source_text": "数学、计算机或相关专业硕士学历",
+      "confirmed_interpretation": "专业是数学、计算机或其他相关专业中的任一项，属于开放 any_of，保留 allow_other=true。",
+      "confirmed_at": "2026-09-03",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-008": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "nested direction requirements",
+      "source_text": "具备以下任一方向经验均可：\n- LLM方向：具备multi-agent、LLM强化学习相关经验\n- 穿戴模型方向：时序相关前沿机器学习模型经验（Diffusion model、Masked autoencoder、Contrastive learning等） + 生理时序信号建模经验 （ECG、EEG、PPG、IMU等）+ 国际论文发表CCF B以上或国际权威竞赛取得名次",
+      "confirmed_interpretation": "保留 LLM方向与穿戴模型方向的顶层 required any_of；分支内部条件保持 mention；补回穿戴分支的 CCF B 以上论文或国际权威竞赛名次；本地匹配标记待确认，不扩展当前 Schema。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "experience",
+            "level": "mention",
+            "relation": "any_of",
+            "items": ["CCF B以上国际论文发表", "国际权威竞赛取得名次"],
+            "group_name": "穿戴模型成果",
+            "allow_other": false,
+            "source_text": "国际论文发表CCF B以上或国际权威竞赛取得名次"
+          }
+        }
+      ],
+      "matching_policy": "nested_logic_requires_user_confirmation",
+      "confirmed_at": "2026-09-03",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-029": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "Python/Golang programming language relation",
+      "source_text": "熟练掌握Python/Golang编程语言",
+      "confirmed_interpretation": "Python 与 Golang 是封闭 required any_of，候选人熟练掌握其中一门即可，保留 allow_other=false。",
+      "confirmed_at": "2026-09-03",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-128": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "Python/MATLAB data processing or simulation automation cross-product",
+      "source_text": "具备Python/MATLAB等数据处理或仿真自动化能力者优先",
+      "confirmed_interpretation": "保留两个复合 preferred any_of items，并保留 allow_other=true；不为该优先项扩展嵌套逻辑 Schema。",
+      "confirmed_at": "2026-09-03",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-160": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "internship arrangement display policy",
+      "source_text": "每周到岗5天，最短实习3个月，可转正，不支持远程。",
+      "confirmed_interpretation": "保持 draft 中 weekly_days=5 和 internship_duration_months=3 及其 required 原文语义用于 Parser 评测和展示；不新增“不支持远程”fact 或 required 匹配 clause；整句实习安排只展示，不参与简历匹配、申请建议或自动淘汰。",
+      "planned_changes": [],
+      "matching_policy": "display_only_no_automatic_eligibility_gate",
+      "display_only": ["每周到岗5天", "最短实习3个月", "可转正", "不支持远程"],
+      "supersedes": "2026-09-03 require_onsite_at_listed_location decision",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "我觉得可以"
+    },
+    "campus-ai-051": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "graduation date window and Java/Python relation",
+      "source_text": "毕业时间：2026-11-01 - 2027-10-31\n熟练掌握JAVA/Python编程语言",
+      "confirmed_interpretation": "facts 保留 graduation_years=[2026, 2027]，并新增关联 graduation_years 的 required clause 保存完整毕业日期窗口，实际匹配使用精确日期；Java 与 Python 为封闭 required any_of，熟练掌握其中一门即可，其他语言不能替代。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["2026-11-01 至 2027-10-31"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "毕业时间：2026-11-01 - 2027-10-31"
+          }
+        }
+      ],
+      "matching_policy": "use_exact_graduation_date_window_when_available",
+      "confirmed_at": "2026-09-03",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-161": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "internship arrangement display policy",
+      "source_text": "每周到岗5天，最短实习3个月，可转正，不支持远程。",
+      "confirmed_interpretation": "保持 draft 中 weekly_days=5 和 internship_duration_months=3 及其 required 原文语义用于 Parser 评测和展示；整句实习安排只展示，不参与简历匹配、申请建议或自动淘汰。",
+      "planned_changes": [],
+      "matching_policy": "display_only_no_automatic_eligibility_gate",
+      "display_only": ["每周到岗5天", "最短实习3个月", "可转正", "不支持远程"],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "我觉得可以"
+    },
+    "campus-ai-068": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "project or course-design experience qualifier",
+      "source_text": "有移动端APP或者PC端安全防护、加固、逆向工程等项目或课程设计的优先",
+      "confirmed_interpretation": "保留 preferred any_of，使相关项目或相关课程设计任一都属于加分项；删除 experience_type=project qualifier，避免把课程设计错误限定为项目；不修改全局 qualifier Schema。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "有移动端APP或者PC端安全防护、加固、逆向工程等项目或课程设计的优先"
+          },
+          "changes": {
+            "qualifier": null
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "你觉得需要改吗？如果不需要就继续吧。"
+    },
+    "campus-ai-158": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "open graduation-year lower bound",
+      "source_text": "27届及以后优先",
+      "confirmed_interpretation": "不增加毕业年份下限字段；facts 保留 graduation_years=[2027] 作为原文明示的边界年份，preferred fact clause 保留完整的“2027届及以后”。2028 届及更晚同样满足优先条件；任何毕业年份都不能因该 preferred 条件被自动淘汰。实习安排沿用全局仅展示规则。",
+      "matching_policy": "graduation_year_gte_2027_is_preferred_not_required",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-140": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "conflicting education requirements",
+      "source_text": "硕士及以上2027届校园招聘-正式批\n本科或硕士应届毕业生",
+      "confirmed_interpretation": "以职位要求正文“本科或硕士应届毕业生”为资格真值，保留 required any_of：本科或硕士；页面元数据“硕士及以上”仅作为来源冲突记录，不进入 facts 或自动淘汰条件；博士候选人返回待确认，不自行推断。",
+      "planned_changes": [
+        {
+          "operation": "remove_fact_value_and_evidence",
+          "field": "education_requirements",
+          "value": "硕士及以上",
+          "source_text": "硕士及以上2027届校园招聘-正式批"
+        },
+        {
+          "operation": "remove_clause",
+          "match": {
+            "fact_field": "education_requirements",
+            "source_text": "硕士及以上2027届校园招聘-正式批"
+          }
+        }
+      ],
+      "matching_policy": "bachelor_or_master_pass_phd_requires_confirmation",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-072": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "LLM principle, Prompt Engineering, or RAG relation",
+      "source_text": "熟悉当前大语言模型（LLM）的原理、Prompt Engineering或RAG架构",
+      "confirmed_interpretation": "按“A、B 或 C”的并列选择语义，将大语言模型原理、Prompt Engineering、RAG 架构合并为一个封闭 required any_of，满足任一项即可，不扩展 Schema。",
+      "planned_changes": [
+        {
+          "operation": "replace_clauses",
+          "match_source_texts": [
+            "熟悉当前大语言模型（LLM）的原理",
+            "Prompt Engineering或RAG架构"
+          ],
+          "value": {
+            "category": "skill",
+            "fact_field": null,
+            "level": "required",
+            "relation": "any_of",
+            "items": ["大语言模型原理", "Prompt Engineering", "RAG架构"],
+            "examples": ["LLM"],
+            "group_name": "LLM相关知识",
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "熟悉当前大语言模型（LLM）的原理、Prompt Engineering或RAG架构"
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-142": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "conflicting education requirements in historical closed job",
+      "source_text": "数字安全硕士及以上2027届校园招聘-正式批\n2027届本科及以上",
+      "confirmed_interpretation": "以职位要求正文“2027届本科及以上”为学历真值；删除页面元数据“硕士及以上”的 fact、证据和 required clause。本科、硕士、博士均满足学历条件。岗位保持已下线，仅保留用于离线 Parser 评测。",
+      "planned_changes": [
+        {
+          "operation": "remove_fact_value_and_evidence",
+          "field": "education_requirements",
+          "value": "硕士及以上",
+          "source_text": "数字安全硕士及以上2027届校园招聘-正式批"
+        },
+        {
+          "operation": "remove_clause",
+          "match": {
+            "fact_field": "education_requirements",
+            "source_text": "数字安全硕士及以上2027届校园招聘-正式批"
+          }
+        }
+      ],
+      "source_status": "closed_historical_eval_only",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-011": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "missing graduation year",
+      "source_text": "招聘类型：应届生\n招聘项目：校招",
+      "confirmed_interpretation": "保留 job_type=campus 和 graduation_years=null；“应届生/校招”只能确认招聘类型，不能据此推测具体毕业年份。其余 clauses 保持草稿结果。",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-015": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "top-conference paper or competition achievement",
+      "source_text": "在领域顶级会议（NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD 等）发表论文，或在编程/AI 竞赛（ACM/ICPC、NOI/IOI、TopCoder、Kaggle 等）中取得优异成绩者优先",
+      "confirmed_interpretation": "保留一个 preferred any_of：顶级会议论文或编程/AI 竞赛优异成绩满足任一项即可获得加分；会议和竞赛名称只作为 examples，不要求全部具备。",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-023": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "section-level bonus-item strength and open Agent technology group",
+      "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个\n加分项（具备一项或多项者优先）：",
+      "confirmed_interpretation": "加分项标题的 preferred 强度作用于其下四条内容；四条分别保持 preferred，任一项都可作为加分证据，不把任何一条提升为 required。“等技术领域之一或多个”是开放 required any_of，列出的四项满足任一即可，其他同类 Agent 技术也可，allow_other=true。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个"
+          },
+          "changes": {
+            "allow_other": true
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意",
+      "revised_at": "2026-09-04",
+      "revision_confirmation_message": "同意"
+    },
+    "campus-ai-027": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "LLM application experience and Agent development alternatives",
+      "source_text": "有LLM应用开发经验，熟悉LangChain/LlamaIndex/AutoGen/CrewAI等Agent框架，或有自主设计Agent架构的经验",
+      "confirmed_interpretation": "LLM 应用开发经验是独立 required；另外必须在“使用 Agent 框架”和“自主设计 Agent 架构”中满足一项，以 capability required any_of 表达。具体框架名称仅为开放 examples；顶层两条路径是封闭选择，allow_other=false；不扩展嵌套 Schema。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "熟悉LangChain/LlamaIndex/AutoGen/CrewAI等Agent框架，或有自主设计Agent架构的经验"
+          },
+          "changes": {
+            "allow_other": false
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-032": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "open Agent technology group and cross-post isolation",
+      "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个",
+      "confirmed_interpretation": "保留本岗位原文明示的 AI Agent 实践项目 preferred，不从 campus-ai-023 复制额外加分项；Agent 技术领域是开放 required any_of，列出的四项满足任一即可，其他同类 Agent 技术也可，allow_other=true。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个"
+          },
+          "changes": {
+            "allow_other": true
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-037": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "missing location and omitted LLM application mention",
+      "source_text": "了解大模型应用开发，对RAG、Agent、Prompt Engineering或工具调用有实践或浓厚兴趣",
+      "confirmed_interpretation": "原文未提供工作地点，保持 locations=null，不从公司或团队信息推测；补回“大模型应用开发” skill mention clause，“了解”不提升为 required；RAG、Agent、Prompt Engineering、工具调用保持 mention any_of。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "skill",
+            "fact_field": null,
+            "level": "mention",
+            "relation": "all_of",
+            "items": ["大模型应用开发"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "了解大模型应用开发"
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-078": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "required master degree and preferred doctorate",
+      "source_text": "计算机、人工智能、机器人、自动化等相关专业硕士及以上学历，博士优先",
+      "confirmed_interpretation": "硕士及以上是 required 学历门槛，硕士和博士均满足；博士另有 preferred fact clause，仅作为加分项，不能导致硕士被淘汰。博士不是新字段，而是 education_requirements 下的偏好值。",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-080": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "missing education and major plus framework example semantics",
+      "source_text": "深入了解PyTorch等深度学习框架的架构和运行原理",
+      "confirmed_interpretation": "JD 未写学历或专业，保持 education_requirements=null、major_requirements=null。将 PyTorch 从 required item 调整为“深度学习框架的架构和运行原理”的 example，使其他同类框架的深入经验也可满足。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "深入了解PyTorch等深度学习框架的架构和运行原理，深入理解大模型训练多维并行架构，如Tensor并行、流水线并行、序列并行等"
+          },
+          "changes": {
+            "items": ["深度学习框架架构和运行原理", "大模型训练多维并行架构"],
+            "examples": ["PyTorch", "Tensor并行", "流水线并行", "序列并行"]
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-097": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "system-foundation and programming-language alternatives",
+      "source_text": "熟悉操作系统、网络、数据库或分布式系统基础\n熟悉 Go / Python / Java / C++ 中至少一种语言",
+      "confirmed_interpretation": "操作系统、网络、数据库、分布式系统保持封闭 required any_of，熟悉任一即可；Go、Python、Java、C++ 同样是封闭 required any_of，原文没有开放词，其他语言不能替代，allow_other=false。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "熟悉 Go / Python / Java / C++ 中至少一种语言"
+          },
+          "changes": {
+            "allow_other": false
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-102": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "redundant preferred degree clause",
+      "source_text": "2027届硕士研究生及以上学历，机器人、人工智能、自动化、计算机、控制等相关专业，硕士/博士优先",
+      "confirmed_interpretation": "保留“硕士/博士优先”的 preferred any_of，以忠实表达原文；基础门槛仍为硕士研究生及以上。由于 preferred 范围与所有满足门槛的人重叠，匹配和排序时不产生额外加分，不影响硕士申请。",
+      "matching_policy": "preserve_redundant_preference_without_ranking_bonus",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-116": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "ROS alternatives plus communication framework",
+      "source_text": "熟悉ROS2或ROS框架及通信框架者优先",
+      "confirmed_interpretation": "真实逻辑为（ROS2 或 ROS）并且通信框架，整组均为 preferred。当前 Schema 不扩展嵌套结构，继续拆成 ROS2/ROS 的 preferred any_of 与通信框架的 preferred all_of；不能解析为三选一，缺少任一项不自动淘汰。",
+      "matching_policy": "preferred_nested_logic_approximated_by_two_clauses",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-121": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "multiple allowed resource-scheduling experience types",
+      "source_text": "有 K8s 调度器、Volcano、Koordinator、在离线混部、资源利用率优化相关项目、实习或开源经历优先",
+      "confirmed_interpretation": "qualifier 保持 null；preferred any_of 的 items 改为资源调度相关项目经历、相关实习经历、相关开源经历，满足任一即可；K8s 调度器、Volcano、Koordinator、在离线混部、资源利用率优化作为方向 examples；不扩展 Schema。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "有 K8s 调度器、Volcano、Koordinator、在离线混部、资源利用率优化相关项目、实习或开源经历优先"
+          },
+          "changes": {
+            "items": ["资源调度相关项目经历", "资源调度相关实习经历", "资源调度相关开源经历"],
+            "examples": ["K8s调度器", "Volcano", "Koordinator", "在离线混部", "资源利用率优化"],
+            "qualifier": null
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-126": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "local project scope and technology examples",
+      "source_text": "关注并使用Trae、Claude Code、Codex等AI Coding工具，对AI 有浓厚兴趣，有相关项目经验者优先\n熟悉KMP、RN等跨平台技术，拥有iOS、Android、鸿蒙等多端开发项目经验、全栈开发经验者优先\n有Agent系统、RAG、多智能体等相关项目经验，了解LLM技术原理者优先",
+      "confirmed_interpretation": "“有相关项目经验者优先”只承接同句 AI Coding 工具；KMP/RN 作为跨平台技术 examples；iOS/Android/鸿蒙作为多端开发项目 examples，不能将单端经验等同于多端经验；Agent系统/RAG/多智能体作为 Agent 相关项目 examples，避免要求三类项目全部具备。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "熟悉KMP、RN等跨平台技术"},
+          "changes": {
+            "items": ["跨平台技术"],
+            "examples": ["KMP", "RN"]
+          }
+        },
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "拥有iOS、Android、鸿蒙等多端开发项目经验"},
+          "changes": {
+            "relation": "all_of",
+            "items": ["多端开发项目经验"],
+            "examples": ["iOS", "Android", "鸿蒙"],
+            "group_name": null
+          }
+        },
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "有Agent系统、RAG、多智能体等相关项目经验"},
+          "changes": {
+            "items": ["Agent相关项目经验"],
+            "examples": ["Agent系统", "RAG", "多智能体"]
+          }
+        }
+      ],
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-147": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "unrestricted major fact and non-gating background examples",
+      "source_text": "本科及以上学历，专业不限，计算机、人工智能、软件工程、数据科学、信息管理等理工科或商科背景均可",
+      "confirmed_interpretation": "major_requirements 保持为“专业不限”；“计算机、人工智能、软件工程、数据科学、信息管理等理工科或商科背景均可”只作为可接受背景示例的 mention 展示，不是 required 或 preferred，不因候选人专业不在列举项中淘汰或扣分。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "clause": {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "mention",
+            "relation": "any_of",
+            "items": ["理工科背景", "商科背景"],
+            "examples": ["计算机", "人工智能", "软件工程", "数据科学", "信息管理"],
+            "group_name": "可接受专业背景示例",
+            "allow_other": true,
+            "qualifier": null,
+            "source_text": "计算机、人工智能、软件工程、数据科学、信息管理等理工科或商科背景均可"
+          }
+        }
+      ],
+      "matching_policy": "non_gating_major_examples",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-153": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "complete embodied-Agent project or open-source project participation",
+      "source_text": "有从任务定义、环境交互到真实机器人部署的完整具身 Agent 项目经验，或参与过 LeRobot、Open X-Embodiment、GR00T、Meta-World、CALVIN 等开源项目",
+      "confirmed_interpretation": "该要求是一条 required any_of：候选人具备覆盖任务定义、环境交互到真实机器人部署的完整具身 Agent 项目经验，或参与过任一具身机器人相关开源项目，满足一条路径即可。LeRobot、Open X-Embodiment、GR00T、Meta-World、CALVIN 只是开源项目示例，不要求全部参与，其他同类开源项目也可。",
+      "matching_policy": "cross_experience_type_required_any_of_with_open_source_examples",
+      "qualifier_policy": "qualifier 保持 null，避免用单一 experience_type 错误限定整个二选一组。",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-069": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "shared fact evidence, open major and language groups, and preferred clauses",
+      "source_text": "计算机、人工智能或相关专业的2027届应届毕业生，本科及以上学历；\n编程基础扎实，熟悉至少一种主流语言（Java/Python/C++等）；具备LangChain、LlamaIndex等RAG/Agent开发框架的实战经验；\n在ACL、EMNLP、ICLR等顶级学术会议或期刊上发表过相关论文者优先；\n有大型大模型相关项目的参与经验，具备项目落地与迭代优化能力者优先",
+      "confirmed_interpretation": "2027届、本科及以上、专业范围均为 required facts；同一连续原句可分别支持毕业年份和专业事实。专业是开放 required any_of，其他相关专业可接受；编程语言也是开放 required any_of，Java、Python、C++ 只是主流语言示例，掌握至少一种即可；LangChain、LlamaIndex 仅为 RAG/Agent 开发框架示例。论文发表、大型大模型项目经验、项目落地与迭代优化能力均为 preferred，不用于自动淘汰。不得从岗位标题额外推测学历、专业等事实。",
+      "matching_policy": "open_major_and_language_groups_with_non_gating_preferences",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-058": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "missing facts and Agent hands-on experience display",
+      "source_text": "熟悉主流Agent开发框架（如 LangGraph、AutoGen、CrewAI、MetaGPT 等），有实际搭建经验",
+      "confirmed_interpretation": "原文未提供工作地点、学历和专业，相关 facts 保持 null；毕业年份从“腾讯2027校园招聘”提取。主流编程语言为开放 required any_of；Agent评测、RAG、向量检索、知识图谱经验为 preferred any_of。标准化结果继续显示“Agent实际搭建经验”，该语义承接同句的 Agent 开发框架上下文，不扩展当前 clause 的 source_text。",
+      "display_policy": "items 保持为 Agent实际搭建经验，避免将完整岗位原句作为标准化显示内容。",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-109": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "responsibility mentions, required candidate conditions, and mixed-strength preferences",
+      "source_text": "负责新一代 Agent Harness 的技术研发，围绕 Agent 的运行时环境、任务执行、上下文管理、Memory、Skill、Tool、Evaluation、Observability 等核心模块构建完整的 Agent Runtime 能力。\n具备 Redis、向量数据库、PostgreSQL、消息队列、分布式系统或云原生开发经验者优先。\n有相关论文、开源项目、技术博客、竞赛成果或较大规模 Agent 系统研发经验者优先。\n对 Agent 系统的可解释性、安全性、稳定性和成本优化具有较强意识，有生产级 Agent 平台或复杂 AI 系统经验者优先。",
+      "confirmed_interpretation": "岗位职责中的 Agent Runtime、Memory、Skill、Tool、Evaluation、Observability 等只作为 mention，不自动提升为候选人硬要求。任职条件中的 Python、LLM Agent 运行机制、评测优化能力等为 required。Redis、向量数据库、PostgreSQL、消息队列、分布式系统、云原生经验为 preferred any_of；Agent Harness/Runtime 名称只作项目实践示例；论文、开源项目、技术博客、竞赛成果、大规模 Agent 系统研发为 preferred any_of。最后一句拆为“可解释性、安全性、稳定性、成本优化意识”required 与“生产级 Agent 平台或复杂 AI 系统经验”preferred。",
+      "matching_policy": "responsibilities_non_gating_and_sentence_local_preference_scope",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-089": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "open 3D vision foundation-model branch alternatives",
+      "source_text": "在 3D 视觉基础模型方向至少一个分支(DUSt3R/MASt3R/VGGT/Spann3R、3DGS/NeRF、Occupancy/BEV 等)有深入实践",
+      "confirmed_interpretation": "三个由顿号分隔的复合技术族保持为 required any_of，满足其中一个分支即可；斜杠内名称保持为同一技术族，不解释为全部名称都必须掌握。原文含“等”，其他同类 3D 视觉基础模型分支也可，因此 allow_other=true。其余 required 和四条 preferred 保持不变。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "在 3D 视觉基础模型方向至少一个分支(DUSt3R/MASt3R/VGGT/Spann3R、3DGS/NeRF、Occupancy/BEV 等)有深入实践"
+          },
+          "changes": {
+            "allow_other": true
+          }
+        }
+      ],
+      "matching_policy": "open_required_any_of_with_compound_technology_families",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-157": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "education alternatives and framework examples",
+      "source_text": "985/211/海外高校研究生学历以上或优秀本科生，专业为 CS、AI、ML、CV、NLP、Math 或相关专业。\n扎实的编程能力，精通数据结构与算法设计，熟练使用 PyTorch、JAX 等深度学习框架。\n有高性能计算经验者优先，熟悉 Triton、CUDA 等 GPU 编程与优化者优先。",
+      "confirmed_interpretation": "学历保持 required any_of：985/211/海外高校研究生学历以上，或优秀本科生；不得简化为普通硕士门槛。PyTorch、JAX 是 required“深度学习框架”的 examples，不要求两种都会；Triton、CUDA 是 preferred“GPU编程与优化”的 examples，不要求两种都会。其余条款保持不变。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "扎实的编程能力，精通数据结构与算法设计，熟练使用 PyTorch、JAX 等深度学习框架"
+          },
+          "changes": {
+            "items": ["编程", "数据结构", "算法设计", "深度学习框架"],
+            "examples": ["PyTorch", "JAX"]
+          }
+        },
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "熟悉 Triton、CUDA 等 GPU 编程与优化者优先"
+          },
+          "changes": {
+            "items": ["GPU编程与优化"],
+            "examples": ["Triton", "CUDA"]
+          }
+        }
+      ],
+      "matching_policy": "preserve_exceptional_education_any_of_and_use_framework_examples",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-164": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "internship display facts, preferred major, and required programming languages",
+      "source_text": "实习时间至少3个月。\n海内外研究生及以上学历在读，机器人、自动化等相关专业优先，有机器人操作项目经验者优先。\n掌握 C++ 和 Python，了解 ROS，了解 PyTorch、TensorFlow 等深度学习框架。",
+      "confirmed_interpretation": "岗位类型为 internship；至少3个月继续作为 fact 保存和展示，但按全局实习安排策略不与简历比较、不产生淘汰。海内外研究生及以上学历在读为 required；机器人、自动化等相关专业以及机器人操作项目经验均为 preferred。C++ 和 Python 因原文使用“和”而均为 required；ROS、深度学习框架及机器人仿真软件等“了解”类技术保持 mention。",
+      "matching_policy": "internship_duration_non_gating_major_preferred_languages_required_all_of",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-155": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "exact graduation month window",
+      "source_text": "预计毕业时间介于2026年9月至2027年8月的国内外计算机、数学、人工智能等相关专业优秀应届毕业生",
+      "confirmed_interpretation": "facts 保留 graduation_years=[2026, 2027] 用于粗粒度展示和检索，并新增关联 graduation_years 的 required clause 保存精确月份窗口 2026-09 至 2027-08。实际判断优先使用精确月份；简历只有年份、没有月份时返回信息不足，不直接淘汰。原文没有明确学历层级，education_requirements 保持 null；专业为开放 required 范围；大模型实习或科研经验为 preferred any_of。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["2026-09 至 2027-08"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "预计毕业时间介于2026年9月至2027年8月"
+          }
+        }
+      ],
+      "matching_policy": "use_exact_graduation_month_window_when_available",
+      "missing_month_policy": "insufficient_information_without_automatic_rejection",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-124": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "degree strength and hardware-or-software implementation knowledge",
+      "source_text": "硕士及以上学历（博士优先）\n有实际项目经验，参与过上述职责中提及的至少一类算法（如校准、时钟恢复、抖动分析、信号处理等）的设计、仿真或验证者优先。\n熟悉C/C++或Python编程，具备良好的编程习惯。\n对算法在硬件（FPGA/ASIC）或软件（嵌入式/PC）上的实现流程有一定了解。",
+      "confirmed_interpretation": "硕士及以上为 required，博士仅为 preferred，不淘汰硕士候选人；一般实际项目经验为 required，职责所列具体算法项目为 preferred；C/C++ 与 Python 是封闭 required any_of。硬件实现流程与软件实现流程由原文“或”连接，应为 mention any_of，了解任一路径即可，且仍不参与淘汰。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "对算法在硬件（FPGA/ASIC）或软件（嵌入式/PC）上的实现流程有一定了解"
+          },
+          "changes": {
+            "relation": "any_of",
+            "group_name": "算法实现路径"
+          }
+        }
+      ],
+      "matching_policy": "required_degree_with_doctoral_preference_and_non_gating_implementation_any_of",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-075": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "bonus-section strength and alternative experience types",
+      "source_text": "【加分项】\n1、了解大语言模型基本原理，有Prompt/Context/Harness Engineering、RAG等Agent工程实践经验；\n2、有相关课题研究、竞赛经历、开源项目贡献、实习经验（尤其是智能座舱、智能语音助手相关）.",
+      "confirmed_interpretation": "“了解大语言模型基本原理”位于明确的加分项中，因此保持 preferred 而不是普通 mention。课题研究、竞赛经历、开源项目贡献、实习经验是四种可替代的加分经历，应为 preferred any_of，具备任意一类即可；智能座舱、智能语音助手只是重点方向示例，不是额外硬要求。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {
+            "source_text": "有相关课题研究、竞赛经历、开源项目贡献、实习经验（尤其是智能座舱、智能语音助手相关）"
+          },
+          "changes": {
+            "relation": "any_of",
+            "group_name": "相关经历"
+          }
+        }
+      ],
+      "matching_policy": "bonus_section_preferred_with_alternative_experience_types",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意"
+    },
+    "campus-ai-085": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "preferred major and bonus-section clause semantics",
+      "source_text": "本科及以上学历，计算机、人工智能、软件工程、交互设计、信息管理等相关专业优先。\n加分项\n1.了解 Prompt Engineering、RAG、MCP、Tool Use、Agent 工作流等概念。\n2.有 AI 产品、开发者工具、平台型产品或效率工具相关项目经验。\n3.使用过 ChatGPT、Claude、Cursor、Claude Code、Copilot、Codex 等 AI 工具。",
+      "confirmed_interpretation": "本科及以上为 required；专业明确为开放 preferred 范围，不是硬门槛。兴趣与相关产品实际使用经验位于职位要求中，保持 required。加分项全部为 preferred；Prompt Engineering、RAG、MCP、Tool Use、Agent工作流没有明示“或”，保持同一 all_of 组；AI产品等项目类型按明示“或”为 any_of；具体 AI 工具名称只作为上位“AI工具使用经验”的 examples；其余明示“或”的加分项保持 any_of。",
+      "matching_policy": "explicit_bonus_section_preferred_and_tool_names_as_examples",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "同意；无争议条目后续可直接确认"
+    },
+    "campus-ai-024": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "understanding-level Agent Harness requirements",
+      "source_text": "了解模型和Agent Harness的基本机制及其技术原理（如LLM API、Reasoning、KV Cache、ToolUse、Skills、ReAct、Multi-Agent、MCP、A2A、FunctionCalling）",
+      "confirmed_interpretation": "2027届和本科及以上为 required facts；原文没有专业条件，major_requirements 保持 null。Agent Harness 优化经验和 AI Agent 工具软件开发经验为 required；使用“了解”的机制、评估、RAG 和 Agent 应用条款按统一规则保持 mention，不升级为自动淘汰条件；具体技术和应用名称只作 examples。",
+      "matching_policy": "understanding_terms_remain_non_gating_mentions",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-070": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "single required degree with explicitly preferred remaining requirements",
+      "source_text": "本科及以上学历，计算机及相关专业者优先； C++编程、架构设计、问题拆解与沟通能力出众者优先； 有智能驾驶及类似AI领域业务实习经历者优先，了解AI模型部署相关工程技术者优先； 能熟练使用AI辅助编程者优先。",
+      "confirmed_interpretation": "本科及以上是唯一硬门槛；专业、C++与相关能力、智能驾驶或类似 AI 实习、AI 模型部署知识和 AI 辅助编程均被原文明示为 preferred，不得升级为 required。",
+      "matching_policy": "explicit_preference_scope_without_requirement_promotion",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-107": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "exact graduation month window",
+      "source_text": "毕业时间介于2026年9月至2027年8月的国内外高校的本科生、硕士生、博士，计算机科学、体系结构、高性能计算等相关专业优先",
+      "confirmed_interpretation": "graduation_years 保留 [2026, 2027] 用于粗粒度展示，并新增 required 精确月份窗口 2026-09 至 2027-08；实际判断优先使用月份，缺少月份时返回信息不足。学历允许本科、硕士或博士；专业仅为开放 preferred；论文和开源贡献为 preferred。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["2026-09 至 2027-08"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "毕业时间介于2026年9月至2027年8月"
+          }
+        }
+      ],
+      "matching_policy": "use_exact_graduation_month_window_when_available",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权和已确认日期规则，无争议条目直接确认"
+    },
+    "campus-ai-059": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "missing internship facts and education alternatives",
+      "source_text": "计算机、人工智能、软件工程、自动化、电子工程、数学、统计学、数据科学、运筹优化等相关专业博士及优秀硕士；\n此课题同时招聘应届实习生和低年级实习生。",
+      "confirmed_interpretation": "岗位类型为 internship；地点、毕业年份、实习时长、每周到岗天数均未提供，保持 null，不从 CSIG 部门信息推断地点。博士或优秀硕士为 required any_of；专业范围开放；大模型训练、后训练或 Agent 系统研发经验为 required any_of。",
+      "matching_policy": "no_inference_for_missing_internship_facts",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-108": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "open related-major group and TypeScript/JavaScript family",
+      "source_text": "计算机、软件工程、人工智能、计算机科学或相关专业硕士及以上学历。\n具备扎实的软件工程基础，熟练掌握 Python，并熟悉 TypeScript / JavaScript 及其主流开发框架。",
+      "confirmed_interpretation": "硕士及以上和 Python 均为 required；“或相关专业”明确允许其他相关专业，因此专业组 allow_other=true。TypeScript/JavaScript 作为同一语言生态的复合项保留，不拆成必须分别满足的两个独立条目；Python 与 TypeScript/JavaScript 生态之间仍为 all_of。主流 Agent Framework/Runtime 名称只作至少一种框架的 examples。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "计算机、软件工程、人工智能、计算机科学或相关专业"},
+          "changes": {"allow_other": true}
+        },
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "熟练掌握 Python，并熟悉 TypeScript / JavaScript 及其主流开发框架"},
+          "changes": {
+            "items": ["Python", "TypeScript/JavaScript", "TypeScript/JavaScript主流开发框架"]
+          }
+        }
+      ],
+      "matching_policy": "open_related_major_and_compound_language_family",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-110": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "preferred major and bonus-section scope",
+      "source_text": "2027届获得本科及以上学历，计算机、软件工程等相关专业优先；\n加分项：\n8、对汽车行业/汽车互联网业务有浓厚兴趣和了解；\n9、熟悉Figma，对产品设计有一定的理解；\n10、有自动化工作流、AIGC（视频/图片生成）相关项目经验。",
+      "confirmed_interpretation": "2027届和本科及以上为 required；专业明确为开放 preferred。NodeJS、Golang、React、LLM 技术与应用以及主流 AI 应用开发框架位于职位要求中，保持 required。第 8 至 10 条受“加分项”标题约束，统一为 preferred。",
+      "matching_policy": "bonus_heading_controls_following_clause_strength",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-091": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "at-least-one required direction and bonus-section examples",
+      "source_text": "在以下方向至少一项有深入实践：视觉-语言-动作(VLA)模型、端到端自动驾驶、机器人策略学习、世界模型 + 策略；\n加分项\n1. CoRL/RSS/CVPR/NeurIPS/ICLR/ICML 等顶会一作论文；",
+      "confirmed_interpretation": "四个实践方向为 required any_of，满足至少一项即可；硕士及以上和专业范围为 required。加分项标题统一赋予后续四条 preferred 强度；会议与 VLA 工作名称只作 examples，真实机器人、自动驾驶、无人机或具身仿真经历为 preferred any_of。",
+      "matching_policy": "explicit_at_least_one_required_and_bonus_heading_preferred",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-052": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "exact graduation date window and display-only internship duration",
+      "source_text": "毕业时间：2026-11-01 - 2029-09-30\n注：实习申请者需保证3个月或以上的实习周期。",
+      "confirmed_interpretation": "graduation_years 保留 [2026, 2027, 2028, 2029] 用于粗粒度展示，并新增 required 精确日期窗口 2026-11-01 至 2029-09-30；实际判断优先使用精确日期。三个月实习周期继续解析和展示，但不参与简历匹配或淘汰；更新日期不是申请截止日期。硕士及以上为 required，博士和顶会论文分别为 preferred。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["2026-11-01 至 2029-09-30"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "毕业时间：2026-11-01 - 2029-09-30"
+          }
+        }
+      ],
+      "matching_policy": "use_exact_graduation_date_window_and_ignore_internship_duration_for_eligibility",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权和已确认日期、实习规则，无争议条目直接确认"
+    },
+    "campus-ai-165": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "research directions in responsibilities versus candidate requirements",
+      "source_text": "从事具身智能技术研究及产品开发，研究方向包括：熟悉 Qwen-Omni、MiniCPM-Omni 的 MLLM；熟悉 Cosmos、Genie 的世界模型；熟悉 DUSt3R、CUT3R、VGGT、RayZer、3DGS、LRM 的空间智能；熟悉 π0、GR00T 的 VLA；动作生成；或运动控制。",
+      "confirmed_interpretation": "职位描述中的 MLLM、世界模型、空间智能、VLA、动作生成、运动控制是可选研究方向的 responsibility mention，不因出现“熟悉”而升级为任职硬要求；模型名称只作 examples。任职要求中的学历、专业、基础和 Python 等保持 required，论文与真机操作经验保持 preferred。",
+      "matching_policy": "responsibility_context_overrides_isolated_familiarity_verb",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-156": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "exact graduation month window without inferred education level",
+      "source_text": "预计毕业时间介于2026年9月至2027年8月的国内外计算机、数学、人工智能、数据科学等相关专业优秀应届毕业生",
+      "confirmed_interpretation": "graduation_years 保留 [2026, 2027]，并新增 required 精确月份窗口 2026-09 至 2027-08；实际判断优先使用月份，缺少月份时返回信息不足。原文没有明确学历层级，不能从“优秀应届毕业生”推断本科或硕士，education_requirements 保持 null；专业为开放 required。",
+      "planned_changes": [
+        {
+          "operation": "add_clause",
+          "value": {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "all_of",
+            "items": ["2026-09 至 2027-08"],
+            "examples": null,
+            "group_name": null,
+            "allow_other": false,
+            "qualifier": null,
+            "source_text": "预计毕业时间介于2026年9月至2027年8月"
+          }
+        }
+      ],
+      "matching_policy": "use_exact_graduation_month_window_without_degree_inference",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权和已确认日期规则，无争议条目直接确认"
+    },
+    "campus-ai-073": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "sentence-local Agent framework project preference",
+      "source_text": "熟悉LangChain、LlamaIndex等Agents开发框架,有项目经验的优先",
+      "confirmed_interpretation": "Agents 开发框架熟悉度为 required；“有项目经验的优先”只承接同一句的 Agents 开发框架上下文，形成 preferred 项目经验，不向 Python、低代码平台、主流大模型 API 或其他技能条款传播。框架和模型名称保持 examples。",
+      "matching_policy": "sentence_local_preference_scope",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-086": {
+      "status": "confirmed",
+      "decision": "keep",
+      "scope": "understanding-level requirements and bonus-section preferences",
+      "source_text": "了解 Prompt Engineering、LLM API、RAG、Function Calling / Tool Use、Agent 工作流等基本概念；课程、实习或个人项目经验均可；\n加分项\n1. 了解 Agent SDK、LangChain、AutoGen、MCP、RAG、上下文工程、Prompt 编排、多 Agent 协作或自动化工作流等相关技术者优先；",
+      "confirmed_interpretation": "职位要求中使用“了解”的基础知识、服务端基础和 Agent 概念保持 mention；课程、实习或个人项目经验为 required any_of。加分项中的“了解……者优先”受加分标题和“优先”约束，保持 preferred；专业同样为开放 preferred，不形成硬门槛。",
+      "matching_policy": "section_and_preference_markers_control_strength",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权，无争议条目直接确认"
+    },
+    "campus-ai-152": {
+      "status": "confirmed",
+      "decision": "modify",
+      "scope": "algorithm and simulator examples with required-preferred strength split",
+      "source_text": "熟练掌握 PPO、SAC、RLHF、GAE、TD(λ) 等强化学习算法，具备连续动作空间中的训练经验。\n精通 PyTorch，熟悉 CUDA 优化、vLLM、Triton 者优先。\n熟练使用 Isaac Sim、MuJoCo、Genesis 等仿真环境，具备真实机器人平台部署与调试经验。",
+      "confirmed_interpretation": "“PPO、SAC、RLHF、GAE、TD(λ) 等强化学习算法”规范为 required 上位项“强化学习算法”，具体名称作为 examples；“Isaac Sim、MuJoCo、Genesis 等仿真环境”规范为 required 上位项“机器人仿真环境”，具体名称作为 examples，不要求列举工具全部掌握。PyTorch 单独保持 required；CUDA 优化、vLLM、Triton 因“者优先”保持 preferred all_of；连续动作空间训练及真实机器人部署调试经验保持 required。",
+      "planned_changes": [
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "熟练掌握 PPO、SAC、RLHF、GAE、TD(λ) 等强化学习算法"},
+          "changes": {
+            "items": ["强化学习算法"],
+            "examples": ["PPO", "SAC", "RLHF", "GAE", "TD(λ)"]
+          }
+        },
+        {
+          "operation": "update_clause",
+          "match": {"source_text": "熟练使用 Isaac Sim、MuJoCo、Genesis 等仿真环境"},
+          "changes": {
+            "items": ["机器人仿真环境"],
+            "examples": ["Isaac Sim", "MuJoCo", "Genesis"]
+          }
+        }
+      ],
+      "matching_policy": "named_technologies_as_examples_under_required_categories",
+      "confirmed_at": "2026-09-04",
+      "confirmation_message": "按用户授权并复用 campus-ai-157 已确认规则，无争议条目直接确认"
+    }
+  }
+}

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime, timedelta
 from time import monotonic
 
+from src.services.lead_retry import PAGE_FAILURES, SOURCE_FAILURES, utc_time
 from src.services.search_scheduling import VerificationQueue
 
 
@@ -23,6 +25,13 @@ class WaitForVerification:
     """Pause producing searches, then recheck facts within the search budget."""
 
     reason: str
+
+
+@dataclass(frozen=True)
+class VerificationFailure:
+    """An operational source failure, distinct from an irrelevant/closed job."""
+
+    code: str
 
 
 async def run_search_pipeline(
@@ -48,26 +57,73 @@ async def run_search_pipeline(
     bootstrap=None,
     review=None,
     review_concurrency=1,
+    historical_review=None,
+    source_failure_limit=3,
+    max_pending=120,
+    target_reached=None,
+    target_drain_seconds=20,
+    on_candidate_done=None,
+    bootstrap_seconds=45,
+    bootstrap_concurrent=False,
+    drain_grace_seconds=None,
+    source_retry_states=None,
+    on_source_state=None,
+    can_verify=None,
+    on_candidate_start=None,
+    on_bootstrap_done=None,
 ):
     queue = VerificationQueue(
-        priority=priority, source_key=source_key, is_entry=is_entry
+        priority=priority, source_key=source_key, is_entry=is_entry,
+        max_pending=max_pending,
+        can_start=can_verify,
     )
     official_evidence_seen = set()
+    discovered_candidates = {}
+    verified_by_url, reviewing_urls = {}, set()
     seen, useful, known = set(), set(), set()
     round_number = 0
     stop = "达到搜索轮数上限"
     active = 0
     active_reviews = 0
     review_queue = asyncio.Queue()
+    history_queue = asyncio.Queue()
     queued_reviews = set()
     completed_verifications = 0
     last_decision_verifications = 0
     verification_changed = asyncio.Event()
     pipeline_started = monotonic()
     deadline = pipeline_started + seconds
+    source_states = {key: dict(value) for key, value in (source_retry_states or {}).items()}
+    source_failures = {key: value.get("failures", 0) for key, value in source_states.items()}
+    queue.probe_sources = {key for key, value in source_states.items() if value.get("next_retry_at")}
+    deferred_urls = set()
+    terminal_outcomes = {}
+
+    def save_source(source, state):
+        if state:
+            source_states[source] = state
+        else:
+            source_states.pop(source, None)
+        if on_source_state:
+            on_source_state(source, state)
+
+    def enough():
+        return target_reached(set(useful)) if target_reached else len(useful) >= target
+
+    def defer(candidate, code):
+        deferred_urls.add(candidate.source_url)
+        terminal_outcomes[canonicalize(candidate.source_url)] = (None, code)
+        source = source_key(candidate) if source_key else None
+        due = source_states.get(source, {}).get("next_retry_at") if code == "source_circuit_open" else None
+        event("verification_deferred", url=candidate.source_url, error_code=code,
+              next_retry_at=due,
+              summary="来源暂缓读取，冷却结束后随下一次搜索继续" if due
+              else "本轮暂缓核验，链接已保留，将在目标更新时继续处理")
+        if on_candidate_done:
+            on_candidate_done(candidate, None, code)
 
     def pending_count():
-        return queue.qsize() + active + review_queue.qsize() + active_reviews
+        return queue.qsize() + active + review_queue.qsize() + history_queue.qsize() + active_reviews
 
     def accept_result(result):
         job_id, is_useful = result
@@ -96,15 +152,41 @@ async def run_search_pipeline(
     def enqueue(candidates):
         for candidate in candidates:
             key = canonicalize(candidate.source_url)
+            item = replace(candidate, source_url=key)
+            previous = discovered_candidates.get(key)
+            if previous:
+                preferred = item if priority and priority(item) < priority(previous) else previous
+                item = replace(
+                    preferred,
+                    official_entry_url=previous.official_entry_url or item.official_entry_url,
+                )
+            discovered_candidates[key] = item
             promoted = (
-                candidate.official_entry_url and key not in official_evidence_seen
+                item.official_entry_url and key not in official_evidence_seen
             )
+            if key in seen and not promoted:
+                queue.promote_pending(item)
+                if key in terminal_outcomes and on_candidate_done:
+                    on_candidate_done(item, *terminal_outcomes[key])
+                continue
             if key not in seen or promoted:
                 seen.add(key)
-                if candidate.official_entry_url:
+                if item.official_entry_url:
                     official_evidence_seen.add(key)
-                item = replace(candidate, source_url=key)
-                queue.put_nowait(item)
+                if key in verified_by_url:
+                    if key not in reviewing_urls and on_candidate_done:
+                        on_candidate_done(item, verified_by_url[key], None)
+                    continue
+                terminal_outcomes.pop(key, None)
+                source = source_key(item) if source_key else None
+                due = utc_time(source_states.get(source, {}).get("next_retry_at"))
+                if due and due > datetime.now(UTC):
+                    defer(item, "source_circuit_open")
+                    continue
+                if not queue.put_nowait(item):
+                    source = source_key(item) if source_key else None
+                    defer(item, "source_circuit_open" if source in queue.deferred_sources
+                          else "verification_queue_full")
         publish_snapshot()
 
     if on_queue_ready:
@@ -128,27 +210,62 @@ async def run_search_pipeline(
             publish_snapshot()
             error_code = None
             review_queued = False
+            result = None
             try:
-                result = await asyncio.wait_for(verify(candidate), item_seconds)
-                if isinstance(result, list):
+                # Reserve capacity synchronously before another worker can
+                # dispatch a candidate from the same company.
+                if on_candidate_start:
+                    on_candidate_start(candidate)
+                result = await asyncio.wait_for(
+                    verify(candidate), min(item_seconds, max(0, deadline - monotonic()))
+                )
+                if isinstance(result, VerificationFailure):
+                    error_code = result.code
+                elif isinstance(result, list):
                     enqueue(result)
                 elif result:
+                    verified_by_url[candidate.source_url] = result
+                    queue.discard_url(candidate.source_url)
                     accept_result(result)
                     if review and result[0] not in queued_reviews:
                         queued_reviews.add(result[0])
-                        review_queue.put_nowait((result[0], monotonic()))
+                        destination = history_queue if historical_review and historical_review(candidate) else review_queue
+                        destination.put_nowait((result[0], monotonic(), candidate))
+                        reviewing_urls.add(candidate.source_url)
                         review_queued = True
             except TimeoutError:
-                error_code = "verification_timeout"
+                error_code = "verification_budget_exhausted" if monotonic() >= deadline else "verification_timeout"
             except asyncio.CancelledError:
                 error_code = "verification_cancelled"
                 raise
             except Exception as error:  # noqa: BLE001 - a broken page must not kill discovery
                 error_code = type(error).__name__
             finally:
+                if item.source is not None:
+                    if error_code in SOURCE_FAILURES:
+                        source_failures[item.source] = source_failures.get(item.source, 0) + 1
+                        state = {**source_states.get(item.source, {}), "failures": source_failures[item.source],
+                                 "last_failure_code": error_code}
+                        if source_failures[item.source] >= source_failure_limit or item.source in queue.probe_sources:
+                            blocks = state.get("blocks", 0) + 1
+                            state.update(blocks=blocks, next_retry_at=(datetime.now(UTC) + timedelta(
+                                seconds=min(1800, 60 * 5 ** min(blocks - 1, 3)))).isoformat())
+                            save_source(item.source, state)
+                            for waiting in queue.defer_source(item.source):
+                                defer(waiting, "source_circuit_open")
+                        else:
+                            save_source(item.source, state)
+                    elif error_code in PAGE_FAILURES or (not error_code and result is not None):
+                        source_failures[item.source] = 0
+                        queue.probe_sources.discard(item.source)
+                        save_source(item.source, {})
                 active -= 1
                 if not review_queued:
                     completed_verifications += 1
+                    terminal_outcomes[candidate.source_url] = (
+                        result if isinstance(result, tuple) else None, error_code)
+                    if on_candidate_done:
+                        on_candidate_done(candidate, result if isinstance(result, tuple) else None, error_code)
                 queue.task_done(item)
                 event(
                     "verification",
@@ -161,17 +278,21 @@ async def run_search_pipeline(
                 verification_changed.set()
             report(round_number, len(seen), len(useful), "搜索与核验并行进行", None)
 
-    async def review_worker():
+    async def review_worker(pending_reviews):
         nonlocal active_reviews, completed_verifications
         while True:
-            job_id, queued_at = await review_queue.get()
+            job_id, queued_at, candidate = await pending_reviews.get()
             active_reviews += 1
             started = monotonic()
             error_code = None
+            result = None
             publish_snapshot()
             try:
-                result = await asyncio.wait_for(review(job_id), item_seconds)
+                result = await asyncio.wait_for(
+                    review(job_id), min(item_seconds, max(0, deadline - monotonic()))
+                )
                 if result:
+                    verified_by_url[candidate.source_url] = result
                     accept_result(result)
             except TimeoutError:
                 error_code = "role_review_queue_timeout"
@@ -182,8 +303,13 @@ async def run_search_pipeline(
                 error_code = type(error).__name__
             finally:
                 active_reviews -= 1
+                reviewing_urls.discard(candidate.source_url)
                 completed_verifications += 1
-                review_queue.task_done()
+                if on_candidate_done:
+                    on_candidate_done(candidate, result, error_code)
+                terminal_outcomes[candidate.source_url] = (result, error_code)
+                queue.changed.set()
+                pending_reviews.task_done()
                 queued_reviews.discard(job_id)
                 event(
                     "role_review_queue",
@@ -198,7 +324,7 @@ async def run_search_pipeline(
                 round_number,
                 len(seen),
                 len(useful),
-                "正文已核验，方向复核独立进行",
+                "正文已保存，岗位条件理解独立进行",
                 None,
             )
 
@@ -207,22 +333,34 @@ async def run_search_pipeline(
     ]
     review_consumers = (
         [
-            asyncio.create_task(review_worker())
+            asyncio.create_task(review_worker(review_queue))
             for _ in range(max(1, min(9, review_concurrency)))
         ]
         if review
         else []
     )
+    if review and historical_review:
+        review_consumers.append(asyncio.create_task(review_worker(history_queue)))
+    bootstrap_task = None
+
+    async def produce_initial():
+        try:
+            await asyncio.wait_for(bootstrap(enqueue), min(bootstrap_seconds, max(0, deadline - monotonic())))
+        except TimeoutError:
+            event("direct_search", error_code="direct_search_timeout")
+        except Exception as error:  # noqa: BLE001 - preserve emitted candidates
+            event("direct_search", error_code=type(error).__name__)
+        finally:
+            if on_bootstrap_done:
+                on_bootstrap_done()
+            queue.changed.set()
+
     try:
         if bootstrap:
-            try:
-                await asyncio.wait_for(
-                    bootstrap(enqueue), min(45, max(0, deadline - monotonic()))
-                )
-            except TimeoutError:
-                event("direct_search", error_code="direct_search_timeout")
-            except Exception as error:  # noqa: BLE001 - preserve normal search fallback
-                event("direct_search", error_code=type(error).__name__)
+            if bootstrap_concurrent:
+                bootstrap_task = asyncio.create_task(produce_initial())
+            else:
+                await produce_initial()
         attempted_rounds = 0
         paused_for_round = False
         while attempted_rounds < max_rounds:
@@ -245,7 +383,7 @@ async def run_search_pipeline(
             if remaining <= 0:
                 stop = "达到搜索时间预算"
                 break
-            if len(useful) >= target:
+            if enough():
                 stop = "达到有效岗位目标"
                 break
             last_decision_verifications = completed_verifications
@@ -282,7 +420,7 @@ async def run_search_pipeline(
                     useful_jobs=len(useful),
                     timeout_seconds=pause_seconds,
                 )
-                while pending_count() > 0 and len(useful) < target:
+                while pending_count() > 0 and not enough():
                     verification_changed.clear()
                     wait = pause_deadline - monotonic()
                     if wait <= 0:
@@ -292,7 +430,7 @@ async def run_search_pipeline(
                     except TimeoutError:
                         break
                 publish_snapshot()
-                if len(useful) >= target:
+                if enough():
                     stop = "达到有效岗位目标"
                     break
                 if monotonic() >= deadline:
@@ -316,16 +454,28 @@ async def run_search_pipeline(
             attempted_rounds += 1
             paused_for_round = False
             enqueue(candidates)
-        report(
-            round_number, len(seen), len(useful), "搜索已结束，继续处理核验队列", None
-        )
+        if bootstrap_task and not bootstrap_task.done() and not enough():
+            # Exhausting web rounds must not abandon an active official reader.
+            await bootstrap_task
+        report(round_number, len(seen), len(useful), "搜索已结束，继续处理核验队列", None)
         try:
 
             async def drain():
-                await queue.join()
-                await review_queue.join()
+                drain_budget = min(verification_seconds, drain_grace_seconds) if drain_grace_seconds is not None else verification_seconds
+                drain_deadline = min(deadline, monotonic() + drain_budget)
+                target_deadline = None
+                while pending_count():
+                    verification_changed.clear()
+                    if enough() and target_deadline is None:
+                        target_deadline = monotonic() + target_drain_seconds
+                    remaining = min(drain_deadline, target_deadline or drain_deadline) - monotonic()
+                    if remaining <= 0:
+                        raise TimeoutError
+                    await asyncio.wait_for(verification_changed.wait(), remaining)
 
-            await asyncio.wait_for(drain(), verification_seconds)
+            # Draining does not create a second wall-clock budget.
+            if pending_count():
+                await drain()
         except TimeoutError:
             event(
                 "queue_budget",
@@ -334,8 +484,14 @@ async def run_search_pipeline(
             )
             stop += "；剩余岗位保留待核验"
     finally:
+        if bootstrap_task:
+            if not bootstrap_task.done():
+                bootstrap_task.cancel()
+            await asyncio.gather(bootstrap_task, return_exceptions=True)
         for consumer in [*consumers, *review_consumers]:
             consumer.cancel()
         await asyncio.gather(*consumers, *review_consumers, return_exceptions=True)
+    if deferred_urls:
+        stop += f"；{len(deferred_urls)}条线索暂缓核验，已保留供下次更新"
     report(round_number, len(seen), len(useful), "搜索结束", stop)
     return stop

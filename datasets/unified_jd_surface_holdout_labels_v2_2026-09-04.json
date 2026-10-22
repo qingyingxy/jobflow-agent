@@ -1,0 +1,356 @@
+{
+  "labels_version": "unified-jd-surface-holdout-labels-v2",
+  "contract_version": "canonical-items-contract-v1",
+  "status": "reviewed_pre_prediction_frozen",
+  "labeled_at": "2026-09-04",
+  "annotator": "Codex coding agent",
+  "prediction_status_at_labeling": "not_generated_or_viewed",
+  "model_call_count": 0,
+  "selection": {
+    "path": "datasets/unified_jd_surface_holdout_selection_v2_2026-09-04.json",
+    "sha256": "df0a107b6803600334e53d54e5787112e19b44c3905f49bd7585ad95d3b8c0eb",
+    "version": "unified-jd-surface-holdout-selection-v2"
+  },
+  "annotation_contract": {
+    "path": "docs/CANONICAL_ITEMS_CONTRACT_V1.md",
+    "sha256": "f7415a027df83d0f8b27dea05f1cded4c8777078aed0fb2b7755cf63bd3ca55c"
+  },
+  "scope": {
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "categories": [
+      "responsibility",
+      "skill",
+      "experience",
+      "capability"
+    ],
+    "unique_case_per_fixture": true
+  },
+  "annotation_policy": {
+    "surface_items": "Atomic source-grounded semantic units; every value must be an exact source_text substring.",
+    "examples": "Illustrative instances or aliases of an upper-level concept; examples are not independent required items.",
+    "shared_scope": "Shared predicates, objects, suffixes, and capability heads may be distributed during later canonicalization without being copied into every surface item.",
+    "prediction_independence": "Labels were completed and frozen after v2 rule freeze and before the v2 extractor was run on this selection."
+  },
+  "fixtures": [
+    {
+      "id": "surface-holdout-v2-001",
+      "case_id": "campus-ai-140",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "通过快速原型、A/B 实验和数据分析，验证 AI 产品方向并持续优化产品效果",
+      "surface_items": [
+        "快速原型",
+        "A/B 实验",
+        "数据分析",
+        "验证 AI 产品方向",
+        "持续优化产品效果"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-002",
+      "case_id": "campus-ai-152",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "探索 RL 与模仿学习的混合训练范式，并研究 PPO、SAC、RLHF、DAPG 等算法在机器人控制中的应用",
+      "surface_items": [
+        "RL 与模仿学习的混合训练范式",
+        "算法在机器人控制中的应用"
+      ],
+      "examples": [
+        "PPO",
+        "SAC",
+        "RLHF",
+        "DAPG"
+      ],
+      "review_note": "The named algorithms illustrate the upper-level algorithm application; RL and imitation learning jointly define one mixed training paradigm."
+    },
+    {
+      "id": "surface-holdout-v2-003",
+      "case_id": "campus-ai-086",
+      "clause_index": 4,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "参与模型调用、运行追踪、效果评测和成本分析，持续提升 Agent 的稳定性、易用性和任务完成效果",
+      "surface_items": [
+        "模型调用",
+        "运行追踪",
+        "效果评测",
+        "成本分析",
+        "Agent",
+        "稳定性",
+        "易用性",
+        "任务完成效果"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-004",
+      "case_id": "campus-ai-075",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "参与Agent系统工程化建设，包括性能优化、响应延迟优化、异常处理与降级策略设计，保障系统在车载环境下的稳定性与实时性",
+      "surface_items": [
+        "Agent系统工程化建设",
+        "性能优化",
+        "响应延迟优化",
+        "异常处理",
+        "降级策略设计",
+        "车载环境",
+        "稳定性",
+        "实时性"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-005",
+      "case_id": "campus-ai-008",
+      "clause_index": 1,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "参与电生理信号的建模与实验设计，探索大规模时序数据上的的表征学习方法，方向包括但不限于自监督学习、模型可解释性、跨域泛化性等",
+      "surface_items": [
+        "电生理信号",
+        "建模",
+        "实验设计",
+        "大规模时序数据",
+        "表征学习方法",
+        "自监督学习",
+        "模型可解释性",
+        "跨域泛化性"
+      ],
+      "examples": null,
+      "review_note": "包括但不限于 introduces open work directions, not examples of a single required upper-level concept."
+    },
+    {
+      "id": "surface-holdout-v2-006",
+      "case_id": "campus-ai-160",
+      "clause_index": 8,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉 LLM、Agent 基本原理与开发",
+      "surface_items": [
+        "LLM",
+        "Agent",
+        "基本原理",
+        "开发"
+      ],
+      "examples": null,
+      "review_note": "The two technology domains and two shared skill aspects are explicit surface units; scope distribution is downstream."
+    },
+    {
+      "id": "surface-holdout-v2-007",
+      "case_id": "campus-ai-126",
+      "clause_index": 8,
+      "category": "skill",
+      "level": "required",
+      "source_text": "关注并使用Trae、Claude Code、Codex等AI Coding工具",
+      "surface_items": [
+        "AI Coding工具"
+      ],
+      "examples": [
+        "Trae",
+        "Claude Code",
+        "Codex"
+      ]
+    },
+    {
+      "id": "surface-holdout-v2-008",
+      "case_id": "campus-ai-078",
+      "clause_index": 8,
+      "category": "skill",
+      "level": "required",
+      "source_text": "具备扎实的深度学习和大模型基础，熟练掌握 Python / PyTorch",
+      "surface_items": [
+        "深度学习",
+        "大模型基础",
+        "Python",
+        "PyTorch"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-009",
+      "case_id": "campus-ai-080",
+      "clause_index": 3,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉GPU体系结构，熟练掌握CUDA/triton",
+      "surface_items": [
+        "GPU体系结构",
+        "CUDA",
+        "triton"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-010",
+      "case_id": "campus-ai-058",
+      "clause_index": 6,
+      "category": "skill",
+      "level": "required",
+      "source_text": "深入理解Agent原理与架构，包括 Planning、Memory、Tool Use、Reflection等核心机制",
+      "surface_items": [
+        "Agent原理",
+        "架构",
+        "Planning",
+        "Memory",
+        "Tool Use",
+        "Reflection"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-011",
+      "case_id": "campus-ai-155",
+      "clause_index": 8,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "具有大模型领域实习或科研经验者优先",
+      "surface_items": [
+        "大模型领域",
+        "实习",
+        "科研"
+      ],
+      "examples": null,
+      "review_note": "Domain, internship, and research are atomic source units; experience scope and alternatives are downstream."
+    },
+    {
+      "id": "surface-holdout-v2-012",
+      "case_id": "campus-ai-161",
+      "clause_index": 5,
+      "category": "experience",
+      "level": "required",
+      "source_text": "有视频生成或图像生成项目经验",
+      "surface_items": [
+        "视频生成",
+        "图像生成"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-013",
+      "case_id": "campus-ai-128",
+      "clause_index": 10,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有机器人关节/整机、复杂结构件、竞赛车队或工程项目CAE分析经验",
+      "surface_items": [
+        "机器人关节",
+        "整机",
+        "复杂结构件",
+        "竞赛车队",
+        "工程项目"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-014",
+      "case_id": "campus-ai-059",
+      "clause_index": 5,
+      "category": "experience",
+      "level": "required",
+      "source_text": "具备大模型训练、后训练或 Agent 系统研发经验",
+      "surface_items": [
+        "大模型训练",
+        "后训练",
+        "Agent 系统研发"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-015",
+      "case_id": "campus-ai-153",
+      "clause_index": 10,
+      "category": "experience",
+      "level": "required",
+      "source_text": "有从任务定义、环境交互到真实机器人部署的完整具身 Agent 项目经验，或参与过 LeRobot、Open X-Embodiment、GR00T、Meta-World、CALVIN 等开源项目",
+      "surface_items": [
+        "从任务定义、环境交互到真实机器人部署的完整具身 Agent 项目经验",
+        "开源项目"
+      ],
+      "examples": [
+        "LeRobot",
+        "Open X-Embodiment",
+        "GR00T",
+        "Meta-World",
+        "CALVIN"
+      ],
+      "review_note": "The from-to phrase is one complete project-evidence path; named repositories illustrate the alternative open-source-project path."
+    },
+    {
+      "id": "surface-holdout-v2-016",
+      "case_id": "campus-ai-147",
+      "clause_index": 10,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的需求分析、逻辑拆解与文档撰写能力",
+      "surface_items": [
+        "需求分析",
+        "逻辑拆解",
+        "文档撰写"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-017",
+      "case_id": "campus-ai-156",
+      "clause_index": 12,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的实验分析、工程落地、团队协作和沟通能力",
+      "surface_items": [
+        "实验分析",
+        "工程落地",
+        "团队协作",
+        "沟通"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-018",
+      "case_id": "campus-ai-121",
+      "clause_index": 11,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好工程素养",
+      "surface_items": [
+        "工程素养"
+      ],
+      "examples": null
+    },
+    {
+      "id": "surface-holdout-v2-019",
+      "case_id": "campus-ai-068",
+      "clause_index": 5,
+      "category": "capability",
+      "level": "required",
+      "source_text": "对待代码、算法性能、架构等有追求极致的工匠精神",
+      "surface_items": [
+        "代码",
+        "算法性能",
+        "架构",
+        "工匠精神"
+      ],
+      "examples": null,
+      "review_note": "The three objects and the demonstrated attitude are explicit surface units; they are not illustrative instances of 工匠精神."
+    },
+    {
+      "id": "surface-holdout-v2-020",
+      "case_id": "campus-ai-070",
+      "clause_index": 7,
+      "category": "capability",
+      "level": "preferred",
+      "source_text": "能熟练使用AI辅助编程者优先",
+      "surface_items": [
+        "AI辅助编程"
+      ],
+      "examples": null
+    }
+  ],
+  "immutability_policy": "Any label change requires a new labels and freeze version; v2 predictions must never be used to edit this file."
+}

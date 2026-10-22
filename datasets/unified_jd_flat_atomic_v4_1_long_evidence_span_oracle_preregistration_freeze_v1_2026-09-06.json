@@ -1,0 +1,18 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.1-long-evidence-span-oracle-preregistration-freeze-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_long_evidence_span_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "ae367044d7db6172d21b5919de46372ea2c628759e9efde4db0bdfab8a5860ec"
+    },
+    "external_holdout_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    }
+  },
+  "treatment_and_thresholds_frozen": true,
+  "model_call_count_at_freeze": 0,
+  "network_call_count_at_freeze": 0
+}

@@ -1,0 +1,1921 @@
+{
+  "version": "product-jd-education-acceptance-v1-20261009",
+  "annotation_author": "assistant-created before current live requests, not independently human-reviewed",
+  "policy": [
+    "No retrospective relabeling after responses.",
+    "Real source annotations supplement, never rewrite, the original test100 labels.",
+    "Eligibility means current local hard checks (education and cohort); skills and search preferences are excluded.",
+    "Different related-major families yield unknown; exact mismatches with complete history fail.",
+    "Open major/year/date scope unresolved by current predicate schema yields unknown.",
+    "No graduation cohort in JD yields overall unknown even when education passes.",
+    "Failed parser runs count as unavailable, not unknown; all expected decisions remain in denominator."
+  ],
+  "real_annotations": [
+    {
+      "case_id": "campus-ai-003",
+      "annotation_basis": "本科及以上为硬要求；理工科背景优先不是硬门槛；全局2027届。",
+      "qualifications": [
+        {
+          "id": "finance_master_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "mechanical_bachelor_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "associate_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "wrong_cohort_2028",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-012",
+      "annotation_basis": "本科及以上为硬要求；计算机相关专业优先；未注明届别，整个硬资格需确认届别。",
+      "qualifications": [
+        {
+          "id": "finance_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "mechanical_bachelor",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "associate",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-017",
+      "annotation_basis": "本科及以上，同时专业范围包含但不限于；现有谓词不能完整表达开放范围，教育应待确认，但低于本科应失败。",
+      "qualifications": [
+        {
+          "id": "cs_bachelor",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机科学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科计算机科学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "finance_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "associate",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-096",
+      "annotation_basis": "在读学生、2027届以后为未支持的开放年份范围；本科/硕士、计算机相关专业；不要缩成2027。",
+      "qualifications": [
+        {
+          "id": "cs_enrolled_2028",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科计算机，预计2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "cs_enrolled_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机科学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科计算机科学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "cs_graduated_2028",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科计算机，2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "2028年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "associate",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-105",
+      "annotation_basis": "毕业日期2026年9月至2027年8月；只填年份无法验证月份，应该待确认；专业优先不能变成硬要求。",
+      "qualifications": [
+        {
+          "id": "bachelor_2027_without_month",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "master_2027_without_month",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-174",
+      "annotation_basis": "2027届获得本科及以上学历不意味着当前已毕业；专业优先不是硬要求。",
+      "qualifications": [
+        {
+          "id": "finance_master_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "mechanical_bachelor_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "associate_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "wrong_cohort_2028",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "missing_year",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-179",
+      "annotation_basis": "2027届本科及以上且计算机科学、软件工程、人工智能等相关专业；学历专业届别须同一记录满足；不同专业族仅unknown。",
+      "qualifications": [
+        {
+          "id": "cs_bachelor_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机科学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科计算机科学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "cs_master_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "计算机科学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士计算机科学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "cross_record_false_match",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机科学",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科计算机科学，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "finance_master_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "cs_wrong_cohort",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机科学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科计算机科学，预计2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "associate",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        }
+      ]
+    },
+    {
+      "case_id": "campus-ai-180",
+      "annotation_basis": "2027届本科及以上且专业不限，不能用其他能力方向生成专业限制。",
+      "qualifications": [
+        {
+          "id": "finance_master_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "mechanical_bachelor_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "associate_2027",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_associate",
+                "level": "associate",
+                "major_raw": "软件工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "专科软件工程，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "wrong_cohort_2028",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械工程，预计2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    }
+  ],
+  "synthetic_cases": [
+    {
+      "id": "alternative_degrees",
+      "raw_content": "星河科技招聘研发工程师。任职资格：满足以下任一路径即可申请：本科为软件工程专业，或者硕士专业不限。工作地点南京。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "本科为软件工程专业",
+            "relation": "any_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "eq",
+            "major_mode": "exact",
+            "scope": "application"
+          },
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "any",
+            "scope": "application"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械工程",
+                  "source_text": "本科机械工程",
+                  "id": "edu_0_0"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "source_text": "硕士金融学",
+                  "id": "edu_0_1"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          }
+        ]
+      },
+      "qualification_labels": [
+        {
+          "id": "existing_0",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "source_text": "本科机械工程",
+                "id": "edu_0_0"
+              },
+              {
+                "level": "master",
+                "major_raw": "金融学",
+                "source_text": "硕士金融学",
+                "id": "edu_0_1"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "software_bachelor",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "软件工程",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "本科软件工程"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "mechanical_bachelor_only",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "本科机械工程"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "doctor_finance_only",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_doctor",
+                "level": "doctor",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "博士金融学"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "historical_bachelor",
+      "raw_content": "海岳实验室招聘算法工程师，本岗位面向2028届毕业生。任职要求：硕士学历，且本科专业为软件工程。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "graduation_years": [
+          2028
+        ],
+        "relations": [
+          {
+            "contains": "本科专业为软件工程",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "not_specified",
+            "scope": "application"
+          },
+          {
+            "level": "bachelor",
+            "operator": "eq",
+            "major_mode": "exact",
+            "scope": "historical"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "软件工程",
+                  "graduation_year": 2024,
+                  "source_text": "本科软件工程2024毕业",
+                  "id": "edu_0_0"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "graduation_year": 2028,
+                  "source_text": "硕士金融学2028预计毕业",
+                  "id": "edu_0_1"
+                }
+              ]
+            },
+            "eligible": "pass",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "软件工程",
+                  "graduation_year": 2024,
+                  "source_text": "本科软件工程2024毕业",
+                  "id": "edu_1_0"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "graduation_year": 2027,
+                  "source_text": "硕士金融学2027预计毕业",
+                  "id": "edu_1_1"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      },
+      "qualification_labels": [
+        {
+          "id": "existing_0",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "软件工程",
+                "graduation_year": 2024,
+                "source_text": "本科软件工程2024毕业",
+                "id": "edu_0_0"
+              },
+              {
+                "level": "master",
+                "major_raw": "金融学",
+                "graduation_year": 2028,
+                "source_text": "硕士金融学2028预计毕业",
+                "id": "edu_0_1"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "existing_1",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "软件工程",
+                "graduation_year": 2024,
+                "source_text": "本科软件工程2024毕业",
+                "id": "edu_1_0"
+              },
+              {
+                "level": "master",
+                "major_raw": "金融学",
+                "graduation_year": 2027,
+                "source_text": "硕士金融学2027预计毕业",
+                "id": "edu_1_1"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "historical_major_mismatch",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械工程",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "本科机械工程，2024年毕业",
+                "graduation_year": 2024,
+                "graduation_source_text": "2024年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学，2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "2028年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "historical_bachelor_missing",
+          "profile": {
+            "education_history_complete": false,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学，2028年毕业",
+                "graduation_year": 2028,
+                "graduation_source_text": "2028年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "or_plus_required",
+      "raw_content": "云杉软件招聘系统研发工程师。任职要求：至少掌握 Rust 或 Go 中的一种，并具备独立实现论文算法的能力。工作地点杭州。",
+      "expected": {
+        "requirement_count": 2,
+        "relations": [
+          {
+            "contains": "Rust",
+            "relation": "any_of",
+            "mandatory": true,
+            "items": [
+              "Rust",
+              "Go"
+            ]
+          },
+          {
+            "contains": "实现论文算法",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [],
+        "qualifications": []
+      },
+      "qualification_labels": []
+    },
+    {
+      "id": "degree_and_preference",
+      "raw_content": "晨星科技招聘数据研发工程师。任职要求：本科及以上学历。熟悉 Python。具有机器学习项目经历者优先。办公地点成都。",
+      "expected": {
+        "requirement_count": 3,
+        "relations": [
+          {
+            "contains": "本科及以上学历",
+            "relation": "all_of",
+            "mandatory": true
+          },
+          {
+            "contains": "Python",
+            "relation": "all_of",
+            "mandatory": true
+          },
+          {
+            "contains": "机器学习项目",
+            "relation": "all_of",
+            "mandatory": false
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "gte",
+            "major_mode": "not_specified"
+          }
+        ],
+        "qualifications": []
+      },
+      "qualification_labels": []
+    },
+    {
+      "id": "robomaster_experience",
+      "raw_content": "远航科技招聘嵌入式工程师。任职要求：有RoboMaster机器人竞赛经验者优先。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "RoboMaster",
+            "relation": "all_of",
+            "mandatory": false
+          }
+        ],
+        "education": [],
+        "qualifications": []
+      },
+      "qualification_labels": []
+    },
+    {
+      "id": "shared_degree_evidence",
+      "raw_content": "青杉科技招聘算法工程师。任职要求：计算机相关专业的硕士或博士。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "硕士或博士",
+            "relation": "any_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "related",
+            "scope": "application",
+            "status": "any"
+          },
+          {
+            "level": "doctor",
+            "operator": "eq",
+            "major_mode": "related",
+            "scope": "application",
+            "status": "any"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "master",
+                  "major_raw": "计算机",
+                  "source_text": "硕士计算机",
+                  "id": "edu_0_0"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "doctor",
+                  "major_raw": "计算机",
+                  "source_text": "博士计算机",
+                  "id": "edu_1_0"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "计算机",
+                  "source_text": "本科计算机",
+                  "id": "edu_2_0"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      },
+      "qualification_labels": [
+        {
+          "id": "existing_0",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "master",
+                "major_raw": "计算机",
+                "source_text": "硕士计算机",
+                "id": "edu_0_0"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "existing_1",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "doctor",
+                "major_raw": "计算机",
+                "source_text": "博士计算机",
+                "id": "edu_1_0"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "existing_2",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "计算机",
+                "source_text": "本科计算机",
+                "id": "edu_2_0"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "cross_record_major",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "计算机",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "本科计算机"
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "future_cohort_status",
+      "raw_content": "星辰科技招聘应用开发工程师。任职要求：2027届获得本科及以上学历。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "2027届获得本科",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "gte",
+            "major_mode": "not_specified",
+            "scope": "application",
+            "status": "any",
+            "graduation_years": [
+              2027
+            ]
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械，预计2027年毕业，在读",
+                  "graduation_year": 2027,
+                  "graduation_source_text": "预计2027年毕业",
+                  "graduation_year_kind": "expected",
+                  "status": "enrolled",
+                  "id": "edu_0_0"
+                }
+              ]
+            },
+            "eligible": "pass",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械，预计2028年毕业，在读",
+                  "graduation_year": 2028,
+                  "graduation_source_text": "预计2028年毕业",
+                  "graduation_year_kind": "expected",
+                  "status": "enrolled",
+                  "id": "edu_1_0"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      },
+      "qualification_labels": [
+        {
+          "id": "existing_0",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "机械",
+                "source_text": "本科机械，预计2027年毕业，在读",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "status": "enrolled",
+                "id": "edu_0_0"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "pass"
+        },
+        {
+          "id": "existing_1",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "机械",
+                "source_text": "本科机械，预计2028年毕业，在读",
+                "graduation_year": 2028,
+                "graduation_source_text": "预计2028年毕业",
+                "graduation_year_kind": "expected",
+                "status": "enrolled",
+                "id": "edu_1_0"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "missing_year",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "机械",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "本科机械"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "open_major_scope",
+      "raw_content": "山海科技招聘研发工程师。任职要求：计算机、软件工程、数学等理工科专业。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "理工科专业",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "unknown",
+            "operator": "not_specified",
+            "major_mode": "unknown",
+            "scope": "application",
+            "unresolved": true,
+            "status": "any"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械",
+                  "id": "edu_0_0"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "unknown"
+            ]
+          }
+        ]
+      },
+      "qualification_labels": [
+        {
+          "id": "existing_0",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "level": "bachelor",
+                "major_raw": "机械",
+                "source_text": "本科机械",
+                "id": "edu_0_0"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "explicit_current_graduated",
+      "raw_content": "青河科技招聘应用开发工程师。任职要求：必须已取得硕士学位，专业不限。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "必须已取得硕士学位，专业不限",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "operator": "eq",
+            "level": "master",
+            "major_mode": "any",
+            "scope": "application",
+            "status": "graduated"
+          }
+        ],
+        "qualifications": []
+      },
+      "qualification_labels": [
+        {
+          "id": "graduated_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "硕士金融学，2025年毕业",
+                "graduation_year": 2025,
+                "graduation_source_text": "2025年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "enrolled_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "master_unknown_status",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "explicit_current_enrolled",
+      "raw_content": "青河科技招聘应用开发工程师。任职要求：必须为硕士在读学生，专业不限。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "必须为硕士在读学生，专业不限",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "operator": "eq",
+            "level": "master",
+            "major_mode": "any",
+            "scope": "application",
+            "status": "enrolled"
+          }
+        ],
+        "qualifications": []
+      },
+      "qualification_labels": [
+        {
+          "id": "enrolled_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "enrolled",
+                "source": "manual",
+                "source_text": "硕士金融学，预计2027年毕业",
+                "graduation_year": 2027,
+                "graduation_source_text": "预计2027年毕业",
+                "graduation_year_kind": "expected",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "graduated_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "graduated",
+                "source": "manual",
+                "source_text": "硕士金融学，2025年毕业",
+                "graduation_year": 2025,
+                "graduation_source_text": "2025年毕业",
+                "graduation_year_kind": "unknown",
+                "graduation_year_confirmed": true
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "master_unknown_status",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "same_record_binding",
+      "raw_content": "青河科技招聘应用开发工程师。任职要求：硕士学历，专业必须为软件工程。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "硕士学历，专业必须为软件工程",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "operator": "eq",
+            "level": "master",
+            "major_mode": "exact",
+            "scope": "application",
+            "status": "any"
+          }
+        ],
+        "qualifications": []
+      },
+      "qualification_labels": [
+        {
+          "id": "software_master",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "软件工程",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士软件工程"
+              }
+            ]
+          },
+          "education": "pass",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "cross_record_major",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_bachelor",
+                "level": "bachelor",
+                "major_raw": "软件工程",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "本科软件工程"
+              },
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": "金融学",
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士金融学"
+              }
+            ]
+          },
+          "education": "fail",
+          "eligibility": "fail"
+        },
+        {
+          "id": "master_missing_major",
+          "profile": {
+            "education_history_complete": true,
+            "educations": [
+              {
+                "id": "edu_master",
+                "level": "master",
+                "major_raw": null,
+                "status": "unknown",
+                "source": "manual",
+                "source_text": "硕士专业未填"
+              }
+            ]
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        },
+        {
+          "id": "incomplete_history",
+          "profile": {
+            "education_history_complete": false,
+            "educations": []
+          },
+          "education": "unknown",
+          "eligibility": "unknown"
+        }
+      ]
+    }
+  ]
+}

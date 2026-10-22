@@ -26,6 +26,7 @@ from src.services.company_registry import (
     company_source_hosts,
     enabled_company_source_hosts,
     enabled_company_sources,
+    provider_source_options,
 )
 from src.services.discovery_matching import classify_discovery_job
 from src.services.discovery_service import DiscoveryFailure, DiscoveryService
@@ -77,6 +78,7 @@ class BingRSSSearchProvider:
 
     source_id = WEB_SEARCH_SOURCE_ID
     source_url = WEB_SEARCH_SOURCE_URL
+    search_purpose = "jobs"
 
     def __init__(
         self,
@@ -93,6 +95,8 @@ class BingRSSSearchProvider:
 
     @property
     def effective_query(self) -> str:
+        if self.search_purpose == "companies":
+            return self.query
         scope = ""
         if self.company_names:
             company_terms = " OR ".join(f'"{name}"' for name in self.company_names)
@@ -122,7 +126,7 @@ class BingRSSSearchProvider:
                 response.body,
                 max_results=self.max_results,
             )
-            if _looks_like_job_search_result(candidate)
+            if self.search_purpose == "companies" or _looks_like_job_search_result(candidate)
         ]
 
 
@@ -131,6 +135,7 @@ class TavilySearchProvider:
 
     source_id = TAVILY_SEARCH_SOURCE_ID
     source_url = TAVILY_SEARCH_SOURCE_URL
+    search_purpose = "jobs"
 
     def __init__(
         self,
@@ -149,6 +154,8 @@ class TavilySearchProvider:
 
     @property
     def effective_query(self) -> str:
+        if self.search_purpose == "companies":
+            return self.query
         company_scope = (
             f"，优先公司：{'、'.join(self.company_names)}" if self.company_names else ""
         )
@@ -203,7 +210,7 @@ class TavilySearchProvider:
                 search_snippet=_clean_snippet_text(str(item.get("content", ""))),
                 discovered_at=discovered_at,
             )
-            if _looks_like_job_search_result(candidate):
+            if self.search_purpose == "companies" or _looks_like_job_search_result(candidate):
                 candidates.append(candidate)
             if len(candidates) >= self.max_results:
                 break
@@ -292,10 +299,11 @@ def parse_bing_rss(raw_xml: bytes, *, max_results: int = 20) -> list[LeadCandida
 def create_web_search_provider(
     query: str,
     company_ids: list[str] | None = None,
+    *, sources=None,
 ) -> BingRSSSearchProvider | TavilySearchProvider | ResponsesSearchProvider:
     settings = get_settings()
     company_names = (
-        [source.company for source in enabled_company_sources(company_ids)]
+        [source.company for source in (sources if sources is not None else enabled_company_sources(company_ids)) if source.id in company_ids]
         if company_ids
         else []
     )
@@ -374,6 +382,9 @@ def execute_web_search_in_worker(
             company_ids=company_ids,
         )
     )
+    from src.services.body_review_queue import enqueue_run_reviews
+
+    enqueue_run_reviews(run_id, user_id)
 
 
 async def execute_web_search(
@@ -384,9 +395,14 @@ async def execute_web_search(
     company_ids: list[str] | None = None,
 ) -> None:
     runtime_settings = get_settings()
+    with SessionLocal() as lookup_session:
+        saved_run = lookup_session.get(DiscoveryRun, run_id)
+        has_saved_goal = bool(saved_run and saved_run.user_id == user_id and saved_run.search_goal_id)
     if (
         runtime_settings.web_search_provider.strip().casefold() == "responses"
         or runtime_settings.web_search_decision_mode == "agent"
+        or runtime_settings.web_search_direct_sources_enabled
+        or has_saved_goal
     ):
         from src.services.multiround_search import execute_multiround_search
 
@@ -400,7 +416,7 @@ async def execute_web_search(
             return
 
         settings = get_settings()
-        sources = enabled_company_sources(company_ids)
+        sources = enabled_company_sources(company_ids, session=session, user_id=user_id)
         # Hosted search discovers links directly; do not fill its budget with
         # unrelated adapter fallback results before verification starts.
         if settings.web_search_provider.strip().casefold() == "responses":
@@ -433,7 +449,7 @@ async def execute_web_search(
             run.finished_at = None
             session.commit()
 
-        provider = create_web_search_provider(query, company_ids)
+        provider = create_web_search_provider(query, company_ids, **provider_source_options(company_ids, sources))
         started = perf_counter()
         web_search_error: Exception | None = None
         try:
@@ -456,7 +472,7 @@ async def execute_web_search(
             )[:4000]
             session.commit()
 
-        official_hosts = enabled_company_source_hosts()
+        official_hosts = enabled_company_source_hosts(session=session, user_id=user_id)
         official_hosts.update(GreenhouseAdapter.supported_hosts)
         lead_reader = SafeHTTPReader(
             timeout_seconds=8,
@@ -537,8 +553,9 @@ async def execute_web_search(
                 published_at=posting.published_at,
                 detail_url=posting.source_url or candidate.source_url,
                 raw_content=posting.raw_content,
+                recruitment_context=posting.recruitment_context or {},
             )
-            match = classify_discovery_job(stub, query=query)
+            match = classify_discovery_job(stub, query=query, conditions=run.goal_conditions)
             result_matches.append(match.as_dict(job_posting_id=posting.id))
             run.result_matches = list(result_matches)
             session.commit()

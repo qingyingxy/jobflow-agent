@@ -1,0 +1,69 @@
+{
+  "freeze_version": "category-vocabulary-admission-oracle-v1-source-freeze-v1",
+  "frozen_at": "2026-09-06T04:28:22.590492+00:00",
+  "status": "offline_oracle_runner_frozen_before_execution",
+  "experiment_id": "category-vocabulary-admission-oracle-v1",
+  "preregistration": {
+    "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_preregistration_v1_2026-09-06.json",
+    "sha256": "0e4dec9018463d255224044517b4e6ff0c48c06bb28984a4559688340df81d90"
+  },
+  "preregistration_freeze": {
+    "path": "datasets/unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle_preregistration_freeze_v1_2026-09-06.json",
+    "sha256": "f59256d262eedbdf10294bb4e190448a11dfba187957d30f73113eaf7ee36d94"
+  },
+  "artifacts": {
+    "oracle_evaluator": {
+      "path": "src/evaluation/model_first_v4_3_category_vocabulary_admission_oracle.py",
+      "sha256": "c96205b71229854b5eb4278e9d09cf9791d9e50f31c8c7c56d16ab2e10862cb6"
+    },
+    "oracle_runner": {
+      "path": "scripts/run_unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle.py",
+      "sha256": "d2a4ccb2b684d1104b3938da14bb72d912effb9cee017faafddbdb8a0814c0da"
+    },
+    "focused_tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_3_category_vocabulary_admission_oracle.py",
+      "sha256": "d23b1096aa53915c6b79c912fb487eef1a61e62996f94dde6a22b213a3c58d5e"
+    }
+  },
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "frozen_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.json",
+      "sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+    },
+    "formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-report-v1-2026-09-06.json",
+      "sha256": "7ad3e538dc318eebb88263bc9a763e3e9e33db9a4f6bd4c42f22c89b34062d95"
+    },
+    "formal_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "4c37610bd648a4db6f9956087297260365dfe9bc3ac6d6085395c7d952ae6b01"
+    },
+    "independent_holdout_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_source_freeze_v1_2026-09-06.json",
+      "sha256": "641980218b698e40643ba55aa5a896108ac1ab1dad96bd54e46fce090bdb8790"
+    },
+    "frozen_v4_3_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+      "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+    },
+    "frozen_v4_schema": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    },
+    "frozen_v4_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    }
+  },
+  "formal_execution_count_at_freeze": 0,
+  "new_model_call_count_at_freeze": 0,
+  "network_call_count_at_freeze": 0,
+  "v4_3_modification_allowed": false,
+  "other_oracle_output_allowed": false,
+  "cross_oracle_treatment_accumulation_allowed": false,
+  "immutability": "Any implementation, test, input, treatment, control, threshold, or v4.3 change requires a new preregistration and source-freeze version."
+}

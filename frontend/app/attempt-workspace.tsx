@@ -1,4 +1,5 @@
 "use client";
+import { parseApiTimestamp } from "./api-time";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -468,7 +469,7 @@ export default function AttemptWorkspace({ apiUrl, userId }: { apiUrl: string; u
                         <div className="attempt-receipt-proof">
                           <div><span>RECEIPT VERIFIED</span><strong>{selected.attempt.receipt.application_number ?? "未提供申请编号"}</strong></div>
                           <p>{selected.attempt.receipt.confirmation_text ?? "已使用脱敏截图元数据确认"}</p>
-                          <dl><div><dt>捕获时间</dt><dd>{new Date(selected.attempt.receipt.captured_at).toLocaleString("zh-CN")}</dd></div><div><dt>证据类型</dt><dd>{selected.attempt.receipt.validation_codes.join(" / ")}</dd></div><div><dt>凭证哈希</dt><dd>{selected.attempt.receipt.receipt_hash.slice(0, 16)}…</dd></div></dl>
+                          <dl><div><dt>捕获时间</dt><dd>{parseApiTimestamp(selected.attempt.receipt.captured_at).toLocaleString("zh-CN")}</dd></div><div><dt>证据类型</dt><dd>{selected.attempt.receipt.validation_codes.join(" / ")}</dd></div><div><dt>凭证哈希</dt><dd>{selected.attempt.receipt.receipt_hash.slice(0, 16)}…</dd></div></dl>
                           {selected.attempt.status === "READY_TO_SUBMIT" ? <button onClick={finalize} disabled={working} type="button">确认真实投递并更新申请</button> : <span className="attempt-finalized">Application 已进入 SUBMITTED</span>}
                         </div>
                       ) : (

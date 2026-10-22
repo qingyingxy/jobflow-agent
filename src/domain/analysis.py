@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.database import Base
 
-ANALYSIS_VERSION = "job-analysis-v9-unified-runtime"
+ANALYSIS_VERSION = "job-analysis-v10-shared-cohort-validation"
 RiskSeverity = Literal["high", "medium", "low"]
 ApplicationRecommendation = Literal[
     "recommended_application",
@@ -60,6 +60,7 @@ class JobAnalysis(Base):
     parse_result_id: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     analysis_version: Mapped[str] = mapped_column(String(80), nullable=False)
     input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    structured_jd: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     eligibility: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     matches: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
     score: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)

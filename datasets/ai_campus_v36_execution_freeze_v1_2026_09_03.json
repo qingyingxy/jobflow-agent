@@ -1,0 +1,84 @@
+{
+  "freeze_version": "ai-campus-v36-execution-freeze-v1-2026-09-03",
+  "frozen_at": "2026-09-03T10:34:55+08:00",
+  "purpose": "one v36 same-four public JD comparison",
+  "frozen_contract": {
+    "parser": "jd-core-parser-v36",
+    "prompt": "jd-core-parser-prompt-v23",
+    "schema": "core-job-fields-v10",
+    "skill_ontology": "skill-ontology-v4",
+    "response_format": "json_object",
+    "thinking_mode": "disabled",
+    "max_tokens": 4096,
+    "files": {
+      "src/config.py": {
+        "path": "src/config.py",
+        "sha256": "ae96cce0ad29d44b2436f53cd4846f63f0dff7ca9761c84eeec1034ca4cdbd58",
+        "size_bytes": 2187
+      },
+      "src/services/core_jd_parser.py": {
+        "path": "src/services/core_jd_parser.py",
+        "sha256": "bb40f3e9f01f70a699b6b5cc26fec0649e4a10e68f0b4e7c60fac30dee7b348a",
+        "size_bytes": 43504
+      },
+      "src/domain/core_skill_semantics.py": {
+        "path": "src/domain/core_skill_semantics.py",
+        "sha256": "e3ef8a61f763e0e71f94db91f99ac62f5b88d16f703a9c0b67a662911cc63eeb",
+        "size_bytes": 41384
+      },
+      "src/domain/skill_normalizer.py": {
+        "path": "src/domain/skill_normalizer.py",
+        "sha256": "fd8ad6510bf459c6ec734cd9f802f770132cb64014a1797b31eb28503c8b1ced",
+        "size_bytes": 106000
+      },
+      "src/domain/job.py": {
+        "path": "src/domain/job.py",
+        "sha256": "47a76dbdd6e4e4c89e0be115b72d68678f23373397c383ccb464e8f4612df595",
+        "size_bytes": 15901
+      },
+      "src/infrastructure/llm_client.py": {
+        "path": "src/infrastructure/llm_client.py",
+        "sha256": "bb80211aa0f078386428c49d1fbd8c0a698c7ea37b333a2ee6f5cbeec5e169f5",
+        "size_bytes": 24494
+      },
+      "scripts/run_core_v36_evaluation.py": {
+        "path": "scripts/run_core_v36_evaluation.py",
+        "sha256": "3afafb72ed0fb6c5a4d1e2c61071b22a70bbb7bdc69937002ce3fadbedf2dc12",
+        "size_bytes": 3171
+      }
+    }
+  },
+  "labels": {
+    "path": "datasets/ai_campus_v34_dev4_label_freeze_v1_2026_09_03.json",
+    "sha256": "b3d50f3ce51646f7cf46148985fa6f3f4563d9595d4af19d7bc1899d4b78274a",
+    "size_bytes": 71220
+  },
+  "comparison_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v36-dev4-comparison-v1-2026-09-03.json",
+    "sha256": "618d610c3109838c7e29d40ce93e3141f34fa2478c855f50d0203cf1f6039bb5",
+    "size_bytes": 83881
+  },
+  "v35_result_basis": {
+    "predictions_sha256": "972fa9333771606dafbeba763cd438f2ba4c63f11b68e15c5f12a95555226b16",
+    "failure_pattern": {
+      "empty_skills": 6,
+      "unsupported_qualifier": 10,
+      "structured_output_invalid_cases": 3
+    }
+  },
+  "api_authorization": {
+    "authorized_at": "2026-09-03",
+    "destination": "configured DeepSeek API",
+    "same_four_run_limit": 1
+  },
+  "run_policy": {
+    "concurrency": 1,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "http_timeout_seconds": 60,
+    "case_timeout_seconds": 90,
+    "checkpoint_resume": false,
+    "retry_failures": false
+  },
+  "prediction_status": "not_generated_at_freeze_time"
+}

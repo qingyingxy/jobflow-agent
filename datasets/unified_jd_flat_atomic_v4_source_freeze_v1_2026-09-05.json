@@ -1,0 +1,45 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4-source-freeze-v1",
+  "frozen_at": "2026-09-05T16:07:17.7937024Z",
+  "status": "frozen_before_gate_execution",
+  "preregistration_sha256": "0f8a7af1a0dc4711b42a1b04e1ca7a65feaedbf7c0ee1703dfe0b070d773f7b4",
+  "artifacts": {
+    "domain_contract": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    },
+    "grouping_compiler": {
+      "path": "src/services/unified_jd_flat_atomic_v4.py",
+      "sha256": "b1172a8b26f1d2c0447a73fb9aaf177c2fccc07feffa7dfafc4d53e97c0d4e2f"
+    },
+    "offline_evaluator": {
+      "path": "src/evaluation/model_first_v4.py",
+      "sha256": "6bb07032f2ab102f381168a7790c192631f77a9c7cc8db23ac2992fdb94ab6d6"
+    },
+    "one_time_runner": {
+      "path": "scripts/replay_unified_jd_flat_atomic_v4.py",
+      "sha256": "53b24ff5df18d622ee406c6bd117c273c9e49860ab56aa6078ad3c7202c8c3ed"
+    },
+    "v4_tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4.py",
+      "sha256": "1c7bd01a5963b996a130394290b2f4c9ce31208f6df8887cbc3c176c9ca505c5"
+    },
+    "existing_v3_tests": {
+      "path": "tests/test_unified_model_first_v3.py",
+      "sha256": "f840360c9c56f571df580a7bfe6f9b94a0e05c76ab83a1b6af79a7cefad39086"
+    }
+  },
+  "prefreeze_verification": {
+    "ruff_passed": true,
+    "v4_test_count": 5,
+    "v4_tests_passed": 5,
+    "full_test_count": 883,
+    "full_tests_passed": 883,
+    "formal_raw_existed_at_freeze": false,
+    "formal_report_existed_at_freeze": false,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "immutability": "Any source or test change after this freeze invalidates the v4 gate execution.",
+  "next_allowed_action": "Execute scripts/replay_unified_jd_flat_atomic_v4.py exactly once and retain its raw output and report regardless of outcome."
+}

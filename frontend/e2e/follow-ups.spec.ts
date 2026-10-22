@@ -239,13 +239,15 @@ test("follow-up center manages the full manual task lifecycle", async ({ page })
   await page.getByRole("button", { name: "安排后续跟进" }).click();
   const dialog = page.getByRole("dialog");
 
+  await expect(dialog.getByRole("tab", { name: "全部记录" })).toHaveAttribute("aria-selected", "true");
+  await dialog.getByRole("tab", { name: /^今日/ }).click();
   await expect(dialog.getByRole("heading", { name: "今日任务" })).toBeVisible();
   await expect(dialog.getByText("技术一面", { exact: true })).toBeVisible();
   await expect(dialog.getByText("补发感谢邮件", { exact: true })).toBeHidden();
 
   await dialog.getByRole("tab", { name: /逾期/ }).click();
   await expect(dialog.getByText("补发感谢邮件", { exact: true })).toBeVisible();
-  await expect(dialog.getByText("已逾期", { exact: true })).toBeVisible();
+  await expect(dialog.locator(".follow-up-task").filter({ hasText: "补发感谢邮件" }).getByText("已逾期", { exact: true })).toBeVisible();
 
   await dialog.getByLabel("标题").fill("HR 终面");
   await dialog.getByLabel("日期与时间").fill(`${localDate(2)}T14:30`);

@@ -94,6 +94,16 @@ class ScenarioClient(FakeModelClient):
             self.output = RELATIONS
         elif request.schema_name == "product_job_combined":
             self.output = {"extraction": EXTRACTION, "relations": RELATIONS}
+        elif request.schema_name == "product_job_inline":
+            self.output = {
+                **EXTRACTION,
+                "requirements": [
+                    {**r, **{k: v for k, v in d.items() if k != "requirement_index"}}
+                    for r, d in zip(
+                        EXTRACTION["requirements"], RELATIONS["decisions"], strict=True
+                    )
+                ],
+            }
         elif request.schema_name == "campus_semantic_matches":
             if self.fail_matching:
                 self.requests.append(request)

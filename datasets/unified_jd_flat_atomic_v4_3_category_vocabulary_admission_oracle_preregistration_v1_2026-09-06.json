@@ -1,0 +1,244 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.3-category-vocabulary-admission-oracle-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "preregistered_before_oracle_implementation_and_execution",
+  "objective": "Measure whether the two residual category literal errors are caused solely by closure of the frozen category vocabulary.",
+  "claim_boundary": "This is a schema-admission oracle on five revealed frozen responses. It may establish that vocabulary closure causes the two target errors; it cannot choose a production canonical mapping, justify adding new domain categories, or establish generalization.",
+  "frozen_inputs": {
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_selection_v1_2026-09-06.json",
+      "sha256": "7a65e51c63e8b8505ee47cf593d2f3f194af86201e7c761aa618811199dbe0a5"
+    },
+    "frozen_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-raw-v1-2026-09-06.json",
+      "sha256": "2ce52b38fbd74f3e3fcc16dbc04999793c7277a95a5c7a5baef446daebfeb61b"
+    },
+    "formal_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-3-independent-holdout-report-v1-2026-09-06.json",
+      "sha256": "7ad3e538dc318eebb88263bc9a763e3e9e33db9a4f6bd4c42f22c89b34062d95"
+    },
+    "formal_evaluation_receipt": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_evaluation_receipt_v1_2026-09-06.json",
+      "sha256": "4c37610bd648a4db6f9956087297260365dfe9bc3ac6d6085395c7d952ae6b01"
+    },
+    "independent_holdout_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_3_independent_holdout_source_freeze_v1_2026-09-06.json",
+      "sha256": "641980218b698e40643ba55aa5a896108ac1ab1dad96bd54e46fce090bdb8790"
+    },
+    "frozen_v4_3_adapter": {
+      "path": "src/services/unified_jd_flat_atomic_v4_3_compatibility.py",
+      "sha256": "0b3373300b8a9e060531e5f3e207dcbb8c5604f19fe0a7d48c60d3a75d9a09c2"
+    },
+    "frozen_v4_schema": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    },
+    "frozen_v4_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    }
+  },
+  "frozen_observations": {
+    "source_model_call_count": 5,
+    "new_model_call_count": 0,
+    "case_count": 5,
+    "v4_3_strict_schema_valid_case_count": 2,
+    "v4_3_schema_valid_by_case": {
+      "independent-lever-collate-ai-engineer": false,
+      "independent-lever-field-ai-robotics-ai-engineer": true,
+      "independent-greenhouse-simplifynext-ai-engineer-graduate": false,
+      "independent-greenhouse-optiver-ai-engineer": true,
+      "independent-smartrecruiters-bluescope-ai-engineer": false
+    },
+    "v4_3_schema_diagnostics_by_case": {
+      "independent-lever-collate-ai-engineer": [
+        {
+          "path": "clause_atoms.10.category",
+          "code": "literal_error",
+          "message": "Input should be 'skill', 'capability', 'experience' or 'responsibility'"
+        }
+      ],
+      "independent-lever-field-ai-robotics-ai-engineer": [],
+      "independent-greenhouse-simplifynext-ai-engineer-graduate": [
+        {
+          "path": "clause_atoms.27.qualifier.minimum_months",
+          "code": "greater_than_equal",
+          "message": "Input should be greater than or equal to 1"
+        }
+      ],
+      "independent-greenhouse-optiver-ai-engineer": [],
+      "independent-smartrecruiters-bluescope-ai-engineer": [
+        {
+          "path": "clause_atoms.22.category",
+          "code": "literal_error",
+          "message": "Input should be 'skill', 'capability', 'experience' or 'responsibility'"
+        }
+      ]
+    },
+    "v4_3_activation_count": 11,
+    "v4_3_activation_counts": {
+      "omitted_empty_absent_fact_placeholder": 11
+    },
+    "v4_3_activations_by_case": {
+      "independent-lever-collate-ai-engineer": 0,
+      "independent-lever-field-ai-robotics-ai-engineer": 0,
+      "independent-greenhouse-simplifynext-ai-engineer-graduate": 4,
+      "independent-greenhouse-optiver-ai-engineer": 7,
+      "independent-smartrecruiters-bluescope-ai-engineer": 0
+    },
+    "atom_count": 104,
+    "category_counts": {
+      "responsibility": 27,
+      "experience": 24,
+      "capability": 3,
+      "motivation": 1,
+      "skill": 48,
+      "knowledge": 1
+    },
+    "in_vocabulary_category_control_count": 102,
+    "category_targets": [
+      {
+        "case_id": "independent-lever-collate-ai-engineer",
+        "atom_index": 10,
+        "path": "clause_atoms[10].category",
+        "value": "motivation"
+      },
+      {
+        "case_id": "independent-smartrecruiters-bluescope-ai-engineer",
+        "atom_index": 22,
+        "path": "clause_atoms[22].category",
+        "value": "knowledge"
+      }
+    ],
+    "zero_lower_bound_targets": [
+      {
+        "case_id": "independent-greenhouse-simplifynext-ai-engineer-graduate",
+        "atom_index": 27,
+        "path": "clause_atoms[27].qualifier.minimum_months",
+        "value": 0,
+        "source_text": "• 0–3 years of AI development experience (Fresh graduates are welcome to apply)"
+      }
+    ],
+    "positive_minimum_controls": [
+      {
+        "case_id": "independent-greenhouse-optiver-ai-engineer",
+        "atom_index": 7,
+        "minimum_months": 72,
+        "source_text": "Minimum of 6 years professional experience in developing python applications"
+      }
+    ]
+  },
+  "independence": {
+    "starting_point": "Deep-copy each original frozen raw output and apply frozen v4.3 forward normalization exactly once.",
+    "other_new_oracle_treatments_applied": [],
+    "zero_lower_bound_qualifier_oracle_applied": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "oracle_contract": {
+    "oracle_id": "category-vocabulary-admission-oracle-v1",
+    "runtime_activation_predicate": {
+      "path_shape": "clause_atoms[i].category on an object atom",
+      "current_category_not_in_frozen_vocabulary": true,
+      "exact_admitted_tokens": [
+        "knowledge",
+        "motivation"
+      ],
+      "case_id_fixture_id_or_gold_allowed": false
+    },
+    "intervention": "Validate the v4.3 output against an oracle schema identical to the frozen v4 schema except that the category literal union also admits knowledge and motivation. Do not mutate or canonicalize the raw or v4.3-normalized output.",
+    "schema_delta": {
+      "allowed": "Only add knowledge and motivation to the category enum used by the temporary oracle validator.",
+      "root_fields_changed": false,
+      "atom_fields_changed": false,
+      "other_enum_or_constraint_changes_allowed": false
+    },
+    "diagnostic_code": "oracle_admitted_category_vocabulary_token",
+    "diagnostic_fields": [
+      "record_index",
+      "atom_index",
+      "path",
+      "category"
+    ],
+    "input_or_output_mutation_allowed": false
+  },
+  "controls": {
+    "in_vocabulary_atom_count": 102,
+    "in_vocabulary_categories": {
+      "skill": 48,
+      "responsibility": 27,
+      "experience": 24,
+      "capability": 3
+    },
+    "target_count": 2,
+    "expected_target_values": [
+      "motivation",
+      "knowledge"
+    ],
+    "zero_lower_bound_residual_must_remain": true,
+    "frozen_v4_3_omission_activation_count_must_remain": 11,
+    "positive_minimum_72_must_remain_unchanged": true
+  },
+  "acceptance_gates": {
+    "C0-frozen-inputs-isolation-and-zero-calls": {
+      "requirements": [
+        "Every frozen input and source hash matches.",
+        "Model and network call counts are zero.",
+        "No v4-v4.3 source, raw response, report, or threshold changes.",
+        "Default parser and canonicalizer calls are zero."
+      ]
+    },
+    "C1-activation-exactness": {
+      "required_activation_count": 2,
+      "required_tokens": [
+        "motivation",
+        "knowledge"
+      ],
+      "required_case_count": 2,
+      "all_other_atoms_must_not_activate": true,
+      "runtime_may_not_reference_case_or_fixture_ids": true
+    },
+    "C2-schema-delta-and-preservation": {
+      "temporary_category_enum_additions": [
+        "knowledge",
+        "motivation"
+      ],
+      "all_other_schema_bytes_or_semantics_must_match": true,
+      "raw_and_v4_3_outputs_must_remain_byte_equivalent": true,
+      "category_mapping_allowed": false
+    },
+    "C3-independent-target-recovery": {
+      "baseline_v4_3_strict_valid_case_count": 2,
+      "required_oracle_valid_case_count": 4,
+      "required_recovered_case_ids": [
+        "independent-lever-collate-ai-engineer",
+        "independent-smartrecruiters-bluescope-ai-engineer"
+      ],
+      "remaining_invalid_case_ids": [
+        "independent-greenhouse-simplifynext-ai-engineer-graduate"
+      ],
+      "remaining_error_must_be_only": "clause_atoms[27].qualifier.minimum_months=0"
+    },
+    "C4-controls-and-non-regression": {
+      "required_unchanged_in_vocabulary_atom_count": 102,
+      "FieldAI_and_Optiver_validity_must_remain_true": true,
+      "source_and_surface_values_must_remain_unchanged": true,
+      "v4_3_diagnostics_and_reverse_replay_must_remain_unchanged": true,
+      "zero_lower_bound_or_qualifier_changes_allowed": false
+    },
+    "C5-causal-decision": {
+      "supported": "C0-C4 pass and both category-only target records recover under the enum-only oracle without output mutation or control change.",
+      "rejected": "Any target remains invalid, any non-target activates or changes, or any schema property beyond the category enum differs."
+    }
+  },
+  "execution_protocol": {
+    "dedicated_runner_required": true,
+    "runner_shared_with_zero_lower_bound_oracle": false,
+    "source_and_tests_frozen_before_execution": true,
+    "formal_execution_count": 1,
+    "rerun_after_failure_allowed": false,
+    "threshold_change_after_freeze_allowed": false,
+    "write_new_artifacts_only": true
+  },
+  "next_allowed_action": "Implement only the category admission oracle evaluator, runner, and focused tests; freeze their sources; then execute once offline."
+}

@@ -1,0 +1,37 @@
+{
+  "freeze_version": "unified-jd-structured-span-v5-preregistration-freeze-v1",
+  "frozen_at": "2026-09-04",
+  "status": "frozen_before_v5_implementation",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v5_preregistration_v1_2026-09-04.json",
+      "sha256": "55a5cf715888a810de0a3ebff5ae3dfa6d194a422dc6ea02070791021bdf76c8"
+    },
+    "findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-preregistration-v1-2026-09-04.md",
+      "sha256": "2ecfe7a8858628fae39d9ed3e991b9abfc72b97e5bac77c50ca8c34d55a256c2"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v5_preregistration.py",
+      "sha256": "abf98c7769256b7d92d3171a7c19f9511f71cd4436eac241657f9f8dcef3410e"
+    },
+    "frozen_v4_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    }
+  },
+  "checks": {
+    "labels_frozen_before_baseline": true,
+    "baseline_recorded_before_thresholds": true,
+    "only_e2_e3_e6_e7_retained": true,
+    "e1_e4_e5_excluded": true,
+    "all_gates_conjunctive": true,
+    "threshold_tuning_after_freeze_allowed": false,
+    "v5_existed_at_freeze": false,
+    "canonicalizer_existed_at_freeze": false,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "immutability": "Any rule or threshold change requires a new preregistration and freeze version before another v5 implementation/evaluation cycle.",
+  "next_allowed_action": "Implement only the frozen combined v5 rule, freeze its source hash, then execute the registered development and regression gates once."
+}

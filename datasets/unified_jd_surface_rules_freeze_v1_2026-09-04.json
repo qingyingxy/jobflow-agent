@@ -1,0 +1,50 @@
+{
+  "freeze_version": "unified-jd-surface-rules-freeze-v1",
+  "status": "frozen",
+  "frozen_at": "2026-09-04",
+  "extractor_version": "unified-jd-surface-items-rules-v1",
+  "frozen_rules": {
+    "path": "src/domain/unified_jd_surface_items.py",
+    "sha256": "ab34553b88f4e4f730552949bfe1cfb7185654c32c48b73af7de9bd90f80e875"
+  },
+  "contract": {
+    "path": "docs/CANONICAL_ITEMS_CONTRACT_V1.md",
+    "sha256": "f7415a027df83d0f8b27dea05f1cded4c8777078aed0fb2b7755cf63bd3ca55c",
+    "version": "canonical-items-contract-v1"
+  },
+  "development_fixture": {
+    "path": "datasets/unified_jd_canonical_items_contract_v1.json",
+    "sha256": "1053371c0a787c7f246522a89b6df2234aba5f3385d59f28ae6065949d7e3c65",
+    "case_ids": [
+      "campus-ai-011",
+      "campus-ai-069",
+      "campus-ai-072",
+      "campus-ai-085",
+      "campus-ai-091"
+    ],
+    "fixture_count": 20
+  },
+  "development_report": {
+    "path": "artifacts/evaluation/unified-jd-surface-items-prototype-v1-2026-09-04.json",
+    "sha256": "da15b304aebf209e585c93c9fc7328aec1287d9fd179f7267968b9695d3a5a61",
+    "surface_exact_set_rate": 1.0,
+    "examples_exact_set_rate": 0.95
+  },
+  "holdout_protocol": {
+    "selection_version": "unified-jd-surface-holdout-selection-v1",
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "exclude_development_case_ids": true,
+    "unique_case_per_fixture": true,
+    "selection_method": "SHA-256 rank of selection version, case id, clause index, and source content hash; category-balanced without replacement",
+    "labels_visible_during_rule_development": false,
+    "rules_may_change_after_selection": false,
+    "gates": {
+      "surface_items_f1_min": 0.85,
+      "surface_exact_set_rate_min": 0.7,
+      "examples_f1_min": 0.8,
+      "unanchored_output_count_max": 0
+    }
+  },
+  "immutability_policy": "Any rule change requires a new extractor and freeze version. The v1 holdout result must not be used to edit this frozen rules file."
+}

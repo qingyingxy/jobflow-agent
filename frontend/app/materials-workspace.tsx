@@ -1,4 +1,6 @@
 "use client";
+import { parseApiTimestamp } from "./api-time";
+import ResumePrivacyReview from "./resume-privacy-review";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -293,8 +295,19 @@ export default function MaterialsWorkspace({
     }
   }
 
-  async function createResumeVersion() {
-    if (!selectedFile && !selectedAssetId) {
+  const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
+
+  const [reviewExisting, setReviewExisting] = useState(false);
+
+  function finishResumeReview(parsed: boolean) {
+    if (reviewExisting) {
+      setPreviewAssetId(null); setReviewExisting(false);
+      if (parsed) { setMessage("已使用确认内容更新经历。"); onResumeChange?.(); }
+    } else if (previewAssetId) void createResumeVersion(previewAssetId);
+  }
+
+  async function createResumeVersion(confirmedAssetId?: string) {
+    if (!confirmedAssetId && !selectedFile && !selectedAssetId) {
       setMessage("请选择 PDF / DOCX 文件，或使用已上传文件。");
       return;
     }
@@ -305,8 +318,8 @@ export default function MaterialsWorkspace({
     setState("saving");
     setMessage("");
     try {
-      let assetId = selectedAssetId;
-      if (selectedFile) {
+      let assetId = confirmedAssetId || selectedAssetId;
+      if (selectedFile && !confirmedAssetId) {
         const form = new FormData();
         form.append("file", selectedFile);
         const uploadResponse = await fetch(`${apiUrl}/api/resumes/assets`, {
@@ -319,6 +332,11 @@ export default function MaterialsWorkspace({
         assetId = asset.id;
         setAssets((current) => [asset, ...current]);
       }
+      if (!confirmedAssetId) {
+        setReviewExisting(false); setPreviewAssetId(assetId); setSelectedAssetId(assetId); setSelectedFile(null);
+        setState("ready"); return;
+      }
+      setPreviewAssetId(null);
       const versionResponse = await fetch(`${apiUrl}/api/resumes/versions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-User-ID": userId },
@@ -510,9 +528,9 @@ export default function MaterialsWorkspace({
           <label className="resume-default-check"><input type="checkbox" checked={makeDefault} onChange={(event) => setMakeDefault(event.target.checked)} /><span>设为默认投递版本</span></label>
         </div>
         <div className="materials-action-row">
-          <span>{variant === "resume-only" ? "上传后会自动解析经历，你可以在“我的经历”中逐条核对。" : "文件内容保存在非公开目录；界面和 API 只暴露受控元数据。"}</span>
+          <span>{variant === "resume-only" ? "文件先保存在本地；核对脱敏预览并同意后才会解析。" : "文件内容保存在非公开目录；界面和 API 只暴露受控元数据。"}</span>
           <button className="materials-primary" disabled={state === "saving"} onClick={() => void createResumeVersion()} type="button">
-            {state === "saving" ? "处理中…" : variant === "resume-only" ? "上传并解析" : "创建简历版本"}
+            {state === "saving" ? "处理中…" : variant === "resume-only" ? "上传并预览" : "保存前预览"}
           </button>
         </div>
       </section>
@@ -523,7 +541,7 @@ export default function MaterialsWorkspace({
             <article className={`version-row ${version.is_default ? "is-default" : ""}`} key={version.id}>
               <div className="version-number">V{version.version_number.toString().padStart(2, "0")}</div>
               <div className="version-main"><div><h3>{version.label}</h3>{version.is_default ? <span>默认</span> : null}</div><p>{version.job_family || "通用岗位"} · {version.generation_reason}</p><small>{version.asset.original_filename} · {formatBytes(version.asset.size_bytes)}</small></div>
-              <div className="version-actions"><button onClick={() => void downloadAsset(version.asset)} type="button" aria-label={`下载 ${version.label}`}>↓</button>{!version.is_default ? <button onClick={() => void setDefaultVersion(version.id)} disabled={state === "saving"} type="button">设为默认</button> : <span>当前默认</span>}</div>
+              <div className="version-actions"><button type="button" disabled={state === "saving"} onClick={() => { setReviewExisting(true); setPreviewAssetId(version.asset_id); }}>核对并解析经历</button><button onClick={() => void downloadAsset(version.asset)} type="button" aria-label={`下载 ${version.label}`}>↓</button>{!version.is_default ? <button onClick={() => void setDefaultVersion(version.id)} disabled={state === "saving"} type="button">设为默认</button> : <span>当前默认</span>}</div>
             </article>
           ))}</div>
         )}
@@ -536,7 +554,8 @@ export default function MaterialsWorkspace({
       <section className="materials-resume-only" aria-live="polite">
         {message ? <div className={`materials-message ${state === "error" ? "materials-message-error" : ""}`}>{message}</div> : null}
         {state === "loading" ? <div className="materials-loading"><span />正在读取简历…</div> : null}
-        {resumeWorkspace}
+        {previewAssetId ? <ResumePrivacyReview apiUrl={apiUrl} userId={userId} assetId={previewAssetId}
+          onDone={finishResumeReview} onCancel={() => setPreviewAssetId(null)} /> : resumeWorkspace}
       </section>
     );
   }
@@ -628,7 +647,8 @@ export default function MaterialsWorkspace({
           </div>
         ) : null}
 
-        {step === "resumes" ? resumeWorkspace : null}
+        {step === "resumes" ? (previewAssetId ? <ResumePrivacyReview apiUrl={apiUrl} userId={userId} assetId={previewAssetId}
+          onDone={finishResumeReview} onCancel={() => setPreviewAssetId(null)} /> : resumeWorkspace) : null}
 
         {state !== "loading" && step === "answers" ? (
           <div className="answer-workspace">
@@ -674,7 +694,7 @@ function formatBytes(value: number): string {
 }
 
 function formatDate(value: string): string {
-  const parsed = new Date(value);
+  const parsed = parseApiTimestamp(value);
   if (Number.isNaN(parsed.getTime())) return "刚刚";
   return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "short", day: "numeric" }).format(parsed);
 }

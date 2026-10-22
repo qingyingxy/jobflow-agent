@@ -1,0 +1,298 @@
+{
+  "labels_version": "unified-jd-structured-span-external-holdout-labels-v1",
+  "contract_version": "canonical-items-contract-v1",
+  "status": "reviewed_pre_prediction_frozen",
+  "labeled_at": "2026-09-04",
+  "annotator": "Codex coding agent",
+  "prediction_status_at_labeling": "v3_parser_not_run_on_selection",
+  "model_call_count": 0,
+  "selection": {
+    "path": "datasets/unified_jd_structured_span_external_holdout_selection_v1_2026-09-04.json",
+    "sha256": "809bdc1bbfb4b0fc4ab08f1cac960a1e6655f068233c1de323728bafea9c7e6a"
+  },
+  "annotation_policy": {
+    "surface_items": "Atomic exact source spans. Generic requirement wrappers are excluded; independently inspectable actions, objects, outcomes, and coordinated paths are retained.",
+    "examples": "Illustrative named instances attached to an upper-level requirement. Explicit one-of or one-or-more candidates remain surface items.",
+    "shared_scope": "A shared prefix, suffix, predicate, object, or evidence head is represented once and may apply to multiple atomic spans.",
+    "prediction_independence": "Labels were reviewed and frozen after the v3 parser hash freeze and before the parser was run on any selected source_text."
+  },
+  "fixtures": [
+    {
+      "id": "structured-external-v1-001",
+      "case_id": "campus-ai-003",
+      "category": "responsibility",
+      "source_text": "洞察用户真实需求，把握用户需求的本质",
+      "surface_items": [
+        "洞察用户真实需求",
+        "把握用户需求的本质"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-002",
+      "case_id": "campus-ai-005",
+      "category": "responsibility",
+      "source_text": "记忆驱动的个性化推荐与可进化记忆闭环的算法设计与系统搭建",
+      "surface_items": [
+        "记忆驱动的个性化推荐",
+        "可进化记忆闭环",
+        "算法设计",
+        "系统搭建"
+      ],
+      "examples": null,
+      "review_note": "The final 算法设计与系统搭建 scope applies to the coordinated memory-loop subject; the four exact spans remain separately inspectable."
+    },
+    {
+      "id": "structured-external-v1-003",
+      "case_id": "campus-ai-007",
+      "category": "responsibility",
+      "source_text": "负责方案/用例设计、数据集构建、问题跟踪、问题分析、完成测试报告等",
+      "surface_items": [
+        "方案",
+        "用例设计",
+        "数据集构建",
+        "问题跟踪",
+        "问题分析",
+        "完成测试报告"
+      ],
+      "examples": null,
+      "review_note": "The slash is a compact coordination in 方案/用例设计, while the final 等 is an open-list marker rather than an example cue."
+    },
+    {
+      "id": "structured-external-v1-004",
+      "case_id": "campus-ai-014",
+      "category": "responsibility",
+      "source_text": "探索高效的模型调优策略、高质量数据建设方法，研究MoE稀疏化、Latent Attention等前沿模型结构",
+      "surface_items": [
+        "高效的模型调优策略",
+        "高质量数据建设方法",
+        "前沿模型结构"
+      ],
+      "examples": [
+        "MoE稀疏化",
+        "Latent Attention"
+      ],
+      "review_note": "The named structures illustrate the required upper-level 前沿模型结构 item."
+    },
+    {
+      "id": "structured-external-v1-005",
+      "case_id": "campus-ai-019",
+      "category": "responsibility",
+      "source_text": "建设Agent评测体系，持续优化成功率、响应延迟、成本及用户体验",
+      "surface_items": [
+        "Agent评测体系",
+        "成功率",
+        "响应延迟",
+        "成本",
+        "用户体验"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-006",
+      "case_id": "campus-ai-020",
+      "category": "skill",
+      "source_text": "精通Go、Python、C++等一种或多种编程语言，具备扎实的编程技能和算法设计能力",
+      "surface_items": [
+        "Go",
+        "Python",
+        "C++",
+        "编程技能",
+        "算法设计"
+      ],
+      "examples": null,
+      "review_note": "一种或多种 makes Go, Python, and C++ explicit candidates rather than examples."
+    },
+    {
+      "id": "structured-external-v1-007",
+      "case_id": "campus-ai-021",
+      "category": "skill",
+      "source_text": "具备扎实的计算机基础，理解数据结构、算法、操作系统、计算机网络等基础知识",
+      "surface_items": [
+        "计算机基础",
+        "数据结构",
+        "算法",
+        "操作系统",
+        "计算机网络"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-008",
+      "case_id": "campus-ai-022",
+      "category": "skill",
+      "source_text": "对大模型有深入理解，熟悉LLM技术原理与应用方法",
+      "surface_items": [
+        "大模型",
+        "LLM技术原理",
+        "应用方法"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-009",
+      "case_id": "campus-ai-028",
+      "category": "skill",
+      "source_text": "扎实的计算机、编程基础，熟悉主流大语言模型的原理及方法",
+      "surface_items": [
+        "计算机",
+        "编程基础",
+        "主流大语言模型的原理",
+        "方法"
+      ],
+      "examples": null,
+      "review_note": "基础 is shared across 计算机 and 编程; the model domain is shared across 原理 and 方法."
+    },
+    {
+      "id": "structured-external-v1-010",
+      "case_id": "campus-ai-031",
+      "category": "skill",
+      "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个",
+      "surface_items": [
+        "Multi-Agent系统",
+        "任务分解",
+        "自动化规划",
+        "Prompt Engineering"
+      ],
+      "examples": null,
+      "review_note": "之一或多个 explicitly quantifies the listed skill candidates; they are not examples."
+    },
+    {
+      "id": "structured-external-v1-011",
+      "case_id": "campus-ai-034",
+      "category": "experience",
+      "source_text": "对大模型与Agent有真实的动手经验，做过基于大模型API、Agent框架、Prompt/评测相关的项目",
+      "surface_items": [
+        "大模型",
+        "Agent",
+        "大模型API",
+        "Agent框架",
+        "Prompt",
+        "评测"
+      ],
+      "examples": null,
+      "review_note": "动手经验 and 相关的项目 are shared evidence heads for two coordinated groups."
+    },
+    {
+      "id": "structured-external-v1-012",
+      "case_id": "campus-ai-038",
+      "category": "experience",
+      "source_text": "有Agent安全、大模型安全、风控反作弊或黑灰产对抗经验",
+      "surface_items": [
+        "Agent安全",
+        "大模型安全",
+        "风控反作弊",
+        "黑灰产对抗"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-013",
+      "case_id": "campus-ai-039",
+      "category": "experience",
+      "source_text": "具备AI+SE结合的项目经验",
+      "surface_items": [
+        "AI+SE结合的项目经验"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-014",
+      "case_id": "campus-ai-060",
+      "category": "experience",
+      "source_text": "在ICLR、NeurIPS、ICML、KDD、AAAI、IJCAI等机器学习领域会议或者期刊有第一作者论文",
+      "surface_items": [
+        "机器学习领域会议",
+        "期刊",
+        "第一作者论文"
+      ],
+      "examples": [
+        "ICLR",
+        "NeurIPS",
+        "ICML",
+        "KDD",
+        "AAAI",
+        "IJCAI"
+      ],
+      "review_note": "Conference names illustrate the venue class; 第一作者论文 is the shared experience evidence."
+    },
+    {
+      "id": "structured-external-v1-015",
+      "case_id": "campus-ai-062",
+      "category": "experience",
+      "source_text": "有目标检测、图像分类、缺陷识别、OCR等相关课程设计/竞赛/项目经验优先",
+      "surface_items": [
+        "相关课程设计",
+        "竞赛",
+        "项目经验"
+      ],
+      "examples": [
+        "目标检测",
+        "图像分类",
+        "缺陷识别",
+        "OCR"
+      ],
+      "review_note": "The vision tasks attach as examples to the shared course, competition, or project experience paths."
+    },
+    {
+      "id": "structured-external-v1-016",
+      "case_id": "campus-ai-074",
+      "category": "capability",
+      "source_text": "工程能力强，能快速验证想法并落地到产品或平台中",
+      "surface_items": [
+        "工程能力",
+        "快速验证想法",
+        "落地到产品或平台中"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-017",
+      "case_id": "campus-ai-081",
+      "category": "capability",
+      "source_text": "有很强的数据问题分析能力，具有业务上的自闭环能力",
+      "surface_items": [
+        "数据问题分析",
+        "业务上的自闭环"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-018",
+      "case_id": "campus-ai-095",
+      "category": "capability",
+      "source_text": "有良好的团队沟通协作能力，及优秀的项目驱动能力",
+      "surface_items": [
+        "团队沟通协作",
+        "项目驱动"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-019",
+      "case_id": "campus-ai-096",
+      "category": "capability",
+      "source_text": "学习能力强、动手实践积极、沟通协作良好",
+      "surface_items": [
+        "学习能力",
+        "动手实践",
+        "沟通协作"
+      ],
+      "examples": null
+    },
+    {
+      "id": "structured-external-v1-020",
+      "case_id": "campus-ai-099",
+      "category": "capability",
+      "source_text": "能够独立完成问题拆解、实验验证、结果分析和持续迭代，具备较强的工程落地意识",
+      "surface_items": [
+        "问题拆解",
+        "实验验证",
+        "结果分析",
+        "持续迭代",
+        "工程落地意识"
+      ],
+      "examples": null
+    }
+  ]
+}

@@ -16,7 +16,7 @@ BASE = JobStub(
     job_type="campus",
     published_at=None,
     detail_url="https://example.com/jobs/1",
-    raw_content="后端开发，参与前端团队协作。",
+    raw_content="负责后端服务开发，参与前端团队协作。",
 )
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from src.domain.education import (
@@ -108,6 +109,46 @@ def _and(results: list[str]) -> str:
     )
 
 
+def _uncertain_degree_floor(condition: EducationCondition) -> int | None:
+    """Retain only a source-backed lower bound common to all possible paths.
+
+    Unknown AND/OR cannot waive a degree needed on every represented path.
+    Unresolved alternatives outside education can waive it, so abstain for
+    equivalence, relaxation, preference, negation or experience-based paths.
+    This proves only a lower bound, never a positive qualification decision.
+    """
+    ranks = []
+    for branch in condition.branches:
+        degree = branch.degree
+        if (
+            branch.scope == "unknown"
+            or degree.operator not in {"eq", "gte"}
+            or degree.level not in degree_levels(degree.source_text or "")
+        ):
+            return None
+        source = branch.source_text.casefold()
+        if re.search(
+            r"同等|放宽|豁免|免除|优先|不要求|非必须|无需|无须|不必"
+            r"|学历不限|不限学历|不限制学历|优秀者|特殊情况"
+            r"|\bequivalent\b|\bpreferred\b|\boptional\b|\bwaiv\w*\b"
+            r"|\bin\s+lieu\b|\balternatively\b|\bnot\s+(?:required|necessary)\b"
+            r"|\bunnecessary\b|\bexceptional\s+candidates?\b"
+            r"|\bwithout\b[^.;!?\n]{0,60}\b(?:degree|phd|bachelor|master)\b"
+            r"|(?:或者?|\bor\b)[^。；.;!?\n]{0,100}"
+            r"(?:经验|能力|成果|论文|获奖|奖项|资格|\bexperience\b|\bskills?\b|\bexpertise\b"
+            r"|\bpublications?\b|\btrack\s+record\b|\bawards?\b|\bqualifications?\b)",
+            source,
+        ):
+            return None
+        # A shared quote may mention a lower alternative that was not parsed.
+        # Use that lower level too; never silently tighten the source's floor.
+        ranks.extend(
+            DEGREE_RANK[level]
+            for level in degree_levels(branch.source_text) | {degree.level}
+        )
+    return min(ranks) if ranks else None
+
+
 def binds_application_cohort(condition: EducationCondition) -> bool:
     """Every accepting path must require a record for the application degree."""
     scopes = [branch.scope == "application" for branch in condition.branches]
@@ -212,7 +253,23 @@ def evaluate_education(
             )
         branch_results.append(result)
     if condition.relation == "uncertain":
-        result = "unknown"
+        floor = _uncertain_degree_floor(condition)
+        below_floor = (
+            floor is not None
+            and profile.education_history_complete
+            and all(record.level in DEGREE_RANK for record in records)
+            and all(DEGREE_RANK[record.level] < floor for record in records)
+        )
+        result = "fail" if below_floor else "unknown"
+        if below_floor:
+            label = next(
+                DEGREE_LABELS[level]
+                for level, rank in DEGREE_RANK.items()
+                if rank == floor
+            )
+            details.append(
+                f"教育关系尚未确定，但已确认的完整教育经历均未达到原文共同最低学历：{label}"
+            )
     elif condition.relation == "any_of":
         result = (
             "pass"

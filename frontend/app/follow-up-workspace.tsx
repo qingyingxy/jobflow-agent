@@ -157,16 +157,16 @@ function applicationName(application: ApplicationItem | undefined): string {
   return `${application.job.company ?? "未命名公司"} / ${application.job.title ?? "未命名岗位"}`;
 }
 
-export default function FollowUpWorkspace({ apiUrl, userId }: { apiUrl: string; userId: string }) {
-  const [view, setView] = useState<FollowUpView>("today");
+export default function FollowUpWorkspace({ apiUrl, userId, initialApplicationId }: { apiUrl: string; userId: string; initialApplicationId?: string }) {
+  const [view, setView] = useState<FollowUpView>(initialApplicationId ? "all" : "today");
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [tasks, setTasks] = useState<FollowUpTask[]>([]);
   const [calendarTasks, setCalendarTasks] = useState<FollowUpTask[]>([]);
   const [summary, setSummary] = useState<FollowUpSummary | null>(null);
-  const [applicationFilter, setApplicationFilter] = useState("all");
+  const [applicationFilter, setApplicationFilter] = useState(initialApplicationId || "all");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<FollowUpDraft>(() => emptyDraft());
+  const [draft, setDraft] = useState<FollowUpDraft>(() => emptyDraft(initialApplicationId));
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
@@ -207,6 +207,10 @@ export default function FollowUpWorkspace({ apiUrl, userId }: { apiUrl: string; 
 
   useEffect(() => {
     void load();
+    const timer = window.setInterval(() => void load(true), 60_000);
+    const refresh = () => void load(true);
+    window.addEventListener("focus", refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", refresh); };
   }, [load]);
 
   const applicationMap = useMemo(() => new Map(applications.map((item) => [item.id, item])), [applications]);
@@ -251,6 +255,7 @@ export default function FollowUpWorkspace({ apiUrl, userId }: { apiUrl: string; 
       });
       if (!response.ok) throw new Error(await readError(response));
       await load(true);
+      window.dispatchEvent(new Event("jobflow:tracking-changed"));
       setMessage(successMessage);
       return true;
     } catch (error) {
@@ -323,6 +328,19 @@ export default function FollowUpWorkspace({ apiUrl, userId }: { apiUrl: string; 
     await mutate(`/api/follow-ups/${taskId}/cancel`, { method: "POST", body: "{}" }, "任务已取消，历史记录仍保留在时间线。 ");
   }
 
+  async function exportCalendar(task: FollowUpTask) {
+    try {
+      const response = await fetch(`${apiUrl}/api/follow-ups/${task.id}/calendar`, { headers: { "X-User-ID": userId } });
+      if (!response.ok) throw new Error(await readError(response));
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url; link.download = "JobFlow-跟进日程.ics";
+      document.body.appendChild(link); link.click(); link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setMessage("日历已导出，导入日历应用后可接收提醒。修改任务后请重新导入更新。");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "日历导出失败"); }
+  }
+
   return (
     <section className="follow-up-workspace">
       <header className="follow-up-command">
@@ -378,6 +396,7 @@ export default function FollowUpWorkspace({ apiUrl, userId }: { apiUrl: string; 
                       {task.contact_name || task.channel ? <div className="follow-up-contact"><span>{task.contact_name ?? "未记录联系人"}</span><span>{task.channel ?? "未记录渠道"}</span>{task.contact_detail ? <span>{task.contact_detail}</span> : null}</div> : null}
                     </div>
                     <div className="follow-up-task-actions">
+                      <button onClick={() => void exportCalendar(task)} title="导出带提醒的日历" aria-label={`导出日历 ${task.title}`} type="button">日历</button>
                       {task.available_actions.includes("edit") ? <button onClick={() => startEdit(task)} disabled={working} title="编辑任务" aria-label={`编辑 ${task.title}`} type="button">✎</button> : null}
                       {task.available_actions.includes("complete") ? <button onClick={() => void completeTask(task.id)} disabled={working} title="完成任务" aria-label={`完成 ${task.title}`} type="button">✓</button> : null}
                       {task.available_actions.includes("cancel") ? <button onClick={() => void cancelTask(task.id)} disabled={working} title="取消任务" aria-label={`取消 ${task.title}`} type="button">×</button> : null}

@@ -1,0 +1,122 @@
+{
+  "freeze_version": "unified-jd-structured-span-rules-freeze-v4",
+  "frozen_at": "2026-09-04",
+  "status": "rules_frozen_pending_corpus_external_holdout",
+  "parser": {
+    "version": "unified-jd-structured-span-parser-v4-development",
+    "path": "src/domain/unified_jd_structured_spans_v4.py",
+    "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+  },
+  "frozen_parent": {
+    "version": "unified-jd-structured-span-parser-v3",
+    "path": "src/domain/unified_jd_structured_spans.py",
+    "sha256": "0ba56a1eafee24f9643cc5015c495e88201cf7652e2a278e305ff821319d863a",
+    "modified": false
+  },
+  "development_evidence": {
+    "scope": "revealed_external-to-dev50_same-corpus_data_reclassified_as_development",
+    "generalization_claim": false,
+    "gold": {
+      "path": "datasets/unified_jd_structured_span_v4_development_gold_v1_2026-09-04.json",
+      "sha256": "5bb034f2aaa6ad44c2ad0f6c06618291d451a58ec3808e903a27cafe58fe9509",
+      "fixture_count": 20,
+      "revealed_v3_failure_count": 17,
+      "passing_control_count": 3
+    },
+    "v3_control_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v3-raw-v1-2026-09-04.json",
+      "sha256": "d46840379727b7c281c1d0c1b3d70cb73e5dfe99b61078b13bb3581aab4be5c0"
+    },
+    "v3_control_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v3-report-v1-2026-09-04.json",
+      "sha256": "0422fa91c4c827352c10c40f394a6b912c691d5d7983f1561e138cf104c958fa"
+    },
+    "v4_treatment_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v4-raw-v1-2026-09-04.json",
+      "sha256": "8513bc0e1db960f1e0928d7d8707e4f3f0a314a9a921ad7a1b24875e341ad9d7"
+    },
+    "v4_treatment_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v4-report-v1-2026-09-04.json",
+      "sha256": "cf54f6d79c3b46e5d8bfd94a35f72df76471a8d2fbbe13534ab31031ab7693f5"
+    },
+    "causal_experiments": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-causal-experiments-v1-2026-09-04.json",
+      "sha256": "204d0119628978afff870eec7217f1e57b0f44b632e6cc4b36f4fb9c0655cdce",
+      "findings_path": "artifacts/evaluation/unified-jd-structured-span-v4-causal-experiments-v1-2026-09-04.md",
+      "findings_sha256": "83d5d5aced1a2a5935f60819d6f60954389b92586b0ceb5d78ad7d897251d440",
+      "supported": true,
+      "model_call_count": 0
+    },
+    "v4_metrics": {
+      "connector_classification_accuracy": 1.0,
+      "coordination_member_f1": 1.0,
+      "shared_scope_edge_f1": 1.0,
+      "example_attachment_edge_f1": 1.0,
+      "surface_projection_f1": 1.0,
+      "example_projection_f1": 1.0,
+      "structure_validation_error_count": 0
+    },
+    "previous_development_regression": {
+      "fixture_count": 60,
+      "exact_projection_count": 60,
+      "exact_projection_rate": 1.0
+    }
+  },
+  "causal_decisions": [
+    {
+      "mechanism": "quantifier_context_protection",
+      "control_connector_accuracy": 0.75,
+      "treatment_connector_accuracy": 1.0,
+      "accepted": true
+    },
+    {
+      "mechanism": "category_neutral_coordination_scanner",
+      "control_member_f1": 0.3373493975903614,
+      "treatment_member_f1": 1.0,
+      "accepted": true
+    },
+    {
+      "mechanism": "local_topology_example_attachment",
+      "control_attachment_edge_f1": 0.0,
+      "treatment_attachment_edge_f1": 1.0,
+      "accepted": true
+    }
+  ],
+  "corpus_external_holdout_protocol": {
+    "required_before_prediction": [
+      "Source corpus must not be AI-campus or a derivative of its 99-job catalog.",
+      "Use real full job descriptions with source identity and provenance retained.",
+      "Freeze selection and human-reviewed structural labels before running v4.",
+      "Use at least 20 unique jobs and report every structural layer separately."
+    ],
+    "gates": {
+      "connector_classification_accuracy_min": 0.9,
+      "coordination_member_f1_min": 0.85,
+      "shared_scope_edge_f1_min": 0.8,
+      "example_attachment_edge_f1_min": 0.8,
+      "surface_projection_f1_min": 0.85,
+      "surface_projection_exact_rate_min": 0.7,
+      "unanchored_output_count_max": 0,
+      "structure_validation_error_count_max": 0,
+      "previous_development_regression_exact_rate_min": 1.0
+    },
+    "single_use": true,
+    "post_failure_policy": "Reveal failures as development data, create v5, and select another corpus-external holdout."
+  },
+  "canonicalizer_decision": {
+    "allowed": false,
+    "reason": "v4 has perfect revealed-development evidence but has not been evaluated on a corpus-external frozen holdout."
+  },
+  "verification": {
+    "pytest": {
+      "command": ".venv/Scripts/pytest.exe -q",
+      "passed": 750,
+      "failed": 0,
+      "warnings": 2
+    },
+    "ruff": {
+      "command": ".venv/Scripts/ruff.exe check src/domain/unified_jd_structured_spans_v4.py scripts/build_unified_structured_span_v4_development_gold.py scripts/evaluate_unified_structured_span_v4_development.py scripts/run_unified_structured_span_v4_causal_experiments.py tests/test_unified_jd_structured_spans_v4.py",
+      "passed": true
+    }
+  }
+}

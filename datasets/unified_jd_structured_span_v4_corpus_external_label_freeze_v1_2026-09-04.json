@@ -1,0 +1,53 @@
+{
+  "freeze_version": "unified-jd-structured-span-v4-corpus-external-label-freeze-v1",
+  "frozen_at": "2026-09-04",
+  "status": "frozen_before_v4_prediction",
+  "purpose": "Single-use corpus-external holdout for the frozen v4 structured-span parser.",
+  "artifacts": {
+    "corpus": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_sources_v1_2026-09-04.json",
+      "sha256": "1e693bd69642511ffa005b2bc33489b68a4a1ef99abb3c65b8615862c0eb5b29"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_selection_v1_2026-09-04.json",
+      "sha256": "3061f49377ef937325743c1e1afc14e9651215f36dfad6b8c02771bd99b5661a"
+    },
+    "labels": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_labels_v1_2026-09-04.json",
+      "sha256": "64823eb502b5219254a0376808a234e056b2964fe85cd00c30d898b821a79b54"
+    },
+    "parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v4_corpus_external_holdout.py",
+      "sha256": "48d7ed6db1e6fb651546e2efa60001bca2bb172d5eddd4153bed210744114b7f"
+    }
+  },
+  "freeze_checks": {
+    "job_count": 20,
+    "fixture_count": 20,
+    "unique_job_id_count": 20,
+    "category_counts": {
+      "capability": 5,
+      "experience": 5,
+      "responsibility": 5,
+      "skill": 5
+    },
+    "connector_roles_present": [
+      "embedded",
+      "example",
+      "quantifier",
+      "surface"
+    ],
+    "exact_source_url_overlap_with_ai_campus": 0,
+    "position_id_overlap_with_ai_campus": 0,
+    "all_projection_items_source_anchored": true,
+    "all_structural_spans_validated": true,
+    "v4_parser_imported": false,
+    "v4_parser_run_count": 0,
+    "model_call_count": 0
+  },
+  "next_allowed_action": "Run the frozen v4 parser exactly once on these 20 source_text values, write raw predictions and a layer-separated report, then apply the frozen gates."
+}

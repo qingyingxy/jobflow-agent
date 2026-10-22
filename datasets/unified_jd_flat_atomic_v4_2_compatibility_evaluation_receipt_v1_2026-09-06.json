@@ -1,0 +1,65 @@
+{
+  "receipt_version": "unified-jd-flat-atomic-v4.2-compatibility-evaluation-receipt-v1",
+  "recorded_at": "2026-09-06T02:37:28.9557616Z",
+  "status": "formal_gate_failure_frozen_v4_2_rejected",
+  "formal_gate_execution_count": 1,
+  "pre_execution_launcher_failure_count": 1,
+  "pre_execution_launcher_failure_effect": "The initial file-path invocation failed during Python import before main, frozen-input loading, gate evaluation, or output creation. The single formal execution was the subsequent module invocation that created the frozen treatment and report.",
+  "artifacts": {
+    "source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_2_compatibility_source_freeze_v1_2026-09-06.json",
+      "sha256": "2b4053f14931109009dc7e64b867e9e06cf8a29bc77e52d3414425f36cdd7ec5"
+    },
+    "treatment": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-2-compatibility-treated-raw-v1-2026-09-06.json",
+      "sha256": "130e6ffa8d6db5b030be78ca780825987b340ec5af3cc872ce213ab76c0bf720"
+    },
+    "report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-2-compatibility-report-v1-2026-09-06.json",
+      "sha256": "ffd8f360b3d8215f03d7cda75e25cd68e04710721236e04c89d616ee02d4b99c"
+    }
+  },
+  "decision": "v4_2_rejected_keep_v4_1",
+  "gate_results": {
+    "G0-frozen-inputs-and-zero-calls": true,
+    "G1-contract-pipeline-and-reversibility": false,
+    "G2-external-revealed-5-of-5-recovery": false,
+    "G3-v4-live-probe-v4_1-exact-preservation": true,
+    "G4-dev20-exact-zero-regression": true,
+    "G5-fail-closed-controls": true,
+    "G6-isolation-static-audit-and-tests": true
+  },
+  "frozen_observations": {
+    "external_baseline_strict_schema_valid_case_count": 0,
+    "external_treatment_strict_schema_valid_case_count": 5,
+    "external_required_case_count": 5,
+    "external_activation_counts": {
+      "normalized_responsibility_role_alias": 0,
+      "omitted_empty_absent_fact_placeholder": 27,
+      "normalized_long_self_sufficient_evidence": 10
+    },
+    "external_target_partition_disjoint_and_complete": true,
+    "external_evidence_exactly_anchored": true,
+    "live_probe_exactly_preserved": true,
+    "dev20_exactly_preserved": true,
+    "all_16_controls_passed": true,
+    "full_suite_test_count": 922,
+    "full_suite_passed": true
+  },
+  "offline_failure_classification": {
+    "mechanism_recovery_supported_on_revealed_development_data": true,
+    "failure_family": "audit_reverse_replay_order",
+    "cause": "The frozen restore implementation reverses every diagnostic item globally. For multiple omitted facts, reinsertion must preserve the reverse mechanism order while replaying the omission mechanism's records in ascending original fact_index order.",
+    "affected_case_count": 4,
+    "ascending_original_fact_index_reinsert_restored_case_count": 4,
+    "descending_original_fact_index_reinsert_restored_case_count": 0,
+    "role_alias_reverse_affected": false,
+    "long_evidence_reverse_affected": false,
+    "strict_schema_recovery_affected": false,
+    "treatment_content_integrity_affected": false
+  },
+  "model_call_count": 0,
+  "network_call_count": 0,
+  "new_holdout_loaded": false,
+  "protocol_consequence": "Do not modify or rerun v4.2 and do not use a new holdout. Keep v4.1 as the latest accepted compatibility layer; any correction requires a separately preregistered later version using only frozen development evidence."
+}

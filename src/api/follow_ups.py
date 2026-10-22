@@ -206,6 +206,20 @@ def read_follow_up(
     return _task_response(view)
 
 
+@router.get("/follow-ups/{task_id}/calendar")
+def download_follow_up_calendar(task_id: str, user_id: CurrentUserId, session: DatabaseSession):
+    from src.services.follow_up_calendar import export_calendar
+
+    try:
+        view = FollowUpService(session).get(user_id=user_id, task_id=task_id)
+    except FollowUpNotFoundError as error:
+        raise _not_found(error) from error
+    return Response(export_calendar(view), media_type="text/calendar; charset=utf-8", headers={
+        "Content-Disposition": 'attachment; filename="jobflow-follow-up.ics"',
+        "Cache-Control": "private, no-store",
+    })
+
+
 @router.patch("/follow-ups/{task_id}", response_model=FollowUpTaskRead)
 def edit_follow_up(
     task_id: str,

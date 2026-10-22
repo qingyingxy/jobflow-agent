@@ -1,0 +1,36 @@
+{
+  "receipt_version": "unified-jd-structured-span-v5-mechanism-development-receipt-v1",
+  "created_at": "2026-09-04",
+  "status": "collection_and_mechanism_triage_complete",
+  "artifacts": {
+    "sources": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_sources_v1_2026-09-04.json",
+      "sha256": "7f08c279a21810d90931bf51325046a6ed001bc0192a8c8f00e7b74f8e5b5fed"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_selection_v1_2026-09-04.json",
+      "sha256": "b6da79c5518cf19cb803232dc7234a4adf1d127876f17c56ac8495d9ca0712e9"
+    },
+    "findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-findings-v1-2026-09-04.md",
+      "sha256": "f1e43e4f66dfe6d208e0338fd70d20fb38fbd5861d93f71450cd9d0787b34f08"
+    }
+  },
+  "counts": {
+    "jobs": 20,
+    "fixtures": 20,
+    "mechanisms": 4,
+    "e6_targets": 2,
+    "e6_matched_controls": 3,
+    "model_calls": 0,
+    "collection_network_calls": 3
+  },
+  "decision_boundary": {
+    "v4_modified": false,
+    "v5_implemented": false,
+    "canonicalizer_allowed": false,
+    "this_is_holdout": false,
+    "generalization_claim_allowed": false
+  },
+  "next_action": "Finish full structural span labels without executing v4/v5 predictions; freeze those labels as revealed development gold, preregister the combined v5 mechanism design and regression gates, then implement v5."
+}

@@ -51,10 +51,20 @@ def override_api_model_settings(monkeypatch: pytest.MonkeyPatch) -> None:
 
     settings = Settings(
         _env_file=None,
+        app_env="testing",
         structured_model_provider="fake",
         prompt_version="test-prompt-v1",
         parser_version="test-parser-v1",
     )
+    from src import config
+    from src import main as main_api
+
+    # Page interpretation is now a primary model path as well. Never let an
+    # offline regression inherit the developer's live model credentials.
+    monkeypatch.setattr(config, "get_settings", lambda: settings)
+    # TestClient enters lifespan; background workers must never touch the
+    # developer's personal database or live providers during offline tests.
+    monkeypatch.setattr(main_api, "settings", settings)
     monkeypatch.setattr(jobs_api, "get_settings", lambda: settings)
     monkeypatch.setattr(applications_api, "get_settings", lambda: settings)
     monkeypatch.setattr(materials_api, "get_settings", lambda: settings)

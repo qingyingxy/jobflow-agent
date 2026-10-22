@@ -1,0 +1,35 @@
+{
+  "receipt_version": "unified-jd-structured-span-external-holdout-evaluation-receipt-v1",
+  "evaluated_at": "2026-09-04",
+  "parser_sha256": "0ba56a1eafee24f9643cc5015c495e88201cf7652e2a278e305ff821319d863a",
+  "selection_sha256": "809bdc1bbfb4b0fc4ab08f1cac960a1e6655f068233c1de323728bafea9c7e6a",
+  "labels_sha256": "c320e2c308db100bacedd952173add294cd28aa09c0d9951bd94e567c8858bd1",
+  "outputs": {
+    "raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-external-holdout-raw-v1-2026-09-04.json",
+      "sha256": "e19c6bd5eff12e5e6a17458bf359f7c60a93d58787ff31524557330e91ae9705"
+    },
+    "report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-external-holdout-report-v1-2026-09-04.json",
+      "sha256": "c601b25a581188204a57b0967cac5e63e34ddd7b5e48e99fe772c77286a1b6cb"
+    },
+    "findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-external-holdout-findings-v1-2026-09-04.md",
+      "sha256": "4ddfc776af46c352173d3267f726302119f41e5dc95b025690dbf79a719b5350"
+    },
+    "error_analysis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-external-holdout-error-analysis-v1-2026-09-04.md",
+      "sha256": "202f8ee8715ad49b0de30bde328d44b82bf49cc0f236c89fab81ef2a1a018643"
+    }
+  },
+  "metrics": {
+    "surface_items_f1": 0.35772357723577236,
+    "surface_exact_set_rate": 0.15,
+    "examples_f1": 0.0,
+    "unanchored_output_count": 0,
+    "structure_validation_error_count": 0
+  },
+  "gate_passed": false,
+  "canonicalizer_allowed": false,
+  "immutability_policy": "The parser, selection, labels, raw predictions, and report are frozen. This revealed holdout may be used for diagnosis but not for a future generalization claim."
+}

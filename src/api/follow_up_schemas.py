@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.follow_up import (
     FollowUpEffectiveStatus,
     FollowUpEventType,
@@ -84,7 +85,7 @@ class FollowUpTaskRead(BaseModel):
     job_posting_id: str
     event_type: FollowUpEventType
     title: str
-    scheduled_at: datetime
+    scheduled_at: UtcTimestamp
     local_scheduled_at: datetime
     timezone: str
     duration_minutes: int | None
@@ -98,15 +99,15 @@ class FollowUpTaskRead(BaseModel):
     base_status: FollowUpStatus
     is_overdue: bool
     available_actions: list[Literal["edit", "complete", "cancel"]]
-    created_at: datetime
-    updated_at: datetime
-    completed_at: datetime | None
-    cancelled_at: datetime | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
+    completed_at: UtcTimestamp | None
+    cancelled_at: UtcTimestamp | None
 
 
 class FollowUpSummaryRead(BaseModel):
     timezone: str
-    generated_at: datetime
+    generated_at: UtcTimestamp
     total_pending: int
     today: int
     overdue: int

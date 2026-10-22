@@ -1,0 +1,444 @@
+{
+  "selection_version": "unified-jd-structured-span-v4-corpus-external-selection-v1",
+  "created_at": "2026-09-04",
+  "status": "frozen_before_labels_and_v4_predictions",
+  "corpus": {
+    "path": "datasets/unified_jd_structured_span_v4_corpus_external_sources_v1_2026-09-04.json",
+    "sha256": "1e693bd69642511ffa005b2bc33489b68a4a1ef99abb3c65b8615862c0eb5b29",
+    "job_count": 20
+  },
+  "parser_freeze": {
+    "path": "src/domain/unified_jd_structured_spans_v4.py",
+    "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094",
+    "parser_was_not_imported_or_run": true
+  },
+  "selection_policy": "After collecting complete experienced-hire pages, manually select exactly one category-eligible clause per unique job, with five fixtures per category. Freeze the job and clause selection before materializing labels or running v4.",
+  "scope": {
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "unique_job_per_fixture": true,
+    "single_use_holdout": true
+  },
+  "fixtures": [
+    {
+      "id": "structured-corpus-external-v1-001",
+      "job_id": "A38340",
+      "company": "字节跳动",
+      "title": "东南亚品牌商城策略（经营分析）-TikTok Shop",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7676051557618043141/detail",
+      "raw_content_sha256": "6a98ced2774913878985719624e1fc1c485ad114dc7c696f024515df10528895",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "洞察行业趋势与市场动态，结合平台特色，通过专项研究，与业务团队合作优化平台商家端权益和用户端权益的建设",
+      "clause_span_in_section": {
+        "text": "洞察行业趋势与市场动态，结合平台特色，通过专项研究，与业务团队合作优化平台商家端权益和用户端权益的建设",
+        "start": 142,
+        "end": 193
+      },
+      "clause_span_in_raw_content": {
+        "text": "洞察行业趋势与市场动态，结合平台特色，通过专项研究，与业务团队合作优化平台商家端权益和用户端权益的建设",
+        "start": 147,
+        "end": 198
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-002",
+      "job_id": "A135810",
+      "company": "字节跳动",
+      "title": "关卡策划（JRPG） - Bluesea Studio",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7669706138068175109/detail",
+      "raw_content_sha256": "8f989831e644654ac963224a261312c1cb0a24c18ed073540b902ac93eeb2a35",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "负责游戏关卡相关设计，包括但不限于活动副本、场景交互解密探索、各类PVP竞技玩法等相关设计和制作工作",
+      "clause_span_in_section": {
+        "text": "负责游戏关卡相关设计，包括但不限于活动副本、场景交互解密探索、各类PVP竞技玩法等相关设计和制作工作",
+        "start": 84,
+        "end": 134
+      },
+      "clause_span_in_raw_content": {
+        "text": "负责游戏关卡相关设计，包括但不限于活动副本、场景交互解密探索、各类PVP竞技玩法等相关设计和制作工作",
+        "start": 89,
+        "end": 139
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-003",
+      "job_id": "A37068",
+      "company": "字节跳动",
+      "title": "业务分析-CQC",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7668213188178151733/detail",
+      "raw_content_sha256": "48d89306315ecbd7552673119e8d9cbf91b46131ec5251b5e0164a977db5325c",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "构建数据观测与分析框架，打通管理指标与绩效考核的用数逻辑，沉淀分析范式并推动数据建设",
+      "clause_span_in_section": {
+        "text": "构建数据观测与分析框架，打通管理指标与绩效考核的用数逻辑，沉淀分析范式并推动数据建设",
+        "start": 136,
+        "end": 178
+      },
+      "clause_span_in_raw_content": {
+        "text": "构建数据观测与分析框架，打通管理指标与绩效考核的用数逻辑，沉淀分析范式并推动数据建设",
+        "start": 141,
+        "end": 183
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-004",
+      "job_id": "A128075",
+      "company": "字节跳动",
+      "title": "战略专家-TikTok Shop",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7667843545444813061/detail",
+      "raw_content_sha256": "47330f9d5e18f9c7012378390acaff39014a1e4daa025b0fb3ca9d9811867507",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "挖掘经营机会，监控业务风险，协助业务决策判断",
+      "clause_span_in_section": {
+        "text": "挖掘经营机会，监控业务风险，协助业务决策判断",
+        "start": 163,
+        "end": 185
+      },
+      "clause_span_in_raw_content": {
+        "text": "挖掘经营机会，监控业务风险，协助业务决策判断",
+        "start": 168,
+        "end": 190
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-005",
+      "job_id": "A153051A",
+      "company": "字节跳动",
+      "title": "推荐算法工程师（直播） - TikTok Shop",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7667405882653935877/detail",
+      "raw_content_sha256": "d5099582aadde5ef871750b41a5257e9bb511e010727e2ef00653ab0d06d697c",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "参与千万~亿级规模的电商个性化推荐算法的优化，主要包括Feeds的电商直播推荐、新用户推荐、直播冷启动、长期价值建模、体验优化等工作",
+      "clause_span_in_section": {
+        "text": "参与千万~亿级规模的电商个性化推荐算法的优化，主要包括Feeds的电商直播推荐、新用户推荐、直播冷启动、长期价值建模、体验优化等工作",
+        "start": 599,
+        "end": 665
+      },
+      "clause_span_in_raw_content": {
+        "text": "参与千万~亿级规模的电商个性化推荐算法的优化，主要包括Feeds的电商直播推荐、新用户推荐、直播冷启动、长期价值建模、体验优化等工作",
+        "start": 604,
+        "end": 670
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-006",
+      "job_id": "A115691A",
+      "company": "字节跳动",
+      "title": "算法工程师 - 今日头条",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7665255532760041781/detail",
+      "raw_content_sha256": "096c5bb29728ab9517c7548155da31477e8a637df041fc532265a4675be6bb2e",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备扎实的机器学习基础，熟悉推荐算法、深度学习算法、统计学习方法等优先",
+      "clause_span_in_section": {
+        "text": "具备扎实的机器学习基础，熟悉推荐算法、深度学习算法、统计学习方法等优先",
+        "start": 33,
+        "end": 68
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备扎实的机器学习基础，熟悉推荐算法、深度学习算法、统计学习方法等优先",
+        "start": 308,
+        "end": 343
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-007",
+      "job_id": "A10062A",
+      "company": "字节跳动",
+      "title": "搜索广告产品运营（本地推方向）-抖音生活服务",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7664538023490275589/detail",
+      "raw_content_sha256": "0d3d3094d842a5df67fe4a532c6649582271802ec777bc5458aeac777d9de6b0",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备数据分析能力，擅长通过数据发现产品推进中的问题与机会点",
+      "clause_span_in_section": {
+        "text": "具备数据分析能力，擅长通过数据发现产品推进中的问题与机会点",
+        "start": 81,
+        "end": 110
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备数据分析能力，擅长通过数据发现产品推进中的问题与机会点",
+        "start": 356,
+        "end": 385
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-008",
+      "job_id": "A182329A",
+      "company": "字节跳动",
+      "title": "大模型技术服务专家 - 火山引擎",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7663333383728597301/detail",
+      "raw_content_sha256": "09fd8d483bf3dbf5280169503fc411d721d21291a1b3f55d273dcf5c34bc8c88",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟练掌握Python或Golang，具备代码调试、日志分析和问题定位能力",
+      "clause_span_in_section": {
+        "text": "熟练掌握Python或Golang，具备代码调试、日志分析和问题定位能力",
+        "start": 70,
+        "end": 106
+      },
+      "clause_span_in_raw_content": {
+        "text": "熟练掌握Python或Golang，具备代码调试、日志分析和问题定位能力",
+        "start": 561,
+        "end": 597
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-009",
+      "job_id": "A24249",
+      "company": "字节跳动",
+      "title": "AI产品经理（Agent Friendly方向） - 飞书多维表格",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7663046602542074165/detail",
+      "raw_content_sha256": "2777434c4be7eb6df541d55d82d56b836a780ddc6777f2fb6a3e691ce75c6762",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "对LLM与Agent技术有深入理解，熟悉Agent能力边界、产品架构、技术实现与评测方法，持续关注技术趋势",
+      "clause_span_in_section": {
+        "text": "对LLM与Agent技术有深入理解，熟悉Agent能力边界、产品架构、技术实现与评测方法，持续关注技术趋势",
+        "start": 10,
+        "end": 63
+      },
+      "clause_span_in_raw_content": {
+        "text": "对LLM与Agent技术有深入理解，熟悉Agent能力边界、产品架构、技术实现与评测方法，持续关注技术趋势",
+        "start": 433,
+        "end": 486
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-010",
+      "job_id": "A94289",
+      "company": "字节跳动",
+      "title": "搜索内容质量评估（日语方向）-TikTok",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7662388144766044421/detail",
+      "raw_content_sha256": "f9c7e1de55b501fd0ef1bc9fdc95237f1081094a7830efdc93c9dbb1e65095a8",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "英语、日语熟练读写和沟通",
+      "clause_span_in_section": {
+        "text": "英语、日语熟练读写和沟通",
+        "start": 10,
+        "end": 22
+      },
+      "clause_span_in_raw_content": {
+        "text": "英语、日语熟练读写和沟通",
+        "start": 387,
+        "end": 399
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-011",
+      "job_id": "913V",
+      "company": "字节跳动",
+      "title": "云计算技术支持专家-火山引擎",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7043769342991845640/detail",
+      "raw_content_sha256": "26f9aeff3deceeec42ecaf17cb56125a5a7ffe88ccbc52199a597f84e7264c45",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "5年以上传统/DevOps/开发/售后/技术服务工作经验",
+      "clause_span_in_section": {
+        "text": "5年以上传统/DevOps/开发/售后/技术服务工作经验",
+        "start": 14,
+        "end": 42
+      },
+      "clause_span_in_raw_content": {
+        "text": "5年以上传统/DevOps/开发/售后/技术服务工作经验",
+        "start": 214,
+        "end": 242
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-012",
+      "job_id": "A150188",
+      "company": "字节跳动",
+      "title": "网络运维工程师-稳定性方向",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7287527004738521381/detail",
+      "raw_content_sha256": "4f167eb8607408e4a72c4086ee2b341c683b910a7457d18bce02831a80b4d4e8",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具有较强的实际操作能力，具有分析、解决复杂问题的能力",
+      "clause_span_in_section": {
+        "text": "具有较强的实际操作能力，具有分析、解决复杂问题的能力",
+        "start": 132,
+        "end": 158
+      },
+      "clause_span_in_raw_content": {
+        "text": "具有较强的实际操作能力，具有分析、解决复杂问题的能力",
+        "start": 308,
+        "end": 334
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-013",
+      "job_id": "A124569",
+      "company": "字节跳动",
+      "title": "网络运营工程师",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7289268765697952055/detail",
+      "raw_content_sha256": "9b782f1c6dda112eea595442f34d9c6bd2d34f2181b77e88069e157c3e0cb39c",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "有网络运维工作经验，互联网运维相关背景为佳",
+      "clause_span_in_section": {
+        "text": "有网络运维工作经验，互联网运维相关背景为佳",
+        "start": 2,
+        "end": 23
+      },
+      "clause_span_in_raw_content": {
+        "text": "有网络运维工作经验，互联网运维相关背景为佳",
+        "start": 163,
+        "end": 184
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-014",
+      "job_id": "A234610",
+      "company": "字节跳动",
+      "title": "DCN网络运维工程师-Data",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7583906471214860597/detail",
+      "raw_content_sha256": "5a1cce8a12b4239cd017abb460beefff562c84c2c690e8a6cefa8e6a2ce7d59b",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "有实际的网络建设和运维经验",
+      "clause_span_in_section": {
+        "text": "有实际的网络建设和运维经验",
+        "start": 42,
+        "end": 55
+      },
+      "clause_span_in_raw_content": {
+        "text": "有实际的网络建设和运维经验",
+        "start": 182,
+        "end": 195
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-015",
+      "job_id": "A100206A",
+      "company": "字节跳动",
+      "title": "骨干网络运维工程师-Data",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7583908774726682885/detail",
+      "raw_content_sha256": "dfb0e430f128e5c8c8ca4ead4d306d8baae203a40d93b20a608f0f1dfb20a4c4",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "拥有骨干网运维经验者优先",
+      "clause_span_in_section": {
+        "text": "拥有骨干网运维经验者优先",
+        "start": 14,
+        "end": 26
+      },
+      "clause_span_in_raw_content": {
+        "text": "拥有骨干网运维经验者优先",
+        "start": 125,
+        "end": 137
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-016",
+      "job_id": "A14418",
+      "company": "字节跳动",
+      "title": "AIGC算法工程师-PICO",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7585776219982186757/detail",
+      "raw_content_sha256": "5c82a7569f8c29b293092b5f3e6452faf633cfb65d06dbfdeec47aeb2e19fb55",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备优秀的编程能力",
+      "clause_span_in_section": {
+        "text": "具备优秀的编程能力",
+        "start": 34,
+        "end": 43
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备优秀的编程能力",
+        "start": 156,
+        "end": 165
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-017",
+      "job_id": "A60717",
+      "company": "字节跳动",
+      "title": "支付风控算法工程师-国际支付",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7621097380970367237/detail",
+      "raw_content_sha256": "735c9cbcf3296e0a808adc16ceaa238d8c4576eb072d169b98fca44c83b635e9",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备良好的编码习惯和工程优化能力",
+      "clause_span_in_section": {
+        "text": "具备良好的编码习惯和工程优化能力",
+        "start": 130,
+        "end": 146
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备良好的编码习惯和工程优化能力",
+        "start": 308,
+        "end": 324
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-018",
+      "job_id": "A85070",
+      "company": "字节跳动",
+      "title": "视频模型应用算法工程师/专家-Seed",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7626308673237633285/detail",
+      "raw_content_sha256": "596590dcf73cf55db21bf6b0f4128cbd1555b11fa9ee32ca4cb2daa3a7440318",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "1-5年计算机视觉一个或多个领域的研究和实践经验，包括但不限于以下方向",
+      "clause_span_in_section": {
+        "text": "1-5年计算机视觉一个或多个领域的研究和实践经验，包括但不限于以下方向",
+        "start": 2,
+        "end": 37
+      },
+      "clause_span_in_raw_content": {
+        "text": "1-5年计算机视觉一个或多个领域的研究和实践经验，包括但不限于以下方向",
+        "start": 383,
+        "end": 418
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-019",
+      "job_id": "A229374A",
+      "company": "字节跳动",
+      "title": "大模型评测算法工程师-AI数据与安全",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7626658537711896837/detail",
+      "raw_content_sha256": "ee81b4dd5421d94e3ab7653a47bb008339c9a7775309a3cfe32fd8fc0fd0bed5",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备良好的逻辑思维与问题解决能力，对大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲，能快速跟进前沿技术并落地实践",
+      "clause_span_in_section": {
+        "text": "具备良好的逻辑思维与问题解决能力，对大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲，能快速跟进前沿技术并落地实践",
+        "start": 126,
+        "end": 184
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备良好的逻辑思维与问题解决能力，对大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲，能快速跟进前沿技术并落地实践",
+        "start": 381,
+        "end": 439
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-020",
+      "job_id": "A86945",
+      "company": "字节跳动",
+      "title": "机器学习负责人（搜索算法）-TikTok内容生态 Machine Learning Leader (Search Algorithm) - TikTok Content Ecology",
+      "original_url": "https://jobs.bytedance.com/experienced/position/7649353067440605493/detail",
+      "raw_content_sha256": "879bb78833f9bb04286860eb9898f280f9490039ff28c5c3922d4382c042895b",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备优秀的沟通与人际交往能力，能够与多元化的全球团队进行无缝协作",
+      "clause_span_in_section": {
+        "text": "具备优秀的沟通与人际交往能力，能够与多元化的全球团队进行无缝协作",
+        "start": 275,
+        "end": 307
+      },
+      "clause_span_in_raw_content": {
+        "text": "具备优秀的沟通与人际交往能力，能够与多元化的全球团队进行无缝协作",
+        "start": 1354,
+        "end": 1386
+      }
+    }
+  ]
+}

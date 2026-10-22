@@ -220,6 +220,7 @@ async function installApiFixture(page: Page) {
   let searchStarted = false;
   let leadVerified = false;
   let leads: Array<Record<string, unknown>> = [];
+  let savedGoal: Record<string, unknown> | null = null;
   const jsonHeaders = {
     "access-control-allow-origin": "http://localhost:3000",
     "access-control-allow-headers": "content-type,x-user-id",
@@ -390,6 +391,12 @@ async function installApiFixture(page: Page) {
           company: "腾讯",
           title: "混元 AI Agent 工程师 - 校园招聘",
           raw_content: "岗位职责：负责 AI Agent 产品研发。任职要求：熟悉 Python、LLM 和软件工程。",
+          availability_status: "UNKNOWN",
+          recruitment_context: {
+            status: "verified", batch_name: "2027届校园招聘",
+            eligibility_text: "招聘对象：2027届应届毕业生。",
+            source_url: "https://careers.tencent.com/campus", checked_at: now,
+          },
         },
       });
       return;
@@ -410,21 +417,35 @@ async function installApiFixture(page: Page) {
       await route.fulfill({ headers: jsonHeaders, json: handoffAnalysis });
       return;
     }
-    if (url.pathname === "/api/discovery/search" && request.method() === "POST") {
+    if (url.pathname === "/api/discovery/goals") {
+      if (request.method() === "POST") {
+        const input = request.postDataJSON();
+        savedGoal = { id: "goal-demo", name: input.input_text, input_text: input.input_text,
+          query: input.input_text, version: 1, company_ids: input.company_ids,
+          conditions: { locations: ["北京"], preferred_locations: [], excluded_locations: [], roles: ["agent"], excluded_roles: [],
+            job_types: ["校招"], excluded_job_types: [], graduation_years: [], keywords: [], pending_conditions: [] }, condition_sources: {} };
+        return route.fulfill({ headers: jsonHeaders, status: 201, json: savedGoal });
+      }
+      return route.fulfill({ headers: jsonHeaders, json: savedGoal ? [savedGoal] : [] });
+    }
+    if (url.pathname === "/api/discovery/goals/goal-demo/library") return route.fulfill({ headers: jsonHeaders,
+      json: { goal_id: "goal-demo", goal_version: 1, query: savedGoal?.query, lead_ids: [], latest_run_id: completedRun.id,
+        result_matches: searchStarted ? completedRun.result_matches : [], updates: [], counts: {} } });
+    if (url.pathname === "/api/discovery/goals/goal-demo/search" && request.method() === "POST") {
       searchStarted = true;
       await route.fulfill({
         status: 202,
         headers: jsonHeaders,
-        json: { ...completedRun, status: "RUNNING", result_matches: [], finished_at: null },
+        json: { ...completedRun, search_goal_id: "goal-demo", search_goal_version: 1, status: "RUNNING", result_matches: [], finished_at: null },
       });
       return;
     }
     if (url.pathname === `/api/discovery/runs/${completedRun.id}`) {
-      await route.fulfill({ headers: jsonHeaders, json: completedRun });
+      await route.fulfill({ headers: jsonHeaders, json: { ...completedRun, search_goal_id: "goal-demo", search_goal_version: 1 } });
       return;
     }
     if (url.pathname === "/api/discovery/runs") {
-      await route.fulfill({ headers: jsonHeaders, json: searchStarted ? [completedRun] : [] });
+      await route.fulfill({ headers: jsonHeaders, json: searchStarted ? [{ ...completedRun, search_goal_id: "goal-demo", search_goal_version: 1 }] : [] });
       return;
     }
     if (url.pathname === "/api/candidates") {
@@ -451,7 +472,7 @@ test("filter results hide explicit conflicts until requested", async ({ page }) 
   }
   await page.getByRole("button", { name: "搜索并筛选" }).click();
 
-  await expect(page.locator(".discovery-message")).toContainText("找到 2 个具体岗位");
+  await expect(page.getByLabel("本轮搜索统计")).toContainText("2 个岗位正文已核验");
   const table = page.locator(".jobs-table");
   await expect(table.getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
   await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toHaveCount(0);
@@ -465,10 +486,10 @@ test("filter results hide explicit conflicts until requested", async ({ page }) 
     await page.screenshot({ path: "test-results/demo-02-strict.png" });
   }
 
-  await page.getByRole("checkbox", { name: "只看符合本次条件的岗位" }).check();
+  await page.getByRole("checkbox", { name: "只看搜索条件已确认的岗位" }).check();
   await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toHaveCount(0);
   await expect(table.getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
-  await page.getByRole("checkbox", { name: "只看符合本次条件的岗位" }).uncheck();
+  await page.getByRole("checkbox", { name: "只看搜索条件已确认的岗位" }).uncheck();
   await expect(table.getByRole("button", { name: "Senior Platform Architect - Enterprise AI Agent" })).toBeVisible();
 
   await page.locator("summary.discovery-history-heading").click();
@@ -490,22 +511,24 @@ test("filter results hide explicit conflicts until requested", async ({ page }) 
 test("existing analysis opens as a discovery detail and returns to the list", async ({ page }) => {
   await installApiFixture(page);
   await page.goto("/");
+  await page.getByLabel("你想找什么").fill("北京 / 上海的 AI Agent、LLM、算法校招岗位");
   const searchRequestPromise = page.waitForRequest((request) => (
-    new URL(request.url()).pathname === "/api/discovery/search"
+    new URL(request.url()).pathname === "/api/discovery/goals/goal-demo/search"
   ));
   await page.getByRole("button", { name: "搜索并筛选" }).click();
   const searchRequest = await searchRequestPromise;
   expect(searchRequest.postDataJSON()).toEqual({
-    query: "北京 / 上海的 AI Agent、LLM、算法校招岗位",
-    source_mode: "web",
-    company_ids: null,
+    expected_version: 1,
   });
 
   await page.locator(".jobs-table").getByRole("button", { name: "混元 AI Agent 工程师 - 校园招聘" }).click();
   const detail = page.getByRole("dialog", { name: "岗位详情" });
   await expect(detail.getByRole("heading", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();
   await expect(detail.getByText("岗位职责：负责 AI Agent 产品研发", { exact: false })).toBeVisible();
-  await detail.getByRole("button", { name: "打开完整匹配与申请" }).click();
+  await expect(detail.getByRole("region", { name: "关联招聘批次" })).toContainText("2027届校园招聘");
+  await expect(detail.getByText("已确认岗位所属批次；当前是否开放投递仍待核实。")).toBeVisible();
+  await expect(detail.getByRole("link", { name: "查看批次来源 ↗" })).toHaveAttribute("href", "https://careers.tencent.com/campus");
+  await detail.getByRole("button", { name: "查看匹配结果" }).click();
 
   await expect(page.getByRole("heading", { name: "岗位匹配详情" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "混元 AI Agent 工程师 - 校园招聘" })).toBeVisible();

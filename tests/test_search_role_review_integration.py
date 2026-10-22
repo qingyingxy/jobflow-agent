@@ -53,7 +53,7 @@ async def test_search_publishes_local_jobs_then_updates_each_semantic_result(
         )
 
     settings = Settings(
-        _env_file=None,
+        _env_file=None, web_search_understanding_mode="hybrid",
         structured_model_provider="openai",
         llm_api_key="fixture",
         web_search_direct_sources_enabled=False,
@@ -66,11 +66,11 @@ async def test_search_publishes_local_jobs_then_updates_each_semantic_result(
         multiround_search, "SessionLocal", sessionmaker(bind=db_session.bind)
     )
     monkeypatch.setattr(
-        multiround_search, "enabled_company_source_hosts", lambda: {"example.com"}
+        multiround_search, "enabled_company_source_hosts", lambda **_: {"example.com"}
     )
-    monkeypatch.setattr(multiround_search, "enabled_company_sources", lambda _: [])
+    monkeypatch.setattr(multiround_search, "enabled_company_sources", lambda *_, **__: [])
     monkeypatch.setattr(
-        web_search_service, "create_web_search_provider", lambda *_: Provider()
+        web_search_service, "create_web_search_provider", lambda *_, **__: Provider()
     )
     monkeypatch.setattr(
         job_role_review, "create_structured_model_client", lambda _: client

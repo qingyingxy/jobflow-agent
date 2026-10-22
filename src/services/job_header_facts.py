@@ -60,34 +60,63 @@ _CITIES = [
     "伦敦",
     "东京",
 ]
-_CITY = r"(?:" + "|".join(map(re.escape, _CITIES)) + r")(?:市)?"
+_CITY = r"(?:中国)?(?:" + "|".join(map(re.escape, _CITIES)) + r")(?:市)?"
+_HEADER_FIELD = (
+    r"(?:校招|校园招聘|社招|社会招聘|实习|实习生|全职|兼职|正式|"
+    r"技术|研发|产品|设计|运营|市场|销售|职能|"
+    r"[A-Za-z0-9\u4e00-\u9fff]{1,20}(?:项目|计划)|"
+    r"\d+人|若干(?:人)?|20\d{2}[-/]\d{1,2}[-/]\d{1,2})"
+)
 _LOCATION_LINE = re.compile(
-    rf"{_CITY}(?:\s*[/、,，|]\s*{_CITY})*"
-    r"(?:[ \t]+(?:校招|校园招聘|社招|社会招聘|实习|实习生|全职|兼职))?"
+    rf"(?P<locations>{_CITY}(?:[ \t]*[/、,，|][ \t]*{_CITY})*)"
+    rf"(?:[ \t]+{_HEADER_FIELD})*"
+)
+_LOCATION_NAVIGATION = re.compile(
+    r"(?:(?:点击)?(?:查看|浏览|搜索|筛选|选择)(?:更多|全部|所有)?"
+    r"(?:工作岗位|工作地点|办公地点|岗位|职位|城市)|"
+    r"(?:view|browse|search|select|filter) (?:all |more )?(?:jobs|positions|locations))",
+    re.IGNORECASE,
 )
 
 
-def header_location_evidence(text: str, title: str | None) -> list[dict]:
-    """Require an exact title line and a bounded header ending at JD sections.
+def location_field_values(values: list[str]) -> list[str]:
+    """Remove UI action labels, retaining unknown but potentially real locations."""
+    return [
+        value for value in values if not _LOCATION_NAVIGATION.fullmatch(value.strip())
+    ]
 
-    The whole line must be city fields plus an optional recruitment-type label.
+
+def header_location_evidence(text: str, title: str | None) -> list[dict]:
+    """Require a literal title with optional inline cities and a bounded header.
+
+    The whole line must be city fields plus recognized header metadata fields.
     Thus company introductions, references
     to other cities in duties, and partially understood lists cannot prove a
     work location. HTML navigation/related jobs must already be scoped out.
     """
     if not title:
         return []
-    heading = re.search(rf"(?m)^[ \t]*{re.escape(title.strip())}[ \t]*$", text)
+    heading = re.search(
+        rf"(?m)^[ \t]*{re.escape(title.strip())}(?:[ \t]+(?P<cities>[^\n]+?))?[ \t]*$",
+        text,
+    )
     end = _HEADER_END.search(text, heading.end()) if heading else None
     if not heading or not end or end.start() - heading.end() > 1200:
         return []
     result = []
-    for line in re.finditer(r"[^\n]+", text[heading.end() : end.start()]):
-        value = line[0].strip()
-        if not _LOCATION_LINE.fullmatch(value):
+    lines = [
+        (line[0], heading.end() + line.start())
+        for line in re.finditer(r"[^\n]+", text[heading.end() : end.start()])
+    ]
+    if heading.group("cities"):
+        lines.insert(0, (heading.group("cities"), heading.start("cities")))
+    for line, offset in lines:
+        value = line.strip()
+        fields = _LOCATION_LINE.fullmatch(value)
+        if not fields:
             continue
-        for city in re.finditer(_CITY, line[0]):
-            start = heading.end() + line.start() + city.start()
+        for city in re.finditer(_CITY, fields["locations"]):
+            start = offset + len(line) - len(line.lstrip()) + city.start()
             if city[0] not in {item["value"] for item in result}:
                 result.append(
                     {
@@ -103,7 +132,7 @@ def header_location_evidence(text: str, title: str | None) -> list[dict]:
 
 def effective_job_locations(job) -> list[str]:
     """Read-through repair for old saved jobs; never overwrites stored metadata."""
-    return list(job.locations or []) or [
+    return location_field_values(list(job.locations or [])) or [
         item["value"]
         for item in header_location_evidence(job.raw_content or "", job.title)
     ]
@@ -119,19 +148,28 @@ def recruitment_type_conflicts(job) -> list[str]:
         if re.search(r"实习|\bintern(?:ship)?\b", job.title or "", re.IGNORECASE):
             quotes.append(job.title)
         for source, pattern in (
-            (duty_text(job), r"实习(?:内容|职责|工作|岗位)|\binternship (?:duties|role)\b"),
+            (
+                duty_text(job),
+                r"实习(?:内容|职责|工作|岗位)|\binternship (?:duties|role)\b",
+            ),
             (text, r"实习周期|连续实习\s*\d|(?:每周|每星期)(?:可)?实习\s*\d|至少实习"),
         ):
             quotes.extend(
-                s.strip() for s in re.split(r"[。；;\n]", source)
+                s.strip()
+                for s in re.split(r"[。；;\n]", source)
                 if re.search(pattern, s, re.IGNORECASE)
             )
         return list(dict.fromkeys(quotes))[:3]
     if job.job_type == "internship":
         # Conversion opportunities in duties do not make an internship formal.
         end = _HEADER_END.search(text)
-        header = text[:end.start()] if end else ""
-        return [line.strip() for line in header.splitlines() if re.fullmatch(
-            r"(?:招聘类型\s*[：:]\s*)?(?:正式|正式校招|全职|社会招聘|社招)", line.strip()
-        )][:3]
+        header = text[: end.start()] if end else ""
+        return [
+            line.strip()
+            for line in header.splitlines()
+            if re.fullmatch(
+                r"(?:招聘类型\s*[：:]\s*)?(?:正式|正式校招|全职|社会招聘|社招)",
+                line.strip(),
+            )
+        ][:3]
     return []

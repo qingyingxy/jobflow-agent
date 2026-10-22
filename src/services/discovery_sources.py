@@ -49,6 +49,8 @@ _NON_JOB_PATH_SEGMENTS = frozenset(
         "help",
         "home",
         "index",
+        "list",
+        "search",
         "news",
         "privacy",
         "process",
@@ -89,6 +91,7 @@ class JobStub:
     published_at: datetime | None
     detail_url: str
     raw_content: str
+    recruitment_context: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -967,9 +970,16 @@ class OfficialCompanyRegistryAdapter:
         return await self._list_static_source(source)
 
     async def _list_static_source(self, source: CompanySource) -> list[JobStub]:
+        from src.services.company_registry import within_company_source
+
+        def allowed(url):
+            return not source.official_homepage_url or within_company_source(url, source)
+
         occurred_at = datetime.now(UTC).isoformat()
         started = perf_counter()
         response = await self.reader.fetch(source.career_url)
+        if not allowed(response.final_url):
+            raise SourcePayloadError("招聘入口跳转超出已核验的公司范围")
         html = response.body.decode("utf-8", errors="replace")
         document = parse_html_document(html)
         jobs = self._jsonld_jobs(source, response.final_url, document)
@@ -985,7 +995,7 @@ class OfficialCompanyRegistryAdapter:
             jobs.append(self._to_stub(source, response.final_url, document))
             successful_tools.append("static_job_page_validator")
 
-        links = _rank_job_links(extract_html_links(html, base_url=response.final_url))
+        links = _rank_job_links([link for link in extract_html_links(html, base_url=response.final_url) if allowed(link.url)])
         followed_links = links[: self.max_detail_links_per_source]
         for link in followed_links:
             try:
@@ -994,6 +1004,8 @@ class OfficialCompanyRegistryAdapter:
                 self.failures.append(
                     f"{source.company} 子页面（{link.url}）：{str(error)[:180]}"
                 )
+                continue
+            if not allowed(detail_response.final_url):
                 continue
             detail_html = detail_response.body.decode("utf-8", errors="replace")
             detail_document = parse_html_document(detail_html)
@@ -1020,7 +1032,7 @@ class OfficialCompanyRegistryAdapter:
                 )
                 successful_tools.append("visible_job_link_reader")
 
-        jobs = _dedupe_stubs(jobs)
+        jobs = _dedupe_stubs([job for job in jobs if allowed(job.detail_url)])
         if jobs:
             tools = " + ".join(dict.fromkeys(successful_tools))
             self._set_source_step(
@@ -1346,7 +1358,17 @@ def _is_non_job_page(*, url: str, title: str) -> bool:
 
 
 def _looks_like_dynamic_shell(raw_html: str) -> bool:
-    return len(re.findall(r"<script\b", raw_html, flags=re.IGNORECASE)) >= 5
+    if len(re.findall(r"<script\b", raw_html, flags=re.IGNORECASE)) >= 5:
+        return True
+    # Modern bundles may load an entire SPA with one or two scripts. An empty
+    # app mount plus a declared script warrants rendering, never job approval.
+    return bool(
+        re.search(r"<script\b[^>]*\bsrc\s*=", raw_html, re.IGNORECASE)
+        and re.search(
+            r"<(?:div|main)\b[^>]*\bid\s*=\s*[\"'](?:root|app|__next|__nuxt)[\"'][^>]*>\s*</(?:div|main)>",
+            raw_html, re.IGNORECASE,
+        )
+    )
 
 
 def looks_like_dynamic_shell(raw_html: str) -> bool:

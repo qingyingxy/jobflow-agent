@@ -11,6 +11,7 @@ from src.config import Settings
 from src.domain.discovery import DiscoveryRun, JobLead, LeadProvider, SearchEvidence
 from src.services import multiround_search as execution
 from src.services import web_search_service
+from src.services.company_registry import CompanySource
 from src.services.lead_providers import LeadCandidate
 from src.services.recruitment_entry import expand_entry
 from src.services.recruitment_trust import hiring_scope
@@ -95,8 +96,10 @@ def configure_execution(db_session, monkeypatch, factory, **overrides):
     })
     monkeypatch.setattr(execution, "get_settings", lambda: settings)
     monkeypatch.setattr(execution, "SessionLocal", sessionmaker(bind=db_session.bind))
-    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda: {"official.example"})
-    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args: [SimpleNamespace(id="example", company="Example", career_url="https://official.example/careers")])
+    monkeypatch.setattr(execution, "enabled_company_source_hosts", lambda **kwargs: {"official.example"})
+    monkeypatch.setattr(execution, "enabled_company_sources", lambda *args, **kwargs: [CompanySource("example", "Example", "C", "https://official.example/careers", "official_career_page")])
+    # These tests isolate provider request deadlines, without live browser work.
+    monkeypatch.setattr(execution, "PlaywrightBrowserJobReader", lambda **_: SimpleNamespace())
     monkeypatch.setattr(web_search_service, "create_web_search_provider", factory)
     run = DiscoveryRun(id="bottleneck", user_id="u", source="test", source_url="https://official.example", started_at=datetime.now(UTC))
     db_session.add(run)

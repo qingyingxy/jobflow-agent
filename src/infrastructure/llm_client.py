@@ -28,6 +28,8 @@ class StructuredModelRequest(BaseModel):
     messages: list[ChatMessage]
     prompt_version: str
     max_output_tokens: int | None = Field(default=None, gt=0)
+    # Local execution option, never sent in the provider payload.
+    transport_retries: int | None = Field(default=None, ge=0, le=3)
 
 
 class StructuredModelResponse(BaseModel):
@@ -59,6 +61,29 @@ class ModelUnavailableError(ModelClientError):
 
 class ModelResponseError(ModelClientError):
     code = "model_response_invalid"
+
+
+def is_retryable_model_error(error: ModelClientError) -> bool:
+    if isinstance(error, (ModelTimeoutError, ModelUnavailableError)):
+        return True
+    if isinstance(error, ModelResponseError):
+        return error.details.get("status_code") in {
+            408,
+            429,
+            500,
+            502,
+            503,
+            504,
+            520,
+            521,
+            522,
+            523,
+            524,
+            525,
+            526,
+            529,
+        }
+    return False
 
 
 class StructuredModelClient(Protocol):
@@ -98,7 +123,9 @@ class FakeModelClient:
     def model_name(self) -> str:
         return self._model
 
-    async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
+    async def generate(
+        self, request: StructuredModelRequest
+    ) -> StructuredModelResponse:
         self.last_request = request
         self.requests.append(request)
         if self.error is not None:
@@ -130,7 +157,9 @@ class DemoModelClient:
     def model_name(self) -> str:
         return self._model
 
-    async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
+    async def generate(
+        self, request: StructuredModelRequest
+    ) -> StructuredModelResponse:
         self.last_request = request
         if request.schema_name == "job_description":
             output = _demo_job_description(request)
@@ -142,11 +171,36 @@ class DemoModelClient:
             output = _demo_product_requirement_relations(request)
         elif request.schema_name == "product_job_combined":
             extraction = _demo_product_job_extraction(request)
-            output = {"extraction": extraction, "relations": {"decisions": [
-                {"requirement_index": index, "relation": "all_of", "items": [item["source_text"]],
-                 "reason": "演示客户端保守地保留完整条件。", "education": None}
-                for index, item in enumerate(extraction["requirements"])
-            ]}}
+            output = {
+                "extraction": extraction,
+                "relations": {
+                    "decisions": [
+                        {
+                            "requirement_index": index,
+                            "relation": "all_of",
+                            "items": [item["source_text"]],
+                            "reason": "演示客户端保守地保留完整条件。",
+                            "education": None,
+                        }
+                        for index, item in enumerate(extraction["requirements"])
+                    ]
+                },
+            }
+        elif request.schema_name == "product_job_inline":
+            extraction = _demo_product_job_extraction(request)
+            output = {
+                **extraction,
+                "requirements": [
+                    {
+                        **item,
+                        "relation": "all_of",
+                        "items": [item["source_text"]],
+                        "reason": "演示客户端保守地保留完整条件。",
+                        "education": None,
+                    }
+                    for item in extraction["requirements"]
+                ],
+            }
         elif request.schema_name == "core_job_fields":
             output = _demo_core_job_fields(request)
         elif request.schema_name == "detail_job_fields":
@@ -224,9 +278,7 @@ def _demo_job_description(request: StructuredModelRequest) -> dict[str, Any]:
     ]
     if locations:
         output["locations"] = locations
-        field_evidence.append(
-            {"field_path": "locations", "source_text": locations[0]}
-        )
+        field_evidence.append({"field_path": "locations", "source_text": locations[0]})
 
     skill_terms = (
         ("RAG", "RAG"),
@@ -256,9 +308,7 @@ def _demo_job_description(request: StructuredModelRequest) -> dict[str, Any]:
                     }
                 ],
             }
-            for index, (skill, phrase) in enumerate(
-                item for item in skill_pairs
-            )
+            for index, (skill, phrase) in enumerate(item for item in skill_pairs)
         ]
         output["required_skills"] = skills
         output["requirements"] = requirements
@@ -532,9 +582,7 @@ class OpenAICompatibleModelClient:
         model: str,
         response_format: Literal["json_schema", "json_object"] = "json_schema",
         thinking_mode: Literal["enabled", "disabled"] | None = None,
-        reasoning_effort: Literal[
-            "none", "minimal", "low", "medium", "high", "xhigh"
-        ]
+        reasoning_effort: Literal["none", "minimal", "low", "medium", "high", "xhigh"]
         | None = None,
         timeout_seconds: float = 120.0,
         max_retries: int = 2,
@@ -568,14 +616,21 @@ class OpenAICompatibleModelClient:
     def response_format(self) -> str:
         return self._response_format
 
-    async def generate(self, request: StructuredModelRequest) -> StructuredModelResponse:
+    async def generate(
+        self, request: StructuredModelRequest
+    ) -> StructuredModelResponse:
         last_error: ModelClientError | None = None
-        for attempt in range(self._max_retries + 1):
+        max_retries = (
+            self._max_retries
+            if request.transport_retries is None
+            else request.transport_retries
+        )
+        for attempt in range(max_retries + 1):
             try:
                 return await self._generate_once(request)
             except ModelClientError as error:
                 last_error = error
-                if attempt >= self._max_retries or not self._is_retryable(error):
+                if attempt >= max_retries or not self._is_retryable(error):
                     raise
                 delay = self._retry_backoff_seconds * (2**attempt)
                 if delay:
@@ -682,9 +737,7 @@ class OpenAICompatibleModelClient:
 
         if isinstance(content, list):
             content = "".join(
-                part.get("text", "")
-                for part in content
-                if isinstance(part, dict)
+                part.get("text", "") for part in content if isinstance(part, dict)
             )
         if not isinstance(content, str):
             raise ModelResponseError(
@@ -726,14 +779,7 @@ class OpenAICompatibleModelClient:
 
     @staticmethod
     def _is_retryable(error: ModelClientError) -> bool:
-        if isinstance(error, (ModelTimeoutError, ModelUnavailableError)):
-            return True
-        if isinstance(error, ModelResponseError):
-            status_code = error.details.get("status_code")
-            return status_code == 429 or (
-                isinstance(status_code, int) and status_code >= 500
-            )
-        return False
+        return is_retryable_model_error(error)
 
     @staticmethod
     def _decode_json_object(content: str) -> dict[str, Any]:
@@ -841,9 +887,7 @@ def create_structured_model_client(settings: Settings) -> StructuredModelClient:
         )
         response_format = settings.llm_response_format.strip().lower()
         if response_format == "auto":
-            response_format = (
-                "json_object" if is_deepseek else "json_schema"
-            )
+            response_format = "json_object" if is_deepseek else "json_schema"
         if response_format not in {"json_schema", "json_object"}:
             raise ModelClientError(
                 "LLM_RESPONSE_FORMAT 只能是 json_schema、json_object 或 auto"

@@ -1,0 +1,187 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.1-compatibility-preregistration-v1",
+  "generated_at": "2026-09-06T00:49:28.250915+00:00",
+  "status": "preregistered_after_revealed_probe_before_implementation",
+  "objective": "Implement one narrow wire-compatibility alias for responsibility atoms without changing frozen v4 semantics, parsers, canonicalizers, or gates.",
+  "evidence_status": "The five-case live probe is revealed development evidence. This is an implementation regression, not a new blind causal experiment.",
+  "frozen_inputs": {
+    "live_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-raw-responses-v1-2026-09-06.json",
+      "sha256": "81075fd2edaae3a2aa7fca3f13147e5cdeea0d5ae66cfc0ca62850a6f32b1e6b"
+    },
+    "live_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-live-probe-report-v1-2026-09-06.json",
+      "sha256": "158be052ff30af5b9834575f297a19efb0f1f585668c56aab2d9eb2861f96726"
+    },
+    "counterfactual_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-role-counterfactual-v1-2026-09-06.json",
+      "sha256": "a8d9ef4f2c3a3323645f7f23e8c78543f29adf2bf517ed701c7854362a143482"
+    },
+    "dev20_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-raw-v1-2026-09-05.json",
+      "sha256": "82c9359b6c2ed5d2245b999a156e3546fb66d6c82d1e8aa91b5a314042ab3386"
+    },
+    "dev20_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-dev20-report-v1-2026-09-05.json",
+      "sha256": "342d7674dc9d8ebfc9f1011f8505ae0c70b83b267ea622571c911be0bef41b46"
+    },
+    "live_selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_selection_v1_2026-09-06.json",
+      "sha256": "0b5a1da24a399a04a1e177b0ceb33fbfd91c1666206832ac1662c9e003160db0"
+    },
+    "live_preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_preregistration_v1_2026-09-06.json",
+      "sha256": "b48074eefc2a36150e65e5328b6c3ac582b4a1497f608ca82f798573274f9b87"
+    },
+    "v4_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_source_freeze_v1_2026-09-05.json",
+      "sha256": "f243ea6b9f094baee5e11ed7b6bea4f59c8806876f6532b8852a17fc8a52a74c"
+    },
+    "live_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_live_probe_source_freeze_v1_2026-09-06.json",
+      "sha256": "9d89a14b947e24d7b36f3f4355d760e3910b65f23b99487d76ed0948ff874264"
+    },
+    "v4_domain": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    },
+    "v4_compiler": {
+      "path": "src/services/unified_jd_flat_atomic_v4.py",
+      "sha256": "b1172a8b26f1d2c0447a73fb9aaf177c2fccc07feffa7dfafc4d53e97c0d4e2f"
+    },
+    "live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    },
+    "default_parser": {
+      "path": "src/services/unified_jd_parser.py",
+      "sha256": "86226a5fe7c9bf8e58c53ecb6902661847be7f08e5c44a0ca1aa8b31357ea36e"
+    },
+    "canonicalizer": {
+      "path": "src/domain/unified_jd_canonicalizer.py",
+      "sha256": "5e745b04296407005a063f9c59eb470c093eb9bea43ac3d87f65827100d8ecbf"
+    }
+  },
+  "observed_basis": {
+    "live_case_count": 5,
+    "historical_live_model_call_count": 5,
+    "live_atom_count": 183,
+    "live_role_counts": {
+      "item": 155,
+      "example": 10,
+      "responsibility": 18
+    },
+    "eligible_alias_count": 18,
+    "responsibility_role_total": 18,
+    "eligible_alias_case_count": 1,
+    "live_gate_passed": false,
+    "live_target_gate_status": {
+      "G1-json-and-root-topology": false,
+      "G5-granularity-noncollapse": false,
+      "G6-fact-layer-compatibility": false
+    },
+    "counterfactual_changed_field_count": 18,
+    "counterfactual_all_target_gates_recovered": true,
+    "counterfactual_all_gates_passed": true,
+    "dev20_case_count": 20,
+    "dev20_atom_count": 427,
+    "dev20_alias_count": 0,
+    "dev20_primary_item_count": 394,
+    "dev20_example_item_count": 33,
+    "dev20_gate_passed": true
+  },
+  "intervention": {
+    "activation": {
+      "role": "responsibility",
+      "category": "responsibility",
+      "level": "mention"
+    },
+    "replacement": {
+      "role": "item"
+    },
+    "allowed_changed_field": "role",
+    "must_deep_copy_input": true,
+    "must_emit_diagnostic": "normalized_responsibility_role_alias",
+    "must_not_use": [
+      "case or fixture identifiers",
+      "job text patterns",
+      "gold labels",
+      "company, title, URL, or source origin",
+      "model or network calls"
+    ],
+    "fail_closed": [
+      "role=responsibility with a non-responsibility category",
+      "role=responsibility with a non-mention level",
+      "every other invalid role value"
+    ]
+  },
+  "scope": {
+    "new_model_calls_allowed": 0,
+    "network_calls_allowed": 0,
+    "frozen_v4_modification_allowed": false,
+    "default_parser_modification_allowed": false,
+    "canonicalizer_modification_allowed": false,
+    "live_raw_overwrite_allowed": false,
+    "dev20_raw_overwrite_allowed": false,
+    "threshold_changes_allowed": false
+  },
+  "acceptance_gates": {
+    "G0-frozen-inputs-and-zero-calls": {
+      "all_input_hashes_match": true,
+      "new_model_call_count": 0,
+      "network_call_count": 0
+    },
+    "G1-exact-activation-and-audit": {
+      "changed_field_count": 18,
+      "changed_case_count": 1,
+      "changed_fields": [
+        "role"
+      ],
+      "diagnostic_code": "normalized_responsibility_role_alias",
+      "reverse_transform_restores_frozen_raw": true
+    },
+    "G2-live-probe-recovery": {
+      "all_original_G0_through_G7_must_pass": true,
+      "schema_valid_case_count": 5,
+      "aggregate_primary_atom_count": 173,
+      "fact_compatible_case_count": 5
+    },
+    "G3-dev20-exact-non-regression": {
+      "activation_count": 0,
+      "case_count": 20,
+      "atom_count": 427,
+      "primary_item_count": 394,
+      "example_item_count": 33,
+      "normalized_payloads_equal_inputs": true
+    },
+    "G4-fail-closed-controls": {
+      "eligible_alias_normalized": true,
+      "valid_responsibility_item_unchanged": true,
+      "responsibility_alias_with_skill_category_rejected": true,
+      "responsibility_alias_with_required_level_rejected": true,
+      "example_unchanged": true
+    },
+    "G5-isolation-and-static-audit": {
+      "frozen_v4_hashes_unchanged": true,
+      "default_parser_hash_unchanged": true,
+      "canonicalizer_hash_unchanged": true,
+      "runtime_fixture_ids_forbidden": true,
+      "runtime_model_network_and_canonicalizer_imports_forbidden": true
+    },
+    "G6-tests": {
+      "targeted_tests_must_pass": true,
+      "full_suite_must_pass": true
+    }
+  },
+  "execution_protocol": {
+    "source_freeze_before_gate_execution": true,
+    "formal_gate_run_count": 1,
+    "rerun_after_failure_allowed": false,
+    "write_new_report_only": true,
+    "all_gates_conjunctive": true
+  },
+  "decision": {
+    "on_pass": "Keep v4.1 as an opt-in wire compatibility boundary. Treat the five revealed cases as development data; require a fresh holdout before a generalization claim.",
+    "on_fail": "Do not activate v4.1. Preserve the failed report and diagnose offline."
+  }
+}

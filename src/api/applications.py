@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException, Response, status
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 
 from src.api.dependencies import CurrentUserId, DatabaseSession
@@ -53,11 +56,13 @@ router = APIRouter(prefix="/api", tags=["applications"])
 
 
 def _job_summary(posting) -> JobSummary:
+    from src.services.job_url import canonical_job_url
+
     return JobSummary(
         id=posting.id,
         company=posting.company,
         title=posting.title,
-        source_url=posting.source_url,
+        source_url=canonical_job_url(posting.source_url) if posting.source_url else None,
         source_id=posting.source_id,
         locations=effective_job_locations(posting),
         job_type=posting.job_type,
@@ -136,6 +141,9 @@ def _application_response(view) -> ApplicationRead:
         job_posting_id=view.candidate.job_posting_id,
         status=status_value,
         candidate_status=CandidateStatus(view.candidate.status),
+        submission_source=("user_confirmed" if any(e.event_type == "ManualSubmissionRecorded" for e in view.events)
+                           else "verified_receipt" if any(e.event_type == "ApplicationSubmissionVerified" for e in view.events)
+                           else None),
         next_action=view.application.next_action,
         available_transitions=sorted(
             available_transitions,
@@ -215,12 +223,14 @@ def list_candidates(
     user_id: CurrentUserId,
     session: DatabaseSession,
     status: CandidateStatus | None = None,
+    discovery_run_id: str | None = None,
 ) -> list[CandidateRead]:
     return [
         _candidate_response(view, session=session, user_id=user_id)
         for view in ApplicationService(session).list_candidates(
             user_id=user_id,
             status=status,
+            discovery_run_id=discovery_run_id,
         )
     ]
 
@@ -523,3 +533,22 @@ def decide_suggestion(
             detail={"code": "invalid_suggestion_decision", "message": str(error)},
         ) from error
     return _suggestion_response(suggestion)
+
+
+class ManualSubmissionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    confirmed: Literal[True]
+    note: str | None = Field(default=None, max_length=1000)
+
+
+@router.post("/applications/{application_id}/manual-submission", response_model=ApplicationRead)
+def record_manual_submission(application_id: str, payload: ManualSubmissionRequest,
+                             user_id: CurrentUserId, session: DatabaseSession):
+    try:
+        return _application_response(ApplicationService(session).record_manual_submission(
+            user_id=user_id, application_id=application_id, note=payload.note,
+        ))
+    except ApplicationNotFoundError as error:
+        raise HTTPException(status_code=404, detail="申请不存在") from error
+    except InvalidTransitionError as error:
+        raise _transition_error(error) from error

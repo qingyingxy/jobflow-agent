@@ -1,0 +1,205 @@
+{
+  "selection_version": "unified-jd-structured-span-external-holdout-selection-v1",
+  "created_at": "2026-09-04",
+  "status": "frozen_before_labels_and_predictions",
+  "parser_freeze": {
+    "path": "datasets/unified_jd_structured_span_rules_freeze_v3_2026-09-04.json",
+    "parser_sha256": "0ba56a1eafee24f9643cc5015c495e88201cf7652e2a278e305ff821319d863a"
+  },
+  "population": {
+    "split_path": "datasets/unified_jd_eval_split_v1_2026_09_03.json",
+    "split_sha256": "6f32f0256d095834f5aa93e41fbdbaea0b8fe72e24f7ffc99c3f2dceef388a70",
+    "partition": "sealed_blind",
+    "case_count": 30,
+    "unified_annotation_status_before_selection": "not_created",
+    "unified_prediction_status_before_selection": "not_generated_for_unified_schema"
+  },
+  "selection_policy": "Traverse the pre-frozen sealed_blind order and take the first category-eligible clause while preserving five fixtures per category and one fixture per job. Skip a job only when it has no semantically valid clause for the current category. Do not run or inspect v3 predictions during selection or labeling.",
+  "scope": {
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "unique_case_per_fixture": true
+  },
+  "fixtures": [
+    {
+      "id": "structured-external-v1-001",
+      "case_id": "campus-ai-003",
+      "company": "OPPO",
+      "title": "AI产品经理",
+      "source_content_sha256": "68c01a3344c62143622f4181b74189e0dfbd9187943d834b966e537d9c46d4d0",
+      "category": "responsibility",
+      "source_text": "洞察用户真实需求，把握用户需求的本质"
+    },
+    {
+      "id": "structured-external-v1-002",
+      "case_id": "campus-ai-005",
+      "company": "OPPO",
+      "title": "高级AI研究员（内容生成推荐智能体）-博士",
+      "source_content_sha256": "7f0e889468bbe457ac5c8068ddcf329c6b9c34c6edb12d940166e2884cdb79ba",
+      "category": "responsibility",
+      "source_text": "记忆驱动的个性化推荐与可进化记忆闭环的算法设计与系统搭建"
+    },
+    {
+      "id": "structured-external-v1-003",
+      "case_id": "campus-ai-007",
+      "company": "OPPO",
+      "title": "算法测试开发工程师",
+      "source_content_sha256": "6f24edb946a2f0728f3b6c6c56a504b55ecf4637402440c60ba4a276292fceaf",
+      "category": "responsibility",
+      "source_text": "负责方案/用例设计、数据集构建、问题跟踪、问题分析、完成测试报告等"
+    },
+    {
+      "id": "structured-external-v1-004",
+      "case_id": "campus-ai-014",
+      "company": "百度",
+      "title": "2027AIDU-大模型算法工程师(J99938)",
+      "source_content_sha256": "15ef9dfe61e6ef6e336f6b9f93bd92d8e60feaed7ae89bab2b0384ad5b5f1f97",
+      "category": "responsibility",
+      "source_text": "探索高效的模型调优策略、高质量数据建设方法，研究MoE稀疏化、Latent Attention等前沿模型结构"
+    },
+    {
+      "id": "structured-external-v1-005",
+      "case_id": "campus-ai-019",
+      "company": "百度",
+      "title": "2027AIDU-智能体算法工程师(J99969)",
+      "source_content_sha256": "d8219f5a481d4d3a775bf770c3dd3d6570d63077bf2a25cd7d7485222694ea98",
+      "category": "responsibility",
+      "source_text": "建设Agent评测体系，持续优化成功率、响应延迟、成本及用户体验"
+    },
+    {
+      "id": "structured-external-v1-006",
+      "case_id": "campus-ai-020",
+      "company": "字节跳动",
+      "title": "Agent开发工程师 - AI Platform",
+      "source_content_sha256": "9a8d8bd14aa6c883dd7c6da24cc8504d5aad85d7b61ca32e3aa42e50a3716051",
+      "category": "skill",
+      "source_text": "精通Go、Python、C++等一种或多种编程语言，具备扎实的编程技能和算法设计能力"
+    },
+    {
+      "id": "structured-external-v1-007",
+      "case_id": "campus-ai-021",
+      "company": "字节跳动",
+      "title": "大模型Agent Infra工程师 - 模型数据工程",
+      "source_content_sha256": "a5423d59df670b0690257ba4a6b6dec593db575b8f23ae380c58a54ea122aeb5",
+      "category": "skill",
+      "source_text": "具备扎实的计算机基础，理解数据结构、算法、操作系统、计算机网络等基础知识"
+    },
+    {
+      "id": "structured-external-v1-008",
+      "case_id": "campus-ai-022",
+      "company": "字节跳动",
+      "title": "Agent开发工程师 - 豆包",
+      "source_content_sha256": "4c5ca9ba1c89d9f12012d3a83ab87d679f5b98f57d0452728204df4cc5fe488f",
+      "category": "skill",
+      "source_text": "对大模型有深入理解，熟悉LLM技术原理与应用方法"
+    },
+    {
+      "id": "structured-external-v1-009",
+      "case_id": "campus-ai-028",
+      "company": "字节跳动",
+      "title": "AI Agent开发工程师 - 抖音研发",
+      "source_content_sha256": "781e95ffa23e5e399b2e662ebfa85ded83096c85d11ebebee69777cb01924a97",
+      "category": "skill",
+      "source_text": "扎实的计算机、编程基础，熟悉主流大语言模型的原理及方法"
+    },
+    {
+      "id": "structured-external-v1-010",
+      "case_id": "campus-ai-031",
+      "company": "字节跳动",
+      "title": "AI Agent开发工程师 - 抖音研发",
+      "source_content_sha256": "3434d3fcdf5372525d7ea7a61e00d2e49d604b398f443f90b7b67f81b847ab38",
+      "category": "skill",
+      "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个"
+    },
+    {
+      "id": "structured-external-v1-011",
+      "case_id": "campus-ai-034",
+      "company": "字节跳动",
+      "title": "Agent全栈开发工程师 - 数据平台",
+      "source_content_sha256": "b1acdd166e4c0286b73fc3327669f08101de4606930872436d82dc2ac8393f11",
+      "category": "experience",
+      "source_text": "对大模型与Agent有真实的动手经验，做过基于大模型API、Agent框架、Prompt/评测相关的项目"
+    },
+    {
+      "id": "structured-external-v1-012",
+      "case_id": "campus-ai-038",
+      "company": "字节跳动",
+      "title": "Agent安全算法工程师 - 飞书",
+      "source_content_sha256": "c091b6efa6447d75622295e73f0ad515cf16c6496e3fbe66f2ac0acb72c63842",
+      "category": "experience",
+      "source_text": "有Agent安全、大模型安全、风控反作弊或黑灰产对抗经验"
+    },
+    {
+      "id": "structured-external-v1-013",
+      "case_id": "campus-ai-039",
+      "company": "字节跳动",
+      "title": "大模型工程师（AI4SE方向） - 抖音AI",
+      "source_content_sha256": "b5140aabfff7ffdc5ce833360dbfee8382886d5a2af05356b30f293e4f8c2bec",
+      "category": "experience",
+      "source_text": "具备AI+SE结合的项目经验"
+    },
+    {
+      "id": "structured-external-v1-014",
+      "case_id": "campus-ai-060",
+      "company": "腾讯",
+      "title": "混元-GUIAgent Bench及数据构建方式研究",
+      "source_content_sha256": "74c19c60d1b19b5d5e441ed4414e927f3fec7704d4319c5d2eed81ce3ccfa19e",
+      "category": "experience",
+      "source_text": "在ICLR、NeurIPS、ICML、KDD、AAAI、IJCAI等机器学习领域会议或者期刊有第一作者论文"
+    },
+    {
+      "id": "structured-external-v1-015",
+      "case_id": "campus-ai-062",
+      "company": "蔚来",
+      "title": "校招-数字化工程师（MF2）",
+      "source_content_sha256": "357a7edf9a493c613b77f8b9a66c228b5b25bbb08f564be22cf00eb21b5ada35",
+      "category": "experience",
+      "source_text": "有目标检测、图像分类、缺陷识别、OCR等相关课程设计/竞赛/项目经验优先"
+    },
+    {
+      "id": "structured-external-v1-016",
+      "case_id": "campus-ai-074",
+      "company": "小鹏汽车",
+      "title": "【27届校招】基座模型/多模态模型算法工程师",
+      "source_content_sha256": "78b64b92836b607fb4b14fe81cdc5f462094f70f2f3b9feb10f9d38fffa72627",
+      "category": "capability",
+      "source_text": "工程能力强，能快速验证想法并落地到产品或平台中"
+    },
+    {
+      "id": "structured-external-v1-017",
+      "case_id": "campus-ai-081",
+      "company": "千寻智能",
+      "title": "【2027 届校招】数据算法工程师",
+      "source_content_sha256": "a1ed8016cb8254c4f376f6f01833e4f591b441616eec297bf62891c57dd69bfc",
+      "category": "capability",
+      "source_text": "有很强的数据问题分析能力，具有业务上的自闭环能力"
+    },
+    {
+      "id": "structured-external-v1-018",
+      "case_id": "campus-ai-095",
+      "company": "MiniMax",
+      "title": "大模型数据链路工程师-2027届",
+      "source_content_sha256": "245130e852f8483d90c5d3aa4ce625d909c978a66d14e59d35e5899b48c06ad0",
+      "category": "capability",
+      "source_text": "有良好的团队沟通协作能力，及优秀的项目驱动能力"
+    },
+    {
+      "id": "structured-external-v1-019",
+      "case_id": "campus-ai-096",
+      "company": "MiniMax",
+      "title": "系统研发工程师- AI infra-2027届",
+      "source_content_sha256": "5e2071ab17e508ea1b54b96665312ca646757742151c469f5f6ceddd6d042c64",
+      "category": "capability",
+      "source_text": "学习能力强、动手实践积极、沟通协作良好"
+    },
+    {
+      "id": "structured-external-v1-020",
+      "case_id": "campus-ai-099",
+      "company": "它石智航",
+      "title": "2027校招-机器人算法工程师",
+      "source_content_sha256": "d5454b28cd83ec90791241ef451e3f2b3ac1e4a91395b53ed5262d677304b738",
+      "category": "capability",
+      "source_text": "能够独立完成问题拆解、实验验证、结果分析和持续迭代，具备较强的工程落地意识"
+    }
+  ]
+}

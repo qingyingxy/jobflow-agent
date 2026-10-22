@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from src.config import Settings
+from src.domain.job import RawJobDocument
 from src.infrastructure.llm_client import FakeModelClient
 from src.services.discovery_matching import classify_discovery_job
 from src.services.discovery_sources import JobStub
@@ -16,6 +17,7 @@ from src.services.job_role_review import (
     fingerprint,
     valid_review,
 )
+from src.services.product_jd_execution import ProductJDExecutionParser
 
 FIXTURES = Path(__file__).parent / "fixtures"
 POOL = json.loads(
@@ -26,6 +28,57 @@ JOBS = {row["job"]["source_job_id"]: JobStub(**row["job"]) for row in POOL["jobs
 RELEVANT = [
     row["job"]["source_job_id"] for row in POOL["jobs"] if row["label"] == "relevant"
 ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["single_call", "two_stage"])
+async def test_recorded_aiops_experience_does_not_reject_the_entire_jd(mode):
+    fixture = json.loads(
+        (FIXTURES / "aiops_jd_recorded_20261010.json").read_text(encoding="utf-8")
+    )
+    extraction, relations = fixture["outputs"]
+    outputs = (
+        [extraction, relations]
+        if mode == "two_stage"
+        else [
+            {
+                **extraction,
+                "requirements": [
+                    {
+                        **requirement,
+                        **{
+                            k: v
+                            for k, v in decision.items()
+                            if k != "requirement_index"
+                        },
+                    }
+                    for requirement, decision in zip(
+                        extraction["requirements"], relations["decisions"], strict=True
+                    )
+                ],
+            }
+        ]
+    )
+    client = FakeModelClient(outputs=outputs)
+    parsed = await ProductJDExecutionParser(
+        client, mode=mode, validation_retries=0
+    ).parse(RawJobDocument(**fixture["document"]))
+    requirement = next(
+        r
+        for r in parsed.structured_jd.requirements
+        if r.name == "有高并发、系统的设计或实践经验"
+    )
+    assert requirement.relation == "all_of"
+    assert requirement.education is None
+    assert len(client.requests) == (2 if mode == "two_stage" else 1)
+    for evidence in parsed.structured_jd.field_evidence:
+        if evidence.source_kind == "body":
+            assert (
+                fixture["document"]["raw_content"][
+                    evidence.start_char : evidence.end_char
+                ]
+                == evidence.source_text
+            )
 
 
 @pytest.mark.asyncio

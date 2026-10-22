@@ -12,6 +12,7 @@ from src.domain.education import (
     EducationFacts,
     EducationRecord,
     MajorPredicate,
+    validate_condition_grounding,
     validate_education_grounding,
 )
 from src.domain.education_dates import education_date_support, supported_graduation_year
@@ -34,6 +35,88 @@ from src.services.eligibility_checker import check_eligibility
 from src.services.jd_analysis_service import JDAnalysisService
 from src.services.product_jd_education_parser import ProductJDParser
 from src.services.resume_ingestion_service import ResumeEvidenceExtractor
+
+
+@pytest.mark.parametrize(
+    ("source", "status"),
+    [
+        ("Currently pursuing a bachelor's degree", "enrolled"),
+        ("Individuals who are completing a PhD degree", "enrolled"),
+        ("Individuals who have recently completed a PhD degree", "graduated"),
+        ("Individuals who recently completed a Ph.D. degree", "graduated"),
+    ],
+)
+def test_current_english_study_and_completion_ground_jd_and_candidate(source, status):
+    level, quote = (
+        ("bachelor", "bachelor")
+        if "bachelor" in source
+        else ("doctor", "Ph.D." if "Ph.D." in source else "PhD")
+    )
+    rule = EducationCondition(
+        relation="all_of",
+        branches=[
+            {
+                "source_text": source,
+                "degree": {"operator": "eq", "level": level, "source_text": quote},
+                "major": {"mode": "not_specified"},
+                "status": status,
+            }
+        ],
+    )
+    validate_condition_grounding(rule, source)
+    validate_education_grounding(EducationFacts(level=level, status=status), source)
+
+
+@pytest.mark.parametrize(
+    ("source", "status"),
+    [
+        ("Not currently pursuing a bachelor's degree", "enrolled"),
+        ("Will be enrolled in a bachelor's degree", "enrolled"),
+        ("Will have recently completed a PhD degree", "graduated"),
+        ("Have not completed a PhD degree", "graduated"),
+        ("Currently pursuing a project. Holds a bachelor's degree", "enrolled"),
+        ("Recently completed a Python project. Holds a PhD degree", "graduated"),
+        ("2027届获得本科及以上学历", "graduated"),
+    ],
+)
+def test_future_negation_and_unrelated_objects_do_not_ground_current_jd_status(
+    source, status
+):
+    level, quote = (
+        ("doctor", "PhD")
+        if "PhD" in source
+        else ("bachelor", "本科" if "本科" in source else "bachelor")
+    )
+    rule = EducationCondition(
+        relation="all_of",
+        branches=[
+            {
+                "source_text": source,
+                "degree": {"operator": "eq", "level": level, "source_text": quote},
+                "major": {"mode": "not_specified"},
+                "status": status,
+            }
+        ],
+    )
+    with pytest.raises(ValueError, match="当前毕业或在读"):
+        validate_condition_grounding(rule, source)
+
+
+def test_completing_or_completed_degree_can_ground_distinct_status_branches():
+    source = "Individuals who are completing or have recently completed a PhD degree"
+    rule = EducationCondition(
+        relation="any_of",
+        branches=[
+            {
+                "source_text": source,
+                "degree": {"operator": "eq", "level": "doctor", "source_text": "PhD"},
+                "major": {"mode": "not_specified"},
+                "status": status,
+            }
+            for status in ("enrolled", "graduated")
+        ],
+    )
+    validate_condition_grounding(rule, source)
 
 
 def test_related_major_different_family_is_not_proof_of_ineligibility():
@@ -440,5 +523,7 @@ async def test_profile_api_roundtrips_distinct_years_and_explicit_correction(
         saved = (await client.get("/api/profile", headers={"X-User-ID": "a"})).json()
     assert saved["graduation_year"] == 2028
     actual = saved["educations"][0]
-    assert {k: v for k, v in actual.items() if k != "provenance"} == record.model_dump(exclude={"provenance"})
+    assert {k: v for k, v in actual.items() if k != "provenance"} == record.model_dump(
+        exclude={"provenance"}
+    )
     assert actual["provenance"]["extracted"]["graduation_year"] == 2028

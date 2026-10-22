@@ -6,8 +6,9 @@ import json
 import re
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from typing import Protocol
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urljoin, urlsplit
 
 from src.services.url_reader import URLReaderError, URLSafetyChecker
 
@@ -16,6 +17,73 @@ class BrowserReadError(RuntimeError):
     def __init__(self, message: str, *, code: str = "browser_read_failed") -> None:
         super().__init__(message)
         self.code = code
+
+
+def declared_static_resource_host(url, *, resource_type, declared_urls):
+    """A page may load declared assets from public CDN infrastructure via its proxy.
+
+    This is transport permission for scripts/styles only, never employer trust
+    or permission for arbitrary API hosts. Other resources retain DNS checks.
+    """
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname or ""
+        port = parsed.port
+    except ValueError:
+        return None
+    if (resource_type not in {"script", "stylesheet"} or url not in declared_urls
+            or parsed.scheme != "https" or parsed.username or parsed.password
+            or port not in {None, 443}):
+        return None
+    if any(host.endswith("." + suffix) for suffix in (
+        "cdn.bcebos.com", "alicdn.com", "feishucdn.com",
+    )):
+        return host
+    return None
+
+
+def static_resource_declarations(html, base):
+    class Resources(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.urls = []
+
+        def handle_starttag(self, tag, attrs):
+            values = dict(attrs)
+            target = values.get("src") if tag == "script" else values.get("href") if (
+                tag == "link" and values.get("rel") in {"stylesheet", "preload"}
+            ) else None
+            if target:
+                self.urls.append(urljoin(base, target))
+
+    parser = Resources()
+    parser.feed(html)
+    return parser.urls
+
+
+def recruitment_api_request(url, post_data):
+    """Both Feishu portal variants are observed: JSON POST and query-string GET."""
+    if post_data:
+        return json.loads(post_data)
+    if urlsplit(url).path != "/api/v1/search/job/posts":
+        return {}
+    query = parse_qs(urlsplit(url).query, keep_blank_values=True)
+    result = {"keyword": query.get("keyword", [""])[0]}
+    for key in ("offset", "limit"):
+        value = query.get(key, [""])[0]
+        result[key] = int(value) if value.isdigit() else None
+    for key in ("location_code_list", "subject_id_list"):
+        result[key] = [v for part in query.get(key, []) for v in part.split(",") if v]
+    return result
+
+
+async def top_level_navigation(request):
+    # A popup's first request can precede Playwright's Frame object. Its fetch
+    # destination still distinguishes a top-level document from an iframe.
+    try:
+        return request.frame.parent_frame is None
+    except Exception:  # noqa: BLE001 - an unavailable frame grants no implicit permission
+        return await request.header_value("sec-fetch-dest") == "document"
 
 
 @dataclass(frozen=True)
@@ -30,6 +98,10 @@ class BrowserPageSnapshot:
     screenshot_error: str | None = None
     html_compacted: bool = False
     recruitment_api: tuple[dict, ...] = ()
+    discovered_links: tuple = ()
+    dynamic_listing: dict | None = None
+    discovered_entries: tuple = ()
+    redirect_chain: tuple[dict, ...] = ()
 
 
 class BrowserJobReader(Protocol):
@@ -55,6 +127,7 @@ class PlaywrightBrowserJobReader:
         self.safety_checker = safety_checker or URLSafetyChecker(
             proxy_url=self.proxy,
             proxy_allowed_hosts=enabled_company_source_hosts(),
+            proxy_allow_unlisted_hosts=settings.url_fetch_proxy_allow_unlisted_hosts,
         )
         self.timeout_ms = max(1_000, min(60_000, int(timeout_seconds * 1000)))
         self.max_chars = max(20_000, min(2_000_000, max_chars))
@@ -120,13 +193,22 @@ class PlaywrightBrowserJobReader:
     async def read(self, url: str) -> BrowserPageSnapshot:
         return await self._read(url)
 
+    async def read_evidence(self, url: str) -> BrowserPageSnapshot:
+        """Read a public ownership page without job-specific waits or vision calls."""
+        return await self._read(url, evidence_page=True)
+
     async def read_listing(self, url, *, max_pages=3, record_snapshot=None):
         return await self._read(url, listing_pages=max_pages, record_snapshot=record_snapshot)
 
     async def read_search_listing(self, url):
         return await self._read(url, listing_pages=1, capture_api=True)
 
-    async def _read(self, url, *, listing_pages=1, record_snapshot=None, capture_api=False):
+    async def read_dynamic_listing(self, url, *, cursor=None, keywords=(), max_links=8):
+        return await self._read(url, capture_api=True, dynamic_listing={
+            "cursor": cursor, "keywords": keywords, "max_links": max_links,
+        })
+
+    async def _read(self, url, *, listing_pages=1, record_snapshot=None, capture_api=False, evidence_page=False, dynamic_listing=None):
         requested_url = await self._validate_url(url)
         try:
             from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -144,44 +226,101 @@ class PlaywrightBrowserJobReader:
                     service_workers="block",
                 )
                 api_records, api_tasks = [], []
+                resource_documents = {}
                 try:
                     page = await context.new_page()
 
                     async def capture_response(response):
+                        from src.services.recruitment_context import captures_detail_api
+
                         parsed = urlsplit(response.url)
-                        if parsed.hostname != urlsplit(requested_url).hostname or not (
+                        detail_api = captures_detail_api(response.url, requested_url)
+                        if not detail_api and (parsed.hostname != urlsplit(requested_url).hostname or not (
                             parsed.path == "/api/v1/search/job/posts"
                             or re.fullmatch(r"/api/v1/config/job/filters/\d+", parsed.path)
-                        ) or response.status != 200:
+                        )) or response.status != 200:
                             return
                         try:
                             raw = await response.text()
                             if len(raw) > self.max_chars * 4:
                                 return
                             payload = json.loads(raw)
-                            request = json.loads(response.request.post_data or "{}")
+                            request = recruitment_api_request(response.url, response.request.post_data)
                         except Exception:  # noqa: BLE001 - response may be cancelled with the page
                             return
                         api_records.append({
-                            "url": f"{parsed.scheme}://{parsed.netloc}{parsed.path}",
+                            "url": response.url if detail_api else f"{parsed.scheme}://{parsed.netloc}{parsed.path}",
                             "request": request, "payload": payload,
                         })
 
-                    if capture_api:
+                    from src.services.recruitment_context import oppo_detail_api
+                    from src.services.recruitment_templates import alibaba_job_id
+
+                    if capture_api or oppo_detail_api(requested_url) or alibaba_job_id(requested_url):
                         page.on("response", lambda response: api_tasks.append(
                             asyncio.create_task(capture_response(response))
                         ))
 
                     async def guard_request(route) -> None:
                         request_url = route.request.url
+                        if dynamic_listing is not None and route.request.is_navigation_request():
+                            from src.services.recruitment_listing import (
+                                allowed_entry_navigation,
+                                allowed_listing_url,
+                                listing_document_url,
+                            )
+
+                            entry_navigation = (getattr(page, "_jobflow_entry_navigation", False)
+                                                and await top_level_navigation(route.request))
+                            navigation_url = listing_document_url(request_url, requested_url)
+                            allowed = (allowed_entry_navigation(navigation_url, requested_url) if entry_navigation
+                                       else allowed_listing_url(navigation_url, requested_url))
+                            if route.request.method != "GET" or not allowed:
+                                await route.abort()
+                                return
                         if urlsplit(request_url).scheme not in {"http", "https"}:
                             await route.abort()
                             return
                         try:
                             await resource_checker.validate(request_url)
                         except Exception:  # noqa: BLE001 - block unsafe subresources
-                            await route.abort()
-                            return
+                            host = None
+                            # Some configured proxies resolve public CDNs remotely.
+                            # Admit only a script/style actually declared in this
+                            # rendered document, on known public CDN infrastructure.
+                            if capture_api and self.proxy and route.request.method == "GET" and route.request.resource_type in {"script", "stylesheet"}:
+                                try:
+                                    frame = route.request.frame
+                                    if urlsplit(frame.url).netloc == urlsplit(requested_url).netloc:
+                                        declared = await frame.evaluate("() => [...document.querySelectorAll('script[src],link[rel=stylesheet][href],link[rel=preload][href]')].map(e => e.src || e.href)")
+                                        if request_url not in declared and declared_static_resource_host(request_url, resource_type=route.request.resource_type, declared_urls=[request_url]):
+                                            # The preload scanner can request scripts
+                                            # before their nodes enter the DOM. Read the
+                                            # same public document to bind those URLs.
+                                            async def declarations(document_url):
+                                                from src.services.url_reader import (
+                                                    SafeHTTPReader,
+                                                )
+
+                                                response = await SafeHTTPReader(
+                                                    safety_checker=self.safety_checker,
+                                                    proxy=self.proxy, timeout_seconds=6, max_retries=0,
+                                                ).fetch(document_url)
+                                                if urlsplit(response.final_url).netloc != urlsplit(document_url).netloc:
+                                                    return []
+                                                return static_resource_declarations(response.body.decode("utf-8", errors="replace"), response.final_url)
+
+                                            if frame.url not in resource_documents:
+                                                resource_documents[frame.url] = asyncio.create_task(declarations(frame.url))
+                                            declared = [*declared, *await resource_documents[frame.url]]
+                                        host = declared_static_resource_host(request_url, resource_type=route.request.resource_type, declared_urls=declared)
+                                    if host:
+                                        await URLSafetyChecker(proxy_url=self.proxy, proxy_allowed_hosts={host}).validate(request_url)
+                                except Exception:  # noqa: BLE001 - an unreadable declaration grants nothing
+                                    host = None
+                            if not host:
+                                await route.abort()
+                                return
                         await route.continue_()
 
                     # Exact public CDN hosts observed on these recruiting pages.
@@ -191,28 +330,60 @@ class PlaywrightBrowserJobReader:
                         resource_checker = URLSafetyChecker(
                             proxy_url=self.proxy,
                             proxy_allowed_hosts=enabled_resource_hosts() | resource_hosts | set(getattr(self.safety_checker, "proxy_allowed_hosts", ())),
+                            proxy_allow_unlisted_hosts=getattr(self.safety_checker, "proxy_allow_unlisted_hosts", False),
                         )
                     else:
                         resource_checker = self.safety_checker
-                    await page.route("**/*", guard_request)
-                    await page.goto(
+                    await context.route("**/*", guard_request)
+                    response = await page.goto(
                         requested_url,
                         wait_until="domcontentloaded",
                         timeout=self.timeout_ms,
                     )
-                    await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1 or capture_api)
+                    redirect_chain = []
+                    request = response.request if response is not None else None
+                    while request is not None and request.redirected_from is not None:
+                        previous = request.redirected_from
+                        previous_response = await previous.response()
+                        redirect_chain.insert(0, {"url": previous.url,
+                            "status": previous_response.status if previous_response else None,
+                            "target": request.url})
+                        request = previous
+                    if evidence_page:
+                        if response is not None and response.status >= 400:
+                            raise BrowserReadError("核验页面拒绝读取", code="evidence_http_error")
+                        try:
+                            await page.wait_for_function(
+                                "() => document.body && document.body.innerText.trim().length > 100 && document.querySelector('a[href]')",
+                                timeout=min(self.timeout_ms, 3000),
+                            )
+                        except PlaywrightTimeoutError:
+                            pass  # Preserve the DOM actually observed, even when sparse.
+                    else:
+                        await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1 or capture_api)
+                    if not page.url.startswith(("https://", "http://")):
+                        raise BrowserReadError("页面初始化后离开公开招聘网址，无法继续读取", code="browser_navigation_unavailable")
+                    if dynamic_listing is not None:
+                        from src.services.dynamic_recruitment_listing import (
+                            read_dynamic_listing_page,
+                        )
+
+                        return await read_dynamic_listing_page(page, reader=self, **dynamic_listing)
                     final_url = await self._validate_url(page.url)
                     visible_text = await page.locator("body").inner_text(
                         timeout=self.timeout_ms
                     )
                     _raise_for_human_gate(visible_text)
                     raw_html, html_compacted = await bounded_page_html(page, max_chars=self.max_chars)
+                    if html_compacted and len(visible_text) > self.max_chars:
+                        from src.services.url_reader import parse_html_document
+                        visible_text = parse_html_document(raw_html).text
                     screenshots = []
                     screenshot_error = None
                     from src.config import get_settings
                     from src.services.job_detail_scope import closed_page_notice
                     from src.services.vision_job_extraction import needs_visual_fallback
-                    if not capture_api and listing_pages == 1 and get_settings().vision_fallback_enabled and not closed_page_notice(raw_html, url=final_url) and needs_visual_fallback(raw_html, final_url):
+                    if not evidence_page and not capture_api and listing_pages == 1 and get_settings().vision_fallback_enabled and not closed_page_notice(raw_html, url=final_url) and needs_visual_fallback(raw_html, final_url):
                         try:
                             await page.set_viewport_size({"width": 1280, "height": 1000})
                             height = await page.evaluate("document.documentElement.scrollHeight")
@@ -231,7 +402,7 @@ class PlaywrightBrowserJobReader:
                         from src.services.lead_presentation import discovery_kind
                         from src.services.url_reader import extract_html_links
                         current_html, _ = await bounded_page_html(page, max_chars=self.max_chars)
-                        if not any(discovery_kind(link.url, link.text) == "job" for link in extract_html_links(current_html, base_url=page.url)):
+                        if not any(discovery_kind(link.url, link.text, observed_title=True) == "job" for link in extract_html_links(current_html, base_url=page.url)):
                             break
                         # Only unambiguous public pagination controls, never form
                         # submissions or arbitrary "continue"/"apply" buttons.
@@ -251,9 +422,12 @@ class PlaywrightBrowserJobReader:
                         page_url = await self._validate_url(page.url)
                         previous = await page.locator("body").inner_text(timeout=self.timeout_ms)
                         _raise_for_human_gate(previous)
+                        page_html, page_compacted = await bounded_page_html(page, max_chars=self.max_chars)
+                        if page_compacted and len(previous) > self.max_chars:
+                            from src.services.url_reader import parse_html_document
+                            previous = parse_html_document(page_html).text
                         if len(previous) > self.max_chars:
                             raise BrowserReadError("浏览器可见内容超过大小限制", code="browser_response_too_large")
-                        page_html, _ = await bounded_page_html(page, max_chars=self.max_chars)
                         if record_snapshot:
                             record_snapshot(page_url, page_html)
                         additional_pages.append((page_url, page_html))
@@ -278,8 +452,14 @@ class PlaywrightBrowserJobReader:
                         screenshot_error=screenshot_error,
                         html_compacted=html_compacted,
                         recruitment_api=tuple(api_records),
+                        redirect_chain=tuple(redirect_chain),
                     )
                 finally:
+                    for task in resource_documents.values():
+                        if not task.done():
+                            task.cancel()
+                    if resource_documents:
+                        await asyncio.gather(*resource_documents.values(), return_exceptions=True)
                     for task in api_tasks:
                         if not task.done():
                             task.cancel()
@@ -325,12 +505,23 @@ async def bounded_page_html(page, *, max_chars):
             if (el.tagName === 'SCRIPT' && /application\/(ld\+json|json\+ld)/i.test(el.type)) return;
             el.remove();
         });
-        const attrs = new Set(['class','id','style','hidden','aria-hidden','role','itemprop','href','type']);
+        const attrs = new Set(['class','id','style','hidden','aria-hidden','aria-disabled','aria-label','aria-current','disabled','role','itemprop','href','type','rel','title']);
         for (const el of copy.querySelectorAll('*')) {
             for (const attr of [...el.attributes]) if (!attrs.has(attr.name)) el.removeAttribute(attr.name);
         }
         const compact = copy.outerHTML;
-        return compact.length <= limit ? {html: compact, compacted: true} : null;
+        if (compact.length <= limit) return {html: compact, compacted: true};
+        // Preserve an entire unambiguous content region. Never slice a JD:
+        // its final clauses may contain qualifications or exception paths.
+        const regions = copy.querySelectorAll('main,[role="main"]');
+        if (regions.length !== 1) return null;
+        const region = regions[0];
+        region.querySelectorAll('[hidden],[aria-hidden="true"]').forEach(el => el.remove());
+        const relevant = /岗位职责|工作职责|任职要求|职位要求|responsibilities|qualifications/i.test(region.textContent || '')
+            || region.querySelectorAll('a[href*="/job/"],a[href*="/jobs/"],a[href*="/position/"]').length > 1;
+        if (!relevant) return null;
+        const scoped = '<html><head>' + (copy.querySelector('title')?.outerHTML || '') + '</head><body>' + region.outerHTML + '</body></html>';
+        return scoped.length <= limit ? {html: scoped, compacted: true} : null;
     }""", max_chars)
     if result is None:
         raise BrowserReadError("浏览器页面内容超过大小限制", code="browser_response_too_large")
@@ -342,13 +533,31 @@ async def wait_for_recruitment_content(page, *, timeout_ms, listing=False):
     from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
     try:
-        await page.wait_for_function("""listing => {
+        await page.wait_for_function(r"""listing => {
             const text = document.body?.innerText || '';
             const busy = [...document.querySelectorAll('[aria-busy="true"], [role="progressbar"]')]
                 .some(el => el.getClientRects().length > 0);
             const detail = /职位描述|职位要求|任职要求|岗位描述|岗位要求|岗位职责|工作职责|(?:该|此|本)?(?:职位|岗位)已(?:下线|关闭|结束)|responsibilities|qualifications|job description|no longer accepting applications/i.test(text);
+            const unresolved = /\{\{\s*(?:[$\w]+\.[\w.]+|\$t\([^}]*\))\s*\}\}/.test(text);
             const links = document.querySelector('a[href*="/job/"],a[href*="/jobs/"],a[href*="/position/"]');
-            return !busy && (detail || (listing && links));
+            const cards = [...document.querySelectorAll('[class*="title"],[class*="name"]')].some(el =>
+                el.getClientRects().length && /(?:job|post|position|pos|vacancy)/i.test(el.className || '') &&
+                /工程师|研究员|开发|算法|实习生|engineer|developer|scientist/i.test(el.innerText || ''));
+            const structural = [...document.querySelectorAll('span,h2,h3,h4')].some(el => {
+                const title = (el.innerText || '').trim();
+                if (!el.getClientRects().length || title.length > 140 ||
+                    !/工程师|研究员|产品经理|engineer|developer|scientist/i.test(title)) return false;
+                for(let p=el.parentElement,d=0;p && d<4;p=p.parentElement,d++) {
+                    const content=(p.innerText || '').trim();
+                    if (/(?:^|[\s_-])(?:item|card|row)(?:$|[\s_-])/i.test(p.className || '') &&
+                        content.startsWith(title) && /工作地点|所属业务|岗位职责|工作职责|location|department/i.test(content)) return true;
+                }
+                return false;
+            });
+            const entries = [...document.querySelectorAll('button,[role="button"],p,a')].some(el =>
+                el.getClientRects().length && !el.closest('form,[hidden],[aria-hidden="true"]') &&
+                /^(?:(?:查看|浏览|全部|搜索|进入)(?:工作)?(?:\s*\d+\s*个?)?(?:职位|岗位)|校园招聘与实习|(?:view|browse|all|search)\s+(?:\d+\s+)?jobs)[\s→›»]*$/i.test((el.innerText || '').trim()));
+            return !busy && ((!unresolved && detail) || (listing && (links || cards || structural || entries)));
         }""", arg=listing, timeout=timeout_ms)
         # A short quiet DOM window also catches delayed replacement of a shell.
         await page.wait_for_function("""() => {

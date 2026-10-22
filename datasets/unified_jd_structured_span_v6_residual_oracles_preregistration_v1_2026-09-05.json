@@ -1,0 +1,223 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v6-residual-oracles-preregistration-v1",
+  "created_at": "2026-09-05",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "purpose": "Use only frozen raw outputs to distinguish attachment-replacement activation-veto insufficiency from region-level merge granularity as the cause of the nine unresolved v6 regression observations.",
+  "scope": {
+    "data_status": "revealed_frozen_regression_data_only",
+    "generalization_claim": false,
+    "production_rule_claim": false,
+    "threshold_selection_allowed": false,
+    "v4_modification_allowed": false,
+    "v5_modification_allowed": false,
+    "v6_modification_allowed": false,
+    "parser_execution_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "inputs": {
+    "v6_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-regression-raw-v1-2026-09-05.json",
+      "sha256": "65bade675974b9aba1c1089ba77c7d4e3144a6275d2e288bb80fcf4fd86f830b"
+    },
+    "v6_gate_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v6-development-regression-report-v1-2026-09-05.json",
+      "sha256": "65a23a95a5fd812fbffbef9e8285cf70f29fa87b0fdf3ade42dec07dfeaefb5d"
+    },
+    "v5_regression_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-regression-raw-v1-2026-09-05.json",
+      "sha256": "d386a0e0e2e3834abf9c033a54702b7b4a12d81eee3f181605725b8e64819285"
+    },
+    "v5_regression_classification": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-frozen-regression-classification-v1-2026-09-05.json",
+      "sha256": "e42741673adeca13bdcbadd5464297ba17bc136b1052d7be01c23ed9117f47fa"
+    },
+    "v4_legacy_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v4-raw-v1-2026-09-04.json",
+      "sha256": "8513bc0e1db960f1e0928d7d8707e4f3f0a314a9a921ad7a1b24875e341ad9d7"
+    },
+    "v6_source_freeze": {
+      "path": "datasets/unified_jd_structured_span_v6_source_freeze_v1_2026-09-05.json",
+      "sha256": "3e6a380b4ec91abc48fcd3f813bc4d83b8044b31990074b90f758e32639654e3"
+    }
+  },
+  "population": {
+    "classified_observation_count": 31,
+    "v6_resolved_control_count": 22,
+    "v6_unresolved_target_count": 9,
+    "target_classification_counts": {
+      "R1-ambiguous-deng-surface-example-role-flip": 4,
+      "R3-wrapper-operator-boundary-drift": 1,
+      "R4-connector-scope-decomposition-drift": 4
+    },
+    "target_observations": [
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-001",
+        "classification": "R1-ambiguous-deng-surface-example-role-flip"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-004",
+        "classification": "R1-ambiguous-deng-surface-example-role-flip"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-006",
+        "classification": "R1-ambiguous-deng-surface-example-role-flip"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v2-019",
+        "classification": "R1-ambiguous-deng-surface-example-role-flip"
+      },
+      {
+        "cohort": "legacy-20",
+        "id": "structured-external-v1-014",
+        "classification": "R3-wrapper-operator-boundary-drift"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-003",
+        "classification": "R4-connector-scope-decomposition-drift"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-005",
+        "classification": "R4-connector-scope-decomposition-drift"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v1-017",
+        "classification": "R4-connector-scope-decomposition-drift"
+      },
+      {
+        "cohort": "projection-60",
+        "id": "surface-holdout-v2-002",
+        "classification": "R4-connector-scope-decomposition-drift"
+      }
+    ],
+    "control_observations": [
+      {"cohort": "legacy-20", "id": "structured-external-v1-006"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-007"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-010"},
+      {"cohort": "projection-60", "id": "canonical-v1-skill-001"},
+      {"cohort": "projection-60", "id": "canonical-v1-skill-002"},
+      {"cohort": "projection-60", "id": "canonical-v1-skill-003"},
+      {"cohort": "projection-60", "id": "surface-holdout-v1-010"},
+      {"cohort": "projection-60", "id": "surface-holdout-v2-010"},
+      {"cohort": "projection-60", "id": "canonical-v1-responsibility-005"},
+      {"cohort": "projection-60", "id": "canonical-v1-skill-005"},
+      {"cohort": "projection-60", "id": "surface-holdout-v1-009"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-001"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-017"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-018"},
+      {"cohort": "projection-60", "id": "canonical-v1-responsibility-001"},
+      {"cohort": "projection-60", "id": "canonical-v1-capability-004"},
+      {"cohort": "projection-60", "id": "canonical-v1-capability-005"},
+      {"cohort": "projection-60", "id": "surface-holdout-v1-015"},
+      {"cohort": "projection-60", "id": "surface-holdout-v1-019"},
+      {"cohort": "projection-60", "id": "canonical-v1-skill-004"},
+      {"cohort": "revealed-external-20", "id": "structured-corpus-external-v1-006"},
+      {"cohort": "legacy-20", "id": "structured-external-v1-016"}
+    ]
+  },
+  "global_guards": {
+    "experiments_are_independent": true,
+    "e9_must_start_from_frozen_v6_not_e8": true,
+    "single_changed_mechanism_per_experiment": true,
+    "all_acceptance_criteria_are_conjunctive": true,
+    "post_hoc_exception_or_threshold_tuning_forbidden": true,
+    "raw_written_before_report": true,
+    "write_new_outputs_only": true,
+    "production_dispatch_from_target_ids_forbidden": true
+  },
+  "experiments": [
+    {
+      "order": 8,
+      "id": "E8-attachment-replacement-activation-veto-oracle",
+      "status": "preregistered_not_executed",
+      "hypothesis": "The nine residual errors persist primarily because v6 activation compatibility vetoes a correct replacement attachment; making the attachment family oracle-perfect while holding surface candidates and every non-attachment family fixed should therefore resolve all nine.",
+      "causal_question": "Is a perfect attachment-family replacement alone sufficient to make every unresolved observation exact?",
+      "baseline": "Frozen v6 regression raw, without executing any parser.",
+      "intervention": "For every target, replace only the attachment family with its frozen v4-compatible reference. For projection-only observations this changes only example projection; for the full-graph legacy observation this changes example_attachments and example projection. Keep surface items, item candidates, wrappers, connector labels, coordinations, and shared scopes byte-identical to frozen v6.",
+      "single_changed_variable": "attachment_family_replacement",
+      "held_fixed": [
+        "surface projection and item candidates",
+        "wrapper spans",
+        "connector roles and coordination members",
+        "shared scopes",
+        "region activation decisions",
+        "all 22 resolved controls"
+      ],
+      "primary_outcome": "complete resolved target count across all layers available in frozen raw",
+      "acceptance_criteria": [
+        "All 9 targets are exact after attachment-family replacement.",
+        "All non-attachment payloads are byte-identical to frozen v6.",
+        "All 22 resolved controls remain byte-identical and exact.",
+        "No parser, model, network, canonicalizer, or cumulative E9 treatment is used."
+      ],
+      "acceptance_gate": "accept_only_if_9_of_9_targets_and_22_of_22_controls_pass",
+      "falsification": "Reject attachment replacement as a sufficient explanation if even one target remains inexact or any held-fixed family changes.",
+      "interpretation_limit": "Projection-only records expose example output but not full attachment topology. Passing would establish sufficiency on frozen observable layers only; failing still permits attachment replacement to contribute to earlier G2/G4 misses outside these nine residual observations."
+    },
+    {
+      "order": 9,
+      "id": "E9-region-versus-node-family-merge-oracle",
+      "status": "preregistered_not_executed",
+      "hypothesis": "The nine residual errors are caused by choosing one parser for an entire region when different node families within that region require different frozen parser outputs.",
+      "causal_question": "Does oracle selection at node-family granularity resolve all nine residual observations while retaining already-correct v6 families, compared with the frozen v6 region-level arm?",
+      "baseline": "Frozen v6 regression raw, independently reloaded; no E8 output is loaded.",
+      "arms": [
+        "frozen_v6_region_level",
+        "v4_whole_region_fallback_oracle",
+        "node_family_selection_oracle"
+      ],
+      "intervention": "For targets only, the whole-region oracle uses the frozen v4-compatible reference payload. The node-family oracle independently selects the v4-compatible reference only for an inexact observable family and retains the frozen v6 value for every exact family. Projection-only families are surface_items and examples; the legacy full-graph families are wrappers, connector labels, coordination members, shared scopes, example attachments, surface items, and examples.",
+      "single_changed_variable": "merge_selection_granularity",
+      "held_fixed": [
+        "source text and source offsets",
+        "frozen v4/v5/v6 raw inputs",
+        "family equality definitions",
+        "projection semantics",
+        "all 22 resolved controls",
+        "E8 treatment is absent"
+      ],
+      "primary_outcomes": [
+        "complete resolved target count by arm",
+        "changed observable family count by arm",
+        "retained exact v6 family count by arm",
+        "control byte equality"
+      ],
+      "acceptance_criteria": [
+        "The node-family arm resolves all 9 targets on every available frozen layer.",
+        "The node-family arm changes no family that was already exact under frozen v6.",
+        "The node-family arm changes no more observable families than whole-region fallback.",
+        "All 22 resolved controls are byte-identical in every arm.",
+        "No parser, model, network, canonicalizer, target-derived production rule, or E8 output is used."
+      ],
+      "acceptance_gate": "accept_only_if_all_five_criteria_pass",
+      "falsification": "Reject node-family granularity as sufficient if any target remains inexact, any already-correct family changes, or any control changes.",
+      "interpretation_limit": "This is a gold-directed diagnostic oracle. It can identify the necessary merge granularity but cannot identify a deployable runtime selector. Projection-only observations cannot establish unobserved topology correctness."
+    }
+  ],
+  "decision_rule": {
+    "attachment_replacement_supported_as_sufficient": "E8 passes its frozen gate.",
+    "node_family_granularity_supported_as_sufficient": "E9 passes its frozen gate.",
+    "winner": "A mechanism is called sufficient only if its own independent gate passes. If both pass, prefer the mechanism changing fewer observable families; if neither passes, preregister a new residual mechanism without modifying v6.",
+    "post_experiment": "Freeze both results. Do not implement v7 until the supported causal mechanism is translated into a separate v7 preregistration with runtime-identifiable, non-fixture-specific activation rules."
+  },
+  "planned_outputs": {
+    "E8": [
+      "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-raw-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-report-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-findings-v1-2026-09-05.md"
+    ],
+    "E9": [
+      "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-report-v1-2026-09-05.json",
+      "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-findings-v1-2026-09-05.md"
+    ]
+  }
+}

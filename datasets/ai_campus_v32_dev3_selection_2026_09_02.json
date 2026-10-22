@@ -1,0 +1,51 @@
+{
+  "version": "ai-campus-v32-dev3-selection-v1-2026-09-02",
+  "status": "completed_once",
+  "purpose": "Fresh non-blind structure smoke cases after the v31 decode failure",
+  "parent_selection": "datasets/ai_campus_v31_dev15_selection_2026_09_02.json",
+  "blind8_included": false,
+  "case_count": 3,
+  "cases": [
+    {
+      "id": "campus-ai-001",
+      "coverage": ["multiple_any_of", "open_group", "parallel_requirements"]
+    },
+    {
+      "id": "campus-ai-011",
+      "coverage": ["parent_category", "framework_examples", "preferred_strength"]
+    },
+    {
+      "id": "campus-ai-015",
+      "coverage": ["direct_work_abilities", "development_experience", "no_any_of"]
+    }
+  ],
+  "exclusions": {
+    "v31_api_smoke_cases": [
+      "campus-ai-008",
+      "campus-ai-024",
+      "campus-ai-037",
+      "campus-ai-078",
+      "campus-ai-147"
+    ],
+    "sealed_holdout": true,
+    "blind8": true
+  },
+  "api_policy": {
+    "authorized": true,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "concurrency": 1,
+    "case_timeout_seconds": 240
+  },
+  "run_result": {
+    "completed_at": "2026-09-02",
+    "run_count": 1,
+    "rerun_performed": false,
+    "successful_case_count": 2,
+    "failed_case_count": 1,
+    "failure_codes": {
+      "model_timeout": 1
+    },
+    "result_document": "datasets/AI_CAMPUS_CORE_V32_DEV_SMOKE3_2026_09_02.md"
+  }
+}

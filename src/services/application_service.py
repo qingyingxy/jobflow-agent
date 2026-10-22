@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from src.domain.application import (
@@ -143,6 +143,7 @@ class ApplicationService:
         *,
         user_id: str,
         status: CandidateStatus | None = None,
+        discovery_run_id: str | None = None,
     ) -> list[CandidateView]:
         statement = (
             select(CandidateJob, JobPosting)
@@ -152,7 +153,16 @@ class ApplicationService:
         )
         if status is not None:
             statement = statement.where(CandidateJob.status == status.value)
-        rows = self.session.execute(statement).all()
+        if discovery_run_id:
+            from src.domain.discovery import JobLead
+            statement = statement.where(JobPosting.id.in_(select(JobLead.job_posting_id).where(
+                JobLead.user_id == user_id, JobLead.discovery_run_id == discovery_run_id,
+            )))
+        from src.services.job_identity import posting_identity, unique_candidates
+
+        allowed = {posting_identity(job) for _, job in self.session.execute(statement).all()}
+        rows = [(candidate, job) for candidate, job in unique_candidates(self.session, user_id)
+                if posting_identity(job) in allowed and (status is None or candidate.status == status.value)]
         return [
             CandidateView(candidate=candidate, posting=posting)
             for candidate, posting in rows
@@ -180,7 +190,14 @@ class ApplicationService:
         target_status: CandidateStatus,
     ) -> CandidateView:
         view = self.get_candidate(user_id=user_id, candidate_id=candidate_id)
-        current_status = CandidateStatus(view.candidate.status)
+        from src.services.job_identity import (
+            candidate_groups,
+            posting_identity,
+            representative,
+        )
+
+        aliases = candidate_groups(self.session, user_id).get(posting_identity(view.posting), [])
+        current_status = CandidateStatus(representative(aliases)[0].status)
         allowed = CANDIDATE_TRANSITIONS[current_status]
         if target_status not in allowed:
             raise InvalidTransitionError(
@@ -191,6 +208,9 @@ class ApplicationService:
             )
 
         view.candidate.status = target_status.value
+        for alias, _ in aliases:
+            if alias.id != view.candidate.id and alias.status != "CONVERTED":
+                alias.status = target_status.value
         try:
             self._add_event(
                 user_id=user_id,
@@ -320,6 +340,28 @@ class ApplicationService:
             posting=posting,
             events=self._events(user_id=user_id, entity_id=application.id),
         )
+
+    def record_manual_submission(self, *, user_id, application_id, note=None):
+        view = self.get_application(user_id=user_id, application_id=application_id)
+        if any(event.event_type == "ManualSubmissionRecorded" for event in view.events):
+            return view
+        changed = self.session.execute(
+            update(ApplicationModel).where(
+                ApplicationModel.id == application_id,
+                ApplicationModel.status == ApplicationStatus.PREPARING.value,
+            ).values(status=ApplicationStatus.SUBMITTED.value)
+        ).rowcount
+        if not changed:
+            self.session.rollback()
+            raise InvalidTransitionError(entity="Application", current=view.application.status,
+                                         target="SUBMITTED", allowed=[])
+        self._add_event(user_id=user_id, entity_type="application", entity_id=application_id,
+                        event_type="ManualSubmissionRecorded", payload={
+                            "job_posting_id": view.posting.id, "basis": "user_confirmed",
+                            "note": note, "from_status": "PREPARING", "to_status": "SUBMITTED",
+                        })
+        self._commit()
+        return self.get_application(user_id=user_id, application_id=application_id)
 
     def transition_application(
         self,

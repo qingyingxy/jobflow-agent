@@ -16,6 +16,12 @@ from src.domain.job import (
     generate_availability_check_id,
 )
 from src.services.discovery_sources import looks_like_job_page
+from src.services.job_detail_scope import DetailScopeError, scope_job_document
+from src.services.job_url import canonical_job_url
+from src.services.recruitment_context import (
+    collect_recruitment_context,
+    resolve_availability,
+)
 from src.services.url_reader import SafeHTTPReader, URLReaderError, parse_html_document
 
 STALE_FAILURE_THRESHOLD = 3
@@ -76,16 +82,43 @@ class JobAvailabilityService:
 
         raw_html = response.body.decode("utf-8", errors="replace")
         document = parse_html_document(raw_html)
-        closed_evidence = explicit_closed_evidence(document.text)
-        if closed_evidence:
+        if canonical_job_url(response.final_url) != canonical_job_url(posting.source_url):
+            return self._record_read_failure(
+                user_id=user_id, posting=posting, code="availability_redirect_unconfirmed",
+                reason="页面跳转后无法确认仍为当前岗位", source_url=response.final_url,
+            )
+        snapshots = []
+        context = {}
+        try:
+            scoped, _ = scope_job_document(raw_html, document, url=response.final_url)
+        except DetailScopeError:
+            scoped = None
+        if scoped and posting.title and scoped.title != posting.title:
+            return self._record_read_failure(user_id=user_id, posting=posting,
+                code="availability_identity_conflict", reason="当前页面岗位名称与已保存记录不一致")
+        if scoped:
+            def save_snapshot(url, raw):
+                digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+                snapshots.append({"id": digest, "source_url": url, "raw_content": raw})
+                return digest
+
+            context = await collect_recruitment_context(
+                raw_html=raw_html, document=scoped, url=response.final_url, fetcher=reader,
+                is_official=lambda _: posting.verification_status == "VERIFIED_OFFICIAL",
+                save_snapshot=save_snapshot,
+            )
+            posting.recruitment_context = context
+        availability = resolve_availability(raw_html, url=response.final_url, context=context)
+        if availability["value"] != "UNKNOWN":
+            posting.availability_failure_count = 0
             return self._record_observation(
                 user_id=user_id,
                 posting=posting,
-                result_status=JobAvailabilityStatus.CLOSED,
-                evidence_type=JobAvailabilityEvidenceType.EXPLICIT_CLOSED,
+                result_status=JobAvailabilityStatus(availability["value"]),
+                evidence_type=JobAvailabilityEvidenceType.EXPLICIT_CLOSED if availability["value"] == "CLOSED" else JobAvailabilityEvidenceType.PAGE_CONTENT,
                 source_url=response.final_url,
                 content_hash=hashlib.sha256(response.body).hexdigest(),
-                evidence={"source_text": closed_evidence},
+                evidence={**availability, "recruitment_context": context, "snapshots": snapshots},
             )
         if looks_like_job_page(document, url=response.final_url):
             posting.availability_failure_count = 0
@@ -93,13 +126,16 @@ class JobAvailabilityService:
             return self._record_observation(
                 user_id=user_id,
                 posting=posting,
-                result_status=JobAvailabilityStatus.ACTIVE,
+                result_status=JobAvailabilityStatus.CLOSED if posting.availability_status == "CLOSED" else JobAvailabilityStatus.UNKNOWN,
                 evidence_type=JobAvailabilityEvidenceType.PAGE_CONTENT,
                 source_url=response.final_url,
                 content_hash=hashlib.sha256(response.body).hexdigest(),
                 evidence={
                     "title": document.title,
                     "concrete_job_page": True,
+                    "reason": "岗位正文可读，但没有明确的开放状态证据",
+                    "recruitment_context": context,
+                    "snapshots": snapshots,
                 },
             )
         return self._record_read_failure(

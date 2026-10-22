@@ -1,0 +1,65 @@
+{
+  "freeze_version": "unified-jd-structured-span-v5-mechanism-development-label-freeze-v1",
+  "frozen_at": "2026-09-04",
+  "status": "frozen_revealed_development_gold_before_v5_preregistration",
+  "purpose": "Freeze source-only six-layer structural gold for the 20 v5 mechanism-development clauses before baseline scoring, v5 preregistration, or implementation.",
+  "artifacts": {
+    "sources": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_sources_v1_2026-09-04.json",
+      "sha256": "7f08c279a21810d90931bf51325046a6ed001bc0192a8c8f00e7b74f8e5b5fed"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_selection_v1_2026-09-04.json",
+      "sha256": "b6da79c5518cf19cb803232dc7234a4adf1d127876f17c56ac8495d9ca0712e9"
+    },
+    "labels": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_labels_v1_2026-09-04.json",
+      "sha256": "5d1b62101c3948ca0d18037c72fb25935b9e5984ee5e9c9ce63bf80b86803d9b"
+    },
+    "annotation_guide": {
+      "path": "docs/UNIFIED_JD_ANNOTATION_GUIDE_V1.md",
+      "sha256": "5e43f6834c7290114fe110639fab06a617ef93f6ab0b72554f402d3dfcfed45f"
+    },
+    "builder": {
+      "path": "scripts/build_unified_structured_span_v5_mechanism_development_gold.py",
+      "sha256": "5751985eaf5ec9f731845842b8d91be8bae30beb4eee94e4ca8dd693b49dad6d"
+    },
+    "frozen_v4_parser_reference": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    }
+  },
+  "freeze_checks": {
+    "fixture_count": 20,
+    "unique_job_id_count": 20,
+    "layer_annotation_counts": {
+      "wrappers": 80,
+      "connector_labels": 94,
+      "coordinations": 51,
+      "shared_scopes": 15,
+      "example_attachments": 26,
+      "surface_projection_items": 101,
+      "example_projection_items": 80
+    },
+    "connector_roles_present": [
+      "embedded",
+      "example",
+      "quantifier",
+      "surface"
+    ],
+    "all_structural_spans_validated": true,
+    "all_scope_edges_reference_annotated_members": true,
+    "all_projection_items_source_anchored": true,
+    "all_attachment_parents_non_priority": true,
+    "e6_explicit_ru_attachment_preserved": true,
+    "e6_direct_open_list_has_no_attachment": true,
+    "e7_first_examples_exclude_leading_preposition": true,
+    "annotation_review_passes": 2,
+    "v4_predictions_loaded_during_labeling": false,
+    "v5_predictions_loaded_during_labeling": false,
+    "parser_run_count_during_labeling": 0,
+    "model_call_count": 0
+  },
+  "immutability": "Any label correction must create a new labels and freeze version; this file and its hashed labels artifact must not be overwritten.",
+  "next_allowed_action": "Run frozen v4 once on these revealed-development labels to record the baseline, then freeze the v5 combined-rule preregistration and regression gates before implementing v5."
+}

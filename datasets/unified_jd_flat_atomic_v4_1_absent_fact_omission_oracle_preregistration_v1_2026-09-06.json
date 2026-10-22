@@ -1,0 +1,114 @@
+{
+  "preregistration_version": "unified-jd-flat-atomic-v4.1-absent-fact-omission-oracle-preregistration-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_oracle_implementation_and_execution",
+  "objective": "Measure the independent causal contribution of omitting exact empty absent-fact placeholders to strict v4 schema recovery on the frozen external-holdout raw responses.",
+  "scope": {
+    "data_status": "revealed_frozen_external_holdout_raw",
+    "generalization_claim": false,
+    "production_rule_claim": false,
+    "runtime_observable_oracle": true,
+    "v4_or_v4_1_modification_allowed": false,
+    "external_holdout_rerun_allowed": false,
+    "other_oracle_output_loading_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false
+  },
+  "frozen_inputs": {
+    "external_holdout_raw": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-raw-v1-2026-09-06.json",
+      "sha256": "e0a92c3c011de4291e3cf6d369b1bcc2e5e419ef9969ec7ba0c080c88d0d06d8"
+    },
+    "external_holdout_report": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-report-v1-2026-09-06.json",
+      "sha256": "211dcd9489fda6351db15b69ed0f1f1253fdfc79684d9e30fd86e3d6574cee80"
+    },
+    "offline_diagnosis": {
+      "path": "artifacts/evaluation/unified-jd-flat-atomic-v4-1-external-holdout-offline-diagnosis-v1-2026-09-06.json",
+      "sha256": "299a12f1c17682b09ee899f022da2f6d885473d9807d30d223f90ee5570d4c8a"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+      "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+    },
+    "external_holdout_source_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_source_freeze_v1_2026-09-06.json",
+      "sha256": "9975c183bab9501b19b11d4c0e01e82ff8fa90acd6c47e8debb0d4c1cb2845c3"
+    },
+    "frozen_v4_live_evaluator": {
+      "path": "src/evaluation/model_first_v4_live_probe.py",
+      "sha256": "64bc286e40023c2eb1d2979e662990c96fb1e043cf83b2936cabf341948dfd48"
+    },
+    "frozen_fact_contract": {
+      "path": "src/domain/unified_jd_extraction.py",
+      "sha256": "d8197158b9a0c33e763363025a5f157e5c4cae60c31b8d69840999b31a86dcdb"
+    },
+    "frozen_atom_contract": {
+      "path": "src/domain/unified_jd_flat_atomic_v4.py",
+      "sha256": "fa377d99e9f9cda5e42094623dfd31b35b98437a1a4d05ce88578bae45c38046"
+    }
+  },
+  "frozen_observations": {
+    "baseline_strict_schema_valid_case_count": 0,
+    "exact_empty_absent_fact_placeholder_count": 27,
+    "affected_case_count": 4,
+    "target_case_ids": [
+      "external-ashby-ravenna-ai-engineer",
+      "external-ashby-thread-ai-applied-ai-engineer",
+      "external-ashby-airwallex-ai-engineer",
+      "external-ashby-notion-ai-applications-engineer"
+    ],
+    "negative_control_case_ids": [
+      "external-ashby-atira-ai-engineer"
+    ],
+    "target_non_placeholder_schema_error_count": 0,
+    "negative_control_long_source_text_error_count": 10
+  },
+  "intervention": {
+    "name": "omit_exact_empty_absent_fact_placeholders",
+    "unit": "one fact_mentions element",
+    "eligibility_predicate": {
+      "raw_items": [],
+      "source_text": "",
+      "level": null,
+      "all_three_conditions_required": true
+    },
+    "operation": "Remove the eligible fact mention while preserving the relative order and exact values of every noneligible fact mention and every clause atom.",
+    "single_changed_variable": "absent_fact_representation_from_empty_placeholder_record_to_omission",
+    "forbidden_changes": [
+      "editing or filling any fact value",
+      "dropping a partially populated or otherwise invalid fact",
+      "changing clause_atoms",
+      "changing record metadata",
+      "loading or applying the long evidence span oracle",
+      "using gold, model, network, parser, or canonicalizer output"
+    ]
+  },
+  "acceptance_gate": {
+    "all_criteria_conjunctive": true,
+    "criteria": [
+      "Exactly 27 eligible placeholders are removed from exactly the four registered targets.",
+      "All four target cases change from strict-schema invalid to strict-schema valid.",
+      "The Atira negative control remains strict-schema invalid with the same ten long-source diagnostics and is byte-identical.",
+      "Every clause atom and every noneligible fact mention remains byte-identical and in order.",
+      "Reinserting the audited removed records at their original indexes reconstructs the frozen raw exactly.",
+      "The frozen raw input hash is identical before and after evaluation.",
+      "No other oracle output, model, network, parser, or canonicalizer is used."
+    ],
+    "full_support_decision": "supported_independent_4_of_5_schema_recovery",
+    "falsification": "Reject this mechanism as independently sufficient for its four targets if any target remains invalid, any noneligible value changes, or any control changes.",
+    "interpretation_limit": "Even full support explains only the four empty-placeholder cases. It cannot repair Atira and does not establish unseen-data generalization."
+  },
+  "execution_protocol": {
+    "runner_count": 1,
+    "run_count": 1,
+    "source_freeze_before_execution": true,
+    "write_new_outputs_only": true,
+    "raw_written_before_report": true,
+    "rerun_after_failure_allowed": false,
+    "other_oracle_output_loaded": false,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "next_allowed_action": "Implement and freeze only the omission oracle runner, then execute it once from the frozen external raw."
+}

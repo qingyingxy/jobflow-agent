@@ -81,6 +81,13 @@ async function installMaterialsFixture(page: Page) {
       await route.fulfill({ status: 201, headers, json: asset });
       return;
     }
+    if (path.endsWith("/resume_asset_demo/preview")) {
+      return route.fulfill({ headers, json: { text: "[姓名已隐藏]\n使用 Python 开发服务", preview_hash: "a".repeat(64), model: "测试解析器" } });
+    }
+    if (path.endsWith("/resume_asset_demo/parse")) {
+      expect(request.postDataJSON().confirmed).toBe(true);
+      return route.fulfill({ headers, json: { cached: false } });
+    }
     if (path === "/api/resumes/versions" && request.method() === "GET") {
       await route.fulfill({ headers, json: versions });
       return;
@@ -158,11 +165,20 @@ test("resume and confirmed answer become versioned library records", async ({ pa
     buffer: Buffer.from("%PDF-1.7 demo"),
   });
   await page.getByLabel("版本名称").fill("AI Agent 中文简历");
-  await page.getByRole("button", { name: "上传并解析" }).click();
+  await page.getByRole("button", { name: "上传并预览" }).click();
+  await expect(page.getByLabel("脱敏简历预览")).toContainText("[姓名已隐藏]");
+  await expect(page.getByRole("button", { name: "确认并解析" })).toBeDisabled();
+  await page.getByLabel("我已检查，同意解析以上内容").check();
+  await page.getByRole("button", { name: "确认并解析" }).click();
   await expect(page.getByText("AI Agent 中文简历", { exact: true })).toBeVisible();
   await expect(page.getByText("默认", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "高级申请资料" }).click();
+  await page.getByRole("tab", { name: /简历版本/ }).click();
+  await page.getByRole("button", { name: "核对并解析经历", exact: true }).click();
+  await expect(page.getByLabel("脱敏简历预览")).toBeVisible();
+  await page.getByRole("button", { name: "仅保存文件，不解析", exact: true }).click();
+  await expect(page.getByText("AI Agent 中文简历", { exact: true })).toHaveCount(1);
   await page.getByRole("tab", { name: /答案库/ }).click();
   await page.getByLabel("问题模式").fill("Why do you want to join us?");
   await page.getByLabel("已确认答案").fill("I value evidence-first product work.");

@@ -1,0 +1,83 @@
+{
+  "receipt_version": "unified-jd-structured-span-v4-corpus-external-reveal-receipt-v1",
+  "revealed_at": "2026-09-04",
+  "status": "revealed_corpus_external_development_only",
+  "former_holdout_status": "consumed_single_use_failed_gate",
+  "revealed_development": {
+    "path": "datasets/unified_jd_structured_span_v4_corpus_external_revealed_development_v1_2026-09-04.json",
+    "sha256": "965263881ff85bca636aa6ab87adaca24d74183fa13400709133323a3a6d5b73",
+    "fixture_count": 20,
+    "unique_job_count": 20
+  },
+  "source_artifacts": {
+    "parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "rules_freeze": {
+      "path": "datasets/unified_jd_structured_span_rules_freeze_v4_2026-09-04.json",
+      "sha256": "6a8a1d9ccce7c1069a483c7cc387221164de52800a133308922d57ff75ad6a12"
+    },
+    "source_corpus": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_sources_v1_2026-09-04.json",
+      "sha256": "1e693bd69642511ffa005b2bc33489b68a4a1ef99abb3c65b8615862c0eb5b29"
+    },
+    "selection": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_selection_v1_2026-09-04.json",
+      "sha256": "3061f49377ef937325743c1e1afc14e9651215f36dfad6b8c02771bd99b5661a"
+    },
+    "gold_labels": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_labels_v1_2026-09-04.json",
+      "sha256": "64823eb502b5219254a0376808a234e056b2964fe85cd00c30d898b821a79b54"
+    },
+    "label_freeze": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_label_freeze_v1_2026-09-04.json",
+      "sha256": "c2e08912e26dcfa693959b25a4d4bcf6e357a55995c056cd245ca6fb9ebe599d"
+    },
+    "raw_predictions": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-raw-v1-2026-09-04.json",
+      "sha256": "36b65c1df79d856c7507ae1357ed24c10b7a3e383bad79b9471b124f4999e058"
+    },
+    "evaluation_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-report-v1-2026-09-04.json",
+      "sha256": "5a0d53f1d55f7d62c52506c907b2231826f1f2753f653bb97880e1e7ac373dfc"
+    },
+    "evaluation_findings": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-findings-v1-2026-09-04.md",
+      "sha256": "282c793f8fdac6675906893391a91169950f0f146a6a7f8a23117265f5ad7055"
+    },
+    "evaluation_receipt": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_evaluation_receipt_v1_2026-09-04.json",
+      "sha256": "6d361f769b3468ee31780f00ad24027a67b770099cb8ba21fa39dbada700f792"
+    }
+  },
+  "frozen_v4_assurance": {
+    "parser_modified": false,
+    "rules_freeze_modified": false,
+    "parser_imported_or_executed_during_reveal": false,
+    "additional_v4_runs_on_former_holdout": 0,
+    "total_v4_runs_on_former_holdout": 1
+  },
+  "usage_policy": {
+    "eligible_for": [
+      "v5_diagnosis",
+      "v5_development"
+    ],
+    "ineligible_for": [
+      "v4_retest",
+      "v5_holdout",
+      "future_holdout",
+      "generalization_claim",
+      "threshold_selection"
+    ],
+    "generalization_claim": false,
+    "holdout_reuse_prohibited": true,
+    "next_valid_generalization_test": "A newly collected and frozen corpus-external holdout that excludes these 20 jobs and is not inspected during v5 development."
+  },
+  "conversion": {
+    "builder_path": "scripts/build_unified_structured_span_v4_corpus_external_revealed_development.py",
+    "builder_sha256": "b0a9858d385dbf6c589693c7ddef236763bb8c1fd77ce2d5d077bfb6db01a089",
+    "model_call_count": 0,
+    "network_call_count": 0
+  }
+}

@@ -1,0 +1,383 @@
+{
+  "preregistration_version": "unified-jd-structured-span-v5-preregistration-v1",
+  "created_at": "2026-09-04",
+  "status": "frozen_before_v5_implementation",
+  "scope": {
+    "development_data_status": "revealed_mechanism_enriched_not_holdout",
+    "generalization_claim": false,
+    "threshold_selection_after_freeze_allowed": false,
+    "fixture_specific_rules_allowed": false,
+    "employer_or_title_specific_rules_allowed": false,
+    "category_specific_patch_dispatch_allowed": false,
+    "canonicalizer_work_allowed": false,
+    "model_calls_allowed": false,
+    "network_calls_allowed": false,
+    "v4_modification_allowed": false,
+    "v5_implementation_status": "not_started"
+  },
+  "inputs": {
+    "development_labels": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_labels_v1_2026-09-04.json",
+      "sha256": "5d1b62101c3948ca0d18037c72fb25935b9e5984ee5e9c9ce63bf80b86803d9b"
+    },
+    "development_label_freeze": {
+      "path": "datasets/unified_jd_structured_span_v5_mechanism_development_label_freeze_v1_2026-09-04.json",
+      "sha256": "0263b1e2903205e7ec051a042d87d5059e46022ba12503b8c18453feb59d45bd"
+    },
+    "v4_baseline_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v4-baseline-raw-v1-2026-09-04.json",
+      "sha256": "7e03f7cd9d60b6115edc9a88ec303eccb2cb7a7e8f2351d204153cd5a6ebd580"
+    },
+    "v4_baseline_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v4-baseline-report-v1-2026-09-04.json",
+      "sha256": "e7b4aa1dfdf9018c2066dd59655fff879fdef3062f0739faab5e69f497975a69"
+    },
+    "e1_e5_synthesis": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-e1-e5-synthesis-v1-2026-09-04.json",
+      "sha256": "d7206f33d1af47d84f989aeea11a32b05972a609fefe3604879d8e13b389e073"
+    },
+    "e6_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-e6-priority-tail-rejection-report-v1-2026-09-04.json",
+      "sha256": "ca8699805ee11b049fed996df7266388ee488156632f7ecd03cee9bbcbfc68ea"
+    },
+    "e7_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-e7-prepositional-wrapper-before-example-split-report-v1-2026-09-04.json",
+      "sha256": "7f479267ecb26d67f474e2c31f11d28fa3748bca6b006a2820cf551a283c2717"
+    },
+    "v4_rules_freeze": {
+      "path": "datasets/unified_jd_structured_span_rules_freeze_v4_2026-09-04.json",
+      "sha256": "6a8a1d9ccce7c1069a483c7cc387221164de52800a133308922d57ff75ad6a12"
+    },
+    "frozen_v4_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v4.py",
+      "sha256": "e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094"
+    },
+    "legacy_development_gold": {
+      "path": "datasets/unified_jd_structured_span_v4_development_gold_v1_2026-09-04.json",
+      "sha256": "5bb034f2aaa6ad44c2ad0f6c06618291d451a58ec3808e903a27cafe58fe9509"
+    },
+    "legacy_development_v4_report": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-development-v4-report-v1-2026-09-04.json",
+      "sha256": "cf54f6d79c3b46e5d8bfd94a35f72df76471a8d2fbbe13534ab31031ab7693f5"
+    },
+    "revealed_external_development": {
+      "path": "datasets/unified_jd_structured_span_v4_corpus_external_revealed_development_v1_2026-09-04.json",
+      "sha256": "965263881ff85bca636aa6ab87adaca24d74183fa13400709133323a3a6d5b73"
+    },
+    "revealed_external_v4_raw": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v4-corpus-external-raw-v1-2026-09-04.json",
+      "sha256": "36b65c1df79d856c7507ae1357ed24c10b7a3e383bad79b9471b124f4999e058"
+    }
+  },
+  "causal_basis": {
+    "retained_mechanisms": [
+      {
+        "id": "E2-wrapper-boundary",
+        "evidence": "Gold wrapper exclusion boundaries improved member or surface outcomes in 7/8 preregistered targets with no control regression."
+      },
+      {
+        "id": "E3-region-first-connector-role",
+        "evidence": "Region-first role correction improved downstream outcomes in 4/6 preregistered targets with no control regression."
+      },
+      {
+        "id": "E6-priority-tail-rejection",
+        "evidence": "Preference-only right-tail rejection passed all four frozen criteria without changing retained controls."
+      },
+      {
+        "id": "E7-prepositional-wrapper-before-example-split",
+        "evidence": "Moving the local prepositional boundary before example splitting passed all four frozen criteria without control changes."
+      }
+    ],
+    "excluded_mechanisms": [
+      {
+        "id": "E1-category-neutral-dispatch",
+        "reason": "Rejected by its frozen gate; dispatch alone is not a v5 mechanism."
+      },
+      {
+        "id": "E4-scope-candidate-versus-application",
+        "reason": "Rejected by its frozen gate; no new candidate-to-scope compatibility heuristic may be added."
+      },
+      {
+        "id": "E5-example-attachment-three-toggle",
+        "reason": "The combined toggle family failed its frozen gate. Only the separately supported E6 and E7 residual mechanisms may be used."
+      }
+    ]
+  },
+  "combined_v5_rule": {
+    "name": "clause_local_region_graph_v5",
+    "implementation_target": "src/domain/unified_jd_structured_spans_v5.py",
+    "ordered_stages": [
+      {
+        "order": 1,
+        "name": "protect_and_segment",
+        "rule": "Build clause-local top-level regions while protecting parenthetical and lexical spans; retain exact source offsets."
+      },
+      {
+        "order": 2,
+        "name": "resolve_wrapper_boundaries",
+        "mechanism": "E2-wrapper-boundary",
+        "rule": "Discover prefix, suffix, and open-list wrapper marker/content spans before constructing coordination members. Wrapper markers are graph metadata and exclusion boundaries, not projected items."
+      },
+      {
+        "order": 3,
+        "name": "form_attachment_regions",
+        "rule": "Identify parent-first regions introduced by explicit cues or protected parentheses and postposed 等+head regions. Keep direct open enumerations distinct from illustrative examples."
+      },
+      {
+        "order": 4,
+        "name": "reject_preference_only_postposed_parent",
+        "mechanism": "E6-priority-tail-rejection",
+        "rule": "For a postposed attachment candidate created from 等, reject only that candidate when its complete right tail, after closing punctuation, is solely a priority/preference wrapper. Do not suppress an independent explicit 如 or parenthetical parent-first attachment, and do not turn a direct open surface list into examples."
+      },
+      {
+        "order": 5,
+        "name": "exclude_local_prepositional_wrapper",
+        "mechanism": "E7-prepositional-wrapper-before-example-split",
+        "rule": "Inside an attachment-bearing region only, remove the already resolved leading prepositional wrapper marker from the example body before splitting members. Never strip 对 globally or from a lexical member."
+      },
+      {
+        "order": 6,
+        "name": "classify_connectors_by_innermost_region",
+        "mechanism": "E3-region-first-connector-role",
+        "rule": "Assign connector roles from the innermost protected region before splitting: quantifier, example, embedded, then surface. A character is one connector label at one exact span; lexical punctuation remains protected rather than promoted."
+      },
+      {
+        "order": 7,
+        "name": "construct_members_and_explicit_scopes",
+        "rule": "Split members using only connectors licensed for that region. Preserve nested outer-example and inner-embedded groups. Apply a shared scope only when an explicit source prefix, suffix, head, predicate, domain, result, or evidence span governs at least two annotated members.",
+        "e4_exclusion": "Do not add the rejected E4 candidate-versus-application compatibility heuristic."
+      },
+      {
+        "order": 8,
+        "name": "project_from_graph",
+        "rule": "Project ordered source-anchored surface items and examples from the graph. Exclude wrappers and embedded-only members; do not canonicalize, paraphrase, or use fixture labels at runtime."
+      }
+    ],
+    "global_invariants": [
+      "All spans are half-open exact slices of source_text.",
+      "Every shared-scope target is an annotated coordination member.",
+      "Every attachment has a non-priority source parent and at least one example.",
+      "Every projected value occurs exactly in source_text.",
+      "No stage reads fixture id, job id, employer, title, gold, or expected output.",
+      "No category-specific dispatch is introduced to activate the combined stages."
+    ]
+  },
+  "evaluation_protocol": {
+    "development_gate_timing": "Freeze the v5 source hash, then execute one full 20-fixture evaluation and one regression evaluation. Record raw output before computing the decision.",
+    "all_criteria_conjunctive": true,
+    "post_hoc_threshold_or_exception_changes_forbidden": true,
+    "failure_policy": "If any criterion fails, keep v4 as the frozen reference, reveal the failed v5 output for diagnosis, and create a new preregistration version before another combined-rule attempt."
+  },
+  "development_baseline": {
+    "aggregate": {
+      "fixture_count": 20,
+      "structure_validation_error_count": 0,
+      "wrapper_span_f1": 0.46846846846846846,
+      "wrapper_exact_fixture_count": 1,
+      "connector_classification_accuracy": 0.3617021276595745,
+      "coordination_member_f1": 0.2570281124497992,
+      "coordination_member_exact_fixture_count": 0,
+      "shared_scope_edge_f1": 0.0,
+      "shared_scope_exact_fixture_count": 5,
+      "example_attachment_parent_f1": 0.058823529411764705,
+      "example_attachment_edge_f1": 0.03669724770642202,
+      "example_attachment_exact_fixture_count": 2,
+      "surface_projection_f1": 0.3017241379310345,
+      "surface_projection_exact_fixture_count": 0,
+      "example_projection_f1": 0.44036697247706424,
+      "example_projection_exact_fixture_count": 4
+    },
+    "strata": {
+      "E2-wrapper-boundary": {
+        "fixture_count": 5,
+        "structure_validation_error_count": 0,
+        "wrapper_span_f1": 0.36363636363636365,
+        "wrapper_exact_fixture_count": 0,
+        "connector_classification_accuracy": 0.625,
+        "coordination_member_f1": 0.4444444444444445,
+        "coordination_member_exact_fixture_count": 0,
+        "shared_scope_edge_f1": 0.0,
+        "shared_scope_exact_fixture_count": 0,
+        "example_attachment_parent_f1": 0.0,
+        "example_attachment_edge_f1": 0.0,
+        "example_attachment_exact_fixture_count": 1,
+        "surface_projection_f1": 0.37837837837837834,
+        "surface_projection_exact_fixture_count": 0,
+        "example_projection_f1": 0.75,
+        "example_projection_exact_fixture_count": 2
+      },
+      "E3-region-first-connector-role": {
+        "fixture_count": 5,
+        "structure_validation_error_count": 0,
+        "wrapper_span_f1": 0.5294117647058824,
+        "wrapper_exact_fixture_count": 0,
+        "connector_classification_accuracy": 0.20588235294117646,
+        "coordination_member_f1": 0.1098901098901099,
+        "coordination_member_exact_fixture_count": 0,
+        "shared_scope_edge_f1": 0.0,
+        "shared_scope_exact_fixture_count": 0,
+        "example_attachment_parent_f1": 0.0,
+        "example_attachment_edge_f1": 0.0,
+        "example_attachment_exact_fixture_count": 0,
+        "surface_projection_f1": 0.19444444444444445,
+        "surface_projection_exact_fixture_count": 0,
+        "example_projection_f1": 0.15,
+        "example_projection_exact_fixture_count": 0
+      },
+      "E6-priority-tail-rejection": {
+        "fixture_count": 5,
+        "structure_validation_error_count": 0,
+        "wrapper_span_f1": 0.5454545454545454,
+        "wrapper_exact_fixture_count": 1,
+        "connector_classification_accuracy": 0.42857142857142855,
+        "coordination_member_f1": 0.3673469387755102,
+        "coordination_member_exact_fixture_count": 0,
+        "shared_scope_edge_f1": 0.0,
+        "shared_scope_exact_fixture_count": 2,
+        "example_attachment_parent_f1": 0.25,
+        "example_attachment_edge_f1": 0.15384615384615383,
+        "example_attachment_exact_fixture_count": 1,
+        "surface_projection_f1": 0.4255319148936171,
+        "surface_projection_exact_fixture_count": 0,
+        "example_projection_f1": 0.7692307692307692,
+        "example_projection_exact_fixture_count": 2
+      },
+      "E7-prepositional-wrapper-before-example-split": {
+        "fixture_count": 5,
+        "structure_validation_error_count": 0,
+        "wrapper_span_f1": 0.45454545454545453,
+        "wrapper_exact_fixture_count": 0,
+        "connector_classification_accuracy": 0.2,
+        "coordination_member_f1": 0.17391304347826086,
+        "coordination_member_exact_fixture_count": 0,
+        "shared_scope_edge_f1": 0.0,
+        "shared_scope_exact_fixture_count": 3,
+        "example_attachment_parent_f1": 0.0,
+        "example_attachment_edge_f1": 0.0,
+        "example_attachment_exact_fixture_count": 0,
+        "surface_projection_f1": 0.20512820512820512,
+        "surface_projection_exact_fixture_count": 0,
+        "example_projection_f1": 0.21052631578947367,
+        "example_projection_exact_fixture_count": 0
+      }
+    },
+    "source": {
+      "path": "artifacts/evaluation/unified-jd-structured-span-v5-mechanism-development-v4-baseline-report-v1-2026-09-04.json",
+      "sha256": "e7b4aa1dfdf9018c2066dd59655fff879fdef3062f0739faab5e69f497975a69"
+    }
+  },
+  "development_acceptance_gates": {
+    "G0-validity": [
+      "structure_validation_error_count == 0",
+      "unanchored_output_count == 0",
+      "v4 source SHA-256 remains e09e056cab75e651937391ce5410e6df7c94477c85565abb1425bbe85cfcb094",
+      "model_call_count == 0 and network_call_count == 0"
+    ],
+    "G1-aggregate-non-regression": {
+      "wrapper_span_f1_min": 0.46846846846846846,
+      "connector_classification_accuracy_min": 0.3617021276595745,
+      "coordination_member_f1_min": 0.2570281124497992,
+      "shared_scope_edge_f1_min": 0.0,
+      "example_attachment_parent_f1_min": 0.058823529411764705,
+      "example_attachment_edge_f1_min": 0.03669724770642202,
+      "surface_projection_f1_min": 0.3017241379310345,
+      "example_projection_f1_min": 0.44036697247706424
+    },
+    "G2-E2-wrapper-boundary": {
+      "fixture_ids": [
+        "structured-v5-mechanism-dev-v1-001",
+        "structured-v5-mechanism-dev-v1-002",
+        "structured-v5-mechanism-dev-v1-003",
+        "structured-v5-mechanism-dev-v1-004",
+        "structured-v5-mechanism-dev-v1-005"
+      ],
+      "required_improved_fixture_count": 3,
+      "improvement_definition": "A fixture's combined missing+unexpected count across wrapper spans, coordination members, and surface projection is lower than its frozen v4 baseline.",
+      "aggregate_requirements": {
+        "wrapper_span_f1_strictly_greater_than": 0.36363636363636365,
+        "at_least_one_downstream_strictly_improves": {
+          "coordination_member_f1_baseline": 0.4444444444444445,
+          "surface_projection_f1_baseline": 0.37837837837837834
+        }
+      }
+    },
+    "G3-E3-region-first-connector-role": {
+      "fixture_ids": [
+        "structured-v5-mechanism-dev-v1-006",
+        "structured-v5-mechanism-dev-v1-007",
+        "structured-v5-mechanism-dev-v1-008",
+        "structured-v5-mechanism-dev-v1-009",
+        "structured-v5-mechanism-dev-v1-010"
+      ],
+      "required_improved_fixture_count": 4,
+      "improvement_definition": "A fixture's combined missing+unexpected count across connector labels, coordination members, attachment edges, and both projections is lower than its frozen v4 baseline.",
+      "aggregate_requirements": {
+        "connector_classification_accuracy_strictly_greater_than": 0.20588235294117646,
+        "coordination_member_f1_strictly_greater_than": 0.1098901098901099,
+        "at_least_one_attachment_or_projection_metric_strictly_improves": {
+          "example_attachment_edge_f1_baseline": 0.0,
+          "surface_projection_f1_baseline": 0.19444444444444445,
+          "example_projection_f1_baseline": 0.15
+        }
+      }
+    },
+    "G4-E6-priority-tail": {
+      "target_011": [
+        "The only attachment is cue 如 -> parent 理工科、管理学及相关交叉学科 with the six frozen examples.",
+        "No 等 cue or 优先/者优先 span is an attachment parent."
+      ],
+      "target_012": [
+        "attachment count == 0 and example projection is empty",
+        "surface projection is exactly 手配, 小家电, 外设产品, 摄影摄像"
+      ],
+      "matched_controls_013_015": "For every control, no primary-layer missing+unexpected count may exceed its frozen v4 baseline; every retained attachment parent, cue, and example span must match gold exactly."
+    },
+    "G5-E7-prepositional-boundary": {
+      "fixture_ids": [
+        "structured-v5-mechanism-dev-v1-016",
+        "structured-v5-mechanism-dev-v1-017",
+        "structured-v5-mechanism-dev-v1-018",
+        "structured-v5-mechanism-dev-v1-019",
+        "structured-v5-mechanism-dev-v1-020"
+      ],
+      "first_example_spans": {
+        "structured-v5-mechanism-dev-v1-016": "人机交互",
+        "structured-v5-mechanism-dev-v1-017": "商业分析",
+        "structured-v5-mechanism-dev-v1-018": "供应链计划",
+        "structured-v5-mechanism-dev-v1-019": "系统分层",
+        "structured-v5-mechanism-dev-v1-020": "外呼的销售策略"
+      },
+      "requirements": [
+        "All five first-example spans are exact and none starts with 对.",
+        "All five attachment parents, example edges, and example projections are exact.",
+        "No non-attachment 对 wrapper elsewhere is globally stripped."
+      ]
+    },
+    "G6-regression": [
+      "The 20-fixture legacy v4 development gold remains exact on all structural layers and both projections.",
+      "On the 20 revealed corpus-external fixtures, no aggregate metric and no per-fixture primary-layer difference count is worse than the stored v4 baseline.",
+      "The existing 60-case v4 projection regression remains 60/60 exact under v5.",
+      "All existing structured-span tests plus new v5 tests pass."
+    ]
+  },
+  "post_development_protocol": {
+    "on_pass": "Freeze v5 source and its development report, then collect and label a fresh corpus-external blind holdout with no job, URL, or source-text overlap with any revealed data.",
+    "blind_holdout_gate": {
+      "connector_classification_accuracy_min": 0.9,
+      "coordination_member_f1_min": 0.85,
+      "shared_scope_edge_f1_min": 0.8,
+      "example_attachment_edge_f1_min": 0.8,
+      "surface_projection_f1_min": 0.85,
+      "surface_projection_exact_rate_min": 0.7,
+      "unanchored_output_count_max": 0,
+      "structure_validation_error_count_max": 0,
+      "previous_development_regression_exact_rate_min": 1.0
+    },
+    "holdout_gate_origin": {
+      "path": "datasets/unified_jd_structured_span_rules_freeze_v4_2026-09-04.json",
+      "sha256": "6a8a1d9ccce7c1069a483c7cc387221164de52800a133308922d57ff75ad6a12"
+    },
+    "canonicalizer_unlock_condition": "Only a one-time pass of every unchanged blind-holdout gate unlocks canonicalizer implementation. A development pass alone never does.",
+    "on_fail": "Do not canonicalize and do not weaken a threshold. Diagnose the frozen failure and preregister a new version before changing v5."
+  }
+}

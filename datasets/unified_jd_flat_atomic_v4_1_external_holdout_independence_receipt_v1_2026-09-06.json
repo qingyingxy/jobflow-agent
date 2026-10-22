@@ -1,0 +1,54 @@
+{
+  "receipt_version": "unified-jd-flat-atomic-v4.1-external-holdout-independence-receipt-v1",
+  "date": "2026-09-06",
+  "status": "frozen_before_preregistration_and_model_calls",
+  "selection": {
+    "path": "datasets/unified_jd_flat_atomic_v4_1_external_holdout_selection_v1_2026-09-06.json",
+    "sha256": "0d983b4c1ce88667d85e7b00742bc242accd0639173e677e6a5c150fe5c4dae4"
+  },
+  "audit": {
+    "roots": [
+      "datasets/**/*.json",
+      "artifacts/evaluation/**/*.json"
+    ],
+    "selection_excluded_from_search": true,
+    "json_files_scanned": 649,
+    "string_values_scanned": 497111,
+    "matching_policy": "For each selected case, search every prior JSON string value for an exact source URL and for a full raw body either as the complete value or as a substring of a longer value.",
+    "case_results": [
+      {
+        "case_id": "external-ashby-ravenna-ai-engineer",
+        "body_match_paths": [],
+        "url_match_paths": []
+      },
+      {
+        "case_id": "external-ashby-thread-ai-applied-ai-engineer",
+        "body_match_paths": [],
+        "url_match_paths": []
+      },
+      {
+        "case_id": "external-ashby-airwallex-ai-engineer",
+        "body_match_paths": [],
+        "url_match_paths": []
+      },
+      {
+        "case_id": "external-ashby-notion-ai-applications-engineer",
+        "body_match_paths": [],
+        "url_match_paths": []
+      },
+      {
+        "case_id": "external-ashby-atira-ai-engineer",
+        "body_match_paths": [],
+        "url_match_paths": []
+      }
+    ],
+    "all_body_matches_absent": true,
+    "all_url_matches_absent": true
+  },
+  "temporal_independence": {
+    "v4_1_source_freeze_precedes_collection": true,
+    "v4_1_formal_gate_report_precedes_collection": true,
+    "used_for_v4_or_v4_1_development": false
+  },
+  "claim_boundary": "This establishes repository-level novelty and temporal separation from v4.1 development. Because all five pages use Ashby hosting and were selected for AI-engineering titles, conclusions remain limited to cross-company English job bodies on this ATS and title family."
+}

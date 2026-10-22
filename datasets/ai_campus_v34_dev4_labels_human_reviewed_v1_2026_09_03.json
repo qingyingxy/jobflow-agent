@@ -1,0 +1,1809 @@
+{
+  "version": "ai-campus-v34-dev4-labels-v1-assistant-reviewed-2026-09-03",
+  "selection_version": "ai-campus-v34-dev4-selection-v1-2026-09-03",
+  "annotation_guide_version": "ai-campus-annotation-guide-v1",
+  "annotation_status": "owner_confirmed_not_frozen",
+  "annotator": "Codex coding agent",
+  "annotated_at": "2026-09-03",
+  "reviewer": "repository owner",
+  "reviewed_at": "2026-09-03",
+  "parser_predictions_viewed": false,
+  "external_model_calls": false,
+  "frozen": false,
+  "owner_confirmed_case_count": 4,
+  "cases": {
+    "external-dev-v34-001": {
+      "source": {
+        "company": "搜狐",
+        "title": "【2027】AI算法研发工程师-【引力计划】人才专项",
+        "source_url": "https://campus.sohu.com/jobs/2027-gravity-ai-algo-rd-engineer-2f6a47e0/"
+      },
+      "fields": {
+        "job_type": "campus",
+        "locations": [
+          "北京"
+        ],
+        "required_skills": [
+          "计算机基础知识",
+          "数据结构与算法",
+          "编程能力"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": [
+              "Java",
+              "Python",
+              "C++"
+            ],
+            "allow_other": true
+          }
+        ],
+        "preferred_skills": [
+          "搜索",
+          "推荐系统",
+          "广告",
+          "NLP",
+          "计算机视觉",
+          "多模态",
+          "LLM",
+          "Agent",
+          "RAG",
+          "开源贡献"
+        ],
+        "skill_concepts": [
+          {
+            "skill_id": "skill:计算机基础知识",
+            "canonical_name": "计算机基础知识",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "计算机基础扎实，熟悉常见算法与数据结构，具备良好的编程能力"
+          },
+          {
+            "skill_id": "skill:数据结构与算法",
+            "canonical_name": "数据结构与算法",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "计算机基础扎实，熟悉常见算法与数据结构，具备良好的编程能力"
+          },
+          {
+            "skill_id": "skill:编程能力",
+            "canonical_name": "编程能力",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "计算机基础扎实，熟悉常见算法与数据结构，具备良好的编程能力"
+          },
+          {
+            "skill_id": "skill:java",
+            "canonical_name": "Java",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "编程语言",
+            "allow_other": true,
+            "source_text": "熟悉 Java、Python、C++ 等至少一种编程语言"
+          },
+          {
+            "skill_id": "skill:python",
+            "canonical_name": "Python",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "编程语言",
+            "allow_other": true,
+            "source_text": "熟悉 Java、Python、C++ 等至少一种编程语言"
+          },
+          {
+            "skill_id": "skill:c-plus-plus",
+            "canonical_name": "C++",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "编程语言",
+            "allow_other": true,
+            "source_text": "熟悉 Java、Python、C++ 等至少一种编程语言"
+          },
+          {
+            "skill_id": "skill:搜索",
+            "canonical_name": "搜索",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:推荐系统",
+            "canonical_name": "推荐系统",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:广告",
+            "canonical_name": "广告",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:nlp",
+            "canonical_name": "NLP",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:计算机视觉",
+            "canonical_name": "计算机视觉",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:多模态",
+            "canonical_name": "多模态",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有搜索、推荐、广告、NLP、CV、多模态等相关项目或科研经历"
+          },
+          {
+            "skill_id": "skill:llm",
+            "canonical_name": "LLM",
+            "strength": "preferred",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有大模型、Agent、RAG等相关实践经验"
+          },
+          {
+            "skill_id": "skill:agent",
+            "canonical_name": "Agent",
+            "strength": "preferred",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有大模型、Agent、RAG等相关实践经验"
+          },
+          {
+            "skill_id": "skill:rag",
+            "canonical_name": "RAG",
+            "strength": "preferred",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有大模型、Agent、RAG等相关实践经验"
+          },
+          {
+            "skill_id": "skill:开源贡献",
+            "canonical_name": "开源贡献",
+            "strength": "preferred",
+            "qualifier": "open_source_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "有开源项目贡献经历或技术博客输出习惯"
+          },
+          {
+            "skill_id": "skill:机器学习",
+            "canonical_name": "机器学习",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解机器学习、深度学习相关基础知识，了解大语言模型（LLM）、Agent等相关技术"
+          },
+          {
+            "skill_id": "skill:深度学习",
+            "canonical_name": "深度学习",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解机器学习、深度学习相关基础知识，了解大语言模型（LLM）、Agent等相关技术"
+          },
+          {
+            "skill_id": "skill:agent系统",
+            "canonical_name": "Agent系统",
+            "strength": "mention",
+            "qualifier": "development_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与Agent系统的设计与开发，推动Agent在搜索、推荐、视频理解等场景中的应用与落地"
+          },
+          {
+            "skill_id": "skill:视频理解",
+            "canonical_name": "视频理解",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与Agent系统的设计与开发，推动Agent在搜索、推荐、视频理解等场景中的应用与落地"
+          },
+          {
+            "skill_id": "skill:视频搜索",
+            "canonical_name": "视频搜索",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与搜狐视频搜索、推荐、广告及视频理解相关系统的研发与优化，持续提升用户体验和业务效果"
+          },
+          {
+            "skill_id": "skill:系统架构设计",
+            "canonical_name": "系统架构设计",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与相关系统的架构设计、性能优化和工程建设，保障系统稳定高效运行"
+          },
+          {
+            "skill_id": "skill:性能优化",
+            "canonical_name": "性能优化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与相关系统的架构设计、性能优化和工程建设，保障系统稳定高效运行"
+          },
+          {
+            "skill_id": "skill:工程建设",
+            "canonical_name": "工程建设",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "参与相关系统的架构设计、性能优化和工程建设，保障系统稳定高效运行"
+          }
+        ]
+      },
+      "skill_mentions": [
+        "机器学习",
+        "深度学习",
+        "Agent系统研发",
+        "视频理解",
+        "视频搜索",
+        "系统架构设计",
+        "性能优化",
+        "工程建设",
+        "Java",
+        "Python",
+        "C++"
+      ],
+      "manual_notes": "‘了解……至少一个方向’受弱认知词支配，只作 mention，不建立必备 any_of；只有‘至少一种编程语言’建立开放 any_of。项目/科研、实践和开源贡献位于加分项，因此标为 preferred；竞赛经历、技术博客习惯、学历专业和软技能排除。",
+      "owner_confirmation": {
+        "status": "confirmed",
+        "confirmed_at": "2026-09-03",
+        "confirmed_items": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5"
+        ]
+      }
+    },
+    "external-dev-v34-002": {
+      "source": {
+        "company": "摩尔线程",
+        "title": "大模型推理优化工程师",
+        "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=e9c2216b-79c0-4c33-8687-147ad255e479"
+      },
+      "fields": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "上海",
+          "深圳",
+          "杭州"
+        ],
+        "required_skills": [
+          "Linux",
+          "编程基础"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "编程语言",
+            "any_of": [
+              "C++",
+              "Python"
+            ],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [],
+        "skill_concepts": [
+          {
+            "skill_id": "skill:linux",
+            "canonical_name": "Linux",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练使用 Linux 开发环境，具备扎实编程基础"
+          },
+          {
+            "skill_id": "skill:编程基础",
+            "canonical_name": "编程基础",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练使用 Linux 开发环境，具备扎实编程基础"
+          },
+          {
+            "skill_id": "skill:gpu并行计算",
+            "canonical_name": "GPU并行计算",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解 GPU 并行计算原理与 Transformer 大模型基础架构。"
+          },
+          {
+            "skill_id": "skill:transformer",
+            "canonical_name": "Transformer",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解 GPU 并行计算原理与 Transformer 大模型基础架构。"
+          },
+          {
+            "skill_id": "skill:llm",
+            "canonical_name": "LLM",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解 GPU 并行计算原理与 Transformer 大模型基础架构。"
+          },
+          {
+            "skill_id": "skill:大模型推理",
+            "canonical_name": "大模型推理",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备大模型推理、模型部署或性能优化相关认知与学习热情。"
+          },
+          {
+            "skill_id": "skill:模型部署",
+            "canonical_name": "模型部署",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备大模型推理、模型部署或性能优化相关认知与学习热情。"
+          },
+          {
+            "skill_id": "skill:性能优化",
+            "canonical_name": "性能优化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备大模型推理、模型部署或性能优化相关认知与学习热情。"
+          },
+          {
+            "skill_id": "skill:gpu",
+            "canonical_name": "GPU",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:推理适配",
+            "canonical_name": "推理适配",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:性能调优",
+            "canonical_name": "性能调优",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:高并发",
+            "canonical_name": "高并发",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:长文本",
+            "canonical_name": "长文本",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:多轮对话",
+            "canonical_name": "多轮对话",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责各类大模型在自研 GPU 上的推理适配、性能调优与业务部署，解决高并发、长文本、多轮对话等场景的性能与稳定性瓶颈。"
+          },
+          {
+            "skill_id": "skill:分布式推理",
+            "canonical_name": "分布式推理",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "聚焦大模型推理全链路优化，落地分布式推理、量化、KV 缓存等核心策略，持续提升推理吞吐、降低推理时延。"
+          },
+          {
+            "skill_id": "skill:模型量化",
+            "canonical_name": "模型量化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "聚焦大模型推理全链路优化，落地分布式推理、量化、KV 缓存等核心策略，持续提升推理吞吐、降低推理时延。"
+          },
+          {
+            "skill_id": "skill:kv-cache",
+            "canonical_name": "KV-Cache",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "聚焦大模型推理全链路优化，落地分布式推理、量化、KV 缓存等核心策略，持续提升推理吞吐、降低推理时延。"
+          },
+          {
+            "skill_id": "skill:推理吞吐优化",
+            "canonical_name": "推理吞吐优化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "聚焦大模型推理全链路优化，落地分布式推理、量化、KV 缓存等核心策略，持续提升推理吞吐、降低推理时延。"
+          },
+          {
+            "skill_id": "skill:推理时延优化",
+            "canonical_name": "推理时延优化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "聚焦大模型推理全链路优化，落地分布式推理、量化、KV 缓存等核心策略，持续提升推理吞吐、降低推理时延。"
+          },
+          {
+            "skill_id": "skill:vlm",
+            "canonical_name": "VLM",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "跟进 LLM、VLM 等前沿模型技术，完成新模型适配加速与推理能力迭代升级。"
+          },
+          {
+            "skill_id": "skill:模型适配加速",
+            "canonical_name": "模型适配加速",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "跟进 LLM、VLM 等前沿模型技术，完成新模型适配加速与推理能力迭代升级。"
+          },
+          {
+            "skill_id": "skill:模型推理",
+            "canonical_name": "模型推理",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "跟进 LLM、VLM 等前沿模型技术，完成新模型适配加速与推理能力迭代升级。"
+          },
+          {
+            "skill_id": "skill:gpu架构",
+            "canonical_name": "GPU架构",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "结合自研 GPU 架构特性，基于并行编程工具完成高性能推理算子开发与极致调优。"
+          },
+          {
+            "skill_id": "skill:并行编程",
+            "canonical_name": "并行编程",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "结合自研 GPU 架构特性，基于并行编程工具完成高性能推理算子开发与极致调优。"
+          },
+          {
+            "skill_id": "skill:推理算子开发",
+            "canonical_name": "推理算子开发",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "结合自研 GPU 架构特性，基于并行编程工具完成高性能推理算子开发与极致调优。"
+          },
+          {
+            "skill_id": "skill:c-plus-plus",
+            "canonical_name": "C++",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟悉 C++/Python"
+          },
+          {
+            "skill_id": "skill:python",
+            "canonical_name": "Python",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟悉 C++/Python"
+          }
+        ]
+      },
+      "skill_mentions": [
+        "GPU并行计算",
+        "Transformer",
+        "LLM",
+        "大模型推理",
+        "模型部署",
+        "性能优化",
+        "GPU",
+        "推理适配",
+        "性能调优",
+        "高并发",
+        "长文本",
+        "多轮对话",
+        "分布式推理",
+        "模型量化",
+        "KV-Cache",
+        "推理吞吐优化",
+        "推理时延优化",
+        "VLM",
+        "模型适配加速",
+        "模型推理",
+        "GPU架构",
+        "并行编程",
+        "推理算子开发",
+        "C++",
+        "Python"
+      ],
+      "manual_notes": "仓库所有者人工裁决本条‘熟悉 C++/Python’中的斜杠表达二选一，建立封闭 any_of；Linux 与编程基础仍为共同必备。该裁决只适用于本条，不把所有斜杠枚举自动改成 any_of。‘了解’和‘相关认知与学习热情’均只作 mention；无明确优先或加分技术项。",
+      "owner_confirmation": {
+        "status": "confirmed_with_revision",
+        "confirmed_at": "2026-09-03",
+        "confirmed_items": [
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5"
+        ],
+        "revision": "B2/B3: C++ and Python form a closed any_of group"
+      }
+    },
+    "external-dev-v34-003": {
+      "source": {
+        "company": "摩尔线程",
+        "title": "Agentic Infra 平台研发工程师",
+        "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=67d78507-7dbd-4c45-ade1-dfbb3488e30d"
+      },
+      "fields": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "杭州",
+          "深圳"
+        ],
+        "required_skills": [
+          "LLM Agent",
+          "代码智能助手",
+          "IDE AI插件",
+          "研发提效平台",
+          "微服务",
+          "分布式队列",
+          "Redis",
+          "向量数据库",
+          "Kubernetes",
+          "容器调度",
+          "AI Coding Agent",
+          "Agent框架",
+          "Tool Calling",
+          "RAG",
+          "记忆调度",
+          "多智能体协同设计",
+          "代码模型强化学习",
+          "代码沙箱",
+          "隔离执行环境",
+          "AI输出安全风控架构设计",
+          "企业研发中台",
+          "CI/CD智能自动化",
+          "vLLM",
+          "SGLang",
+          "推理服务优化",
+          "GPU算力调度",
+          "大模型性能调优"
+        ],
+        "required_skill_groups": [
+          {
+            "name": "后端编程语言",
+            "any_of": [
+              "Go",
+              "Python",
+              "Java"
+            ],
+            "allow_other": false
+          }
+        ],
+        "preferred_skills": [],
+        "skill_concepts": [
+          {
+            "skill_id": "skill:llm-agent",
+            "canonical_name": "LLM Agent",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 LLM Agent 落地实战经验，拥有代码智能助手、IDE AI 插件、研发提效平台完整落地案例。"
+          },
+          {
+            "skill_id": "skill:代码智能助手",
+            "canonical_name": "代码智能助手",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 LLM Agent 落地实战经验，拥有代码智能助手、IDE AI 插件、研发提效平台完整落地案例。"
+          },
+          {
+            "skill_id": "skill:ide-ai插件",
+            "canonical_name": "IDE AI插件",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 LLM Agent 落地实战经验，拥有代码智能助手、IDE AI 插件、研发提效平台完整落地案例。"
+          },
+          {
+            "skill_id": "skill:研发提效平台",
+            "canonical_name": "研发提效平台",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 LLM Agent 落地实战经验，拥有代码智能助手、IDE AI 插件、研发提效平台完整落地案例。"
+          },
+          {
+            "skill_id": "skill:微服务",
+            "canonical_name": "微服务",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:分布式队列",
+            "canonical_name": "分布式队列",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:redis",
+            "canonical_name": "Redis",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:向量数据库",
+            "canonical_name": "向量数据库",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:kubernetes",
+            "canonical_name": "Kubernetes",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:容器调度",
+            "canonical_name": "容器调度",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:ai-coding-agent",
+            "canonical_name": "AI Coding Agent",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "拥有完整 AI Coding Agent 搭建经验"
+          },
+          {
+            "skill_id": "skill:agent框架",
+            "canonical_name": "Agent框架",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练 LangGraph/AutoGen/LlamaIndex 等 Agent 框架"
+          },
+          {
+            "skill_id": "skill:tool-calling",
+            "canonical_name": "Tool Calling",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握 Function Calling、RAG、记忆调度、多智能体协同设计。"
+          },
+          {
+            "skill_id": "skill:rag",
+            "canonical_name": "RAG",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握 Function Calling、RAG、记忆调度、多智能体协同设计。"
+          },
+          {
+            "skill_id": "skill:记忆调度",
+            "canonical_name": "记忆调度",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握 Function Calling、RAG、记忆调度、多智能体协同设计。"
+          },
+          {
+            "skill_id": "skill:多智能体协同设计",
+            "canonical_name": "多智能体协同设计",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握 Function Calling、RAG、记忆调度、多智能体协同设计。"
+          },
+          {
+            "skill_id": "skill:代码模型强化学习",
+            "canonical_name": "代码模型强化学习",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备代码模型强化学习落地经验"
+          },
+          {
+            "skill_id": "skill:代码沙箱",
+            "canonical_name": "代码沙箱",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "拥有代码沙箱、隔离执行环境、AI 输出安全风控架构设计经验。"
+          },
+          {
+            "skill_id": "skill:隔离执行环境",
+            "canonical_name": "隔离执行环境",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "拥有代码沙箱、隔离执行环境、AI 输出安全风控架构设计经验。"
+          },
+          {
+            "skill_id": "skill:ai输出安全风控架构设计",
+            "canonical_name": "AI输出安全风控架构设计",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "拥有代码沙箱、隔离执行环境、AI 输出安全风控架构设计经验。"
+          },
+          {
+            "skill_id": "skill:企业研发中台",
+            "canonical_name": "企业研发中台",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 VSCode/IDEA AI 插件、企业研发中台、CI/CD 智能自动化落地经验。"
+          },
+          {
+            "skill_id": "skill:ci-cd智能自动化",
+            "canonical_name": "CI/CD智能自动化",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 VSCode/IDEA AI 插件、企业研发中台、CI/CD 智能自动化落地经验。"
+          },
+          {
+            "skill_id": "skill:vllm",
+            "canonical_name": "vLLM",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 vLLM/SGLang 推理服务优化"
+          },
+          {
+            "skill_id": "skill:sglang",
+            "canonical_name": "SGLang",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 vLLM/SGLang 推理服务优化"
+          },
+          {
+            "skill_id": "skill:推理服务优化",
+            "canonical_name": "推理服务优化",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 vLLM/SGLang 推理服务优化"
+          },
+          {
+            "skill_id": "skill:gpu算力调度",
+            "canonical_name": "GPU算力调度",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 GPU 算力调度、大模型性能调优经验。"
+          },
+          {
+            "skill_id": "skill:大模型性能调优",
+            "canonical_name": "大模型性能调优",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 GPU 算力调度、大模型性能调优经验。"
+          },
+          {
+            "skill_id": "skill:pgvector",
+            "canonical_name": "PgVector",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:milvus",
+            "canonical_name": "Milvus",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉微服务、分布式队列、Redis、向量数据库（PgVector/Milvus）、K8S 容器调度。"
+          },
+          {
+            "skill_id": "skill:langgraph",
+            "canonical_name": "LangGraph",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练 LangGraph/AutoGen/LlamaIndex 等 Agent 框架"
+          },
+          {
+            "skill_id": "skill:autogen",
+            "canonical_name": "AutoGen",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练 LangGraph/AutoGen/LlamaIndex 等 Agent 框架"
+          },
+          {
+            "skill_id": "skill:llamaindex",
+            "canonical_name": "LlamaIndex",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟练 LangGraph/AutoGen/LlamaIndex 等 Agent 框架"
+          },
+          {
+            "skill_id": "skill:vscode",
+            "canonical_name": "VSCode",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 VSCode/IDEA AI 插件、企业研发中台、CI/CD 智能自动化落地经验。"
+          },
+          {
+            "skill_id": "skill:idea",
+            "canonical_name": "IDEA",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备 VSCode/IDEA AI 插件、企业研发中台、CI/CD 智能自动化落地经验。"
+          },
+          {
+            "skill_id": "skill:musa",
+            "canonical_name": "MUSA",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:ai-coding-agent平台",
+            "canonical_name": "AI Coding Agent平台",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:系统架构设计",
+            "canonical_name": "系统架构设计",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:musa算子生成",
+            "canonical_name": "MUSA算子生成",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:长上下文治理",
+            "canonical_name": "长上下文治理",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:agent自我进化",
+            "canonical_name": "Agent自我进化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "负责基于公司 MUSA 统一架构实现 AI Coding Agent 平台整体系统架构设计，建设 MUSA 算子生成、长上下文治理、自我进化的完整 Agent 技术体系"
+          },
+          {
+            "skill_id": "skill:skills技术体系",
+            "canonical_name": "Skills技术体系",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa 编程的 Skills 技术体系，支持百万开发者基于 MUSA 快速构建 Musa App，并落地业务成果。"
+          },
+          {
+            "skill_id": "skill:musa-app",
+            "canonical_name": "Musa App",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa 编程的 Skills 技术体系，支持百万开发者基于 MUSA 快速构建 Musa App，并落地业务成果。"
+          },
+          {
+            "skill_id": "skill:ai-coding-plan",
+            "canonical_name": "AI Coding Plan",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa AI Coding Plan 套餐，支撑超长上下文、高并发、长程任务背景下的广大开发者并行使用场景"
+          },
+          {
+            "skill_id": "skill:超长上下文",
+            "canonical_name": "超长上下文",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa AI Coding Plan 套餐，支撑超长上下文、高并发、长程任务背景下的广大开发者并行使用场景"
+          },
+          {
+            "skill_id": "skill:高并发",
+            "canonical_name": "高并发",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa AI Coding Plan 套餐，支撑超长上下文、高并发、长程任务背景下的广大开发者并行使用场景"
+          },
+          {
+            "skill_id": "skill:长程任务",
+            "canonical_name": "长程任务",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "搭建 Musa AI Coding Plan 套餐，支撑超长上下文、高并发、长程任务背景下的广大开发者并行使用场景"
+          },
+          {
+            "skill_id": "skill:go",
+            "canonical_name": "Go",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "后端编程语言",
+            "allow_other": false,
+            "source_text": "精通 Go/Python/Java 任一后端语言"
+          },
+          {
+            "skill_id": "skill:python",
+            "canonical_name": "Python",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "后端编程语言",
+            "allow_other": false,
+            "source_text": "精通 Go/Python/Java 任一后端语言"
+          },
+          {
+            "skill_id": "skill:java",
+            "canonical_name": "Java",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "any_of",
+            "group_name": "后端编程语言",
+            "allow_other": false,
+            "source_text": "精通 Go/Python/Java 任一后端语言"
+          }
+        ]
+      },
+      "skill_mentions": [
+        "PgVector",
+        "Milvus",
+        "LangGraph",
+        "AutoGen",
+        "LlamaIndex",
+        "VSCode",
+        "IDEA",
+        "MUSA",
+        "AI Coding Agent平台",
+        "系统架构设计",
+        "MUSA算子生成",
+        "长上下文治理",
+        "Agent自我进化",
+        "Skills技术体系",
+        "Musa App",
+        "AI Coding Plan",
+        "超长上下文",
+        "高并发",
+        "长程任务",
+        "Go",
+        "Python",
+        "Java"
+      ],
+      "manual_notes": "‘任一后端语言’建立封闭 any_of；普通斜杠枚举不建组。PgVector/Milvus、LangGraph/AutoGen/LlamaIndex 和 VSCode/IDEA 作为上位能力的具体例子，只作 mention。文章和专利属于非技能加分条件，排除。当前 v34 关系守卫未覆盖‘任一+类别名’句式，标签按原文人工保留该组，不以 Parser 的错误输出为准。",
+      "owner_confirmation": {
+        "status": "confirmed",
+        "confirmed_at": "2026-09-03",
+        "confirmed_items": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ]
+      }
+    },
+    "external-dev-v34-004": {
+      "source": {
+        "company": "摩尔线程",
+        "title": "图形渲染/3DGS算法工程师",
+        "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=7041d44a-0942-43ad-b10a-0c8b7894c07f"
+      },
+      "fields": {
+        "job_type": "campus",
+        "locations": [
+          "北京",
+          "杭州",
+          "深圳",
+          "上海",
+          "无锡"
+        ],
+        "required_skills": [
+          "深度学习",
+          "概率论",
+          "优化理论",
+          "Python",
+          "C++",
+          "PyTorch",
+          "TensorFlow",
+          "3DGS",
+          "NeRF",
+          "视频生成模型",
+          "扩散模型训练",
+          "可控生成",
+          "算法落地",
+          "工业级数据管线",
+          "模型压缩",
+          "端侧部署"
+        ],
+        "required_skill_groups": [],
+        "preferred_skills": [
+          "计算机图形学",
+          "SLAM",
+          "多视角几何重建",
+          "三维场景理解"
+        ],
+        "skill_concepts": [
+          {
+            "skill_id": "skill:深度学习",
+            "canonical_name": "深度学习",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备扎实的深度学习、概率论与优化理论功底。"
+          },
+          {
+            "skill_id": "skill:概率论",
+            "canonical_name": "概率论",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备扎实的深度学习、概率论与优化理论功底。"
+          },
+          {
+            "skill_id": "skill:优化理论",
+            "canonical_name": "优化理论",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备扎实的深度学习、概率论与优化理论功底。"
+          },
+          {
+            "skill_id": "skill:python",
+            "canonical_name": "Python",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "精通 Python/C++，熟练掌握 PyTorch/TensorFlow。"
+          },
+          {
+            "skill_id": "skill:c-plus-plus",
+            "canonical_name": "C++",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "精通 Python/C++，熟练掌握 PyTorch/TensorFlow。"
+          },
+          {
+            "skill_id": "skill:pytorch",
+            "canonical_name": "PyTorch",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "精通 Python/C++，熟练掌握 PyTorch/TensorFlow。"
+          },
+          {
+            "skill_id": "skill:tensorflow",
+            "canonical_name": "TensorFlow",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "精通 Python/C++，熟练掌握 PyTorch/TensorFlow。"
+          },
+          {
+            "skill_id": "skill:3dgs",
+            "canonical_name": "3DGS",
+            "strength": "required",
+            "qualifier": "project_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "深入理解 3DGS、NeRF 等相关技术，有相关项目复现或改进经验"
+          },
+          {
+            "skill_id": "skill:nerf",
+            "canonical_name": "NeRF",
+            "strength": "required",
+            "qualifier": "project_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "深入理解 3DGS、NeRF 等相关技术，有相关项目复现或改进经验"
+          },
+          {
+            "skill_id": "skill:视频生成模型",
+            "canonical_name": "视频生成模型",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 Stable Diffusion、Sora 类视频生成模型"
+          },
+          {
+            "skill_id": "skill:扩散模型训练",
+            "canonical_name": "扩散模型训练",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握扩散模型训练与可控生成技术。"
+          },
+          {
+            "skill_id": "skill:可控生成",
+            "canonical_name": "可控生成",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "掌握扩散模型训练与可控生成技术。"
+          },
+          {
+            "skill_id": "skill:算法落地",
+            "canonical_name": "算法落地",
+            "strength": "required",
+            "qualifier": "practical_experience",
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "具备从 0 到 1 的算法落地经验"
+          },
+          {
+            "skill_id": "skill:工业级数据管线",
+            "canonical_name": "工业级数据管线",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉工业级数据管线、模型压缩及端侧部署流程。"
+          },
+          {
+            "skill_id": "skill:模型压缩",
+            "canonical_name": "模型压缩",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉工业级数据管线、模型压缩及端侧部署流程。"
+          },
+          {
+            "skill_id": "skill:端侧部署",
+            "canonical_name": "端侧部署",
+            "strength": "required",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉工业级数据管线、模型压缩及端侧部署流程。"
+          },
+          {
+            "skill_id": "skill:计算机图形学",
+            "canonical_name": "计算机图形学",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解计算机图形学（CG）原理，如光照模型、物理模拟、Mesh/PBR 纹理管线等"
+          },
+          {
+            "skill_id": "skill:slam",
+            "canonical_name": "SLAM",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 SLAM、多视角几何重建，具备三维场景理解能力"
+          },
+          {
+            "skill_id": "skill:多视角几何重建",
+            "canonical_name": "多视角几何重建",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 SLAM、多视角几何重建，具备三维场景理解能力"
+          },
+          {
+            "skill_id": "skill:三维场景理解",
+            "canonical_name": "三维场景理解",
+            "strength": "preferred",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 SLAM、多视角几何重建，具备三维场景理解能力"
+          },
+          {
+            "skill_id": "skill:stable-diffusion",
+            "canonical_name": "Stable Diffusion",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 Stable Diffusion、Sora 类视频生成模型"
+          },
+          {
+            "skill_id": "skill:sora",
+            "canonical_name": "Sora",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "熟悉 Stable Diffusion、Sora 类视频生成模型"
+          },
+          {
+            "skill_id": "skill:光照模型",
+            "canonical_name": "光照模型",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解计算机图形学（CG）原理，如光照模型、物理模拟、Mesh/PBR 纹理管线等"
+          },
+          {
+            "skill_id": "skill:物理模拟",
+            "canonical_name": "物理模拟",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解计算机图形学（CG）原理，如光照模型、物理模拟、Mesh/PBR 纹理管线等"
+          },
+          {
+            "skill_id": "skill:mesh",
+            "canonical_name": "Mesh",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解计算机图形学（CG）原理，如光照模型、物理模拟、Mesh/PBR 纹理管线等"
+          },
+          {
+            "skill_id": "skill:pbr纹理管线",
+            "canonical_name": "PBR纹理管线",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "了解计算机图形学（CG）原理，如光照模型、物理模拟、Mesh/PBR 纹理管线等"
+          },
+          {
+            "skill_id": "skill:多模态内容生成",
+            "canonical_name": "多模态内容生成",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开展 3DGS 算法研究优化、多模态内容生成算法开发，搭建训练管线并完成算法全链路部署"
+          },
+          {
+            "skill_id": "skill:算法开发",
+            "canonical_name": "算法开发",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开展 3DGS 算法研究优化、多模态内容生成算法开发，搭建训练管线并完成算法全链路部署"
+          },
+          {
+            "skill_id": "skill:训练管线",
+            "canonical_name": "训练管线",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开展 3DGS 算法研究优化、多模态内容生成算法开发，搭建训练管线并完成算法全链路部署"
+          },
+          {
+            "skill_id": "skill:算法部署",
+            "canonical_name": "算法部署",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开展 3DGS 算法研究优化、多模态内容生成算法开发，搭建训练管线并完成算法全链路部署"
+          },
+          {
+            "skill_id": "skill:实时渲染",
+            "canonical_name": "实时渲染",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "推动实时渲染与动态场景重建技术落地"
+          },
+          {
+            "skill_id": "skill:动态场景重建",
+            "canonical_name": "动态场景重建",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "推动实时渲染与动态场景重建技术落地"
+          },
+          {
+            "skill_id": "skill:文生视频",
+            "canonical_name": "文生视频",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:图生3d",
+            "canonical_name": "图生3D",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:diffusion",
+            "canonical_name": "Diffusion",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:多模态",
+            "canonical_name": "多模态",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:视频生成",
+            "canonical_name": "视频生成",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:图像生成",
+            "canonical_name": "图像生成",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "开发基于扩散模型、多模态等框架的视频/图像生成算法，支持多模态内容生成（如文生视频、图生3D等）"
+          },
+          {
+            "skill_id": "skill:llm",
+            "canonical_name": "LLM",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "优化大模型在显卡硬件的分布式训练与推理效率"
+          },
+          {
+            "skill_id": "skill:gpu",
+            "canonical_name": "GPU",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "优化大模型在显卡硬件的分布式训练与推理效率"
+          },
+          {
+            "skill_id": "skill:分布式训练",
+            "canonical_name": "分布式训练",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "优化大模型在显卡硬件的分布式训练与推理效率"
+          },
+          {
+            "skill_id": "skill:模型推理优化",
+            "canonical_name": "模型推理优化",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "优化大模型在显卡硬件的分布式训练与推理效率"
+          },
+          {
+            "skill_id": "skill:神经渲染",
+            "canonical_name": "神经渲染",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "探索神经渲染、物理仿真与生成模型的融合应用"
+          },
+          {
+            "skill_id": "skill:物理仿真",
+            "canonical_name": "物理仿真",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "探索神经渲染、物理仿真与生成模型的融合应用"
+          },
+          {
+            "skill_id": "skill:生成模型",
+            "canonical_name": "生成模型",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "探索神经渲染、物理仿真与生成模型的融合应用"
+          },
+          {
+            "skill_id": "skill:计算机视觉",
+            "canonical_name": "计算机视觉",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "将CV算法集成到实时渲染管线"
+          },
+          {
+            "skill_id": "skill:实时渲染管线",
+            "canonical_name": "实时渲染管线",
+            "strength": "mention",
+            "qualifier": null,
+            "relation": "all_of",
+            "group_name": null,
+            "allow_other": false,
+            "source_text": "将CV算法集成到实时渲染管线"
+          }
+        ]
+      },
+      "skill_mentions": [
+        "Stable Diffusion",
+        "Sora",
+        "光照模型",
+        "物理模拟",
+        "Mesh",
+        "PBR纹理管线",
+        "多模态内容生成",
+        "算法开发",
+        "训练管线",
+        "算法部署",
+        "实时渲染",
+        "动态场景重建",
+        "文生视频",
+        "图生3D",
+        "Diffusion",
+        "多模态",
+        "视频生成",
+        "图像生成",
+        "LLM",
+        "GPU",
+        "分布式训练",
+        "模型推理优化",
+        "神经渲染",
+        "物理仿真",
+        "生成模型",
+        "计算机视觉",
+        "实时渲染管线"
+      ],
+      "manual_notes": "普通斜杠枚举按 all_of，不建立 any_of。Stable Diffusion/Sora 是‘视频生成模型’的例子；光照模型、物理模拟、Mesh/PBR 是‘计算机图形学’的例子。顶会一作与高影响力开源项目构成论文/项目混合任选条件，现有技能 schema 无法无损表达，整段排除并保留本说明。",
+      "owner_confirmation": {
+        "status": "confirmed",
+        "confirmed_at": "2026-09-03",
+        "confirmed_items": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5",
+          "D6",
+          "D7"
+        ]
+      }
+    }
+  }
+}

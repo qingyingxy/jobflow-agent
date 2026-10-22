@@ -1,0 +1,44 @@
+{
+  "freeze_version": "unified-jd-structured-span-v6-residual-oracles-source-freeze-v1",
+  "frozen_at": "2026-09-05",
+  "status": "v6_residual_oracle_runners_frozen_before_execution",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "1c5ebe4ff6b12824a2e2ae1dc71e2618509755875c80a95b0cabda41e91a5a23"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_freeze_v1_2026-09-05.json",
+      "sha256": "796115abee17f95907d2cde09fbc209c437fda3d1758bdccbb758901cd464c4c"
+    },
+    "common_offline_normalizer": {
+      "path": "scripts/unified_structured_span_v6_residual_oracle_common.py",
+      "sha256": "f88faeaace7356626e4572d5f3fcdd26b277a4e8322830a986009093e63c04ab"
+    },
+    "e8_runner": {
+      "path": "scripts/run_unified_structured_span_v6_e8_attachment_replacement_oracle.py",
+      "sha256": "3b11573893cc321837063271af15282cc25fb396037fb9c20313477fc0549491"
+    },
+    "e9_runner": {
+      "path": "scripts/run_unified_structured_span_v6_e9_merge_granularity_oracle.py",
+      "sha256": "ac8f8ca1ca029390c6dfbd1f7d425a9243bc49f833996d64a590b2f398fcf5fc"
+    }
+  },
+  "checks_before_freeze": {
+    "ruff_check_passed": true,
+    "ruff_format_check_passed": true,
+    "python_compile_passed": true,
+    "parser_import_scan_empty": true,
+    "experiment_run_count": 0,
+    "planned_output_count": 6,
+    "existing_output_count": 0,
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "execution_order": [
+    "Run E8 preflight, then E8 exactly once.",
+    "Run E9 preflight from the original frozen v6 inputs, then E9 exactly once without loading E8 output."
+  ],
+  "immutability": "The common normalizer and both oracle runners are frozen. Regardless of the results, do not edit or rerun either experiment; any change requires a new preregistration and source freeze.",
+  "next_allowed_action": "Run both read-only preflights, then execute E8 and E9 once each."
+}

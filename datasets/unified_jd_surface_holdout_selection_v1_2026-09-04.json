@@ -1,0 +1,285 @@
+{
+  "selection_version": "unified-jd-surface-holdout-selection-v1",
+  "status": "frozen_selection",
+  "selected_at": "2026-09-04",
+  "label_status": "pending",
+  "source_manifest": {
+    "path": "artifacts/evaluation/unified-jd-dev50-frozen-v2-2026-09-04.json",
+    "sha256": "58d0e5928f20181d9dd6cf7e598f09b3a7e25b1fdde7a426ab2ff135902fdd43",
+    "dataset_version": "unified-jd-dev50-frozen-v2-2026-09-04"
+  },
+  "rules_freeze": {
+    "path": "datasets/unified_jd_surface_rules_freeze_v1_2026-09-04.json",
+    "sha256": "15f7f4aabdfc36ddadfd5ac45423452cfad976403f04c3fae76bbfa168dfa0df",
+    "extractor_version": "unified-jd-surface-items-rules-v1",
+    "rules_sha256": "ab34553b88f4e4f730552949bfe1cfb7185654c32c48b73af7de9bd90f80e875"
+  },
+  "protocol": {
+    "selection_version": "unified-jd-surface-holdout-selection-v1",
+    "fixture_count": 20,
+    "fixtures_per_category": 5,
+    "exclude_development_case_ids": true,
+    "unique_case_per_fixture": true,
+    "selection_method": "SHA-256 rank of selection version, case id, clause index, and source content hash; category-balanced without replacement",
+    "labels_visible_during_rule_development": false,
+    "rules_may_change_after_selection": false,
+    "gates": {
+      "surface_items_f1_min": 0.85,
+      "surface_exact_set_rate_min": 0.7,
+      "examples_f1_min": 0.8,
+      "unanchored_output_count_max": 0
+    }
+  },
+  "excluded_development_case_ids": [
+    "campus-ai-011",
+    "campus-ai-069",
+    "campus-ai-072",
+    "campus-ai-085",
+    "campus-ai-091"
+  ],
+  "selected_case_ids": [
+    "campus-ai-001",
+    "campus-ai-015",
+    "campus-ai-023",
+    "campus-ai-024",
+    "campus-ai-027",
+    "campus-ai-029",
+    "campus-ai-051",
+    "campus-ai-052",
+    "campus-ai-073",
+    "campus-ai-089",
+    "campus-ai-097",
+    "campus-ai-102",
+    "campus-ai-108",
+    "campus-ai-109",
+    "campus-ai-110",
+    "campus-ai-124",
+    "campus-ai-142",
+    "campus-ai-157",
+    "campus-ai-158",
+    "campus-ai-165"
+  ],
+  "fixtures": [
+    {
+      "id": "surface-holdout-v1-001",
+      "case_id": "campus-ai-052",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "跟踪LLM与Agent领域的国际前沿技术动态，推动技术创新在业务场景中的落地应用，重点突破复杂推理、数据洞察、AI搜索、文案创作、图像连续编辑等方向的应用创新",
+      "source_text_sha256": "2c0e0231ac7d4e4316e0c6e5af35e0eb48ec8b6b0c37ccdc7feb14cf8a4719bf",
+      "source_content_sha256": "361995945d52b6b7b18fa6b63cc11171a917ed3391c79a032cc836ac53a12832",
+      "selection_rank_key": "055a21a35b55ba2f250c6b5bd505b1b54dc855c20fe62cfbf7df39b764bd7077"
+    },
+    {
+      "id": "surface-holdout-v1-002",
+      "case_id": "campus-ai-124",
+      "clause_index": 3,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "通过仿真验证算法可行性、评估算法性能，并进行参数优化",
+      "source_text_sha256": "27b0eec9b48f66978b9c83ccb1f6f4dfe2f03622ebe6efdb3f7d466162139e6f",
+      "source_content_sha256": "b2f66b59d1e3e5f6ed333654ac4c3f2b6289ac89ecd56ee7f213724d41555e01",
+      "selection_rank_key": "075f4372838f2438fc87d077e067e6e7023ab5a0cbaaa98aefe53fa07970b104"
+    },
+    {
+      "id": "surface-holdout-v1-003",
+      "case_id": "campus-ai-142",
+      "clause_index": 2,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "针对具身智能、智能辅助驾驶等Physical AI系统，进行新型威胁和攻击面的安全评估，参与Physical AI系统的安全能力框架设计",
+      "source_text_sha256": "236b584fd106288d669b06077a2a6cb2dffa602e30bf1fffb2a63058c49e03b5",
+      "source_content_sha256": "cc3b962deda2c4a94b10caeb9855dc1d5cbb7ee828ce2f9acd6b49917c9202a6",
+      "selection_rank_key": "0784d04d56abc1bd98dac72912b403920601b07f82d3f7c0bac89b7574f75431"
+    },
+    {
+      "id": "surface-holdout-v1-004",
+      "case_id": "campus-ai-109",
+      "clause_index": 1,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "设计并优化 Agent 的 Context Management、Memory Retrieval、Skill Selection、Tool Routing、Task Planning 等关键模块",
+      "source_text_sha256": "d83a270a8db41ff0fc45134cbbff8c442a97f887cd4840899264bd375a78052f",
+      "source_content_sha256": "9f31a52a4ba823e872cbe020188c0c9ddbc816ff48f339c017725219cd128e6b",
+      "selection_rank_key": "091ef3d07537666a1a9ef1ed1d4fb22ea1f773a68d717b8b5b3d928d42478417"
+    },
+    {
+      "id": "surface-holdout-v1-005",
+      "case_id": "campus-ai-029",
+      "clause_index": 0,
+      "category": "responsibility",
+      "level": "mention",
+      "source_text": "负责AI Agent的架构设计与核心功能开发，包括设计并实现基于LLM的AI Agent核心架构，包括规划、推理、记忆管理、工具使用能力等",
+      "source_text_sha256": "7eea3ee59e7c9ccd6e8d25f70931886042d89d0d567ce329894081d34a68d641",
+      "source_content_sha256": "2c88c5c27e9b05a0dc495605e46c47b887ccea76582aa5a469a6fac99bee9413",
+      "selection_rank_key": "0ab1606383297e362a98bb35b219a6a49a8b3f8bff10e6ccd8d9dcbe29ebaf45"
+    },
+    {
+      "id": "surface-holdout-v1-006",
+      "case_id": "campus-ai-015",
+      "clause_index": 8,
+      "category": "skill",
+      "level": "required",
+      "source_text": "对基础大模型技术有深入理解，熟悉模型预训练、微调和强化学习等技术流程",
+      "source_text_sha256": "1f4d5426aa84ba73950810517855c7f5daafc22e16c3b145fbc277d2b61d803d",
+      "source_content_sha256": "5c986242f93e3bba356c00607f13be25843a11ca05ed76ac5201c8d5d396089c",
+      "selection_rank_key": "0172ffda6dd8dc919c214f8169f100a0fbff8f65864e89bcb1f174203ad55099"
+    },
+    {
+      "id": "surface-holdout-v1-007",
+      "case_id": "campus-ai-097",
+      "clause_index": 11,
+      "category": "skill",
+      "level": "mention",
+      "source_text": "对大模型训练、推理服务、Agent 运行链路的可观测问题有兴趣",
+      "source_text_sha256": "03160a7b8c33bcfc0d07d549db50e855e7fad4340d87e7d64e08f320ac29207a",
+      "source_content_sha256": "f097631c1e1a2a5dcaa9e48b03d4abc9c3a32057139425bed9250f61b4ae4690",
+      "selection_rank_key": "019cea32024829522f2ffe37919e33830572478c1700cc95e347b34f060f5a94"
+    },
+    {
+      "id": "surface-holdout-v1-008",
+      "case_id": "campus-ai-157",
+      "clause_index": 10,
+      "category": "skill",
+      "level": "preferred",
+      "source_text": "熟悉 Triton、CUDA 等 GPU 编程与优化者优先",
+      "source_text_sha256": "2fd9eac296ff9878fcae9b2cdccde493175690d2da9cef13c8c63d2392ff8caa",
+      "source_content_sha256": "a316a6ff5db05ac115255ebf1145a305ec269c994f212deee2d898ec7e9afc0a",
+      "selection_rank_key": "02b310f9ea99e8660886dcce45327ab21ad595fa800818e6fc84d0d37dd0fb5b"
+    },
+    {
+      "id": "surface-holdout-v1-009",
+      "case_id": "campus-ai-027",
+      "clause_index": 9,
+      "category": "skill",
+      "level": "required",
+      "source_text": "熟悉大语言模型相关技术：Prompt Engineering、RAG（检索增强生成）、Function Calling、Fine-Tuning数据工程、长文本处理等",
+      "source_text_sha256": "ba078f9259bc55b972f611eb0320854a965cc88d79008af3e0da5301026eefd2",
+      "source_content_sha256": "9b7b01be84b22b8afc42cc774768c15b73d5b6d726a4e1e864a240e1e6f1f3ba",
+      "selection_rank_key": "04c40564dc46d5c0fcda70c68b66f56002a13c7ab178ddcd29593acdc0459cee"
+    },
+    {
+      "id": "surface-holdout-v1-010",
+      "case_id": "campus-ai-102",
+      "clause_index": 11,
+      "category": "skill",
+      "level": "mention",
+      "source_text": "了解MPC、全身控制、轨迹跟踪、平衡控制等方法",
+      "source_text_sha256": "7a078d0fa49efdfd7ce72d9e578f5e863ecd3981f0e654c964c23411ac6ca8d9",
+      "source_content_sha256": "6a423935d56243c733454f880eb7ebf7a78dde2a1c19434c3bb3c0ff562f0c74",
+      "selection_rank_key": "05924f0a3749fc5c3ffd13f084954a5892bcbe76ff8d322d9cddaca13c2549f6"
+    },
+    {
+      "id": "surface-holdout-v1-011",
+      "case_id": "campus-ai-089",
+      "clause_index": 13,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有开源项目核心贡献，或 Kaggle/国际比赛 Top 名次",
+      "source_text_sha256": "621cd583b3157ce3a8f62dd21be058db4816d17a7bada404b29f7a8a88c068e7",
+      "source_content_sha256": "9ff6fba7a8735c5058b77f773247828199404c6d3cd519f7e47938c07a9fbcf2",
+      "selection_rank_key": "00f6529705600dc5445b32d6383cc646e0a42a4d78d840e4ab6cab7efa4a25b0"
+    },
+    {
+      "id": "surface-holdout-v1-012",
+      "case_id": "campus-ai-023",
+      "clause_index": 14,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "对AI driven IDE有大量实践经验",
+      "source_text_sha256": "cfde0b93c65040a25db90cdd3b82d6d2b1c0b968c4145901abf5489df8062b58",
+      "source_content_sha256": "8e17a60c6007121dbcd0fdb01b4d3080cbb8ec8abe8b34b04b6f9daf11d97ba1",
+      "selection_rank_key": "0208b0aed446d309045fc6ec6c6f47043667c4725ef1f029954695cc9756d09c"
+    },
+    {
+      "id": "surface-holdout-v1-013",
+      "case_id": "campus-ai-158",
+      "clause_index": 12,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有 Agent 或 LLM 应用系统开发经验",
+      "source_text_sha256": "9caaf011c11bcf3a36f5bc4d19a06c49566f134401850a40321ef08a5f9df3d0",
+      "source_content_sha256": "4a309efa88556b133734e0a2ebc3c663544a3a6508475340824e61ec6caa78e6",
+      "selection_rank_key": "06913f0cbdb44f3709340af6083db6c36e5875611770332448ac3c6a00a701ae"
+    },
+    {
+      "id": "surface-holdout-v1-014",
+      "case_id": "campus-ai-073",
+      "clause_index": 10,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有项目经验的优先",
+      "source_text_sha256": "271a31ab35fe430e3aa2b6994ac28ab1026d7e9c78cc037d2eb2fd0e3ca89d32",
+      "source_content_sha256": "4edee13504d405886a04eb2df17e2dafab1eb4cd11346e5e1e47b590ea188157",
+      "selection_rank_key": "0e691235d944d816319d0ce437b913e6485eb11c6e1b7a608120555e8cb01110"
+    },
+    {
+      "id": "surface-holdout-v1-015",
+      "case_id": "campus-ai-001",
+      "clause_index": 12,
+      "category": "experience",
+      "level": "preferred",
+      "source_text": "有良好的学术会议/期刊发表记录优先(如NeurIPS/ICML/ICLR/AAAI/IJCAI等)",
+      "source_text_sha256": "462abd1dc8d22584f7291af556957573ec5a5d8ea4ea07cf4db5b99f6a398102",
+      "source_content_sha256": "17c549bd5e231d5cb8176a44fc5f62a09fb307609e20190981f6e6828b3a2022",
+      "selection_rank_key": "1193e4826df3ecec97935bf181e3e13adb79d32827e4871bed050864f3f176b7"
+    },
+    {
+      "id": "surface-holdout-v1-016",
+      "case_id": "campus-ai-108",
+      "clause_index": 13,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备较强的源码阅读和二次开发能力",
+      "source_text_sha256": "151c4271055b10e8e37decb93ad27991ffc413b293547355ca046aa8c5718320",
+      "source_content_sha256": "7bc375706095dc671d611ee671ad626ce836977c43679bbe0e947b98388e2743",
+      "selection_rank_key": "08cb7842d7f5b8c4908e648a6234d3f0f4e0a0d3a212c10770a0ccd03074e967"
+    },
+    {
+      "id": "surface-holdout-v1-017",
+      "case_id": "campus-ai-110",
+      "clause_index": 14,
+      "category": "capability",
+      "level": "preferred",
+      "source_text": "对汽车行业/汽车互联网业务有浓厚兴趣和了解",
+      "source_text_sha256": "5d9f359c1f445af927aca7586760059b41e9a9f19f7b11b2b333f51d59e9f459",
+      "source_content_sha256": "aa88c04b4b4f734faf6f95add545fa12e43f3310a0556f405c8938d376b87694",
+      "selection_rank_key": "08dcf65d7db51d92d13c586784d5d21dd22217b20ee12f5815059378541c36ce"
+    },
+    {
+      "id": "surface-holdout-v1-018",
+      "case_id": "campus-ai-024",
+      "clause_index": 9,
+      "category": "capability",
+      "level": "required",
+      "source_text": "能够在AI辅助下，进行有质量保证的编程工作",
+      "source_text_sha256": "d3c12fae886af771368c31a164547e6fc1f72b642d899f70afa154db0016ad2e",
+      "source_content_sha256": "c915b3bd90c643d9610eeb7e01af8599b3479e185482083932093ed4d6f22825",
+      "selection_rank_key": "0a55205580b56acc77e7de484db85aa747be2798600c055f504b183b9dc00a84"
+    },
+    {
+      "id": "surface-holdout-v1-019",
+      "case_id": "campus-ai-051",
+      "clause_index": 10,
+      "category": "capability",
+      "level": "required",
+      "source_text": "能将复杂问题转化为简洁、高效的实现方案",
+      "source_text_sha256": "9fa0eb203df4d3a3c0c8b44a0fe06f0251ffb63bdab12cb2456716d9d704d5e9",
+      "source_content_sha256": "cfb335daf4ede916b02601ee8b6da587bae999b6b320a429f2e9519bc36e4b99",
+      "selection_rank_key": "117c2e57b22cd50da980805531ad87b113642bd0954a63dc5b9f4c781d45ed0e"
+    },
+    {
+      "id": "surface-holdout-v1-020",
+      "case_id": "campus-ai-165",
+      "clause_index": 8,
+      "category": "capability",
+      "level": "required",
+      "source_text": "具备良好的团队合作和沟通能力",
+      "source_text_sha256": "5758b16af948ac008c27ef0bf5994d92d742647093cecf363f35a062022a5135",
+      "source_content_sha256": "47b5d253e7dec0a1dfa8d6e785751d4119d7b0714a788affc1547a1697a26981",
+      "selection_rank_key": "17dd10eacb83ba4200b2f91f1b94d1c6295a211733c15c4387fd926ee3f74c69"
+    }
+  ],
+  "immutability_policy": "Selection is frozen before surface labels and predictions are created; changes require a new selection version."
+}

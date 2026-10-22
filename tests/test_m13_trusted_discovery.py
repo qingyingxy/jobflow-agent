@@ -391,7 +391,7 @@ def test_browser_and_availability_apis_are_user_scoped(
     monkeypatch.setattr(
         discovery_api,
         "enabled_company_source_hosts",
-        lambda: {"careers.example.com"},
+        lambda **kwargs: {"careers.example.com"},
     )
 
     denied = client.post(

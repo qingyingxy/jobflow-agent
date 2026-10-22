@@ -1,0 +1,399 @@
+{
+  "version": "product-jd-inline-development-v2-20261009",
+  "purpose": "8 synthetic development regressions: 4 reused and 4 added for revealed boundary failures. Labels frozen before requests; not independent holdout or statistical accuracy benchmark.",
+  "cases": [
+    {
+      "id": "alternative_degrees",
+      "raw_content": "星河科技招聘研发工程师。任职资格：满足以下任一路径即可申请：本科为软件工程专业，或者硕士专业不限。工作地点南京。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "本科为软件工程专业",
+            "relation": "any_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "eq",
+            "major_mode": "exact",
+            "scope": "application"
+          },
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "any",
+            "scope": "application"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械工程",
+                  "source_text": "本科机械工程"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "source_text": "硕士金融学"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "historical_bachelor",
+      "raw_content": "海岳实验室招聘算法工程师，本岗位面向2028届毕业生。任职要求：硕士学历，且本科专业为软件工程。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "graduation_years": [
+          2028
+        ],
+        "relations": [
+          {
+            "contains": "本科专业为软件工程",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "not_specified",
+            "scope": "application"
+          },
+          {
+            "level": "bachelor",
+            "operator": "eq",
+            "major_mode": "exact",
+            "scope": "historical"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "软件工程",
+                  "graduation_year": 2024,
+                  "source_text": "本科软件工程2024毕业"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "graduation_year": 2028,
+                  "source_text": "硕士金融学2028预计毕业"
+                }
+              ]
+            },
+            "eligible": "pass",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "软件工程",
+                  "graduation_year": 2024,
+                  "source_text": "本科软件工程2024毕业"
+                },
+                {
+                  "level": "master",
+                  "major_raw": "金融学",
+                  "graduation_year": 2027,
+                  "source_text": "硕士金融学2027预计毕业"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "or_plus_required",
+      "raw_content": "云杉软件招聘系统研发工程师。任职要求：至少掌握 Rust 或 Go 中的一种，并具备独立实现论文算法的能力。工作地点杭州。",
+      "expected": {
+        "requirement_count": 2,
+        "relations": [
+          {
+            "contains": "Rust",
+            "relation": "any_of",
+            "mandatory": true,
+            "items": [
+              "Rust",
+              "Go"
+            ]
+          },
+          {
+            "contains": "实现论文算法",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [],
+        "qualifications": []
+      }
+    },
+    {
+      "id": "degree_and_preference",
+      "raw_content": "晨星科技招聘数据研发工程师。任职要求：本科及以上学历。熟悉 Python。具有机器学习项目经历者优先。办公地点成都。",
+      "expected": {
+        "requirement_count": 3,
+        "relations": [
+          {
+            "contains": "本科及以上学历",
+            "relation": "all_of",
+            "mandatory": true
+          },
+          {
+            "contains": "Python",
+            "relation": "all_of",
+            "mandatory": true
+          },
+          {
+            "contains": "机器学习项目",
+            "relation": "all_of",
+            "mandatory": false
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "gte",
+            "major_mode": "not_specified"
+          }
+        ],
+        "qualifications": []
+      }
+    },
+    {
+      "id": "robomaster_experience",
+      "raw_content": "远航科技招聘嵌入式工程师。任职要求：有RoboMaster机器人竞赛经验者优先。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "RoboMaster",
+            "relation": "all_of",
+            "mandatory": false
+          }
+        ],
+        "education": [],
+        "qualifications": []
+      }
+    },
+    {
+      "id": "shared_degree_evidence",
+      "raw_content": "青杉科技招聘算法工程师。任职要求：计算机相关专业的硕士或博士。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "硕士或博士",
+            "relation": "any_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "master",
+            "operator": "eq",
+            "major_mode": "related",
+            "scope": "application",
+            "status": "any"
+          },
+          {
+            "level": "doctor",
+            "operator": "eq",
+            "major_mode": "related",
+            "scope": "application",
+            "status": "any"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "master",
+                  "major_raw": "计算机",
+                  "source_text": "硕士计算机"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "doctor",
+                  "major_raw": "计算机",
+                  "source_text": "博士计算机"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "计算机",
+                  "source_text": "本科计算机"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "future_cohort_status",
+      "raw_content": "星辰科技招聘应用开发工程师。任职要求：2027届获得本科及以上学历。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "2027届获得本科",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "bachelor",
+            "operator": "gte",
+            "major_mode": "not_specified",
+            "scope": "application",
+            "status": "any",
+            "graduation_years": [
+              2027
+            ]
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械，预计2027年毕业，在读",
+                  "graduation_year": 2027,
+                  "graduation_source_text": "预计2027年毕业",
+                  "graduation_year_kind": "expected",
+                  "status": "enrolled"
+                }
+              ]
+            },
+            "eligible": "pass",
+            "education_results": [
+              "pass"
+            ]
+          },
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械，预计2028年毕业，在读",
+                  "graduation_year": 2028,
+                  "graduation_source_text": "预计2028年毕业",
+                  "graduation_year_kind": "expected",
+                  "status": "enrolled"
+                }
+              ]
+            },
+            "eligible": "fail",
+            "education_results": [
+              "fail"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "open_major_scope",
+      "raw_content": "山海科技招聘研发工程师。任职要求：计算机、软件工程、数学等理工科专业。工作地点上海。",
+      "expected": {
+        "requirement_count": 1,
+        "relations": [
+          {
+            "contains": "理工科专业",
+            "relation": "all_of",
+            "mandatory": true
+          }
+        ],
+        "education": [
+          {
+            "level": "unknown",
+            "operator": "not_specified",
+            "major_mode": "unknown",
+            "scope": "application",
+            "unresolved": true,
+            "status": "any"
+          }
+        ],
+        "qualifications": [
+          {
+            "profile": {
+              "education_history_complete": true,
+              "educations": [
+                {
+                  "level": "bachelor",
+                  "major_raw": "机械",
+                  "source_text": "本科机械"
+                }
+              ]
+            },
+            "eligible": "unknown",
+            "education_results": [
+              "unknown"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

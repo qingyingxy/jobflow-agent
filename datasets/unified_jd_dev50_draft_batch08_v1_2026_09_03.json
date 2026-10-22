@@ -1,0 +1,565 @@
+{
+  "label_version": "unified-jd-dev50-draft-batch08-v1",
+  "dataset_version": "unified-jd-dev50-draft-batch08-v1-2026-09-03",
+  "annotation_status": "draft",
+  "source_skeleton_sha256": "32bef503019cb774f11f8668dc98e80ae7fc6c97353c4963841a7726ac4024a3",
+  "annotation_policy": "机器辅助逐字标注草稿；未读取 Unified prediction，未复制旧 Parser 技能标签，必须人工复核后才能进入评测。",
+  "cases": {
+    "campus-ai-107": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["深圳", "北京", "上海"],
+          "graduation_years": [2026, 2027],
+          "education_requirements": ["本科生、硕士生、博士"],
+          "major_requirements": ["计算机科学、体系结构、高性能计算等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：深圳/北京/上海"},
+            {"field": "graduation_years", "source_text": "毕业时间介于2026年9月至2027年8月"},
+            {"field": "education_requirements", "source_text": "国内外高校的本科生、硕士生、博士"},
+            {"field": "major_requirements", "source_text": "计算机科学、体系结构、高性能计算等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法系统协同", "具身大模型预训练", "具身大模型后训练", "Scaling飞轮"],
+            "source_text": "既懂算法又懂系统，构建具身大模型的预训练、后训练的scaling飞轮"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["精度调优", "性能调优", "硬件理论上限"],
+            "source_text": "既能调精度也能调性能，逼近硬件理论上限"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["高效模型结构", "模型压缩", "量化", "蒸馏", "稀疏"],
+            "source_text": "设计和实现高效的模型结构，模型压缩如量化、蒸馏、稀疏等方法"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["2026年毕业", "2027年毕业"],
+            "group_name": "毕业年份",
+            "allow_other": false,
+            "source_text": "毕业时间介于2026年9月至2027年8月"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["本科生", "硕士生", "博士"],
+            "group_name": "学历范围",
+            "allow_other": false,
+            "source_text": "国内外高校的本科生、硕士生、博士"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机科学", "体系结构", "高性能计算", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机科学、体系结构、高性能计算等相关专业优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["相关顶会论文作者"],
+            "examples": ["OSDI", "ASPLOS", "ICML", "CVPR"],
+            "qualifier": {"experience_type": "research"},
+            "source_text": "相关顶会论文(OSDI/ASPLOS/ICML/CVPR等)作者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["知名开源项目commiter经历", "知名开源项目contributor经历"],
+            "group_name": "开源项目贡献",
+            "allow_other": false,
+            "qualifier": {"experience_type": "open_source"},
+            "source_text": "有知名开源项目的commiter/contributor经历者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier", "fact_missing"],
+      "review_notes": ["毕业日期区间跨 2026、2027 两个自然年；专业明确为优先，未升级为硬门槛。"]
+    },
+    "campus-ai-152": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "graduation_years": null,
+          "education_requirements": ["硕士及以上学历"],
+          "major_requirements": ["计算机科学、人工智能、机器人学、自动化、控制理论等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：上海"},
+            {"field": "education_requirements", "source_text": "硕士及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机科学、人工智能、机器人学、自动化、控制理论等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["端到端视觉-语言-动作模型", "视觉输入", "语言指令", "机器人动作空间映射"],
+            "examples": ["RT-2", "OpenVLA", "π0", "Diffusion Policy", "3D Diffusion Actor"],
+            "source_text": "设计并训练端到端视觉-语言-动作模型，如 RT-2、OpenVLA、π0、Diffusion Policy、3D Diffusion Actor，实现视觉输入与语言指令到机器人动作空间的映射"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Action Tokenization", "Latent Action Quantization", "Diffusion Policy", "Flow Matching", "动作表示", "动作生成"],
+            "source_text": "研究 Action Tokenization、Latent Action Quantization、Diffusion Policy、Flow Matching 等动作表示与生成机制"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["强化学习", "模仿学习", "混合训练范式", "机器人控制"],
+            "examples": ["PPO", "SAC", "RLHF", "DAPG"],
+            "source_text": "探索 RL 与模仿学习的混合训练范式，并研究 PPO、SAC、RLHF、DAPG 等算法在机器人控制中的应用"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["VLA/RL模型", "机器人芯片", "轻量化部署", "实时性优化"],
+            "examples": ["Orin", "Thor"],
+            "source_text": "负责 VLA/RL 模型在 Orin、Thor 等机器人芯片上的轻量化部署与实时性优化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["模型与WBC/MPC协同接口", "物理安全性", "稳定性"],
+            "source_text": "设计模型与 WBC/MPC 的协同接口，确保物理安全性与稳定性"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "计算机科学、人工智能、机器人学、自动化、控制理论等相关专业，硕士及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机科学", "人工智能", "机器人学", "自动化", "控制理论", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机科学、人工智能、机器人学、自动化、控制理论等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["端到端VLA架构"],
+            "examples": ["RT-2", "OpenVLA", "Octo", "π0", "GR00T"],
+            "source_text": "精通至少一种端到端 VLA 架构，如 RT-2、OpenVLA、Octo、π0、GR00T"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["动作空间设计", "训练目标", "推理机制"],
+            "source_text": "理解动作空间设计、训练目标与推理机制"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["PPO", "SAC", "RLHF", "GAE", "TD(λ)"],
+            "source_text": "熟练掌握 PPO、SAC、RLHF、GAE、TD(λ) 等强化学习算法"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["连续动作空间训练经验"],
+            "qualifier": {"experience_type": "development", "domain": "连续动作空间训练"},
+            "source_text": "具备连续动作空间中的训练经验"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["机器人运动学", "机器人动力学", "坐标系变换", "关节空间与任务空间映射", "WBC概念"],
+            "source_text": "熟悉机器人运动学、动力学、坐标系变换、关节空间与任务空间映射及 WBC 概念"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["PyTorch"],
+            "source_text": "精通 PyTorch"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["CUDA优化", "vLLM", "Triton"],
+            "source_text": "熟悉 CUDA 优化、vLLM、Triton 者优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Isaac Sim", "MuJoCo", "Genesis"],
+            "source_text": "熟练使用 Isaac Sim、MuJoCo、Genesis 等仿真环境"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["真实机器人平台部署与调试经验"],
+            "qualifier": {"experience_type": "development", "domain": "真实机器人平台"},
+            "source_text": "具备真实机器人平台部署与调试经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["双足机器人平衡控制经验", "步态规划经验", "全身操作经验", "WBC经验", "MPC经验", "强化学习运控经验"],
+            "group_name": "机器人运控经验",
+            "allow_other": false,
+            "qualifier": {"experience_type": "practical", "domain": "机器人运动控制"},
+            "source_text": "具备双足机器人平衡控制、步态规划、全身操作、WBC、MPC 或强化学习运控经验者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "mixed_strength", "fact_missing"],
+      "review_notes": ["“精通 PyTorch”与后续“CUDA/vLLM/Triton 者优先”强度不同，已拆为 required 和 preferred。"]
+    },
+    "campus-ai-068": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["深圳"],
+          "graduation_years": [2027],
+          "education_requirements": null,
+          "major_requirements": null,
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：深圳"},
+            {"field": "graduation_years", "source_text": "AI开发工程师（C++方向）-2027校招"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法SDK跨平台", "底层基础能力", "核心产品技术支撑"],
+            "source_text": "负责算法SDK跨平台的底层基础能力的建设，为各核心产品提供稳固的技术支撑"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["跨平台核心基础库", "iOS", "Android", "PC端", "质量", "性能"],
+            "source_text": "负责跨平台核心基础库的设计与实现，横向赋能iOS、Android及PC端的质量与性能"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["客户端线上崩溃", "疑难问题攻坚", "多平台稳定运行"],
+            "source_text": "负责客户端线上突发崩溃及各类疑难杂症的深度攻坚，保障产品在多平台的稳定运行"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["客户端性能优化", "技术探索", "技术落地", "用户体验"],
+            "source_text": "负责客户端前沿性能优化等技术方向的探索与落地，持续打造行业领先的极致用户体验"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["C/C++开发"],
+            "source_text": "熟练掌握C/C++开发"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["代码质量追求", "算法性能追求", "架构追求"],
+            "source_text": "对待代码、算法性能、架构等有追求极致的工匠精神"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["操作系统", "编译器", "CPU体系结构", "汇编"],
+            "group_name": "系统基础方向",
+            "allow_other": true,
+            "source_text": "在操作系统/编译器/CPU体系结构/汇编等某一方面的基础知识有较为深入的理解"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["系统级调试工具使用", "问题发现", "问题定位"],
+            "examples": ["gdb", "lldb", "hopper", "ida"],
+            "source_text": "可以熟练运用各系统级的调试工具来发现和定位问题(如gdb/lldb/hopper/ida等)"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["移动端APP或PC端安全防护、加固、逆向工程项目", "移动端APP或PC端安全防护、加固、逆向工程课程设计"],
+            "group_name": "安全或逆向实践",
+            "allow_other": true,
+            "qualifier": {"experience_type": "project", "domain": "移动端APP或PC端安全防护、加固、逆向工程"},
+            "source_text": "有移动端APP或者PC端安全防护、加固、逆向工程等项目或课程设计的优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "fact_missing"],
+      "review_notes": ["安全方向经历同时包含“项目或课程设计”，当前以 project qualifier 近似，需人工复核该粒度。"]
+    },
+    "campus-ai-059": {
+      "expected": {
+        "facts": {
+          "job_type": "internship",
+          "locations": null,
+          "graduation_years": null,
+          "education_requirements": ["博士", "优秀硕士"],
+          "major_requirements": ["计算机、人工智能、软件工程、自动化、电子工程、数学、统计学、数据科学、运筹优化等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：实习生"},
+            {"field": "education_requirements", "source_text": "相关专业博士及优秀硕士"},
+            {"field": "major_requirements", "source_text": "计算机、人工智能、软件工程、自动化、电子工程、数学、统计学、数据科学、运筹优化等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["DataAgent基座能力", "任务建模", "训练数据构建", "自动评估", "后训练优化", "数据决策理解", "数据决策推理", "数据决策执行"],
+            "source_text": "聚焦 DataAgent 基座能力建设，围绕任务建模、训练数据构建、自动评估与后训练优化等关键问题，提升大模型在数据决策场景中的理解、推理与执行能力"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["DataAgent框架设计", "数据长链路训练数据优化", "复杂指令数据合成", "自动评估", "奖励系统", "强化学习策略优化"],
+            "source_text": "具体工作包括 DataAgent 框架设计、数据长链路训练数据优化、复杂指令数据合成与自动评估、奖励系统建设和强化学习策略优化"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["博士", "优秀硕士"],
+            "group_name": "学历范围",
+            "allow_other": false,
+            "source_text": "相关专业博士及优秀硕士"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "人工智能", "软件工程", "自动化", "电子工程", "数学", "统计学", "数据科学", "运筹优化", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、人工智能、软件工程、自动化、电子工程、数学、统计学、数据科学、运筹优化等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Python", "PyTorch"],
+            "source_text": "熟练掌握 Python、PyTorch 等编程语言与深度学习框架"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["大模型训练经验", "大模型后训练经验", "Agent系统研发经验"],
+            "group_name": "大模型或Agent研发经验",
+            "allow_other": false,
+            "qualifier": {"experience_type": "development", "domain": "大模型或Agent系统"},
+            "source_text": "具备大模型训练、后训练或 Agent 系统研发经验"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["SFT", "RL", "Reward Model"],
+            "source_text": "熟悉 SFT、RL、Reward Model等相关技术"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["数据分析", "数据库", "SQL生成", "实验设计", "因果推断", "多工具协同"],
+            "source_text": "对数据分析、数据库、SQL 生成、实验设计、因果推断、多工具协同等方向有较好理解"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "mention", "any_of", "open_group", "experience_qualifier", "fact_missing"],
+      "review_notes": ["原文未给工作地点、实习时长和每周到岗天数，均保持 null；不从 CSIG 部门信息推断地点。"]
+    },
+    "campus-ai-108": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["大连"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上学历"],
+          "major_requirements": ["计算机、软件工程、人工智能、计算机科学或相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：大连"},
+            {"field": "graduation_years", "source_text": "【27届校招】Agent算法应用工程师"},
+            {"field": "education_requirements", "source_text": "硕士及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程、人工智能、计算机科学或相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent应用开发", "Agent架构设计", "任务流程设计", "工具调用", "Skill集成", "Memory接入", "业务系统对接"],
+            "source_text": "负责基于主流 Agent Framework 和开源 Agent Runtime 的应用开发，完成 Agent 架构设计、任务流程设计、工具调用、Skill 集成、Memory 接入及业务系统对接"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["开源Agent框架二次开发", "能力扩展", "Agent Runtime", "Tool Calling", "Skill", "Context Management", "Memory", "框架适配", "框架优化"],
+            "examples": ["OpenClaw", "Hermes", "Pi"],
+            "source_text": "基于 OpenClaw、Hermes、Pi 等开源 Agent 框架进行二次开发和能力扩展，深入理解 Agent Runtime、Tool Calling、Skill、Context Management、Memory 等核心机制，并根据实际任务需求完成框架适配和优化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent Skills", "任务分析", "Skill设计", "工具封装", "Prompt设计", "Context设计", "执行流程设计", "异常处理", "结果验证", "持续迭代"],
+            "source_text": "面向真实业务任务开发 Agent Skills，包括任务分析、Skill 设计、工具封装、Prompt / Context 设计、执行流程设计、异常处理、结果验证及持续迭代"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["单Agent", "多Agent", "任务驱动型Agent", "自主规划", "任务拆解", "工具调用", "环境交互", "执行验证", "结果交付"],
+            "source_text": "根据业务需求构建单 Agent、多 Agent 及任务驱动型 Agent 应用，实现复杂任务的自主规划、任务拆解、工具调用、环境交互、执行验证及结果交付"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent应用平台", "基础设施", "通用Skill", "Tool", "Workflow", "Agent Template", "开发效率", "能力复用"],
+            "source_text": "参与 Agent 应用平台和基础设施建设，沉淀通用 Skill、Tool、Workflow、Agent Template 等组件，提高 Agent 应用开发效率和能力复用率"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "计算机、软件工程、人工智能、计算机科学或相关专业硕士及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "人工智能", "计算机科学", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": false,
+            "source_text": "计算机、软件工程、人工智能、计算机科学或相关专业"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["软件工程基础"],
+            "source_text": "具备扎实的软件工程基础"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Python", "TypeScript", "JavaScript", "主流开发框架"],
+            "source_text": "熟练掌握 Python，并熟悉 TypeScript / JavaScript 及其主流开发框架"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["现代AI Agent基本架构", "现代AI Agent开发方法", "LLM", "Prompt", "Context Engineering", "Tool Calling", "RAG", "Memory", "Skill", "MCP", "Multi-Agent"],
+            "source_text": "熟悉现代 AI Agent 的基本架构和开发方法，对 LLM、Prompt、Context Engineering、Tool Calling、RAG、Memory、Skill、MCP、Multi-Agent 等核心技术有实际理解"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["Agent应用实际开发经验"],
+            "qualifier": {"experience_type": "development", "domain": "Agent应用"},
+            "source_text": "具备 Agent 应用的实际开发经验"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["Agent架构设计", "工具集成", "Skill开发", "应用上线"],
+            "source_text": "能够独立完成从 Agent 架构设计、工具集成、Skill 开发到应用上线的完整开发流程"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["主流Agent Framework和Agent Runtime"],
+            "examples": ["OpenClaw", "Hermes", "Pi", "LangGraph", "OpenAI Agents SDK"],
+            "source_text": "熟悉至少一种主流 Agent Framework 和 Agent Runtime（OpenClaw、Hermes、Pi、LangGraph、OpenAI Agents SDK 等）"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["源码阅读", "二次开发"],
+            "source_text": "具备较强的源码阅读和二次开发能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["异步编程", "API服务", "数据库", "缓存", "消息队列", "后端技术"],
+            "source_text": "熟悉异步编程、API 服务、数据库、缓存、消息队列等常见后端技术"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["Agent应用真实环境部署"],
+            "source_text": "能够将 Agent 应用部署到真实运行环境"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["AI-Native开发", "AI Coding工具", "架构设计", "代码审查", "测试", "工程化改造"],
+            "source_text": "具备较强的 AI-Native 开发能力，能够熟练使用 AI Coding 工具提升开发效率，同时能够对 AI 生成代码进行架构设计、代码审查、测试和工程化改造"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["独立完成并上线运行的AI Agent项目"],
+            "qualifier": {"experience_type": "project", "domain": "AI Agent"},
+            "source_text": "有独立完成 AI Agent 项目并真正上线运行的经历者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["优秀开源项目", "GitHub贡献", "技术竞赛", "个人Agent产品"],
+            "group_name": "公开成果",
+            "allow_other": false,
+            "source_text": "有优秀开源项目、GitHub 贡献、技术竞赛或个人 Agent 产品者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "experience_qualifier", "fact_missing"],
+      "review_notes": ["主流框架名称是“至少一种框架”的 examples，不把所有框架误标成同时必需。"]
+    }
+  }
+}

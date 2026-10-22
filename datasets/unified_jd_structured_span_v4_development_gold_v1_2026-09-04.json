@@ -1,0 +1,2615 @@
+{
+  "gold_version": "unified-jd-structured-span-v4-development-gold-v1",
+  "status": "revealed_same_corpus_development_only",
+  "created_at": "2026-09-04",
+  "source_labels": {
+    "path": "datasets/unified_jd_structured_span_external_holdout_labels_v1_2026-09-04.json",
+    "sha256": "c320e2c308db100bacedd952173add294cd28aa09c0d9951bd94e567c8858bd1"
+  },
+  "generalization_claim": false,
+  "annotation_policy": {
+    "spans": "All text/start/end triples are exact half-open source spans.",
+    "connector_roles": "surface connectors form projected atomic items; example connectors join attached examples; embedded connectors stay inside one projected item; quantifier connectors must not create coordination members.",
+    "shared_scopes": "Each scope is stored once and references the exact member spans to which it applies.",
+    "projection": "Surface items and examples are evaluated separately from syntax."
+  },
+  "fixture_count": 20,
+  "revealed_failure_count": 17,
+  "control_count": 3,
+  "fixtures": [
+    {
+      "id": "structured-external-v1-001",
+      "case_id": "campus-ai-003",
+      "category": "responsibility",
+      "source_text": "洞察用户真实需求，把握用户需求的本质",
+      "diagnostic_status": "passing_control",
+      "wrappers": [],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "洞察用户真实需求",
+          "把握用户需求的本质"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-002",
+      "case_id": "campus-ai-005",
+      "category": "responsibility",
+      "source_text": "记忆驱动的个性化推荐与可进化记忆闭环的算法设计与系统搭建",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 10,
+            "end": 11
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 23,
+            "end": 24
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "记忆驱动的个性化推荐",
+              "start": 0,
+              "end": 10
+            },
+            {
+              "text": "可进化记忆闭环",
+              "start": 11,
+              "end": 18
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 10,
+              "end": 11
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "算法设计",
+              "start": 19,
+              "end": 23
+            },
+            {
+              "text": "系统搭建",
+              "start": 24,
+              "end": 28
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 23,
+              "end": 24
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "result",
+          "span": {
+            "text": "算法设计与系统搭建",
+            "start": 19,
+            "end": 28
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "记忆驱动的个性化推荐",
+              "start": 0,
+              "end": 10
+            },
+            {
+              "text": "可进化记忆闭环",
+              "start": 11,
+              "end": 18
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "记忆驱动的个性化推荐",
+          "可进化记忆闭环",
+          "算法设计",
+          "系统搭建"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-003",
+      "case_id": "campus-ai-007",
+      "category": "responsibility",
+      "source_text": "负责方案/用例设计、数据集构建、问题跟踪、问题分析、完成测试报告等",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "负责",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "方案/用例设计、数据集构建、问题跟踪、问题分析、完成测试报告等",
+            "start": 2,
+            "end": 33
+          }
+        },
+        {
+          "kind": "open_list_suffix",
+          "marker_span": {
+            "text": "等",
+            "start": 32,
+            "end": 33
+          },
+          "content_span": {
+            "text": "负责方案/用例设计、数据集构建、问题跟踪、问题分析、完成测试报告",
+            "start": 0,
+            "end": 32
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "/",
+            "start": 4,
+            "end": 5
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 9,
+            "end": 10
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 15,
+            "end": 16
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 20,
+            "end": 21
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 25,
+            "end": 26
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "方案",
+              "start": 2,
+              "end": 4
+            },
+            {
+              "text": "用例设计",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "数据集构建",
+              "start": 10,
+              "end": 15
+            },
+            {
+              "text": "问题跟踪",
+              "start": 16,
+              "end": 20
+            },
+            {
+              "text": "问题分析",
+              "start": 21,
+              "end": 25
+            },
+            {
+              "text": "完成测试报告",
+              "start": 26,
+              "end": 32
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 4,
+              "end": 5
+            },
+            {
+              "text": "、",
+              "start": 9,
+              "end": 10
+            },
+            {
+              "text": "、",
+              "start": 15,
+              "end": 16
+            },
+            {
+              "text": "、",
+              "start": 20,
+              "end": 21
+            },
+            {
+              "text": "、",
+              "start": 25,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "方案",
+          "用例设计",
+          "数据集构建",
+          "问题跟踪",
+          "问题分析",
+          "完成测试报告"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-004",
+      "case_id": "campus-ai-014",
+      "category": "responsibility",
+      "source_text": "探索高效的模型调优策略、高质量数据建设方法，研究MoE稀疏化、Latent Attention等前沿模型结构",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "探索",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "高效的模型调优策略、高质量数据建设方法",
+            "start": 2,
+            "end": 21
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "研究",
+            "start": 22,
+            "end": 24
+          },
+          "content_span": {
+            "text": "MoE稀疏化、Latent Attention等前沿模型结构",
+            "start": 24,
+            "end": 54
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 11,
+            "end": 12
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 30,
+            "end": 31
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "高效的模型调优策略",
+              "start": 2,
+              "end": 11
+            },
+            {
+              "text": "高质量数据建设方法",
+              "start": 12,
+              "end": 21
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 11,
+              "end": 12
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "MoE稀疏化",
+              "start": 24,
+              "end": 30
+            },
+            {
+              "text": "Latent Attention",
+              "start": 31,
+              "end": 47
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 30,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 47,
+            "end": 48
+          },
+          "parent_span": {
+            "text": "前沿模型结构",
+            "start": 48,
+            "end": 54
+          },
+          "example_spans": [
+            {
+              "text": "MoE稀疏化",
+              "start": 24,
+              "end": 30
+            },
+            {
+              "text": "Latent Attention",
+              "start": 31,
+              "end": 47
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "高效的模型调优策略",
+          "高质量数据建设方法",
+          "前沿模型结构"
+        ],
+        "examples": [
+          "MoE稀疏化",
+          "Latent Attention"
+        ]
+      }
+    },
+    {
+      "id": "structured-external-v1-005",
+      "case_id": "campus-ai-019",
+      "category": "responsibility",
+      "source_text": "建设Agent评测体系，持续优化成功率、响应延迟、成本及用户体验",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "建设",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "Agent评测体系",
+            "start": 2,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "持续优化",
+            "start": 12,
+            "end": 16
+          },
+          "content_span": {
+            "text": "成功率、响应延迟、成本及用户体验",
+            "start": 16,
+            "end": 32
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 19,
+            "end": 20
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 24,
+            "end": 25
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "及",
+            "start": 27,
+            "end": 28
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "成功率",
+              "start": 16,
+              "end": 19
+            },
+            {
+              "text": "响应延迟",
+              "start": 20,
+              "end": 24
+            },
+            {
+              "text": "成本",
+              "start": 25,
+              "end": 27
+            },
+            {
+              "text": "用户体验",
+              "start": 28,
+              "end": 32
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 19,
+              "end": 20
+            },
+            {
+              "text": "、",
+              "start": 24,
+              "end": 25
+            },
+            {
+              "text": "及",
+              "start": 27,
+              "end": 28
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "Agent评测体系",
+          "成功率",
+          "响应延迟",
+          "成本",
+          "用户体验"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-006",
+      "case_id": "campus-ai-020",
+      "category": "skill",
+      "source_text": "精通Go、Python、C++等一种或多种编程语言，具备扎实的编程技能和算法设计能力",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "精通",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "Go、Python、C++等一种或多种编程语言",
+            "start": 2,
+            "end": 25
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备扎实的",
+            "start": 26,
+            "end": 31
+          },
+          "content_span": {
+            "text": "编程技能和算法设计能力",
+            "start": 31,
+            "end": 42
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 4,
+            "end": 5
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 11,
+            "end": 12
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 18,
+            "end": 19
+          },
+          "role": "quantifier"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 35,
+            "end": 36
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Go",
+              "start": 2,
+              "end": 4
+            },
+            {
+              "text": "Python",
+              "start": 5,
+              "end": 11
+            },
+            {
+              "text": "C++",
+              "start": 12,
+              "end": 15
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 4,
+              "end": 5
+            },
+            {
+              "text": "、",
+              "start": 11,
+              "end": 12
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "编程技能",
+              "start": 31,
+              "end": 35
+            },
+            {
+              "text": "算法设计",
+              "start": 36,
+              "end": 40
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 35,
+              "end": 36
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "head",
+          "span": {
+            "text": "一种或多种编程语言",
+            "start": 16,
+            "end": 25
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "Go",
+              "start": 2,
+              "end": 4
+            },
+            {
+              "text": "Python",
+              "start": 5,
+              "end": 11
+            },
+            {
+              "text": "C++",
+              "start": 12,
+              "end": 15
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 40,
+            "end": 42
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "编程技能",
+              "start": 31,
+              "end": 35
+            },
+            {
+              "text": "算法设计",
+              "start": 36,
+              "end": 40
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "Go",
+          "Python",
+          "C++",
+          "编程技能",
+          "算法设计"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-007",
+      "case_id": "campus-ai-021",
+      "category": "skill",
+      "source_text": "具备扎实的计算机基础，理解数据结构、算法、操作系统、计算机网络等基础知识",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备扎实的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "计算机基础",
+            "start": 5,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "理解",
+            "start": 11,
+            "end": 13
+          },
+          "content_span": {
+            "text": "数据结构、算法、操作系统、计算机网络等基础知识",
+            "start": 13,
+            "end": 36
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 17,
+            "end": 18
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 20,
+            "end": 21
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 25,
+            "end": 26
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "数据结构",
+              "start": 13,
+              "end": 17
+            },
+            {
+              "text": "算法",
+              "start": 18,
+              "end": 20
+            },
+            {
+              "text": "操作系统",
+              "start": 21,
+              "end": 25
+            },
+            {
+              "text": "计算机网络",
+              "start": 26,
+              "end": 31
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 17,
+              "end": 18
+            },
+            {
+              "text": "、",
+              "start": 20,
+              "end": 21
+            },
+            {
+              "text": "、",
+              "start": 25,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "head",
+          "span": {
+            "text": "基础知识",
+            "start": 32,
+            "end": 36
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "数据结构",
+              "start": 13,
+              "end": 17
+            },
+            {
+              "text": "算法",
+              "start": 18,
+              "end": 20
+            },
+            {
+              "text": "操作系统",
+              "start": 21,
+              "end": 25
+            },
+            {
+              "text": "计算机网络",
+              "start": 26,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "计算机基础",
+          "数据结构",
+          "算法",
+          "操作系统",
+          "计算机网络"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-008",
+      "case_id": "campus-ai-022",
+      "category": "skill",
+      "source_text": "对大模型有深入理解，熟悉LLM技术原理与应用方法",
+      "diagnostic_status": "passing_control",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "大模型有深入理解",
+            "start": 1,
+            "end": 9
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 10,
+            "end": 12
+          },
+          "content_span": {
+            "text": "LLM技术原理与应用方法",
+            "start": 12,
+            "end": 24
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 19,
+            "end": 20
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "LLM技术原理",
+              "start": 12,
+              "end": 19
+            },
+            {
+              "text": "应用方法",
+              "start": 20,
+              "end": 24
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 19,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "大模型",
+          "LLM技术原理",
+          "应用方法"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-009",
+      "case_id": "campus-ai-028",
+      "category": "skill",
+      "source_text": "扎实的计算机、编程基础，熟悉主流大语言模型的原理及方法",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "扎实的",
+            "start": 0,
+            "end": 3
+          },
+          "content_span": {
+            "text": "计算机、编程基础",
+            "start": 3,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 12,
+            "end": 14
+          },
+          "content_span": {
+            "text": "主流大语言模型的原理及方法",
+            "start": 14,
+            "end": 27
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "及",
+            "start": 24,
+            "end": 25
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "计算机",
+              "start": 3,
+              "end": 6
+            },
+            {
+              "text": "编程",
+              "start": 7,
+              "end": 9
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 6,
+              "end": 7
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "原理",
+              "start": 22,
+              "end": 24
+            },
+            {
+              "text": "方法",
+              "start": 25,
+              "end": 27
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "及",
+              "start": 24,
+              "end": 25
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "基础",
+            "start": 9,
+            "end": 11
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "计算机",
+              "start": 3,
+              "end": 6
+            },
+            {
+              "text": "编程",
+              "start": 7,
+              "end": 9
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "domain",
+          "span": {
+            "text": "主流大语言模型",
+            "start": 14,
+            "end": 21
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "原理",
+              "start": 22,
+              "end": 24
+            },
+            {
+              "text": "方法",
+              "start": 25,
+              "end": 27
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "计算机",
+          "编程基础",
+          "主流大语言模型的原理",
+          "方法"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-010",
+      "case_id": "campus-ai-031",
+      "category": "skill",
+      "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "理解",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个",
+            "start": 2,
+            "end": 55
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 15,
+            "end": 16
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 20,
+            "end": 21
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 26,
+            "end": 27
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 52,
+            "end": 53
+          },
+          "role": "quantifier"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Multi-Agent系统",
+              "start": 2,
+              "end": 15
+            },
+            {
+              "text": "任务分解",
+              "start": 16,
+              "end": 20
+            },
+            {
+              "text": "自动化规划",
+              "start": 21,
+              "end": 26
+            },
+            {
+              "text": "Prompt Engineering",
+              "start": 27,
+              "end": 45
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 15,
+              "end": 16
+            },
+            {
+              "text": "、",
+              "start": 20,
+              "end": 21
+            },
+            {
+              "text": "、",
+              "start": 26,
+              "end": 27
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "head",
+          "span": {
+            "text": "技术领域之一或多个",
+            "start": 46,
+            "end": 55
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "Multi-Agent系统",
+              "start": 2,
+              "end": 15
+            },
+            {
+              "text": "任务分解",
+              "start": 16,
+              "end": 20
+            },
+            {
+              "text": "自动化规划",
+              "start": 21,
+              "end": 26
+            },
+            {
+              "text": "Prompt Engineering",
+              "start": 27,
+              "end": 45
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "Multi-Agent系统",
+          "任务分解",
+          "自动化规划",
+          "Prompt Engineering"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-011",
+      "case_id": "campus-ai-034",
+      "category": "experience",
+      "source_text": "对大模型与Agent有真实的动手经验，做过基于大模型API、Agent框架、Prompt/评测相关的项目",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "大模型与Agent有真实的动手经验",
+            "start": 1,
+            "end": 18
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "做过基于",
+            "start": 19,
+            "end": 23
+          },
+          "content_span": {
+            "text": "大模型API、Agent框架、Prompt/评测相关的项目",
+            "start": 23,
+            "end": 52
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 4,
+            "end": 5
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 29,
+            "end": 30
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 37,
+            "end": 38
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 44,
+            "end": 45
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "大模型",
+              "start": 1,
+              "end": 4
+            },
+            {
+              "text": "Agent",
+              "start": 5,
+              "end": 10
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 4,
+              "end": 5
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "大模型API",
+              "start": 23,
+              "end": 29
+            },
+            {
+              "text": "Agent框架",
+              "start": 30,
+              "end": 37
+            },
+            {
+              "text": "Prompt",
+              "start": 38,
+              "end": 44
+            },
+            {
+              "text": "评测",
+              "start": 45,
+              "end": 47
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 29,
+              "end": 30
+            },
+            {
+              "text": "、",
+              "start": 37,
+              "end": 38
+            },
+            {
+              "text": "/",
+              "start": 44,
+              "end": 45
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "有真实的动手经验",
+            "start": 10,
+            "end": 18
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "大模型",
+              "start": 1,
+              "end": 4
+            },
+            {
+              "text": "Agent",
+              "start": 5,
+              "end": 10
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "evidence",
+          "span": {
+            "text": "相关的项目",
+            "start": 47,
+            "end": 52
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "大模型API",
+              "start": 23,
+              "end": 29
+            },
+            {
+              "text": "Agent框架",
+              "start": 30,
+              "end": 37
+            },
+            {
+              "text": "Prompt",
+              "start": 38,
+              "end": 44
+            },
+            {
+              "text": "评测",
+              "start": 45,
+              "end": 47
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "大模型",
+          "Agent",
+          "大模型API",
+          "Agent框架",
+          "Prompt",
+          "评测"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-012",
+      "case_id": "campus-ai-038",
+      "category": "experience",
+      "source_text": "有Agent安全、大模型安全、风控反作弊或黑灰产对抗经验",
+      "diagnostic_status": "passing_control",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "Agent安全、大模型安全、风控反作弊或黑灰产对抗经验",
+            "start": 1,
+            "end": 28
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 8,
+            "end": 9
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 14,
+            "end": 15
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 20,
+            "end": 21
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Agent安全",
+              "start": 1,
+              "end": 8
+            },
+            {
+              "text": "大模型安全",
+              "start": 9,
+              "end": 14
+            },
+            {
+              "text": "风控反作弊",
+              "start": 15,
+              "end": 20
+            },
+            {
+              "text": "黑灰产对抗",
+              "start": 21,
+              "end": 26
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 8,
+              "end": 9
+            },
+            {
+              "text": "、",
+              "start": 14,
+              "end": 15
+            },
+            {
+              "text": "或",
+              "start": 20,
+              "end": 21
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "经验",
+            "start": 26,
+            "end": 28
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "Agent安全",
+              "start": 1,
+              "end": 8
+            },
+            {
+              "text": "大模型安全",
+              "start": 9,
+              "end": 14
+            },
+            {
+              "text": "风控反作弊",
+              "start": 15,
+              "end": 20
+            },
+            {
+              "text": "黑灰产对抗",
+              "start": 21,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "Agent安全",
+          "大模型安全",
+          "风控反作弊",
+          "黑灰产对抗"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-013",
+      "case_id": "campus-ai-039",
+      "category": "experience",
+      "source_text": "具备AI+SE结合的项目经验",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "AI+SE结合的项目经验",
+            "start": 2,
+            "end": 14
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "AI+SE结合的项目经验"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-014",
+      "case_id": "campus-ai-060",
+      "category": "experience",
+      "source_text": "在ICLR、NeurIPS、ICML、KDD、AAAI、IJCAI等机器学习领域会议或者期刊有第一作者论文",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "在",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "ICLR、NeurIPS、ICML、KDD、AAAI、IJCAI等机器学习领域会议或者期刊有第一作者论文",
+            "start": 1,
+            "end": 53
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 5,
+            "end": 6
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 13,
+            "end": 14
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 18,
+            "end": 19
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 22,
+            "end": 23
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 27,
+            "end": 28
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "或者",
+            "start": 42,
+            "end": 44
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "ICLR",
+              "start": 1,
+              "end": 5
+            },
+            {
+              "text": "NeurIPS",
+              "start": 6,
+              "end": 13
+            },
+            {
+              "text": "ICML",
+              "start": 14,
+              "end": 18
+            },
+            {
+              "text": "KDD",
+              "start": 19,
+              "end": 22
+            },
+            {
+              "text": "AAAI",
+              "start": 23,
+              "end": 27
+            },
+            {
+              "text": "IJCAI",
+              "start": 28,
+              "end": 33
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 5,
+              "end": 6
+            },
+            {
+              "text": "、",
+              "start": 13,
+              "end": 14
+            },
+            {
+              "text": "、",
+              "start": 18,
+              "end": 19
+            },
+            {
+              "text": "、",
+              "start": 22,
+              "end": 23
+            },
+            {
+              "text": "、",
+              "start": 27,
+              "end": 28
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "机器学习领域会议",
+              "start": 34,
+              "end": 42
+            },
+            {
+              "text": "期刊",
+              "start": 44,
+              "end": 46
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "或者",
+              "start": 42,
+              "end": 44
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "有第一作者论文",
+            "start": 46,
+            "end": 53
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "机器学习领域会议",
+              "start": 34,
+              "end": 42
+            },
+            {
+              "text": "期刊",
+              "start": 44,
+              "end": 46
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 33,
+            "end": 34
+          },
+          "parent_span": {
+            "text": "机器学习领域会议",
+            "start": 34,
+            "end": 42
+          },
+          "example_spans": [
+            {
+              "text": "ICLR",
+              "start": 1,
+              "end": 5
+            },
+            {
+              "text": "NeurIPS",
+              "start": 6,
+              "end": 13
+            },
+            {
+              "text": "ICML",
+              "start": 14,
+              "end": 18
+            },
+            {
+              "text": "KDD",
+              "start": 19,
+              "end": 22
+            },
+            {
+              "text": "AAAI",
+              "start": 23,
+              "end": 27
+            },
+            {
+              "text": "IJCAI",
+              "start": 28,
+              "end": 33
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "机器学习领域会议",
+          "期刊",
+          "第一作者论文"
+        ],
+        "examples": [
+          "ICLR",
+          "NeurIPS",
+          "ICML",
+          "KDD",
+          "AAAI",
+          "IJCAI"
+        ]
+      }
+    },
+    {
+      "id": "structured-external-v1-015",
+      "case_id": "campus-ai-062",
+      "category": "experience",
+      "source_text": "有目标检测、图像分类、缺陷识别、OCR等相关课程设计/竞赛/项目经验优先",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "目标检测、图像分类、缺陷识别、OCR等相关课程设计/竞赛/项目经验优先",
+            "start": 1,
+            "end": 36
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "优先",
+            "start": 34,
+            "end": 36
+          },
+          "content_span": {
+            "text": "有目标检测、图像分类、缺陷识别、OCR等相关课程设计/竞赛/项目经验",
+            "start": 0,
+            "end": 34
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 5,
+            "end": 6
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 10,
+            "end": 11
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 15,
+            "end": 16
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 26,
+            "end": 27
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 29,
+            "end": 30
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "目标检测",
+              "start": 1,
+              "end": 5
+            },
+            {
+              "text": "图像分类",
+              "start": 6,
+              "end": 10
+            },
+            {
+              "text": "缺陷识别",
+              "start": 11,
+              "end": 15
+            },
+            {
+              "text": "OCR",
+              "start": 16,
+              "end": 19
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 5,
+              "end": 6
+            },
+            {
+              "text": "、",
+              "start": 10,
+              "end": 11
+            },
+            {
+              "text": "、",
+              "start": 15,
+              "end": 16
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "相关课程设计",
+              "start": 20,
+              "end": 26
+            },
+            {
+              "text": "竞赛",
+              "start": 27,
+              "end": 29
+            },
+            {
+              "text": "项目经验",
+              "start": 30,
+              "end": 34
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 26,
+              "end": 27
+            },
+            {
+              "text": "/",
+              "start": 29,
+              "end": 30
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 19,
+            "end": 20
+          },
+          "parent_span": {
+            "text": "相关课程设计/竞赛/项目经验",
+            "start": 20,
+            "end": 34
+          },
+          "example_spans": [
+            {
+              "text": "目标检测",
+              "start": 1,
+              "end": 5
+            },
+            {
+              "text": "图像分类",
+              "start": 6,
+              "end": 10
+            },
+            {
+              "text": "缺陷识别",
+              "start": 11,
+              "end": 15
+            },
+            {
+              "text": "OCR",
+              "start": 16,
+              "end": 19
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "相关课程设计",
+          "竞赛",
+          "项目经验"
+        ],
+        "examples": [
+          "目标检测",
+          "图像分类",
+          "缺陷识别",
+          "OCR"
+        ]
+      }
+    },
+    {
+      "id": "structured-external-v1-016",
+      "case_id": "campus-ai-074",
+      "category": "capability",
+      "source_text": "工程能力强，能快速验证想法并落地到产品或平台中",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "强",
+            "start": 4,
+            "end": 5
+          },
+          "content_span": {
+            "text": "工程能力",
+            "start": 0,
+            "end": 4
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能",
+            "start": 2,
+            "end": 3
+          },
+          "content_span": {
+            "text": "快速验证想法并落地到产品或平台中",
+            "start": 7,
+            "end": 23
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "并",
+            "start": 13,
+            "end": 14
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "或",
+            "start": 19,
+            "end": 20
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "快速验证想法",
+              "start": 7,
+              "end": 13
+            },
+            {
+              "text": "落地到产品或平台中",
+              "start": 14,
+              "end": 23
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "并",
+              "start": 13,
+              "end": 14
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "产品",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "平台",
+              "start": 20,
+              "end": 22
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "或",
+              "start": 19,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "工程能力",
+          "快速验证想法",
+          "落地到产品或平台中"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-017",
+      "case_id": "campus-ai-081",
+      "category": "capability",
+      "source_text": "有很强的数据问题分析能力，具有业务上的自闭环能力",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有很强的",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "数据问题分析能力",
+            "start": 4,
+            "end": 12
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "能力",
+            "start": 10,
+            "end": 12
+          },
+          "content_span": {
+            "text": "有很强的数据问题分析",
+            "start": 0,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具有",
+            "start": 13,
+            "end": 15
+          },
+          "content_span": {
+            "text": "业务上的自闭环能力",
+            "start": 15,
+            "end": 24
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "能力",
+            "start": 22,
+            "end": 24
+          },
+          "content_span": {
+            "text": "具有业务上的自闭环",
+            "start": 13,
+            "end": 22
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "数据问题分析",
+          "业务上的自闭环"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-018",
+      "case_id": "campus-ai-095",
+      "category": "capability",
+      "source_text": "有良好的团队沟通协作能力，及优秀的项目驱动能力",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有良好的",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "团队沟通协作能力",
+            "start": 4,
+            "end": 12
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "能力",
+            "start": 10,
+            "end": 12
+          },
+          "content_span": {
+            "text": "有良好的团队沟通协作",
+            "start": 0,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "及优秀的",
+            "start": 13,
+            "end": 17
+          },
+          "content_span": {
+            "text": "项目驱动能力",
+            "start": 17,
+            "end": 23
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "能力",
+            "start": 21,
+            "end": 23
+          },
+          "content_span": {
+            "text": "及优秀的项目驱动",
+            "start": 13,
+            "end": 21
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "及",
+            "start": 13,
+            "end": 14
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "团队沟通协作",
+              "start": 4,
+              "end": 10
+            },
+            {
+              "text": "项目驱动",
+              "start": 17,
+              "end": 21
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "及",
+              "start": 13,
+              "end": 14
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "团队沟通协作",
+          "项目驱动"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-019",
+      "case_id": "campus-ai-096",
+      "category": "capability",
+      "source_text": "学习能力强、动手实践积极、沟通协作良好",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "强",
+            "start": 4,
+            "end": 5
+          },
+          "content_span": {
+            "text": "学习能力",
+            "start": 0,
+            "end": 4
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "积极",
+            "start": 10,
+            "end": 12
+          },
+          "content_span": {
+            "text": "动手实践",
+            "start": 6,
+            "end": 10
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "良好",
+            "start": 17,
+            "end": 19
+          },
+          "content_span": {
+            "text": "沟通协作",
+            "start": 13,
+            "end": 17
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 5,
+            "end": 6
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 12,
+            "end": 13
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "学习能力",
+              "start": 0,
+              "end": 4
+            },
+            {
+              "text": "动手实践",
+              "start": 6,
+              "end": 10
+            },
+            {
+              "text": "沟通协作",
+              "start": 13,
+              "end": 17
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 5,
+              "end": 6
+            },
+            {
+              "text": "、",
+              "start": 12,
+              "end": 13
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "学习能力",
+          "动手实践",
+          "沟通协作"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-external-v1-020",
+      "case_id": "campus-ai-099",
+      "category": "capability",
+      "source_text": "能够独立完成问题拆解、实验验证、结果分析和持续迭代，具备较强的工程落地意识",
+      "diagnostic_status": "revealed_v3_failure",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够独立完成",
+            "start": 0,
+            "end": 6
+          },
+          "content_span": {
+            "text": "问题拆解、实验验证、结果分析和持续迭代",
+            "start": 6,
+            "end": 25
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备较强的",
+            "start": 26,
+            "end": 31
+          },
+          "content_span": {
+            "text": "工程落地意识",
+            "start": 31,
+            "end": 37
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 10,
+            "end": 11
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 15,
+            "end": 16
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 20,
+            "end": 21
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "问题拆解",
+              "start": 6,
+              "end": 10
+            },
+            {
+              "text": "实验验证",
+              "start": 11,
+              "end": 15
+            },
+            {
+              "text": "结果分析",
+              "start": 16,
+              "end": 20
+            },
+            {
+              "text": "持续迭代",
+              "start": 21,
+              "end": 25
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 10,
+              "end": 11
+            },
+            {
+              "text": "、",
+              "start": 15,
+              "end": 16
+            },
+            {
+              "text": "和",
+              "start": 20,
+              "end": 21
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "问题拆解",
+          "实验验证",
+          "结果分析",
+          "持续迭代",
+          "工程落地意识"
+        ],
+        "examples": []
+      }
+    }
+  ]
+}

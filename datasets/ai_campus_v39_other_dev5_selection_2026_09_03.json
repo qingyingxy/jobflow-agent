@@ -1,0 +1,62 @@
+{
+  "version": "ai-campus-v39-other-dev5-selection-v1-2026-09-03",
+  "status": "non_blind_development_stability_sample",
+  "sampling_method": "exclude prior random dev-5; split by expected any_of presence; select three positives and two negatives by ascending SHA-256(seed|case_id)",
+  "seed": "v39-other-dev5-2026-09-03",
+  "population": "human-reviewed remaining51 dev-21 excluding prior dev-5",
+  "population_size": 16,
+  "sample_size": 5,
+  "strata": {
+    "any_of_positive": 3,
+    "any_of_negative": 2
+  },
+  "sealed_holdout_included": false,
+  "unseen_claimed": false,
+  "source_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v20-label-v14-remaining51-dev21-strict-2026-09-02.json",
+    "sha256": "28d1460b1f0d0e61aa9274447b86f8a34f56512666abe2a03d1a0e0afe899e51",
+    "size_bytes": 88109
+  },
+  "excluded_prior_selection": {
+    "path": "datasets/ai_campus_v37_random_dev5_selection_2026_09_03.json",
+    "sha256": "8433343d8fce01b209e726efc8ffd03e62994452dba13f95e575aae06b1a7222",
+    "size_bytes": 2281
+  },
+  "cases": [
+    {
+      "id": "campus-ai-032",
+      "stratum": "any_of_positive",
+      "rank_hash": "144c0f1304124e477394e63e75271d34c8066ab49b6124cd427e53d724204ee2",
+      "source_url": "https://jobs.bytedance.com/campus/position/7667476145728080133/detail",
+      "raw_content_sha256": "ecd35cd916f787d0010cf61be9ee1bd6e45f16a935a105b8594f958be193220e"
+    },
+    {
+      "id": "campus-ai-037",
+      "stratum": "any_of_positive",
+      "rank_hash": "44baa35046fdebf91b19ed104cfc9b68e7b10332054b579cfb4128a2f2a9056c",
+      "source_url": "https://jobs.bytedance.com/campus/position/7668280227769157893/detail",
+      "raw_content_sha256": "7b670ddb24366f258dd8ef0675fcc7ab5684f05e37d4f5f3e8ef16df55bfead3"
+    },
+    {
+      "id": "campus-ai-121",
+      "stratum": "any_of_positive",
+      "rank_hash": "81cff9ae8fd137878e9c4484acb967d27921ccd7ba7fe09f9dbb8677ebf73f16",
+      "source_url": "https://vrfi1sk8a0.jobs.feishu.cn/379481/position/7662380007045761343/detail",
+      "raw_content_sha256": "c9c009da858518cd8d210b11f7f84ea629883dfd23d65bc333650a0c71dbd88b"
+    },
+    {
+      "id": "campus-ai-011",
+      "stratum": "any_of_negative",
+      "rank_hash": "3d6a0a69b5294acc4afd4f765bb79a9990c8253506f0740f826c4c0ae4213b1d",
+      "source_url": "https://talent.baidu.com/jobs/detail/GRADUATE/ccfdea4e-4ae4-4954-9062-fd94960a2861",
+      "raw_content_sha256": "af48893a41758cbe1b95f98554d467ca116aca259fea4464c99b36c45a5b80e4"
+    },
+    {
+      "id": "campus-ai-128",
+      "stratum": "any_of_negative",
+      "rank_hash": "76b97520370a2146d229345f358c44cb778d50f24d295e467cfe85856af16c67",
+      "source_url": "https://tarsrobot.jobs.feishu.cn/021343/position/7668524839929628966/detail",
+      "raw_content_sha256": "96f5b80e3d8c79668f430b39d0a5814c74b2923db1ab5e025a31e23ac3714097"
+    }
+  ]
+}

@@ -6,7 +6,19 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from sqlalchemy import JSON, DateTime, Index, Integer, String, Text, func, text
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    Index,
+    Integer,
+    String,
+    Text,
+    event,
+    func,
+    inspect,
+    select,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.domain.education import EducationCondition, validate_condition_grounding
@@ -131,6 +143,9 @@ class JobPosting(Base):
         nullable=True,
     )
     raw_content: Mapped[str] = mapped_column(Text, nullable=False)
+    recruitment_context: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, default=dict, server_default=text("'{}'"),
+    )
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     retrieved_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -148,6 +163,21 @@ class JobPosting(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+
+@event.listens_for(JobPosting, "before_update")
+def merge_source_review_checkpoints(_mapper, connection, posting):
+    history = inspect(posting).attrs.recruitment_context.history
+    if not history.has_changes():
+        return
+    from src.domain.source_review_cache import merge_context
+
+    # The app is SQLite-only. Acquire its write lock before reading the latest
+    # JSON, so concurrent workers cannot overwrite each other's cache entries.
+    connection.execute(text("UPDATE job_postings SET id=id WHERE id=:id"), {"id": posting.id})
+    stored = connection.scalar(select(JobPosting.recruitment_context).where(JobPosting.id == posting.id))
+    posting.recruitment_context = merge_context(
+        stored, posting.recruitment_context, history.deleted[0] if history.deleted else None)
 
 
 class JobAvailabilityCheck(Base):

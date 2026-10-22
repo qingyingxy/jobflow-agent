@@ -1,0 +1,2518 @@
+{
+  "labels_version": "unified-jd-structured-span-v4-corpus-external-labels-v1",
+  "contract_version": "canonical-items-contract-v1",
+  "created_at": "2026-09-04",
+  "status": "human_reviewed_pre_prediction_frozen",
+  "annotator": "Codex coding agent",
+  "prediction_status_at_labeling": "v4_parser_not_run_on_selection",
+  "model_call_count": 0,
+  "selection": {
+    "path": "datasets/unified_jd_structured_span_v4_corpus_external_selection_v1_2026-09-04.json",
+    "sha256": "3061f49377ef937325743c1e1afc14e9651215f36dfad6b8c02771bd99b5661a"
+  },
+  "annotation_policy": {
+    "surface_items": "Atomic, independently inspectable exact source spans; generic wrappers are excluded from projection.",
+    "connector_roles": "Every annotated coordination connector is classified as surface, embedded, example, or quantifier before prediction.",
+    "shared_scope": "Shared prefixes, suffixes, heads, evidence, and results are represented once with explicit member-span edges.",
+    "examples": "Named illustrative instances attach to an explicit source parent; open lists that state direct alternatives remain surface items.",
+    "prediction_independence": "Selection and labels were built without importing or executing the frozen v4 parser."
+  },
+  "fixtures": [
+    {
+      "id": "structured-corpus-external-v1-001",
+      "job_id": "A38340",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "洞察行业趋势与市场动态，结合平台特色，通过专项研究，与业务团队合作优化平台商家端权益和用户端权益的建设",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "洞察",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "行业趋势与市场动态",
+            "start": 2,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "结合",
+            "start": 12,
+            "end": 14
+          },
+          "content_span": {
+            "text": "平台特色",
+            "start": 14,
+            "end": 18
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "通过",
+            "start": 19,
+            "end": 21
+          },
+          "content_span": {
+            "text": "专项研究",
+            "start": 21,
+            "end": 25
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "与业务团队合作优化",
+            "start": 26,
+            "end": 35
+          },
+          "content_span": {
+            "text": "平台商家端权益和用户端权益的建设",
+            "start": 35,
+            "end": 51
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 42,
+            "end": 43
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "行业趋势",
+              "start": 2,
+              "end": 6
+            },
+            {
+              "text": "市场动态",
+              "start": 7,
+              "end": 11
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 6,
+              "end": 7
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "平台商家端权益",
+              "start": 35,
+              "end": 42
+            },
+            {
+              "text": "用户端权益",
+              "start": 43,
+              "end": 48
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 42,
+              "end": 43
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "result",
+          "span": {
+            "text": "的建设",
+            "start": 48,
+            "end": 51
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "平台商家端权益",
+              "start": 35,
+              "end": 42
+            },
+            {
+              "text": "用户端权益",
+              "start": 43,
+              "end": 48
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "行业趋势",
+          "市场动态",
+          "平台特色",
+          "专项研究",
+          "平台商家端权益",
+          "用户端权益"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-002",
+      "job_id": "A135810",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "负责游戏关卡相关设计，包括但不限于活动副本、场景交互解密探索、各类PVP竞技玩法等相关设计和制作工作",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "负责",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "游戏关卡相关设计",
+            "start": 2,
+            "end": 10
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "包括但不限于",
+            "start": 11,
+            "end": 17
+          },
+          "content_span": {
+            "text": "活动副本、场景交互解密探索、各类PVP竞技玩法等相关设计和制作工作",
+            "start": 17,
+            "end": 50
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 21,
+            "end": 22
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 30,
+            "end": 31
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 45,
+            "end": 46
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "活动副本",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "场景交互解密探索",
+              "start": 22,
+              "end": 30
+            },
+            {
+              "text": "各类PVP竞技玩法",
+              "start": 31,
+              "end": 40
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 21,
+              "end": 22
+            },
+            {
+              "text": "、",
+              "start": 30,
+              "end": 31
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "相关设计",
+              "start": 6,
+              "end": 10
+            },
+            {
+              "text": "制作工作",
+              "start": 46,
+              "end": 50
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 45,
+              "end": 46
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 40,
+            "end": 41
+          },
+          "parent_span": {
+            "text": "相关设计和制作工作",
+            "start": 41,
+            "end": 50
+          },
+          "example_spans": [
+            {
+              "text": "活动副本",
+              "start": 17,
+              "end": 21
+            },
+            {
+              "text": "场景交互解密探索",
+              "start": 22,
+              "end": 30
+            },
+            {
+              "text": "各类PVP竞技玩法",
+              "start": 31,
+              "end": 40
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "游戏关卡相关设计",
+          "相关设计",
+          "制作工作"
+        ],
+        "examples": [
+          "活动副本",
+          "场景交互解密探索",
+          "各类PVP竞技玩法"
+        ]
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-003",
+      "job_id": "A37068",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "构建数据观测与分析框架，打通管理指标与绩效考核的用数逻辑，沉淀分析范式并推动数据建设",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "构建",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "数据观测与分析框架",
+            "start": 2,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "打通",
+            "start": 12,
+            "end": 14
+          },
+          "content_span": {
+            "text": "管理指标与绩效考核的用数逻辑",
+            "start": 14,
+            "end": 28
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "沉淀",
+            "start": 29,
+            "end": 31
+          },
+          "content_span": {
+            "text": "分析范式",
+            "start": 31,
+            "end": 35
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "推动",
+            "start": 36,
+            "end": 38
+          },
+          "content_span": {
+            "text": "数据建设",
+            "start": 38,
+            "end": 42
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 18,
+            "end": 19
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "并",
+            "start": 35,
+            "end": 36
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "数据观测",
+              "start": 2,
+              "end": 6
+            },
+            {
+              "text": "分析",
+              "start": 7,
+              "end": 9
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 6,
+              "end": 7
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "管理指标",
+              "start": 14,
+              "end": 18
+            },
+            {
+              "text": "绩效考核",
+              "start": 19,
+              "end": 23
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 18,
+              "end": 19
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "分析范式",
+              "start": 31,
+              "end": 35
+            },
+            {
+              "text": "数据建设",
+              "start": 38,
+              "end": 42
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "并",
+              "start": 35,
+              "end": 36
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "head",
+          "span": {
+            "text": "框架",
+            "start": 9,
+            "end": 11
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "数据观测",
+              "start": 2,
+              "end": 6
+            },
+            {
+              "text": "分析",
+              "start": 7,
+              "end": 9
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "result",
+          "span": {
+            "text": "的用数逻辑",
+            "start": 23,
+            "end": 28
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "管理指标",
+              "start": 14,
+              "end": 18
+            },
+            {
+              "text": "绩效考核",
+              "start": 19,
+              "end": 23
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "数据观测",
+          "分析",
+          "管理指标",
+          "绩效考核",
+          "分析范式",
+          "数据建设"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-004",
+      "job_id": "A128075",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "挖掘经营机会，监控业务风险，协助业务决策判断",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "挖掘",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "经营机会",
+            "start": 2,
+            "end": 6
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "监控",
+            "start": 7,
+            "end": 9
+          },
+          "content_span": {
+            "text": "业务风险",
+            "start": 9,
+            "end": 13
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "协助",
+            "start": 14,
+            "end": 16
+          },
+          "content_span": {
+            "text": "业务决策判断",
+            "start": 16,
+            "end": 22
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "经营机会",
+          "业务风险",
+          "业务决策判断"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-005",
+      "job_id": "A153051A",
+      "category": "responsibility",
+      "source_section": "description",
+      "source_text": "参与千万~亿级规模的电商个性化推荐算法的优化，主要包括Feeds的电商直播推荐、新用户推荐、直播冷启动、长期价值建模、体验优化等工作",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "参与",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "千万~亿级规模的电商个性化推荐算法的优化",
+            "start": 2,
+            "end": 22
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "主要包括",
+            "start": 23,
+            "end": 27
+          },
+          "content_span": {
+            "text": "Feeds的电商直播推荐、新用户推荐、直播冷启动、长期价值建模、体验优化等工作",
+            "start": 27,
+            "end": 66
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 39,
+            "end": 40
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 45,
+            "end": 46
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 51,
+            "end": 52
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 58,
+            "end": 59
+          },
+          "role": "example"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "Feeds的电商直播推荐",
+              "start": 27,
+              "end": 39
+            },
+            {
+              "text": "新用户推荐",
+              "start": 40,
+              "end": 45
+            },
+            {
+              "text": "直播冷启动",
+              "start": 46,
+              "end": 51
+            },
+            {
+              "text": "长期价值建模",
+              "start": 52,
+              "end": 58
+            },
+            {
+              "text": "体验优化",
+              "start": 59,
+              "end": 63
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 39,
+              "end": 40
+            },
+            {
+              "text": "、",
+              "start": 45,
+              "end": 46
+            },
+            {
+              "text": "、",
+              "start": 51,
+              "end": 52
+            },
+            {
+              "text": "、",
+              "start": 58,
+              "end": 59
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 63,
+            "end": 64
+          },
+          "parent_span": {
+            "text": "千万~亿级规模的电商个性化推荐算法的优化",
+            "start": 2,
+            "end": 22
+          },
+          "example_spans": [
+            {
+              "text": "Feeds的电商直播推荐",
+              "start": 27,
+              "end": 39
+            },
+            {
+              "text": "新用户推荐",
+              "start": 40,
+              "end": 45
+            },
+            {
+              "text": "直播冷启动",
+              "start": 46,
+              "end": 51
+            },
+            {
+              "text": "长期价值建模",
+              "start": 52,
+              "end": 58
+            },
+            {
+              "text": "体验优化",
+              "start": 59,
+              "end": 63
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "千万~亿级规模的电商个性化推荐算法的优化"
+        ],
+        "examples": [
+          "Feeds的电商直播推荐",
+          "新用户推荐",
+          "直播冷启动",
+          "长期价值建模",
+          "体验优化"
+        ]
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-006",
+      "job_id": "A115691A",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备扎实的机器学习基础，熟悉推荐算法、深度学习算法、统计学习方法等优先",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备扎实的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "机器学习基础",
+            "start": 5,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 12,
+            "end": 14
+          },
+          "content_span": {
+            "text": "推荐算法、深度学习算法、统计学习方法等",
+            "start": 14,
+            "end": 33
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "优先",
+            "start": 33,
+            "end": 35
+          },
+          "content_span": {
+            "text": "推荐算法、深度学习算法、统计学习方法等",
+            "start": 14,
+            "end": 33
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 18,
+            "end": 19
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 25,
+            "end": 26
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "推荐算法",
+              "start": 14,
+              "end": 18
+            },
+            {
+              "text": "深度学习算法",
+              "start": 19,
+              "end": 25
+            },
+            {
+              "text": "统计学习方法",
+              "start": 26,
+              "end": 32
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 18,
+              "end": 19
+            },
+            {
+              "text": "、",
+              "start": 25,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "机器学习基础",
+          "推荐算法",
+          "深度学习算法",
+          "统计学习方法"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-007",
+      "job_id": "A10062A",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "具备数据分析能力，擅长通过数据发现产品推进中的问题与机会点",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "数据分析能力",
+            "start": 2,
+            "end": 8
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "擅长",
+            "start": 9,
+            "end": 11
+          },
+          "content_span": {
+            "text": "通过数据发现产品推进中的问题与机会点",
+            "start": 11,
+            "end": 29
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 25,
+            "end": 26
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "问题",
+              "start": 23,
+              "end": 25
+            },
+            {
+              "text": "机会点",
+              "start": 26,
+              "end": 29
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 25,
+              "end": 26
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "数据分析能力",
+          "通过数据发现产品推进中的问题与机会点"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-008",
+      "job_id": "A182329A",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "熟练掌握Python或Golang，具备代码调试、日志分析和问题定位能力",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟练掌握",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "Python或Golang",
+            "start": 4,
+            "end": 17
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备",
+            "start": 18,
+            "end": 20
+          },
+          "content_span": {
+            "text": "代码调试、日志分析和问题定位能力",
+            "start": 20,
+            "end": 36
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "或",
+            "start": 10,
+            "end": 11
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 24,
+            "end": 25
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 29,
+            "end": 30
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Python",
+              "start": 4,
+              "end": 10
+            },
+            {
+              "text": "Golang",
+              "start": 11,
+              "end": 17
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "或",
+              "start": 10,
+              "end": 11
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "代码调试",
+              "start": 20,
+              "end": 24
+            },
+            {
+              "text": "日志分析",
+              "start": 25,
+              "end": 29
+            },
+            {
+              "text": "问题定位",
+              "start": 30,
+              "end": 34
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 24,
+              "end": 25
+            },
+            {
+              "text": "和",
+              "start": 29,
+              "end": 30
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 34,
+            "end": 36
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "代码调试",
+              "start": 20,
+              "end": 24
+            },
+            {
+              "text": "日志分析",
+              "start": 25,
+              "end": 29
+            },
+            {
+              "text": "问题定位",
+              "start": 30,
+              "end": 34
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "Python",
+          "Golang",
+          "代码调试",
+          "日志分析",
+          "问题定位"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-009",
+      "job_id": "A24249",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "对LLM与Agent技术有深入理解，熟悉Agent能力边界、产品架构、技术实现与评测方法，持续关注技术趋势",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "LLM与Agent技术有深入理解",
+            "start": 1,
+            "end": 17
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有深入理解",
+            "start": 12,
+            "end": 17
+          },
+          "content_span": {
+            "text": "LLM与Agent技术",
+            "start": 1,
+            "end": 12
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "熟悉",
+            "start": 18,
+            "end": 20
+          },
+          "content_span": {
+            "text": "Agent能力边界、产品架构、技术实现与评测方法",
+            "start": 20,
+            "end": 44
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "持续关注",
+            "start": 45,
+            "end": 49
+          },
+          "content_span": {
+            "text": "技术趋势",
+            "start": 49,
+            "end": 53
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 4,
+            "end": 5
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 29,
+            "end": 30
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 34,
+            "end": 35
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "与",
+            "start": 39,
+            "end": 40
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "LLM",
+              "start": 1,
+              "end": 4
+            },
+            {
+              "text": "Agent",
+              "start": 5,
+              "end": 10
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 4,
+              "end": 5
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "Agent能力边界",
+              "start": 20,
+              "end": 29
+            },
+            {
+              "text": "产品架构",
+              "start": 30,
+              "end": 34
+            },
+            {
+              "text": "技术实现",
+              "start": 35,
+              "end": 39
+            },
+            {
+              "text": "评测方法",
+              "start": 40,
+              "end": 44
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 29,
+              "end": 30
+            },
+            {
+              "text": "、",
+              "start": 34,
+              "end": 35
+            },
+            {
+              "text": "与",
+              "start": 39,
+              "end": 40
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "技术有深入理解",
+            "start": 10,
+            "end": 17
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "LLM",
+              "start": 1,
+              "end": 4
+            },
+            {
+              "text": "Agent",
+              "start": 5,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "LLM",
+          "Agent",
+          "Agent能力边界",
+          "产品架构",
+          "技术实现",
+          "评测方法",
+          "技术趋势"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-010",
+      "job_id": "A94289",
+      "category": "skill",
+      "source_section": "requirements",
+      "source_text": "英语、日语熟练读写和沟通",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "熟练读写和沟通",
+            "start": 5,
+            "end": 12
+          },
+          "content_span": {
+            "text": "英语、日语",
+            "start": 0,
+            "end": 5
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 2,
+            "end": 3
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 9,
+            "end": 10
+          },
+          "role": "embedded"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "英语",
+              "start": 0,
+              "end": 2
+            },
+            {
+              "text": "日语",
+              "start": 3,
+              "end": 5
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 2,
+              "end": 3
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "embedded",
+          "member_spans": [
+            {
+              "text": "读写",
+              "start": 7,
+              "end": 9
+            },
+            {
+              "text": "沟通",
+              "start": 10,
+              "end": 12
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 9,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "熟练读写和沟通",
+            "start": 5,
+            "end": 12
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "英语",
+              "start": 0,
+              "end": 2
+            },
+            {
+              "text": "日语",
+              "start": 3,
+              "end": 5
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "英语",
+          "日语"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-011",
+      "job_id": "913V",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "5年以上传统/DevOps/开发/售后/技术服务工作经验",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "5年以上",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "传统/DevOps/开发/售后/技术服务工作经验",
+            "start": 4,
+            "end": 28
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "/",
+            "start": 6,
+            "end": 7
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 13,
+            "end": 14
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 16,
+            "end": 17
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "/",
+            "start": 19,
+            "end": 20
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "传统",
+              "start": 4,
+              "end": 6
+            },
+            {
+              "text": "DevOps",
+              "start": 7,
+              "end": 13
+            },
+            {
+              "text": "开发",
+              "start": 14,
+              "end": 16
+            },
+            {
+              "text": "售后",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "技术服务",
+              "start": 20,
+              "end": 24
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "/",
+              "start": 6,
+              "end": 7
+            },
+            {
+              "text": "/",
+              "start": 13,
+              "end": 14
+            },
+            {
+              "text": "/",
+              "start": 16,
+              "end": 17
+            },
+            {
+              "text": "/",
+              "start": 19,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "工作经验",
+            "start": 24,
+            "end": 28
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "传统",
+              "start": 4,
+              "end": 6
+            },
+            {
+              "text": "DevOps",
+              "start": 7,
+              "end": 13
+            },
+            {
+              "text": "开发",
+              "start": 14,
+              "end": 16
+            },
+            {
+              "text": "售后",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "技术服务",
+              "start": 20,
+              "end": 24
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "传统",
+          "DevOps",
+          "开发",
+          "售后",
+          "技术服务",
+          "工作经验"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-012",
+      "job_id": "A150188",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具有较强的实际操作能力，具有分析、解决复杂问题的能力",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具有较强的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "实际操作能力",
+            "start": 5,
+            "end": 11
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具有",
+            "start": 12,
+            "end": 14
+          },
+          "content_span": {
+            "text": "分析、解决复杂问题的能力",
+            "start": 14,
+            "end": 26
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "的能力",
+            "start": 23,
+            "end": 26
+          },
+          "content_span": {
+            "text": "分析、解决复杂问题",
+            "start": 14,
+            "end": 23
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "、",
+            "start": 16,
+            "end": 17
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "分析",
+              "start": 14,
+              "end": 16
+            },
+            {
+              "text": "解决复杂问题",
+              "start": 17,
+              "end": 23
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 16,
+              "end": 17
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "的能力",
+            "start": 23,
+            "end": 26
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "分析",
+              "start": 14,
+              "end": 16
+            },
+            {
+              "text": "解决复杂问题",
+              "start": 17,
+              "end": 23
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "实际操作能力",
+          "分析",
+          "解决复杂问题"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-013",
+      "job_id": "A124569",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "有网络运维工作经验，互联网运维相关背景为佳",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有",
+            "start": 0,
+            "end": 1
+          },
+          "content_span": {
+            "text": "网络运维工作经验",
+            "start": 1,
+            "end": 9
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "为佳",
+            "start": 19,
+            "end": 21
+          },
+          "content_span": {
+            "text": "互联网运维相关背景",
+            "start": 10,
+            "end": 19
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "网络运维工作经验",
+          "互联网运维相关背景"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-014",
+      "job_id": "A234610",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "有实际的网络建设和运维经验",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "有实际的",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "网络建设和运维经验",
+            "start": 4,
+            "end": 13
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 8,
+            "end": 9
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "网络建设",
+              "start": 4,
+              "end": 8
+            },
+            {
+              "text": "运维",
+              "start": 9,
+              "end": 11
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 8,
+              "end": 9
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "evidence",
+          "span": {
+            "text": "经验",
+            "start": 11,
+            "end": 13
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "网络建设",
+              "start": 4,
+              "end": 8
+            },
+            {
+              "text": "运维",
+              "start": 9,
+              "end": 11
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "网络建设",
+          "运维"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-015",
+      "job_id": "A100206A",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "拥有骨干网运维经验者优先",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "拥有",
+            "start": 0,
+            "end": 2
+          },
+          "content_span": {
+            "text": "骨干网运维经验",
+            "start": 2,
+            "end": 9
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "者优先",
+            "start": 9,
+            "end": 12
+          },
+          "content_span": {
+            "text": "骨干网运维经验",
+            "start": 2,
+            "end": 9
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "骨干网运维经验"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-016",
+      "job_id": "A14418",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备优秀的编程能力",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备优秀的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "编程能力",
+            "start": 5,
+            "end": 9
+          }
+        }
+      ],
+      "connector_labels": [],
+      "coordinations": [],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "编程能力"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-017",
+      "job_id": "A60717",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备良好的编码习惯和工程优化能力",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备良好的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "编码习惯和工程优化能力",
+            "start": 5,
+            "end": 16
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "和",
+            "start": 9,
+            "end": 10
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "编码习惯",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "工程优化能力",
+              "start": 10,
+              "end": 16
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 9,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "编码习惯",
+          "工程优化能力"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-018",
+      "job_id": "A85070",
+      "category": "experience",
+      "source_section": "requirements",
+      "source_text": "1-5年计算机视觉一个或多个领域的研究和实践经验，包括但不限于以下方向",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "1-5年",
+            "start": 0,
+            "end": 4
+          },
+          "content_span": {
+            "text": "计算机视觉一个或多个领域的研究和实践经验",
+            "start": 4,
+            "end": 24
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "包括但不限于以下方向",
+            "start": 25,
+            "end": 35
+          },
+          "content_span": {
+            "text": "计算机视觉一个或多个领域的研究和实践经验",
+            "start": 4,
+            "end": 24
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "或",
+            "start": 11,
+            "end": 12
+          },
+          "role": "quantifier"
+        },
+        {
+          "span": {
+            "text": "和",
+            "start": 19,
+            "end": 20
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "研究",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "实践",
+              "start": 20,
+              "end": 22
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "和",
+              "start": 19,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "prefix",
+          "span": {
+            "text": "计算机视觉一个或多个领域的",
+            "start": 4,
+            "end": 17
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "研究",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "实践",
+              "start": 20,
+              "end": 22
+            }
+          ]
+        },
+        {
+          "id": "gold-scope-2",
+          "kind": "evidence",
+          "span": {
+            "text": "经验",
+            "start": 22,
+            "end": 24
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "研究",
+              "start": 17,
+              "end": 19
+            },
+            {
+              "text": "实践",
+              "start": 20,
+              "end": 22
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "研究",
+          "实践"
+        ],
+        "examples": []
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-019",
+      "job_id": "A229374A",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备良好的逻辑思维与问题解决能力，对大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲，能快速跟进前沿技术并落地实践",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备良好的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "逻辑思维与问题解决能力",
+            "start": 5,
+            "end": 16
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "对",
+            "start": 17,
+            "end": 18
+          },
+          "content_span": {
+            "text": "大模型评测、缺陷检测、红蓝对抗等领域有强烈的探索欲",
+            "start": 18,
+            "end": 43
+          }
+        },
+        {
+          "kind": "suffix",
+          "marker_span": {
+            "text": "有强烈的探索欲",
+            "start": 36,
+            "end": 43
+          },
+          "content_span": {
+            "text": "大模型评测、缺陷检测、红蓝对抗等领域",
+            "start": 18,
+            "end": 36
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能",
+            "start": 44,
+            "end": 45
+          },
+          "content_span": {
+            "text": "快速跟进前沿技术并落地实践",
+            "start": 45,
+            "end": 58
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 9,
+            "end": 10
+          },
+          "role": "surface"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 23,
+            "end": 24
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "、",
+            "start": 28,
+            "end": 29
+          },
+          "role": "example"
+        },
+        {
+          "span": {
+            "text": "并",
+            "start": 53,
+            "end": 54
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "逻辑思维",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "问题解决",
+              "start": 10,
+              "end": 14
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 9,
+              "end": 10
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-2",
+          "role": "example",
+          "member_spans": [
+            {
+              "text": "大模型评测",
+              "start": 18,
+              "end": 23
+            },
+            {
+              "text": "缺陷检测",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "红蓝对抗",
+              "start": 29,
+              "end": 33
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "、",
+              "start": 23,
+              "end": 24
+            },
+            {
+              "text": "、",
+              "start": 28,
+              "end": 29
+            }
+          ]
+        },
+        {
+          "id": "gold-coord-3",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "快速跟进前沿技术",
+              "start": 45,
+              "end": 53
+            },
+            {
+              "text": "落地实践",
+              "start": 54,
+              "end": 58
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "并",
+              "start": 53,
+              "end": 54
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 14,
+            "end": 16
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "逻辑思维",
+              "start": 5,
+              "end": 9
+            },
+            {
+              "text": "问题解决",
+              "start": 10,
+              "end": 14
+            }
+          ]
+        }
+      ],
+      "example_attachments": [
+        {
+          "id": "gold-example-1",
+          "cue_span": {
+            "text": "等",
+            "start": 33,
+            "end": 34
+          },
+          "parent_span": {
+            "text": "领域",
+            "start": 34,
+            "end": 36
+          },
+          "example_spans": [
+            {
+              "text": "大模型评测",
+              "start": 18,
+              "end": 23
+            },
+            {
+              "text": "缺陷检测",
+              "start": 24,
+              "end": 28
+            },
+            {
+              "text": "红蓝对抗",
+              "start": 29,
+              "end": 33
+            }
+          ]
+        }
+      ],
+      "projection": {
+        "surface_items": [
+          "逻辑思维",
+          "问题解决",
+          "领域",
+          "快速跟进前沿技术",
+          "落地实践"
+        ],
+        "examples": [
+          "大模型评测",
+          "缺陷检测",
+          "红蓝对抗"
+        ]
+      }
+    },
+    {
+      "id": "structured-corpus-external-v1-020",
+      "job_id": "A86945",
+      "category": "capability",
+      "source_section": "requirements",
+      "source_text": "具备优秀的沟通与人际交往能力，能够与多元化的全球团队进行无缝协作",
+      "annotation_status": "human_reviewed_before_v4_prediction",
+      "wrappers": [
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "具备优秀的",
+            "start": 0,
+            "end": 5
+          },
+          "content_span": {
+            "text": "沟通与人际交往能力",
+            "start": 5,
+            "end": 14
+          }
+        },
+        {
+          "kind": "prefix",
+          "marker_span": {
+            "text": "能够与",
+            "start": 15,
+            "end": 18
+          },
+          "content_span": {
+            "text": "多元化的全球团队进行无缝协作",
+            "start": 18,
+            "end": 32
+          }
+        }
+      ],
+      "connector_labels": [
+        {
+          "span": {
+            "text": "与",
+            "start": 7,
+            "end": 8
+          },
+          "role": "surface"
+        }
+      ],
+      "coordinations": [
+        {
+          "id": "gold-coord-1",
+          "role": "surface",
+          "member_spans": [
+            {
+              "text": "沟通",
+              "start": 5,
+              "end": 7
+            },
+            {
+              "text": "人际交往",
+              "start": 8,
+              "end": 12
+            }
+          ],
+          "connector_spans": [
+            {
+              "text": "与",
+              "start": 7,
+              "end": 8
+            }
+          ]
+        }
+      ],
+      "shared_scopes": [
+        {
+          "id": "gold-scope-1",
+          "kind": "suffix",
+          "span": {
+            "text": "能力",
+            "start": 12,
+            "end": 14
+          },
+          "applies_to_member_spans": [
+            {
+              "text": "沟通",
+              "start": 5,
+              "end": 7
+            },
+            {
+              "text": "人际交往",
+              "start": 8,
+              "end": 12
+            }
+          ]
+        }
+      ],
+      "example_attachments": [],
+      "projection": {
+        "surface_items": [
+          "沟通",
+          "人际交往",
+          "多元化的全球团队进行无缝协作"
+        ],
+        "examples": []
+      }
+    }
+  ]
+}

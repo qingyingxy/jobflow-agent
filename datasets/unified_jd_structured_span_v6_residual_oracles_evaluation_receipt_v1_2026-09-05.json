@@ -1,0 +1,92 @@
+{
+  "receipt_version": "unified-jd-structured-span-v6-residual-oracles-evaluation-receipt-v1",
+  "evaluated_at": "2026-09-05",
+  "status": "e8_e9_one_time_frozen_oracles_evaluated",
+  "inputs": {
+    "preregistration": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_v1_2026-09-05.json",
+      "sha256": "1c5ebe4ff6b12824a2e2ae1dc71e2618509755875c80a95b0cabda41e91a5a23"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_preregistration_freeze_v1_2026-09-05.json",
+      "sha256": "796115abee17f95907d2cde09fbc209c437fda3d1758bdccbb758901cd464c4c"
+    },
+    "runner_source_freeze": {
+      "path": "datasets/unified_jd_structured_span_v6_residual_oracles_source_freeze_v1_2026-09-05.json",
+      "sha256": "d22aaa653a962272e032c15257eebcdbf31c660d13820514553c68ed0d9ad134"
+    },
+    "frozen_v6_parser": {
+      "path": "src/domain/unified_jd_structured_spans_v6.py",
+      "sha256": "960d0d49f1c0b6b9fece8645ca5edc0a5874cf9ffb250e2f6c780cfcde11ccfd"
+    }
+  },
+  "outputs": {
+    "E8": {
+      "raw": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-raw-v1-2026-09-05.json",
+        "sha256": "7be416b0fa0f9b1b24c3abe3e4e9ce82fcd97adeca5a77106c22df6317296b9a"
+      },
+      "report": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-report-v1-2026-09-05.json",
+        "sha256": "d1e424e048dd936795ad114dcd6850f02e8f890bc1f243fa5304398b96bb4d3b"
+      },
+      "findings": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e8-attachment-replacement-activation-veto-oracle-findings-v1-2026-09-05.md",
+        "sha256": "54649d5613cfe526943aa798062656d586be71cbd37c9c8824fd6648e749d82c"
+      }
+    },
+    "E9": {
+      "raw": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-raw-v1-2026-09-05.json",
+        "sha256": "496310332f5abbb4cf8a242be7d07c59262e144632fdc261734897d3bcdaf781"
+      },
+      "report": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-report-v1-2026-09-05.json",
+        "sha256": "e07b31f2ac2ef91e680ca145fdf29dbfdab144fcd418f5a2faaf04940ee74afa"
+      },
+      "findings": {
+        "path": "artifacts/evaluation/unified-jd-structured-span-v6-e9-region-versus-node-family-merge-oracle-findings-v1-2026-09-05.md",
+        "sha256": "951377f9e9c9b6287cd56d68e923cfd3f68db0f83316ad2136ae21b145e43a5e"
+      }
+    }
+  },
+  "decisions": {
+    "E8": {
+      "accepted": false,
+      "resolved_target_count": 0,
+      "required_target_count": 9,
+      "control_count": 22,
+      "conclusion": "Attachment replacement alone is not sufficient for any of the nine complete residual observations."
+    },
+    "E9": {
+      "accepted": true,
+      "frozen_v6_region_level_exact_count": 0,
+      "v4_whole_region_fallback_exact_count": 9,
+      "node_family_selection_exact_count": 9,
+      "required_target_count": 9,
+      "control_count": 22,
+      "whole_region_selected_family_count": 25,
+      "node_family_changed_family_count": 16,
+      "node_family_retained_exact_v6_family_count": 9,
+      "conclusion": "Gold-directed node-family selection is sufficient for all nine residual observations while retaining every already-exact observable v6 family."
+    }
+  },
+  "supported_mechanism": "node-family merge granularity, not attachment replacement alone",
+  "unsupported_claims": [
+    "a production runtime selector has been identified",
+    "projection-only topology has been validated",
+    "v6 may be modified or rerun",
+    "canonicalizer work is unlocked",
+    "generalization beyond revealed frozen data"
+  ],
+  "execution_guards": {
+    "experiments_independent": true,
+    "e9_loaded_e8_output": false,
+    "parser_execution_count": 0,
+    "model_call_count": 0,
+    "network_call_count": 0,
+    "v6_modified": false
+  },
+  "immutability": "E8 and E9 raw, reports, findings, preregistration, and frozen runners must not be changed or rerun.",
+  "next_allowed_action": "Using only these frozen results, preregister v7 around runtime-identifiable node-family compatibility signals. Do not implement v7 or canonicalize until that preregistration is frozen."
+}

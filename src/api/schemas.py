@@ -12,6 +12,7 @@ from pydantic import (
     model_validator,
 )
 
+from src.api.timestamps import UtcTimestamp
 from src.domain.analysis import AnalysisRisk, JobDecision
 from src.domain.application import (
     ApplicationStatus,
@@ -57,8 +58,8 @@ class ProfileRead(ProfileUpdate):
 
     user_id: str
     search_preferences: SearchPreferences = Field(default_factory=SearchPreferences)
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class EvidenceCreate(BaseModel):
@@ -84,8 +85,8 @@ class EvidenceRead(EvidenceCreate):
     id: str
     user_id: str
     provenance: FactProvenance = Field(default_factory=FactProvenance)
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class JobTextImportRequest(BaseModel):
@@ -115,6 +116,9 @@ class DiscoveryRunCreateRequest(BaseModel):
 class DiscoverySearchRequest(BaseModel):
     query: str = Field(min_length=2, max_length=500)
     source_mode: Literal["official", "web"] = "official"
+    search_goal_id: str | None = Field(default=None, max_length=40)
+    search_goal_version: int | None = Field(default=None, ge=1)
+    continue_company_id: str | None = Field(default=None, max_length=100)
     company_ids: list[str] | None = Field(default=None, min_length=1, max_length=40)
 
     @field_validator("query")
@@ -178,7 +182,7 @@ class LeadVerificationRead(BaseModel):
     field_evidence: dict[str, object] = Field(default_factory=dict)
     error_code: str | None
     error_reason: str | None
-    checked_at: datetime
+    checked_at: UtcTimestamp
 
 
 class JobAvailabilityCheckRead(BaseModel):
@@ -194,7 +198,7 @@ class JobAvailabilityCheckRead(BaseModel):
     failure_code: str | None
     failure_reason: str | None
     evidence: dict[str, object] = Field(default_factory=dict)
-    checked_at: datetime
+    checked_at: UtcTimestamp
 
 
 class JobAvailabilityConfirmationRequest(BaseModel):
@@ -216,15 +220,16 @@ class JobLeadRead(BaseModel):
     title_hint: str | None
     search_snippet: str | None
     extracted_fields: dict[str, object] = Field(default_factory=dict)
+    retry_state: dict[str, object] = Field(default_factory=dict)
     status: JobLeadStatus
     next_action: str
     job_posting_id: str | None
     failure_code: str | None
     failure_reason: str | None
-    discovered_at: datetime
-    verified_at: datetime | None
-    created_at: datetime
-    updated_at: datetime
+    discovered_at: UtcTimestamp
+    verified_at: UtcTimestamp | None
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
     discovery_kind: Literal["job", "entry"] = "entry"
@@ -234,12 +239,12 @@ class JobLeadRead(BaseModel):
     @model_validator(mode="after")
     def describe_discovered_link(self):
         from src.services.job_url import canonical_job_url
-        from src.services.lead_presentation import discovery_kind, source_label
+        from src.services.lead_presentation import lead_discovery_kind, source_label
         self.normalized_url = canonical_job_url(self.source_url)
         if self.status == JobLeadStatus.NEEDS_USER and self.failure_code == "verification_budget_exhausted":
             self.status = JobLeadStatus.DEFERRED
             self.next_action = "retry_verification"
-        self.discovery_kind = "job" if self.job_posting_id else discovery_kind(self.source_url, self.extracted_fields.get("title") or self.title_hint)
+        self.discovery_kind = lead_discovery_kind(self)
         self.source_label = source_label(self.source_url)
         return self
 
@@ -260,6 +265,7 @@ class DiscoverySourceRead(BaseModel):
 
 
 class JobPostingRead(BaseModel):
+    recruitment_context: dict = Field(default_factory=dict)
     model_config = ConfigDict(from_attributes=True)
 
     id: str
@@ -271,21 +277,21 @@ class JobPostingRead(BaseModel):
     title: str | None
     locations: list[str] = Field(default_factory=list)
     job_type: str | None = None
-    published_at: datetime | None = None
+    published_at: UtcTimestamp | None = None
     verification_status: JobVerificationStatus
     availability_status: JobAvailabilityStatus
-    first_seen_at: datetime | None = None
-    last_seen_at: datetime | None = None
-    last_verified_at: datetime | None = None
+    first_seen_at: UtcTimestamp | None = None
+    last_seen_at: UtcTimestamp | None = None
+    last_verified_at: UtcTimestamp | None = None
     availability_failure_count: int = 0
-    last_availability_checked_at: datetime | None = None
-    closed_at: datetime | None = None
+    last_availability_checked_at: UtcTimestamp | None = None
+    closed_at: UtcTimestamp | None = None
     raw_content: str
     content_hash: str
-    retrieved_at: datetime
+    retrieved_at: UtcTimestamp
     trace_id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
     @model_validator(mode="after")
     def recover_saved_header_locations(self):
@@ -303,15 +309,15 @@ class JobSummary(BaseModel):
     source_id: str | None = None
     locations: list[str] = Field(default_factory=list)
     job_type: str | None = None
-    published_at: datetime | None = None
+    published_at: UtcTimestamp | None = None
     verification_status: JobVerificationStatus
     availability_status: JobAvailabilityStatus
-    first_seen_at: datetime | None = None
-    last_seen_at: datetime | None = None
-    last_verified_at: datetime | None = None
+    first_seen_at: UtcTimestamp | None = None
+    last_seen_at: UtcTimestamp | None = None
+    last_verified_at: UtcTimestamp | None = None
     availability_failure_count: int = 0
-    last_availability_checked_at: datetime | None = None
-    closed_at: datetime | None = None
+    last_availability_checked_at: UtcTimestamp | None = None
+    closed_at: UtcTimestamp | None = None
 
 
 class CandidateCreateRequest(BaseModel):
@@ -337,8 +343,8 @@ class CandidateRead(BaseModel):
     available_transitions: list[CandidateStatus]
     job: JobSummary
     analysis: CandidateAnalysisSummary | None = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class DiscoveryAgentTraceStep(BaseModel):
@@ -350,7 +356,7 @@ class DiscoveryAgentTraceStep(BaseModel):
     source_id: str | None = None
     company: str | None = None
     url: str | None = None
-    occurred_at: datetime | None = None
+    occurred_at: UtcTimestamp | None = None
     duration_ms: int | None = Field(default=None, ge=0)
     error_code: str | None = None
     details: dict[str, object] = Field(default_factory=dict)
@@ -358,12 +364,20 @@ class DiscoveryAgentTraceStep(BaseModel):
 
 class DiscoveryResultMatchRead(BaseModel):
     job_posting_id: str
+    result_status: dict[str, object] = Field(default_factory=dict)
+    personal_gate_conflict: bool = False
+    review_caveats: list[str] = Field(default_factory=list)
+    personal_requirements: list[dict[str, object]] = Field(default_factory=list)
     match_tier: Literal["strict", "expanded"]
     mismatch_reasons: list[str] = Field(default_factory=list)
     mismatch_labels: list[str] = Field(default_factory=list)
     filter_status: Literal["matched", "pending", "excluded"] = "pending"
+    review_status: Literal["recommended", "pending", "excluded"] | None = None
+    review_version: str | None = None
     checks: list[dict[str, object]] = Field(default_factory=list)
     filter_version: str | None = None
+    decision_policy: str | None = None
+    preference_score: int = 0
 
 
 class DiscoveryRunRead(BaseModel):
@@ -374,6 +388,11 @@ class DiscoveryRunRead(BaseModel):
     source: str
     source_url: str
     search_query: str | None = None
+    search_goal_id: str | None = None
+    search_goal_version: int | None = None
+    continued_company_id: str | None = None
+    goal_conditions: dict[str, object] | None = None
+    usage_metrics: dict[str, object] | None = None
     max_results: int = 20
     status: str
     discovered_count: int
@@ -387,15 +406,15 @@ class DiscoveryRunRead(BaseModel):
     agent_trace: list[DiscoveryAgentTraceStep] = Field(default_factory=list)
     result_matches: list[DiscoveryResultMatchRead] = Field(default_factory=list)
     failure_summary: str | None
-    started_at: datetime
-    finished_at: datetime | None
-    created_at: datetime
+    started_at: UtcTimestamp
+    finished_at: UtcTimestamp | None
+    created_at: UtcTimestamp
 
     @computed_field
     @property
     def filter_conditions(self) -> dict[str, object]:
         from src.services.discovery_matching import search_filter_conditions
-        return search_filter_conditions(self.search_query)
+        return self.goal_conditions or search_filter_conditions(self.search_query)
 
 
 class DomainEventRead(BaseModel):
@@ -404,7 +423,7 @@ class DomainEventRead(BaseModel):
     entity_id: str
     event_type: str
     payload: dict[str, object]
-    created_at: datetime
+    created_at: UtcTimestamp
 
 
 class ApplicationStatusUpdate(BaseModel):
@@ -418,12 +437,13 @@ class ApplicationRead(BaseModel):
     job_posting_id: str
     status: ApplicationStatus
     candidate_status: CandidateStatus
+    submission_source: Literal["user_confirmed", "verified_receipt"] | None = None
     next_action: str | None
     available_transitions: list[ApplicationStatus]
     job: JobSummary
     events: list[DomainEventRead]
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class SuggestionCreateRequest(SuggestionTargetInput):
@@ -466,8 +486,8 @@ class SuggestionRead(BaseModel):
     status: SuggestionStatus
     final_text: str | None
     agent_run_id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcTimestamp
+    updated_at: UtcTimestamp
 
 
 class JobParseResponse(BaseModel):
@@ -494,5 +514,5 @@ class JobAnalysisResponse(BaseModel):
     score: MatchScore
     risks: list[AnalysisRisk]
     missing_information: list[str]
-    created_at: datetime
-    invalidated_at: datetime | None
+    created_at: UtcTimestamp
+    invalidated_at: UtcTimestamp | None

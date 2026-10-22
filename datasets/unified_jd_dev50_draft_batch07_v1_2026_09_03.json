@@ -1,0 +1,678 @@
+{
+  "label_version": "unified-jd-dev50-draft-batch07-v1",
+  "dataset_version": "unified-jd-dev50-draft-batch07-v1-2026-09-03",
+  "annotation_status": "draft",
+  "source_skeleton_sha256": "32bef503019cb774f11f8668dc98e80ae7fc6c97353c4963841a7726ac4024a3",
+  "annotation_policy": "机器辅助逐字标注草稿；未读取 Unified prediction，未复制旧 Parser 技能标签，必须人工复核后才能进入评测。",
+  "cases": {
+    "campus-ai-124": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["苏州", "上海", "北京", "深圳", "西安"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上学历", "博士"],
+          "major_requirements": ["信号与信息处理、通信工程、电子工程、计算机科学、应用数学、物理学、自动化等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：苏州/上海/北京/深圳/西安"},
+            {"field": "graduation_years", "source_text": "招聘项目：普源精电2027届校园招聘"},
+            {"field": "education_requirements", "source_text": "硕士及以上学历（博士优先）"},
+            {"field": "major_requirements", "source_text": "信号与信息处理、通信工程、电子工程、计算机科学、应用数学、物理学、自动化等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法预研", "算法设计", "理论分析"],
+            "source_text": "针对公司产品领域的需求，进行相关算法的预研、设计和理论分析"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["数字信号处理", "精密仪器校准与误差补偿算法", "数字通信与调制解调算法", "高速时钟恢复与抖动分析算法", "相位噪声分析算法", "电源控制与优化算法"],
+            "source_text": "深入研究并开发包括但不限于：数字信号处理（滤波、谱分析、相关、卷积等）、精密仪器校准与误差补偿算法、数字通信与调制解调算法、高速时钟恢复与抖动分析算法、相位噪声分析算法、电源控制与优化算法等"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["数学模型", "系统级仿真平台"],
+            "examples": ["MATLAB", "Simulink", "Python"],
+            "source_text": "负责建立相关产品功能的数学模型和系统级仿真平台（如使用MATLAB, Simulink, Python等）"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法可行性验证", "算法性能评估", "参数优化"],
+            "source_text": "通过仿真验证算法可行性、评估算法性能，并进行参数优化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["产品系统方案", "算法分析", "规格定义"],
+            "source_text": "参与制定产品系统方案，提供算法层面的专业分析与规格定义"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法设计文档", "技术规范", "FPGA实现指导", "软件实现指导"],
+            "source_text": "编写清晰的算法设计文档和技术规范，指导FPGA工程师进行硬件逻辑实现或软件工程师进行嵌入式/上位机代码实现"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法移植", "算法调试", "算法验证", "性能优化"],
+            "examples": ["FPGA", "DSP", "MCU", "PC"],
+            "source_text": "配合团队进行算法在FPGA、DSP、MCU或PC平台的移植、调试、验证与性能优化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["测试数据分析", "算法问题定位", "算法问题解决"],
+            "source_text": "分析测试数据，定位并解决算法在实际应用中遇到的问题"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["技术进展跟踪", "新算法理论", "新算法应用"],
+            "source_text": "跟踪相关领域的最新技术进展，探索新的算法理论与应用"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["技术专利撰写", "技术成果分享"],
+            "source_text": "参与技术专利撰写和技术成果的分享"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "硕士及以上学历（博士优先）"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "preferred",
+            "items": ["博士"],
+            "source_text": "博士优先"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["信号与信息处理", "通信工程", "电子工程", "计算机科学", "应用数学", "物理学", "自动化", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "信号与信息处理、通信工程、电子工程、计算机科学、应用数学、物理学、自动化等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["数字信号处理理论", "随机过程", "概率论", "矩阵论", "优化理论"],
+            "source_text": "精通数字信号处理（DSP）理论，熟悉随机过程、概率论、矩阵论、优化理论等数学基础"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["通信原理", "电磁场与微波技术", "控制理论", "测量理论", "数据分析"],
+            "group_name": "理论研究方向",
+            "allow_other": true,
+            "source_text": "对以下至少一个或多个领域有深入理解和研究：通信原理、电磁场与微波技术、控制理论、测量理论、数据分析等"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["算法设计", "算法分析", "算法实现"],
+            "source_text": "具备较强的算法设计、分析和实现能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["主流仿真工具"],
+            "examples": ["MATLAB/Simulink", "Python with Scipy/Numpy"],
+            "source_text": "熟悉至少一种主流仿真工具（如MATLAB/Simulink, Python with Scipy/Numpy）"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["实际项目经验"],
+            "qualifier": {"experience_type": "project"},
+            "source_text": "有实际项目经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["校准算法项目", "时钟恢复算法项目", "抖动分析算法项目", "信号处理算法项目"],
+            "group_name": "相关算法项目",
+            "allow_other": true,
+            "qualifier": {"experience_type": "project", "domain": "职责所列算法"},
+            "source_text": "参与过上述职责中提及的至少一类算法（如校准、时钟恢复、抖动分析、信号处理等）的设计、仿真或验证者优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["C/C++", "Python"],
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟悉C/C++或Python编程"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["算法硬件实现流程", "算法软件实现流程"],
+            "examples": ["FPGA/ASIC", "嵌入式/PC"],
+            "source_text": "对算法在硬件（FPGA/ASIC）或软件（嵌入式/PC）上的实现流程有一定了解"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["逻辑思维", "问题分析", "问题解决", "技术研究兴趣"],
+            "source_text": "具备优秀的逻辑思维、问题分析与解决能力，对技术研究有浓厚兴趣"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["学习能力", "求知欲", "快速掌握新知识和新工具"],
+            "source_text": "学习能力强，求知欲旺盛，能够快速掌握新知识、新工具"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["中英文科技文献阅读", "中英文科技文献撰写"],
+            "source_text": "良好的中英文科技文献阅读和撰写能力"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["沟通表达", "团队协作"],
+            "source_text": "优秀的沟通表达能力和团队协作精神"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier"],
+      "review_notes": ["博士是硕士及以上硬门槛之上的优先学历，因此同时保留 education fact 和 preferred fact clause。"]
+    },
+    "campus-ai-075": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士及以上学历"],
+          "major_requirements": ["计算机科学、人工智能、软件工程等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京"},
+            {"field": "graduation_years", "source_text": "【27届校招】智能座舱云端Agent研发工程师（北京）"},
+            {"field": "education_requirements", "source_text": "硕士及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机科学、人工智能、软件工程等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["智能座舱AI Agent系统", "多模态座舱智能助手", "车控", "导航", "媒体", "开放域交互"],
+            "source_text": "参与智能座舱AI Agent系统的研发，打造基于大语言模型的多模态座舱智能助手，支撑车控、导航、媒体、开放域等核心场景的智能化交互"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["意图理解", "任务规划", "工具调用", "多轮对话管理", "复杂任务执行"],
+            "source_text": "参与Agent核心能力建设，包括意图理解、任务规划、工具调用、多轮对话管理、复杂任务执行等"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent系统工程化", "性能优化", "响应延迟优化", "异常处理", "降级策略", "车载稳定性", "实时性"],
+            "source_text": "参与Agent系统工程化建设，包括性能优化、响应延迟优化、异常处理与降级策略设计，保障系统在车载环境下的稳定性与实时性"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "【27届校招】智能座舱云端Agent研发工程师（北京）"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士及以上学历"],
+            "source_text": "计算机科学、人工智能、软件工程等相关专业，硕士及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机科学", "人工智能", "软件工程", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机科学、人工智能、软件工程等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Java", "Python"],
+            "group_name": "编程语言",
+            "allow_other": false,
+            "source_text": "熟练掌握Java或Python中的一门编程语言"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["编程基础", "代码风格", "工程习惯"],
+            "source_text": "扎实的编程基础，熟练掌握Java或Python中的一门编程语言，具备良好的代码风格与工程习惯"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["自学能力", "钻研精神", "新技术工程应用", "沟通", "团队协作"],
+            "source_text": "有较强的自学能力和钻研精神，能够快速掌握新技术并应用于工程实践，具备良好的沟通能力和团队协作能力"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["大语言模型基本原理"],
+            "source_text": "了解大语言模型基本原理"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["Agent工程实践经验"],
+            "examples": ["Prompt Engineering", "Context Engineering", "Harness Engineering", "RAG"],
+            "qualifier": {"experience_type": "practical", "domain": "Agent工程"},
+            "source_text": "有Prompt/Context/Harness Engineering、RAG等Agent工程实践经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["相关课题研究", "竞赛经历", "开源项目贡献", "实习经验"],
+            "examples": ["智能座舱", "智能语音助手"],
+            "source_text": "有相关课题研究、竞赛经历、开源项目贡献、实习经验（尤其是智能座舱、智能语音助手相关）"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["“了解大语言模型基本原理”位于加分项中，按 preferred 而不是普通 mention 标注。"]
+    },
+    "campus-ai-085": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、人工智能、软件工程、交互设计、信息管理等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：上海"},
+            {"field": "graduation_years", "source_text": "【2027届秋招】AI Agent 产品经理（平台）"},
+            {"field": "education_requirements", "source_text": "本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、人工智能、软件工程、交互设计、信息管理等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI Agent平台", "智能工作工具", "产品规划", "游戏研发场景", "日常工作场景"],
+            "source_text": "参与 AI Agent 平台及智能工作工具的产品规划，探索 AI 在游戏研发和日常工作中的应用场景"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["用户问题洞察", "需求提炼", "解决方案设计"],
+            "source_text": "深入了解用户在需求分析、内容生产、开发、测试和协作中的实际问题，提炼产品需求并设计解决方案"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent工作流", "上下文管理", "知识检索", "工具调用", "自动化任务", "产品设计"],
+            "source_text": "参与 Agent 工作流、上下文管理、知识检索、工具调用和自动化任务等能力的产品设计"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Agent", "Skill", "插件", "AI应用", "创建机制", "使用机制", "分享机制", "复用机制"],
+            "source_text": "参与 Agent、Skill、插件及 AI 应用的创建、使用、分享和复用机制建设"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["需求分析", "产品方案", "原型", "PRD", "跨团队落地"],
+            "source_text": "负责需求分析、产品方案、原型和 PRD 输出，协同设计、研发和测试推动功能落地"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["产品效果指标", "用户反馈", "任务完成率", "结果采纳率", "使用数据", "体验优化"],
+            "source_text": "建立产品效果指标，结合用户反馈、任务完成率、结果采纳率和使用数据持续优化体验"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型趋势", "Agent产品趋势", "AI编程工具趋势", "竞品研究", "产品验证", "趋势分析"],
+            "source_text": "跟进大模型、Agent 产品和 AI 编程工具的发展，开展竞品研究、产品验证和趋势分析"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "人工智能", "软件工程", "交互设计", "信息管理", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、人工智能、软件工程、交互设计、信息管理等相关专业优先"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["对大模型、AI Agent、开发者工具和智能工作流的兴趣"],
+            "source_text": "对大模型、AI Agent、开发者工具和智能工作流有浓厚兴趣"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["相关产品实际使用经验"],
+            "qualifier": {"experience_type": "practical", "domain": "大模型、AI Agent、开发者工具和智能工作流"},
+            "source_text": "并有相关产品的实际使用经验"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["用户洞察", "逻辑分析", "问题拆解", "复杂问题转化为产品方案"],
+            "source_text": "具备良好的用户洞察、逻辑分析和问题拆解能力，能够将复杂问题转化为清晰的产品方案"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["产品设计", "流程设计", "产品原型", "需求文档"],
+            "source_text": "具备基本的产品设计能力，能够独立完成流程设计、产品原型和需求文档"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["数据意识", "用户反馈分析", "数据指标分析"],
+            "source_text": "具备一定的数据意识，能够通过用户反馈和数据指标分析产品问题"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["沟通协调", "项目推进", "跨团队协作"],
+            "source_text": "具备良好的沟通协调和项目推进能力，能够与研发、设计、测试及业务团队高效协作"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["学习能力", "执行力", "技术原理理解", "游戏研发流程理解"],
+            "source_text": "学习能力和执行力强，愿意深入技术原理和游戏研发流程理解真实需求"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["Prompt Engineering", "RAG", "MCP", "Tool Use", "Agent工作流"],
+            "source_text": "了解 Prompt Engineering、RAG、MCP、Tool Use、Agent 工作流等概念"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["AI产品项目", "开发者工具项目", "平台型产品项目", "效率工具项目"],
+            "group_name": "相关项目经验",
+            "allow_other": false,
+            "qualifier": {"experience_type": "project"},
+            "source_text": "有 AI 产品、开发者工具、平台型产品或效率工具相关项目经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["AI工具使用经验"],
+            "examples": ["ChatGPT", "Claude", "Cursor", "Claude Code", "Copilot", "Codex"],
+            "qualifier": {"experience_type": "practical"},
+            "source_text": "使用过 ChatGPT、Claude、Cursor、Claude Code、Copilot、Codex 等 AI 工具"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["用户调研", "数据分析", "产品竞品研究", "产品从零到一实践"],
+            "group_name": "产品实践",
+            "allow_other": false,
+            "source_text": "有用户调研、数据分析、产品竞品研究或产品从零到一实践"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["游戏研发流程", "游戏引擎", "内容生产", "自动化测试", "项目协作"],
+            "group_name": "游戏研发相关知识",
+            "allow_other": false,
+            "source_text": "了解游戏研发流程、游戏引擎、内容生产、自动化测试或项目协作"
+          },
+          {
+            "category": "capability",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["AI Native产品与人机协作的独立思考", "AI Native产品与人机协作实践"],
+            "group_name": "AI Native思考或实践",
+            "allow_other": false,
+            "source_text": "对 AI Native 产品形态和人机协作方式有自己的思考或实践"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier"],
+      "review_notes": ["加分项统一保持 preferred；只在原文明示“或”时使用 any_of，工具清单作为上位经验的 examples。"]
+    },
+    "campus-ai-070": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "苏州", "上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机及相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "2027届校园招聘"},
+            {"field": "locations", "source_text": "北京、苏州、上海"},
+            {"field": "graduation_years", "source_text": "2027届校园招聘"},
+            {"field": "education_requirements", "source_text": "本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机及相关专业者优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型车端部署", "C++模块开发", "C++模块重构", "C++模块维护"],
+            "source_text": "参与Momenta大模型算法车端部署C++模块的开发、重构与维护"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型主线化演进", "架构设计", "工程量产评测体系"],
+            "source_text": "参与Momenta大模型主线化演进架构设计、工程量产评测体系建设"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "items": ["计算机及相关专业"],
+            "source_text": "计算机及相关专业者优先"
+          },
+          {
+            "category": "capability",
+            "level": "preferred",
+            "items": ["C++编程", "架构设计", "问题拆解", "沟通"],
+            "source_text": "C++编程、架构设计、问题拆解与沟通能力出众者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["智能驾驶及类似AI领域业务实习经历"],
+            "qualifier": {"experience_type": "internship", "domain": "智能驾驶及类似AI领域业务"},
+            "source_text": "有智能驾驶及类似AI领域业务实习经历者优先"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["AI模型部署相关工程技术"],
+            "source_text": "了解AI模型部署相关工程技术者优先"
+          },
+          {
+            "category": "capability",
+            "level": "preferred",
+            "items": ["AI辅助编程"],
+            "source_text": "能熟练使用AI辅助编程者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "fact_preferred", "experience_qualifier", "fact_missing"],
+      "review_notes": ["该岗位除本科门槛外，其余任职条件均明确写为优先，未升级为 required。"]
+    },
+    "campus-ai-161": {
+      "expected": {
+        "facts": {
+          "job_type": "internship",
+          "locations": ["北京"],
+          "graduation_years": null,
+          "education_requirements": null,
+          "major_requirements": ["计算机、人工智能、电子信息、数学等相关专业"],
+          "internship_duration_months": 3,
+          "weekly_days": 5,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：实习生"},
+            {"field": "locations", "source_text": "工作地点：北京"},
+            {"field": "major_requirements", "source_text": "计算机、人工智能、电子信息、数学等相关专业"},
+            {"field": "internship_duration_months", "source_text": "最短实习3个月"},
+            {"field": "weekly_days", "source_text": "每周到岗5天"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Vidu S", "实时交互式视频生成", "大规模分布式训练", "DiT", "自回归生成", "蒸馏", "强化学习", "MoE", "模型结构", "训练策略"],
+            "source_text": "参与 Vidu S 实时交互式视频生成模型研发，在千卡级 GPU 集群上开展大规模分布式训练，围绕 DiT、自回归生成、蒸馏、强化学习、MoE 设计和迭代模型结构与训练策略"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["无限时长生成", "上下文建模", "空间一致性", "语义一致性", "超低延迟实时生成"],
+            "source_text": "探索无限时长生成、上下文建模、空间与语义一致性及超低延迟实时生成"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["视频生成数据体系", "视频生成评测体系", "数据构建", "数据清洗", "质量验收", "多维评测"],
+            "source_text": "参与视频生成数据与评测体系建设，完成数据构建、清洗、质量验收和多维评测"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "人工智能", "电子信息", "数学", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、人工智能、电子信息、数学等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["主流DiT生成模型"],
+            "source_text": "熟悉主流 DiT 生成模型"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["视频生成项目经验", "图像生成项目经验"],
+            "group_name": "生成项目经验",
+            "allow_other": false,
+            "qualifier": {"experience_type": "project", "domain": "视频或图像生成"},
+            "source_text": "有视频生成或图像生成项目经验"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Python", "PyTorch等深度学习框架"],
+            "source_text": "熟练掌握 Python 及 PyTorch 等深度学习框架"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["模型训练经验", "模型开发经验"],
+            "qualifier": {"experience_type": "development", "domain": "模型训练与开发"},
+            "source_text": "有模型训练与开发经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["AIGC、多模态或计算机视觉领域高质量论文", "AIGC、多模态或计算机视觉领域显著开源贡献"],
+            "group_name": "论文或开源成果",
+            "allow_other": false,
+            "source_text": "在 AIGC、多模态、计算机视觉领域有高质量论文或显著开源贡献者优先"
+          },
+          {
+            "category": "fact",
+            "fact_field": "weekly_days",
+            "level": "required",
+            "items": ["每周到岗5天"],
+            "source_text": "每周到岗5天"
+          },
+          {
+            "category": "fact",
+            "fact_field": "internship_duration_months",
+            "level": "required",
+            "items": ["最短实习3个月"],
+            "source_text": "最短实习3个月"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "fact_missing"],
+      "review_notes": ["可转正与不支持远程不在九 facts 中；保留在原文但当前契约无法单独结构化。"]
+    }
+  }
+}

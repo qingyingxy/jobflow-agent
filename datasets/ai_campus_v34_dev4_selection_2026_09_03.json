@@ -1,0 +1,236 @@
+{
+  "version": "ai-campus-v34-dev4-selection-v1-2026-09-03",
+  "status": "completed_once",
+  "purpose": "Fresh public non-blind development smoke for Core Parser v34",
+  "selected_at": "2026-09-03",
+  "parser_contract": {
+    "parser": "jd-core-parser-v34",
+    "prompt": "jd-core-parser-prompt-v23",
+    "schema": "core-job-fields-v10",
+    "skill_ontology": "skill-ontology-v4"
+  },
+  "novelty_policy": {
+    "outside_catalog": "datasets/ai_campus_job_catalog_2026_08_31.json",
+    "catalog_record_count": 165,
+    "exact_url_title_and_job_id_scan_roots": [
+      "datasets",
+      "artifacts"
+    ],
+    "exact_match_count_before_selection": 0,
+    "companies_absent_from_existing_catalog": [
+      "搜狐",
+      "摩尔线程"
+    ]
+  },
+  "data_policy": {
+    "non_blind_development_data": true,
+    "blind8_included": false,
+    "sealed_holdout_included": false,
+    "historical_prediction_reuse": false,
+    "full_jd_text_committed": false,
+    "note": "The four public JD texts were sent once to the configured DeepSeek API under the frozen run policy. No candidate data was read or transmitted."
+  },
+  "case_count": 4,
+  "cases": [
+    {
+      "id": "external-dev-v34-001",
+      "company": "搜狐",
+      "title": "【2027】AI算法研发工程师-【引力计划】人才专项",
+      "job_code": "2f6a47e0-cf00-46d6-a65e-ec2b4a346fa0",
+      "recruitment_type": "校园招聘全职",
+      "cohort": "2027届",
+      "locations": [
+        "北京"
+      ],
+      "published_at": "2026-08-03",
+      "application_deadline": "2026-10-31",
+      "source_url": "https://campus.sohu.com/jobs/2027-gravity-ai-algo-rd-engineer-2f6a47e0/",
+      "source_kind": "official_detail",
+      "source_status": "official_verified_readable",
+      "verified_at": "2026-09-03",
+      "coverage": [
+        "required_vs_preferred",
+        "bounded_any_of_programming_languages",
+        "bounded_any_of_ai_domains",
+        "weak_understanding_requirements",
+        "explicit_bonus_section"
+      ],
+      "label_status": "owner_confirmed",
+      "execution_status": "completed_failure",
+      "run_result": {
+        "failure_code": "model_response_invalid",
+        "finish_reason": "length",
+        "response_content_length": 0,
+        "duration_ms": 34668.4
+      }
+    },
+    {
+      "id": "external-dev-v34-002",
+      "company": "摩尔线程",
+      "title": "大模型推理优化工程师",
+      "job_code": "J10995",
+      "recruitment_type": "校园招聘全职",
+      "cohort": "摩尔线程2027届校园招聘",
+      "locations": [
+        "北京",
+        "上海",
+        "深圳",
+        "杭州"
+      ],
+      "published_at": "2026-08-10",
+      "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=e9c2216b-79c0-4c33-8687-147ad255e479",
+      "source_kind": "official_detail",
+      "source_status": "official_verified_readable",
+      "verified_at": "2026-09-03",
+      "coverage": [
+        "ai_inference_deployment",
+        "ordinary_skill_enumeration",
+        "language_all_of_vs_any_of",
+        "weak_knowledge_requirements",
+        "compound_technical_concepts"
+      ],
+      "label_status": "owner_confirmed_with_revision",
+      "execution_status": "completed_failure",
+      "run_result": {
+        "failure_code": "model_response_invalid",
+        "finish_reason": "length",
+        "response_content_length": 0,
+        "duration_ms": 36966.28
+      }
+    },
+    {
+      "id": "external-dev-v34-003",
+      "company": "摩尔线程",
+      "title": "Agentic Infra 平台研发工程师",
+      "job_code": "J10997",
+      "recruitment_type": "校园招聘全职",
+      "cohort": "摩尔线程2027届校园招聘",
+      "locations": [
+        "北京",
+        "杭州",
+        "深圳"
+      ],
+      "published_at": "2026-08-10",
+      "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=67d78507-7dbd-4c45-ade1-dfbb3488e30d",
+      "source_kind": "official_detail",
+      "source_status": "official_verified_readable",
+      "verified_at": "2026-09-03",
+      "coverage": [
+        "agent_backend_infrastructure",
+        "bounded_any_of_backend_languages",
+        "framework_enumeration",
+        "agent_capability_enumeration",
+        "experience_qualifiers",
+        "explicit_bonus_section"
+      ],
+      "label_status": "owner_confirmed",
+      "execution_status": "completed_failure",
+      "run_result": {
+        "failure_code": "model_response_invalid",
+        "finish_reason": "length",
+        "response_content_length": 0,
+        "duration_ms": 32903.88
+      }
+    },
+    {
+      "id": "external-dev-v34-004",
+      "company": "摩尔线程",
+      "title": "图形渲染/3DGS算法工程师",
+      "job_code": "J10985",
+      "recruitment_type": "校园招聘全职",
+      "cohort": "摩尔线程2027届校园招聘",
+      "locations": [
+        "北京",
+        "杭州",
+        "深圳",
+        "上海",
+        "无锡"
+      ],
+      "published_at": "2026-08-10",
+      "source_url": "https://mthreads.zhiye.com/campus/detail?jobAdId=7041d44a-0942-43ad-b10a-0c8b7894c07f",
+      "source_kind": "official_detail",
+      "source_status": "official_verified_readable",
+      "verified_at": "2026-09-03",
+      "coverage": [
+        "graphics_and_multimodal_ai",
+        "strict_required_skills",
+        "framework_and_model_enumeration",
+        "example_mentions",
+        "publication_or_open_source_alternative",
+        "explicit_bonus_section"
+      ],
+      "label_status": "owner_confirmed",
+      "execution_status": "completed_failure",
+      "run_result": {
+        "failure_code": "model_response_invalid",
+        "finish_reason": "length",
+        "response_content_length": 0,
+        "duration_ms": 35849.59
+      }
+    }
+  ],
+  "next_gate": {
+    "human_review_required": false,
+    "assistant_review_file": "datasets/ai_campus_v34_dev4_labels_human_reviewed_v1_2026_09_03.json",
+    "frozen_label_file": "datasets/ai_campus_v34_dev4_label_freeze_v1_2026_09_03.json",
+    "freeze_manifest": "datasets/ai_campus_v34_dev4_freeze_manifest_v1_2026_09_03.json",
+    "evaluation_manifest": "artifacts/evaluation/m11-ai-campus-manifest-core-v34-dev4-frozen-v1-2026-09-03.json",
+    "raw_source": "artifacts/evaluation/ai-campus-v34-dev4-raw-v1-2026-09-03.json",
+    "owner_confirmation_required": false,
+    "review_fields": [
+      "job_type",
+      "locations",
+      "required_skills",
+      "preferred_skills",
+      "skill_mentions",
+      "qualifiers",
+      "any_of_groups"
+    ],
+    "api_authorized": true,
+    "api_run_count": 1,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "concurrency": 1,
+    "http_timeout_seconds": 180,
+    "case_timeout_seconds": 210,
+    "checkpoint_resume": false,
+    "retry_failures": false
+  },
+  "run_result": {
+    "completed_at": "2026-09-03",
+    "model": "deepseek-v4-flash",
+    "case_count": 4,
+    "successful_prediction_count": 0,
+    "prediction_failure_count": 4,
+    "failure_codes": {
+      "model_response_invalid": 4
+    },
+    "timeout_count": 0,
+    "generation_duration_ms": 140393.2,
+    "all_finish_reasons": {
+      "length": 4
+    },
+    "all_response_content_lengths": 0,
+    "semantic_metrics_available": false,
+    "semantic_metrics_note": "No case returned parseable content. The all-case 0.0000 scores measure end-to-end failure and must not be reported as Parser semantic accuracy.",
+    "rerun_performed": false,
+    "rerun_authorized": false,
+    "artifacts": {
+      "predictions": {
+        "path": "artifacts/evaluation/m11-ai-campus-predictions-core-v34-dev4-frozen-v1-api-2026-09-03.json",
+        "sha256": "380695be529609776e46d715dff5c31ceca042e8ece93728e5a7171eda6970b5",
+        "size_bytes": 2506
+      },
+      "checkpoint": {
+        "path": "artifacts/evaluation/m11-ai-campus-predictions-core-v34-dev4-frozen-v1-api-2026-09-03.checkpoint.json",
+        "sha256": "85fe9e85a003bcaa28c4529ffba2e9eff785233bc040142ea747b7b62d3e4358",
+        "size_bytes": 2409
+      },
+      "report": {
+        "path": "artifacts/evaluation/m11-ai-campus-report-core-v34-dev4-frozen-v1-api-2026-09-03.json",
+        "sha256": "01292259b442e370e0235c0dde24a151168b09f63570f30a0ab6ee61d314884a",
+        "size_bytes": 10592
+      }
+    }
+  }
+}

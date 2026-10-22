@@ -63,6 +63,19 @@ async def test_explicit_role_exclusion_does_not_spend_a_model_call(db_session):
     assert not client.requests
 
 
+@pytest.mark.parametrize('duty', [
+    '负责影像需求调研，熟悉Agent业务设计与软件架构。',
+    '熟悉Agent业务设计与软件架构，有影像智慧化经验优先。',
+    '不负责Agent业务设计与软件架构，熟悉业务流程即可。',
+    '负责Agent业务设计与软件架构，熟悉原理，但不承担系统实现。',
+])
+def test_skill_or_negation_does_not_become_an_architecture_duty(duty):
+    from src.services.job_role_review import local_duty_evidence
+
+    job = replace(BASE, raw_content='岗位职责：\n' + duty + '\n任职要求：\n熟悉Python。')
+    assert local_duty_evidence(job, QUERY) == []
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("title,duty", [
     ("Agent实习生", "支持Agent应用的售前方案设计，配合销售团队开展需求访谈和方案介绍，持续跟进合同审批。"),

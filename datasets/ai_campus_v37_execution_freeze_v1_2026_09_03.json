@@ -1,0 +1,90 @@
+{
+  "freeze_version": "ai-campus-v37-execution-freeze-v1-2026-09-03",
+  "frozen_at": "2026-09-03T10:45:03+08:00",
+  "purpose": "one v37 same-four public JD comparison",
+  "frozen_contract": {
+    "parser": "jd-core-parser-v37",
+    "prompt": "jd-core-parser-prompt-v23",
+    "schema": "core-job-fields-v10",
+    "skill_ontology": "skill-ontology-v4",
+    "response_format": "json_object",
+    "thinking_mode": "disabled",
+    "max_tokens": 4096,
+    "files": {
+      "src/config.py": {
+        "path": "src/config.py",
+        "sha256": "250cc72349f05f6e55df4013358039090e7e314df11bfe1a6f9219bd264c3c8e",
+        "size_bytes": 2187
+      },
+      "src/services/core_jd_parser.py": {
+        "path": "src/services/core_jd_parser.py",
+        "sha256": "d1b1be559acb25917c4423ec9a6118db1fbb47f92801461f5c3a49788efd5296",
+        "size_bytes": 44390
+      },
+      "src/domain/core_skill_semantics.py": {
+        "path": "src/domain/core_skill_semantics.py",
+        "sha256": "e3ef8a61f763e0e71f94db91f99ac62f5b88d16f703a9c0b67a662911cc63eeb",
+        "size_bytes": 41384
+      },
+      "src/domain/skill_normalizer.py": {
+        "path": "src/domain/skill_normalizer.py",
+        "sha256": "fd8ad6510bf459c6ec734cd9f802f770132cb64014a1797b31eb28503c8b1ced",
+        "size_bytes": 106000
+      },
+      "src/domain/job.py": {
+        "path": "src/domain/job.py",
+        "sha256": "47a76dbdd6e4e4c89e0be115b72d68678f23373397c383ccb464e8f4612df595",
+        "size_bytes": 15901
+      },
+      "src/infrastructure/llm_client.py": {
+        "path": "src/infrastructure/llm_client.py",
+        "sha256": "bb80211aa0f078386428c49d1fbd8c0a698c7ea37b333a2ee6f5cbeec5e169f5",
+        "size_bytes": 24494
+      },
+      "scripts/run_core_v37_evaluation.py": {
+        "path": "scripts/run_core_v37_evaluation.py",
+        "sha256": "0b86e32679198a745815565878a444c1f8ff7e809957894e6203168472f980b6",
+        "size_bytes": 3171
+      }
+    }
+  },
+  "labels": {
+    "path": "datasets/ai_campus_v34_dev4_label_freeze_v1_2026_09_03.json",
+    "sha256": "b3d50f3ce51646f7cf46148985fa6f3f4563d9595d4af19d7bc1899d4b78274a",
+    "size_bytes": 71220
+  },
+  "comparison_manifest": {
+    "path": "artifacts/evaluation/m11-ai-campus-manifest-core-v37-dev4-comparison-v1-2026-09-03.json",
+    "sha256": "fa2191406485a6eb1464c9ccf0eeebd30fa7c50577b62d54236872bcc3f48aee",
+    "size_bytes": 84084
+  },
+  "v36_result_basis": {
+    "predictions": {
+      "path": "artifacts/evaluation/m11-ai-campus-predictions-core-v36-dev4-comparison-v1-api-2026-09-03.json",
+      "sha256": "2a52932966244cac72d97e2ae3e43a8b3b69b5e3395870957eb1e87aba88e31c",
+      "size_bytes": 35941
+    },
+    "valid_predictions": 2,
+    "structured_output_invalid_cases": 2,
+    "all_case_macro_f1": 0.38585858585858585
+  },
+  "generic_changes": [
+    "recognize 任职资格, 职位资格, and 岗位资格 as requirement headings",
+    "downgrade non-required any_of clauses to ordinary all_of enumerations"
+  ],
+  "api_authorization": {
+    "authorized_at": "2026-09-03",
+    "destination": "configured DeepSeek API",
+    "same_four_run_limit": 1
+  },
+  "run_policy": {
+    "concurrency": 1,
+    "model_retries": 0,
+    "parser_validation_repairs": 0,
+    "http_timeout_seconds": 60,
+    "case_timeout_seconds": 90,
+    "checkpoint_resume": false,
+    "retry_failures": false
+  },
+  "prediction_status": "not_generated_at_freeze_time"
+}

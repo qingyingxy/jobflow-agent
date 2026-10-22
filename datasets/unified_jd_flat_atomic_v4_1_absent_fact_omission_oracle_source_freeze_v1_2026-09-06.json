@@ -1,0 +1,31 @@
+{
+  "freeze_version": "unified-jd-flat-atomic-v4.1-absent-fact-omission-oracle-source-freeze-v1",
+  "date": "2026-09-06",
+  "status": "offline_oracle_runner_frozen_before_execution",
+  "experiment_id": "absent-fact-omission-oracle",
+  "artifacts": {
+    "preregistration": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_absent_fact_omission_oracle_preregistration_v1_2026-09-06.json",
+      "sha256": "8f75457e3f93422666295d29f91c473d3218dae6cc276a61a67ede300ef90e59"
+    },
+    "preregistration_freeze": {
+      "path": "datasets/unified_jd_flat_atomic_v4_1_absent_fact_omission_oracle_preregistration_freeze_v1_2026-09-06.json",
+      "sha256": "6264d90cd977ef787a8bfd776bd67cc8c6c1cd4d4cdc7ee6a798813203a44723"
+    },
+    "runner": {
+      "path": "scripts/run_unified_jd_flat_atomic_v4_1_absent_fact_omission_oracle.py",
+      "sha256": "5e2a52ff9660e3f974f6ea2057eb0d9a0db1a65af9ddffb0bb378540f394df5d"
+    },
+    "tests": {
+      "path": "tests/test_unified_jd_flat_atomic_v4_1_external_oracles.py",
+      "sha256": "88aa84dd61722ebc49211bb73a9d76fba6816ab2efc5fcd7d7ea838b293576f8"
+    }
+  },
+  "verification_before_freeze": {
+    "focused_tests": "2 passed",
+    "ruff_check": "passed",
+    "model_call_count": 0,
+    "network_call_count": 0
+  },
+  "immutability": "Any runner, test, treatment, input, target, control, or threshold change invalidates this one-time oracle."
+}

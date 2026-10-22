@@ -1,0 +1,640 @@
+{
+  "label_version": "unified-jd-dev50-draft-batch01-v1",
+  "dataset_version": "unified-jd-dev50-draft-batch01-v1-2026-09-03",
+  "annotation_status": "draft",
+  "source_skeleton_sha256": "32bef503019cb774f11f8668dc98e80ae7fc6c97353c4963841a7726ac4024a3",
+  "annotation_policy": "机器辅助逐字标注草稿；未读取 Unified prediction，未复制旧 Parser 技能标签，必须人工复核后才能进入评测。",
+  "cases": {
+    "campus-ai-001": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京", "深圳", "成都"],
+          "graduation_years": [2027],
+          "education_requirements": ["硕士学历"],
+          "major_requirements": ["数学", "计算机或相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京市,深圳市,成都市"},
+            {"field": "graduation_years", "source_text": "招聘项目：2027届应届生校园招聘"},
+            {"field": "education_requirements", "source_text": "数学、计算机或相关专业硕士学历"},
+            {"field": "major_requirements", "source_text": "数学、计算机或相关专业硕士学历"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI智能体框架实现", "AI智能体框架评估", "AI智能体框架优化", "产品原型构建"],
+            "source_text": "负责大模型驱动的AI智能体框架的实现、评估与优化，并参与构建产品原型"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["微调方案设计", "适配算法", "调优工程方案"],
+            "source_text": "设计微调方案、适配算法和调优工程方案，结合智能体应用，实现最佳效果与性能"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型推理", "规划", "工具使用", "结构化输出"],
+            "source_text": "针对大模型推理与规划、工具使用、结构化输出等提出创新性方案"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["硕士学历"],
+            "source_text": "数学、计算机或相关专业硕士学历，1年以上大模型相关研发经验"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["数学", "计算机", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "数学、计算机或相关专业硕士学历"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["大模型相关研发经验"],
+            "qualifier": {"experience_type": "development", "minimum_months": 12, "domain": "大模型"},
+            "source_text": "1年以上大模型相关研发经验"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["编程能力"],
+            "source_text": "具有良好的编程能力"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Langchain", "AutoGen"],
+            "group_name": "智能体框架",
+            "allow_other": true,
+            "source_text": "熟练掌握至少一种智能体框架(如Langchain/AutoGen等)"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["大模型基础知识", "模型微调", "模型对齐"],
+            "examples": ["LLM", "LVM"],
+            "source_text": "熟悉大模型(如LLM/LVM等)基础知识及常见微调与对齐方法"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["分布式机器学习经验"],
+            "source_text": "有分布式机器学习经验优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["生成式算法", "强化学习"],
+            "group_name": "算法方向",
+            "allow_other": false,
+            "source_text": "熟悉主流生成式算法或者强化学习"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["论文算法理解", "论文算法实现"],
+            "source_text": "能够快速理解和实现论文中的算法"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["学术会议或期刊发表记录"],
+            "examples": ["NeurIPS", "ICML", "ICLR", "AAAI", "IJCAI"],
+            "qualifier": {"experience_type": "research"},
+            "source_text": "有良好的学术会议/期刊发表记录优先(如NeurIPS/ICML/ICLR/AAAI/IJCAI等)"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["AI系统调优", "AI系统集成", "模型调参", "Pipeline优化", "模型微调", "模型部署"],
+            "source_text": "具备 AI 系统调优与集成能力，可进行模型调参、 pipeline 优化，持续提升 AI 功能的效果与效率（支持模型微调与部署）"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["需人工确认‘相关专业’是否足以令专业 any_of 使用 allow_other=true。"]
+    },
+    "campus-ai-008": {
+      "expected": {
+        "facts": {
+          "job_type": null,
+          "locations": ["深圳"],
+          "graduation_years": null,
+          "education_requirements": ["博士", "优秀的本科及硕士"],
+          "major_requirements": ["机器学习、深度学习相关方向"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "locations", "source_text": "工作地点：深圳市"},
+            {"field": "education_requirements", "source_text": "机器学习、深度学习相关方向的博士或优秀的本科及硕士"},
+            {"field": "major_requirements", "source_text": "机器学习、深度学习相关方向的博士或优秀的本科及硕士"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["电生理信号处理", "电生理信号分析", "数据可视化"],
+            "examples": ["ECG", "PPG"],
+            "source_text": "参与电生理信号（ECG、PPG等）的处理、分析与可视化"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["电生理信号建模", "实验设计", "时序数据表征学习"],
+            "examples": ["自监督学习", "模型可解释性", "跨域泛化性"],
+            "source_text": "参与电生理信号的建模与实验设计，探索大规模时序数据上的的表征学习方法，方向包括但不限于自监督学习、模型可解释性、跨域泛化性等"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["论文准备", "论文撰写", "论文修改"],
+            "source_text": "参与论文工作的准备、撰写与修改"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["穿戴算法工程优化落地"],
+            "source_text": "参与穿戴算法的工程优化落地"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["专家决策系统", "知识抽取", "知识存储", "知识建模", "知识挖掘"],
+            "examples": ["实体链接", "关系抽取", "知识推理", "知识融合"],
+            "source_text": "参与专家决策系统建设及研发工作，涉及知识抽取、知识存储、知识建模、知识挖掘，包括但不限于实体链接、关系抽取、知识推理、知识融合等"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["博士", "优秀的本科或硕士"],
+            "group_name": "学历范围",
+            "allow_other": false,
+            "source_text": "机器学习、深度学习相关方向的博士或优秀的本科及硕士"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "items": ["机器学习、深度学习相关方向"],
+            "source_text": "机器学习、深度学习相关方向的博士或优秀的本科及硕士"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["机器学习基本方法", "深度学习模型", "深度学习框架"],
+            "source_text": "掌握机器学习的基本方法，熟悉常用的深度学习模型和框架"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["文献阅读", "论文撰写", "算法实现"],
+            "source_text": "具备较强的文献阅读、论文撰写、算法实现能力"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["高水平国际会议或期刊论文发表"],
+            "qualifier": {"experience_type": "research", "domain": "机器学习、数据挖掘"},
+            "source_text": "在机器学习、数据挖掘等相关的高水平国际会议或期刊上发表论文者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["公开数据集成绩", "国际竞赛成绩"],
+            "source_text": "在公开数据集或国际竞赛上取得优异成绩者优先"
+          },
+          {
+            "category": "skill",
+            "level": "preferred",
+            "items": ["电生理信号"],
+            "source_text": "熟悉电生理信号、有相关项目经历者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["电生理信号项目经历"],
+            "qualifier": {"experience_type": "project", "domain": "电生理信号"},
+            "source_text": "熟悉电生理信号、有相关项目经历者优先"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["LLM方向经验", "穿戴模型方向经验"],
+            "group_name": "方向经验",
+            "allow_other": false,
+            "source_text": "具备以下任一方向经验均可：\n- LLM方向：具备multi-agent、LLM强化学习相关经验\n- 穿戴模型方向：时序相关前沿机器学习模型经验"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["Multi-Agent", "LLM强化学习"],
+            "source_text": "LLM方向：具备multi-agent、LLM强化学习相关经验"
+          },
+          {
+            "category": "skill",
+            "level": "mention",
+            "items": ["时序机器学习模型", "生理时序信号建模"],
+            "examples": ["Diffusion model", "Masked autoencoder", "Contrastive learning", "ECG", "EEG", "PPG", "IMU"],
+            "source_text": "穿戴模型方向：时序相关前沿机器学习模型经验（Diffusion model、Masked autoencoder、Contrastive learning等） + 生理时序信号建模经验 （ECG、EEG、PPG、IMU等）"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["算法创新", "架构创新", "范式创新"],
+            "source_text": "能够提出新算法、新架构或新范式"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["原创性科研成果"],
+            "examples": ["顶会论文", "顶刊论文"],
+            "qualifier": {"experience_type": "research"},
+            "source_text": "具备顶会 / 顶刊论文等原创性科研成果"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "experience_qualifier", "mixed_strength", "fact_missing"],
+      "review_notes": ["方向经验包含分支内条件，当前 Schema 只能用上位 any_of 加 branch mention 表达，需人工确认。"]
+    },
+    "campus-ai-011": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京"],
+          "graduation_years": null,
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、人工智能、数学、统计学等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京市"},
+            {"field": "education_requirements", "source_text": "本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、人工智能、数学、统计学等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大语言模型预训练", "大语言模型后训练", "应用落地算法研究"],
+            "examples": ["SFT", "RLHF"],
+            "source_text": "从事大语言模型（LLM）的预训练、后训练（SFT/RLHF）及应用落地算法研究"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["模型推理", "代码生成", "多轮对话", "知识问答"],
+            "source_text": "探索大模型在推理、代码生成、多轮对话、知识问答等核心能力的提升方法"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["强化学习", "RAG", "CoT"],
+            "source_text": "结合强化学习、检索增强（RAG）、思维链（CoT）等前沿技术，推动模型能力边界突破"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["数据策略", "模型评估体系"],
+            "source_text": "设计数据策略与评估体系，驱动模型质量持续迭代"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["LLM前沿研究工程转化"],
+            "source_text": "紧跟LLM前沿进展，将学术成果快速转化为工程实践"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "本科及以上学历，计算机、人工智能、数学、统计学等相关专业优先"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "人工智能", "数学", "统计学", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、人工智能、数学、统计学等相关专业优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["机器学习理论", "深度学习理论", "Transformer", "LLM"],
+            "source_text": "扎实的机器学习与深度学习理论基础，熟悉Transformer架构及主流LLM"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["Python"],
+            "source_text": "熟练掌握Python"
+          },
+          {
+            "category": "experience",
+            "level": "required",
+            "items": ["深度学习框架使用经验"],
+            "examples": ["PyTorch", "PaddlePaddle"],
+            "qualifier": {"experience_type": "practical"},
+            "source_text": "有PyTorch/PaddlePaddle等深度学习框架使用经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["大模型训练研究或项目经历", "NLP研究或项目经历", "相关方向研究或项目经历"],
+            "group_name": "研究或项目方向",
+            "allow_other": true,
+            "source_text": "有大模型训练、NLP或相关方向研究/项目经历者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["顶级学术会议论文发表"],
+            "examples": ["ACL", "NeurIPS", "ICML"],
+            "qualifier": {"experience_type": "research"},
+            "source_text": "在顶级学术会议（ACL、NeurIPS、ICML等）发表过论文者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier", "fact_missing"],
+      "review_notes": ["招聘项目仅写‘校招’，未推测毕业年份。"]
+    },
+    "campus-ai-015": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["北京"],
+          "graduation_years": null,
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、软件工程、人工智能等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：应届生"},
+            {"field": "locations", "source_text": "工作地点：北京市"},
+            {"field": "education_requirements", "source_text": "本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程、人工智能等相关专业"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["基础大模型算法研发", "Coding", "Agentic Intelligence", "Reasoning"],
+            "source_text": "参与文心基础大模型算法研发，提升模型Coding、Agentic Intelligence、Reasoning等关键能力，探索模型能力边界"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型预训练", "大模型中训练"],
+            "examples": ["稀疏模型架构", "超长上下文建模", "优化器", "训练算法", "基础表征机制", "数据使用策略"],
+            "source_text": "探索大模型预训练/中训练关键技术，包括但不限于稀疏模型架构、超长上下文建模、优化器与训练算法、基础表征机制以及数据使用策略等"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型后训练", "模型对齐"],
+            "examples": ["强化学习策略", "模型合并策略", "泛化能力增强", "监督学习"],
+            "source_text": "研究大模型后训练算法与对齐技术，包括强化学习策略、模型合并策略、泛化能力增强及监督学习方法等"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型通用能力建设", "数据体系建设", "数据去重", "数据提质", "合成数据", "对齐数据"],
+            "source_text": "负责大模型通用能力建设与数据体系建设，研究大规模数据去重与提质技术，以及高效率、高质量的合成数据与对齐数据构建方法"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["算法创新", "技术攻关", "基础模型能力演进"],
+            "source_text": "持续跟踪国内外前沿研究进展，开展算法创新与技术攻关，推动基础模型能力演进"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["大模型业务落地", "效果优化", "跨场景泛化"],
+            "source_text": "支撑大模型在重点业务场景中的落地与效果优化，沉淀具备跨场景泛化能力的技术方案与能力体系"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "本科及以上学历，计算机、软件工程、人工智能等相关专业"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "人工智能", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、软件工程、人工智能等相关专业"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["基础大模型", "模型预训练", "模型微调", "强化学习"],
+            "source_text": "对基础大模型技术有深入理解，熟悉模型预训练、微调和强化学习等技术流程"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["模型优化策略制定"],
+            "source_text": "能根据模型效果需求制定有效的优化策略"
+          },
+          {
+            "category": "capability",
+            "level": "required",
+            "items": ["数据分析", "模型表现分析", "训练策略问题解决", "数据问题解决"],
+            "source_text": "能够独立对模型表现进行有效分析，发现并解决训练策略、数据中的问题，并提出解决方案"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["顶级会议论文", "编程或AI竞赛成绩"],
+            "group_name": "科研或竞赛成果",
+            "allow_other": false,
+            "examples": ["NeurIPS", "ICML", "ICLR", "CVPR", "ICCV", "ACL", "KDD", "ACM", "ICPC", "NOI", "IOI", "TopCoder", "Kaggle"],
+            "source_text": "在领域顶级会议（NeurIPS、ICML、ICLR、CVPR、ICCV、ACL、KDD 等）发表论文，或在编程/AI 竞赛（ACM/ICPC、NOI/IOI、TopCoder、Kaggle 等）中取得优异成绩者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["工业级基础大模型研发经验"],
+            "qualifier": {"experience_type": "development", "domain": "工业级基础大模型"},
+            "source_text": "具有工业级基础大模型研发经验者优先"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "experience_qualifier", "fact_missing"],
+      "review_notes": ["顶会论文与竞赛成绩按原文‘或’保留为 preferred any_of。"]
+    },
+    "campus-ai-023": {
+      "expected": {
+        "facts": {
+          "job_type": "campus",
+          "locations": ["杭州", "上海"],
+          "graduation_years": [2027],
+          "education_requirements": ["本科及以上学历"],
+          "major_requirements": ["计算机、软件工程等相关专业"],
+          "internship_duration_months": null,
+          "weekly_days": null,
+          "earliest_start_date": null,
+          "deadline": null,
+          "evidence": [
+            {"field": "job_type", "source_text": "招聘类型：校招"},
+            {"field": "locations", "source_text": "工作地点：杭州、上海"},
+            {"field": "graduation_years", "source_text": "招聘项目：2027届校园招聘"},
+            {"field": "education_requirements", "source_text": "2027届获得本科及以上学历"},
+            {"field": "major_requirements", "source_text": "计算机、软件工程等相关专业优先"}
+          ]
+        },
+        "clauses": [
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["AI Agent构建", "需求理解", "自规划", "任务拆解", "任务执行"],
+            "source_text": "构建高效、可靠的AI Agent，精准理解产品的复杂需求，实现自规划、任务拆解及执行"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Multi-Agent系统", "任务流转", "上下文管理"],
+            "source_text": "设计高效的Multi-Agent系统，确保多Agent间任务流转高效，上下文管理准确"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["C端产品需求端到端生成"],
+            "source_text": "实现AI支撑企业级、大用户规模C端产品的需求端到端生成"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["LLM AI Agent系统研发", "研发阶段Agent构建"],
+            "source_text": "负责研发基于LLM的AI Agent系统，负责构建工程研发不同阶段的Agent"
+          },
+          {
+            "category": "responsibility",
+            "level": "mention",
+            "items": ["Multi-Agent协作", "复杂任务规划", "复杂任务拆解", "人类经验学习"],
+            "source_text": "参与探索Multi-Agent协作机制，推动Multi-Agent系统对复杂任务的规划和拆解，对已有人类经验的学习和引用"
+          },
+          {
+            "category": "fact",
+            "fact_field": "graduation_years",
+            "level": "required",
+            "items": ["2027届"],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "education_requirements",
+            "level": "required",
+            "items": ["本科及以上学历"],
+            "source_text": "2027届获得本科及以上学历"
+          },
+          {
+            "category": "fact",
+            "fact_field": "major_requirements",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["计算机", "软件工程", "相关专业"],
+            "group_name": "专业范围",
+            "allow_other": true,
+            "source_text": "计算机、软件工程等相关专业优先"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "items": ["计算机基础", "编程基础", "大语言模型原理", "大语言模型方法"],
+            "source_text": "扎实的计算机、编程基础，熟悉主流大语言模型的原理及方法"
+          },
+          {
+            "category": "skill",
+            "level": "required",
+            "relation": "any_of",
+            "items": ["Multi-Agent系统", "任务分解", "自动化规划", "Prompt Engineering"],
+            "group_name": "Agent技术领域",
+            "allow_other": false,
+            "source_text": "理解Multi-Agent系统、任务分解、自动化规划、Prompt Engineering等技术领域之一或多个"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["AI Agent实践项目"],
+            "qualifier": {"experience_type": "project", "domain": "AI Agent"},
+            "source_text": "有AI Agent相关实践项目者优先"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["Prompt实践", "Prompt优化"],
+            "qualifier": {"experience_type": "practical", "domain": "Prompt"},
+            "source_text": "拥有大量Prompt实践和优化经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["国际顶级会议或期刊论文发表"],
+            "qualifier": {"experience_type": "research"},
+            "source_text": "在国际顶级会议或期刊相关领域有论文发表经历"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "relation": "any_of",
+            "items": ["Multi-Agent系统搭建", "Agent落地应用"],
+            "group_name": "Agent实践",
+            "allow_other": false,
+            "qualifier": {"experience_type": "practical", "domain": "Agent"},
+            "source_text": "有Multi-Agent系统搭建实践经验或Agent落地应用经验"
+          },
+          {
+            "category": "experience",
+            "level": "preferred",
+            "items": ["AI driven IDE实践"],
+            "qualifier": {"experience_type": "practical", "domain": "AI driven IDE"},
+            "source_text": "对AI driven IDE有大量实践经验"
+          }
+        ]
+      },
+      "coverage_tags": ["required", "preferred", "mention", "any_of", "open_group", "fact_preferred", "experience_qualifier", "mixed_strength"],
+      "review_notes": ["加分项标题使其下四条均标为 preferred。"]
+    }
+  }
+}
