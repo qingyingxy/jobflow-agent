@@ -92,7 +92,9 @@ async def test_historical_model_work_cannot_block_listing_or_new_job(db_session)
 
     stub = replace(posting_stub(add_posting(db_session)), detail_url="https://example.com/old",
                    raw_content="工程师\n上海\n负责业务系统开发和维护，包含稳定性建设、架构设计和持续迭代，并与业务团队共同交付产品。")
-    runtime = SourceUnderstanding(Settings(_env_file=None, web_search_semantic_concurrency=1,
+    # The limit now applies across all interpretation lanes: one running history
+    # call leaves one shared slot for listing/new work, which can run in sequence.
+    runtime = SourceUnderstanding(Settings(_env_file=None, web_search_semantic_concurrency=2,
         web_search_semantic_max_calls=4, web_search_semantic_history_max_calls=1), client=Gated(), known_urls=[stub.detail_url])
     old = asyncio.create_task(runtime.review(stub, query="上海"))
     try:

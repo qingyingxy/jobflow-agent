@@ -22,6 +22,7 @@ def utc(value):
 
 
 def tracking_snapshot(session, user_id, *, now=None, scheduler_running=False):
+    from src.services.campaign_service import campaign_tracking
     now = now or datetime.now(UTC)
     goals = list(session.scalars(select(SearchGoal).where(SearchGoal.user_id == user_id)
                                 .order_by(SearchGoal.updated_at.desc(), SearchGoal.id)))
@@ -75,7 +76,7 @@ def tracking_snapshot(session, user_id, *, now=None, scheduler_running=False):
     today = now.astimezone(ZoneInfo("Asia/Shanghai")).date()
     return {
         "checked_at": now.isoformat(), "scheduler_running": scheduler_running,
-        "searches": searches, "tasks": tasks,
+        "searches": searches, "tasks": tasks, "campaign_watches": campaign_tracking(session, user_id),
         "counts": {
             "scheduled_goals": sum(goal.update_interval_minutes > 0 for goal in goals),
             "overdue": sum(task["is_overdue"] for task in tasks),

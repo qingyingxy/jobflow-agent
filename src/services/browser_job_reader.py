@@ -4,12 +4,14 @@ import asyncio
 import base64
 import json
 import re
+import sys
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from html.parser import HTMLParser
 from typing import Protocol
 from urllib.parse import parse_qs, urljoin, urlsplit
 
+from src.services.browser_read_trace import BrowserReadTrace
 from src.services.url_reader import URLReaderError, URLSafetyChecker
 
 
@@ -78,12 +80,16 @@ def recruitment_api_request(url, post_data):
 
 
 async def top_level_navigation(request):
-    # A popup's first request can precede Playwright's Frame object. Its fetch
-    # destination still distinguishes a top-level document from an iframe.
+    # A popup's first request can precede Playwright's Frame object.
     try:
         return request.frame.parent_frame is None
-    except Exception:  # noqa: BLE001 - an unavailable frame grants no implicit permission
-        return await request.header_value("sec-fetch-dest") == "document"
+    except Exception as error:  # noqa: BLE001 - only Playwright's initial navigation case qualifies
+        # Playwright cannot expose a popup Frame until its first document request completes.
+        # Some proxy transports omit Sec-Fetch-Dest. An iframe has an existing parent Frame;
+        # arbitrary frame errors and non-document requests still receive no entry permission.
+        return ("Frame for this navigation request is not available" in str(error)
+                and request.is_navigation_request() and request.resource_type == "document"
+                and await request.header_value("sec-fetch-dest") in {None, "document"})
 
 
 @dataclass(frozen=True)
@@ -102,6 +108,8 @@ class BrowserPageSnapshot:
     dynamic_listing: dict | None = None
     discovered_entries: tuple = ()
     redirect_chain: tuple[dict, ...] = ()
+    application_actions: tuple[str, ...] = ()
+    navigation_controls: tuple[dict, ...] = ()
 
 
 class BrowserJobReader(Protocol):
@@ -135,6 +143,11 @@ class PlaywrightBrowserJobReader:
         self._playwright = None
         self._reuse = False
         self._launch_lock = asyncio.Lock()
+        self._read_traces = {}
+
+    def diagnostics_for(self, url):
+        trace = self._read_traces.get(url)
+        return trace.snapshot() if trace else None
 
     @asynccontextmanager
     async def reuse(self):
@@ -203,12 +216,40 @@ class PlaywrightBrowserJobReader:
     async def read_search_listing(self, url):
         return await self._read(url, listing_pages=1, capture_api=True)
 
+    async def read_campaign_page(self, url):
+        """Read public recruitment evidence, resolving one linkless navigation control."""
+        return await self._read(url, capture_api=True, campaign_controls=True)
+
+    async def read_agent_page(self, url, *, control=None):
+        """Render without choosing navigation; execute only a previously observed control."""
+        if control is not None:
+            return await self._read(url, capture_api=True, dynamic_listing={
+                "selected_control": control, "max_links": 1, "restore_after_navigation": False,
+            })
+        return await self._read(url, capture_api=True, agent_controls=True)
+
     async def read_dynamic_listing(self, url, *, cursor=None, keywords=(), max_links=8):
         return await self._read(url, capture_api=True, dynamic_listing={
             "cursor": cursor, "keywords": keywords, "max_links": max_links,
         })
 
-    async def _read(self, url, *, listing_pages=1, record_snapshot=None, capture_api=False, evidence_page=False, dynamic_listing=None):
+    async def _read(self, url, *, listing_pages=1, record_snapshot=None, capture_api=False, evidence_page=False, dynamic_listing=None, campaign_controls=False, agent_controls=False):
+        trace = BrowserReadTrace(url)
+        self._read_traces[url] = trace
+        while len(self._read_traces) > 30:
+            self._read_traces.pop(next(iter(self._read_traces)))
+        trace.phase("validate_url")
+        try:
+            result = await self._read_page(url, listing_pages=listing_pages, record_snapshot=record_snapshot,
+                capture_api=capture_api, evidence_page=evidence_page, dynamic_listing=dynamic_listing,
+                campaign_controls=campaign_controls, agent_controls=agent_controls, trace=trace)
+        except BaseException as error:
+            trace.finish("cancelled" if isinstance(error, asyncio.CancelledError) else "failed", type(error).__name__)
+            raise
+        trace.finish("success")
+        return result
+
+    async def _read_page(self, url, *, listing_pages, record_snapshot, capture_api, evidence_page, dynamic_listing, campaign_controls, trace, agent_controls=False):
         requested_url = await self._validate_url(url)
         try:
             from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -219,7 +260,9 @@ class PlaywrightBrowserJobReader:
             ) from error
 
         try:
+            trace.phase("launch_browser")
             async with self.browser_session() as browser:
+                trace.phase("create_context")
                 context = await browser.new_context(
                     java_script_enabled=True,
                     accept_downloads=False,
@@ -229,6 +272,11 @@ class PlaywrightBrowserJobReader:
                 resource_documents = {}
                 try:
                     page = await context.new_page()
+                    page._jobflow_trace = trace
+                    context.on("requestfailed", lambda request: trace.event("request_failed", request.url,
+                        resource_type=request.resource_type, failure=(request.failure or "unknown").split()[0][:80]))
+                    context.on("response", lambda response: trace.event("http_error", response.url,
+                        status=response.status, resource_type=response.request.resource_type) if response.status >= 400 else None)
 
                     async def capture_response(response):
                         from src.services.recruitment_context import captures_detail_api
@@ -263,19 +311,27 @@ class PlaywrightBrowserJobReader:
 
                     async def guard_request(route) -> None:
                         request_url = route.request.url
-                        if dynamic_listing is not None and route.request.is_navigation_request():
+                        if (dynamic_listing is not None or campaign_controls) and route.request.is_navigation_request():
                             from src.services.recruitment_listing import (
                                 allowed_entry_navigation,
                                 allowed_listing_url,
                                 listing_document_url,
                             )
 
-                            entry_navigation = (getattr(page, "_jobflow_entry_navigation", False)
-                                                and await top_level_navigation(route.request))
+                            entry_mode = getattr(page, "_jobflow_entry_navigation", False)
+                            is_top_level = await top_level_navigation(route.request)
+                            entry_navigation = entry_mode and is_top_level
                             navigation_url = listing_document_url(request_url, requested_url)
                             allowed = (allowed_entry_navigation(navigation_url, requested_url) if entry_navigation
                                        else allowed_listing_url(navigation_url, requested_url))
+                            if campaign_controls and is_top_level and (navigation_url == requested_url or
+                                    getattr(page, '_jobflow_announcement_navigation', False)):
+                                allowed |= allowed_listing_url(navigation_url, requested_url, allow_documents=True)
                             if route.request.method != "GET" or not allowed:
+                                trace.event("blocked", request_url, reason="navigation_scope", resource_type=route.request.resource_type,
+                                            entry_mode=entry_mode, top_level=is_top_level,
+                                            fetch_destination=await route.request.header_value("sec-fetch-dest"),
+                                            permitted_entry=allowed_entry_navigation(navigation_url, requested_url))
                                 await route.abort()
                                 return
                         if urlsplit(request_url).scheme not in {"http", "https"}:
@@ -283,7 +339,7 @@ class PlaywrightBrowserJobReader:
                             return
                         try:
                             await resource_checker.validate(request_url)
-                        except Exception:  # noqa: BLE001 - block unsafe subresources
+                        except Exception as validation_error:  # noqa: BLE001 - block unsafe subresources
                             host = None
                             # Some configured proxies resolve public CDNs remotely.
                             # Admit only a script/style actually declared in this
@@ -319,6 +375,8 @@ class PlaywrightBrowserJobReader:
                                 except Exception:  # noqa: BLE001 - an unreadable declaration grants nothing
                                     host = None
                             if not host:
+                                trace.event("blocked", request_url, reason=getattr(validation_error, "reason", None) or getattr(validation_error, "code", "validation_failed"),
+                                            resource_type=route.request.resource_type)
                                 await route.abort()
                                 return
                         await route.continue_()
@@ -335,6 +393,7 @@ class PlaywrightBrowserJobReader:
                     else:
                         resource_checker = self.safety_checker
                     await context.route("**/*", guard_request)
+                    trace.phase("document_navigation")
                     response = await page.goto(
                         requested_url,
                         wait_until="domcontentloaded",
@@ -360,7 +419,9 @@ class PlaywrightBrowserJobReader:
                         except PlaywrightTimeoutError:
                             pass  # Preserve the DOM actually observed, even when sparse.
                     else:
-                        await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1 or capture_api)
+                        trace.phase("wait_recruitment_content")
+                        await wait_for_recruitment_content(page, timeout_ms=min(self.timeout_ms, 8000), listing=listing_pages > 1 or capture_api,
+                                                          campaign=campaign_controls or agent_controls)
                     if not page.url.startswith(("https://", "http://")):
                         raise BrowserReadError("页面初始化后离开公开招聘网址，无法继续读取", code="browser_navigation_unavailable")
                     if dynamic_listing is not None:
@@ -368,13 +429,53 @@ class PlaywrightBrowserJobReader:
                             read_dynamic_listing_page,
                         )
 
+                        trace.phase("dynamic_navigation")
                         return await read_dynamic_listing_page(page, reader=self, **dynamic_listing)
+                    trace.phase("read_dom")
                     final_url = await self._validate_url(page.url)
                     visible_text = await page.locator("body").inner_text(
                         timeout=self.timeout_ms
                     )
                     _raise_for_human_gate(visible_text)
                     raw_html, html_compacted = await bounded_page_html(page, max_chars=self.max_chars)
+                    navigation_controls = []
+                    if agent_controls:
+                        from src.services.dynamic_recruitment_listing import CONTROLS
+                        controls = await page.evaluate(CONTROLS)
+                        navigation_controls = [{"kind": kind, **control}
+                            for kind in ("entries", "cards", "navigation") for control in controls[kind]][:60]
+                    if campaign_controls:
+                        trace.phase("inspect_navigation_controls")
+                        from src.services.dynamic_recruitment_listing import (
+                            ANNOUNCEMENT_CONTROL,
+                            CONTROLS,
+                            read_dynamic_listing_page,
+                        )
+                        from src.services.lead_presentation import discovery_kind
+                        from src.services.recruitment_listing import inspect_listing
+
+                        capabilities = inspect_listing(raw_html, url=final_url)
+                        controls = await page.evaluate(CONTROLS)
+                        notices = None
+                        notice_pattern = ANNOUNCEMENT_CONTROL
+                        if discovery_kind(final_url) != "job" and any(re.search(notice_pattern, c["label"]) for c in controls["entries"]):
+                            index_pattern = r'^(?:校招|招聘)(?:公告|简章)$'
+                            notice_filter = index_pattern if any(re.search(index_pattern, c['label']) for c in controls['entries']) else notice_pattern
+                            notices = await read_dynamic_listing_page(page, reader=self, keywords=("校招",),
+                                max_links=4, entry_filter=notice_filter, allow_documents=True)
+                        if not capabilities.jobs and not capabilities.outbound_jobs and discovery_kind(final_url) != "job":
+                            trace.event("controls", page.url, cards=len(controls["cards"]),
+                                        entries=[c["label"][:100] for c in controls["entries"][:8]])
+                            if controls["cards"] or any(not notices or not re.search(notice_pattern, c['label']) for c in controls['entries']):
+                                trace.phase("dynamic_navigation")
+                                snapshot = await read_dynamic_listing_page(page, reader=self, keywords=("校招",),
+                                                                          max_links=1, restore_after_navigation=False,
+                                                                          exclude_entry_filter=notice_pattern if notices else None,
+                                                                          allow_documents=True)
+                                return replace(snapshot, discovered_entries=tuple(dict.fromkeys(
+                                    [*(notices.discovered_entries if notices else ()), *snapshot.discovered_entries])))
+                        if notices:
+                            return notices
                     if html_compacted and len(visible_text) > self.max_chars:
                         from src.services.url_reader import parse_html_document
                         visible_text = parse_html_document(raw_html).text
@@ -440,7 +541,18 @@ class PlaywrightBrowserJobReader:
                             code="browser_response_too_large",
                         )
                     if api_tasks:
+                        trace.phase("capture_api_responses", pending=sum(not task.done() for task in api_tasks))
                         await asyncio.gather(*api_tasks, return_exceptions=True)
+                    application_actions = []
+                    trace.phase("application_controls")
+                    if capture_api:
+                        from src.services.campaign_entry import (
+                            APPLICATION_CONTROLS,
+                            APPLY_LABEL,
+                            INTENT_LABEL,
+                        )
+                        application_actions = [label for label in await page.evaluate(APPLICATION_CONTROLS)
+                                               if APPLY_LABEL.fullmatch(label) or INTENT_LABEL.fullmatch(label)]
                     return BrowserPageSnapshot(
                         requested_url=requested_url,
                         final_url=final_url,
@@ -453,8 +565,14 @@ class PlaywrightBrowserJobReader:
                         html_compacted=html_compacted,
                         recruitment_api=tuple(api_records),
                         redirect_chain=tuple(redirect_chain),
+                        application_actions=tuple(application_actions),
+                        navigation_controls=tuple(navigation_controls),
                     )
                 finally:
+                    # Record the active stage before cleanup obscures a cancellation/exception.
+                    if sys.exc_info()[0] is not None:
+                        trace.failure_phase = trace.current_phase
+                    trace.phase("cleanup")
                     for task in resource_documents.values():
                         if not task.done():
                             task.cancel()
@@ -528,12 +646,15 @@ async def bounded_page_html(page, *, max_chars):
     return result["html"], result["compacted"]
 
 
-async def wait_for_recruitment_content(page, *, timeout_ms, listing=False):
+async def wait_for_recruitment_content(page, *, timeout_ms, listing=False, campaign=False):
     """Wait for meaningful job content and idle loading indicators, bounded."""
     from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
+    trace = getattr(page, "_jobflow_trace", None)
+    if trace:
+        trace.phase("wait_recruitment_ready", budget_ms=timeout_ms)
     try:
-        await page.wait_for_function(r"""listing => {
+        await page.wait_for_function(r"""({listing,campaign}) => {
             const text = document.body?.innerText || '';
             const busy = [...document.querySelectorAll('[aria-busy="true"], [role="progressbar"]')]
                 .some(el => el.getClientRects().length > 0);
@@ -557,8 +678,21 @@ async def wait_for_recruitment_content(page, *, timeout_ms, listing=False):
             const entries = [...document.querySelectorAll('button,[role="button"],p,a')].some(el =>
                 el.getClientRects().length && !el.closest('form,[hidden],[aria-hidden="true"]') &&
                 /^(?:(?:查看|浏览|全部|搜索|进入)(?:工作)?(?:\s*\d+\s*个?)?(?:职位|岗位)|校园招聘与实习|(?:view|browse|all|search)\s+(?:\d+\s+)?jobs)[\s→›»]*$/i.test((el.innerText || '').trim()));
-            return !busy && ((!unresolved && detail) || (listing && (links || cards || structural || entries)));
-        }""", arg=listing, timeout=timeout_ms)
+            const campaignEntry = campaign && [...document.querySelectorAll('button,a,p,span,div,[role="button"],[role="link"]')].some(el => {
+                if (!el.getClientRects().length || getComputedStyle(el).visibility === 'hidden' ||
+                    el.closest('form,header,nav,[role="navigation"],[hidden],[aria-hidden="true"],[disabled],[aria-disabled="true"]') ||
+                    [...function*(n) { while(n) { yield n; n=n.parentElement; } }(el)]
+                        .some(n => /(?:^|[\s_-])(?:header\w*|nav|navbar|menu)(?:$|[\s_-])/i.test(n.className || ''))) return false;
+                const label = (el.innerText || '').trim();
+                const clickable = ['A','BUTTON'].includes(el.tagName) || ['button','link'].includes(el.getAttribute('role')) ||
+                    getComputedStyle(el).cursor === 'pointer';
+                return clickable && /^(?:(?:\d{4}届?\s*)?(?:校园招聘|应届生招聘|应届校招)(?:与实习)?|campus recruitment)[\s→›»]*$/i.test(label);
+            });
+            const announcement = campaign && /(?:校招|校园招聘|管培生).{0,180}(?:启动|开启)/.test(text);
+            return !busy && !unresolved && (detail || (listing && (links || cards || structural || entries)) || campaignEntry || announcement);
+        }""", arg={"listing": listing, "campaign": campaign}, timeout=timeout_ms)
+        if trace:
+            trace.phase("wait_dom_stable", budget_ms=min(timeout_ms, 3000))
         # A short quiet DOM window also catches delayed replacement of a shell.
         await page.wait_for_function("""() => {
             const text = document.body?.innerText || '';
@@ -569,6 +703,8 @@ async def wait_for_recruitment_content(page, *, timeout_ms, listing=False):
             return now - window.__jobflowChanged >= 600;
         }""", timeout=min(timeout_ms, 3000))
     except PlaywrightTimeoutError:
+        if trace:
+            trace.event("wait_timeout", page.url, phase=trace.current_phase)
         return  # preserve whatever content was available at the deadline
 
 

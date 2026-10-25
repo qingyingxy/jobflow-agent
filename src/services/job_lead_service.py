@@ -122,9 +122,10 @@ class JobLeadService:
 
         if self.understanding is None:
             self.understanding = SourceUnderstanding(get_settings())
-        recovery_input = replace(document, text=readable_page_text(raw_html))
-        if len(recovery_input.text) > 20000 and scoped is not None:
-            recovery_input = scoped[0]
+        # The deterministic scope retains the complete current JD, including
+        # metadata, qualifications and exceptions. Avoid making the model
+        # re-read site navigation or recommendations when that scope is known.
+        recovery_input = scoped[0] if scoped is not None else replace(document, text=readable_page_text(raw_html))
         if self.understanding.primary:
             from src.services.saved_page_review import page_attempt, save_page_attempt
 

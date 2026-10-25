@@ -10,7 +10,9 @@ from src.services.browser_job_reader import BrowserReadError, PlaywrightBrowserJ
 
 @contextmanager
 def public_listing(*, popup=False, change=False, loop=False, numbered=False, abbreviated=False, entry=False,
-                   plain_title=False, entry_label="查看职位", shell=False, entry_popup=False):
+                   plain_title=False, entry_label="查看职位", shell=False, entry_popup=False,
+                   replace_navigation=False, entry_tag="button", detail_html=None, delayed=False,
+                   entry_prefix="", plain_projects=False, shift_wrapper=False, carousel=False):
     requests = []
     html = r"""<!doctype html><html><body><main id="jobs"></main>
     <nav class="pagination"><button aria-label="下一页" class="pagination-next"
@@ -44,11 +46,17 @@ def public_listing(*, popup=False, change=False, loop=False, numbered=False, abb
         html = html.replace("position-card", "list-card-item").replace("position-title", "pos-title-item")
     if plain_title:
         html = html.replace("position-title", "title")
+    if plain_projects:
+        html = html.replace('<h2>应届生职位</h2>', '<p>海洋科技人才</p>')
+        html = html.replace('<h2>实习生职位</h2>', '<p>航空人才</p>')
     if entry_label != "查看职位":
         html = html.replace("查看职位", entry_label)
         html = html.replace('<main id="jobs">', '<p class="selected" style="cursor:pointer" onclick="location.assign(\'/wrong\')">校园招聘与实习</p><main id="jobs">')
     if shell:
         html = '<!doctype html><html><body><div id="app"></div></body></html>'
+    if delayed:
+        html = html.replace('<main id="jobs"></main>', '<a href="/campus">校园招聘</a><main id="jobs">职位类别 筛选 搜索 暂无相关岗位</main>')
+        html = html.replace('} else render();', '} else setTimeout(render, 400);')
     if entry_popup:
         html = html.replace('onclick="location.assign(', 'onclick="window.open(')
     if numbered:
@@ -56,6 +64,24 @@ def public_listing(*, popup=False, change=False, loop=False, numbered=False, abb
         html = html.replace("querySelector('.pagination-next')", "querySelector('.pagination-next,.pagination-next-number')")
         html = html.replace('pagination-next-number', 'page-number-item')
     html = html.replace("OPEN", "window.open" if popup else "location.assign")
+    if replace_navigation:
+        html = html.replace("location.assign", "location.replace")
+    if entry_tag != "button":
+        html = html.replace('<button onclick=', f'<{entry_tag} style="cursor:pointer" onclick=')
+        html = html.replace(f'{entry_label}</button>', f'{entry_label}</{entry_tag}>')
+    html = html.replace('<body>', '<body>' + entry_prefix)
+    if carousel:
+        html = html.replace('<main id="jobs"></main>', '''<div class="el-carousel">
+          <main id="jobs"></main><ul class="el-carousel__indicators">
+          <li><button onclick="document.querySelector('#jobs').dataset.page='1'"></button></li>
+          <li><button onclick="document.querySelector('#jobs').dataset.page='2'"></button></li></ul></div>
+          <style>#jobs{position:relative;width:300px;height:240px;overflow:hidden}
+          #jobs section{position:absolute;width:300px;height:240px;top:0;left:0}
+          #jobs section:nth-child(2){transform:translateX(300px)}
+          #jobs[data-page="2"] section:first-child{transform:translateX(-300px)}
+          #jobs[data-page="2"] section:nth-child(2){transform:translateX(0)}
+          .el-carousel__indicators button{width:30px;height:20px}</style>''')
+        html = html.replace('<section>', '<section class="el-carousel__item">')
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -66,8 +92,11 @@ def public_listing(*, popup=False, change=False, loop=False, numbered=False, abb
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write((html if self.path.startswith("/campus") else
-                             "<h1>Agent工程师</h1><p>岗位职责：负责Agent研发</p>").encode())
+            rendered = html
+            if shift_wrapper and requests.count(("GET", "/campus")) > 1:
+                rendered = html.replace('<main id="jobs">', '<div>新横幅</div><main id="jobs">')
+            self.wfile.write((rendered if self.path.startswith("/campus") else
+                             detail_html or "<h1>Agent工程师</h1><p>岗位职责：负责Agent研发</p>").encode())
 
         def do_POST(self):
             requests.append(("POST", self.path))
@@ -99,6 +128,243 @@ def reader():
     result.proxy = None
     result.search_understanding = SourceUnderstanding(Settings(_env_file=None))
     return result
+
+
+@pytest.mark.asyncio
+async def test_agent_render_keeps_control_choice_and_clicks_only_the_selected_card():
+    with public_listing() as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_agent_page(url)
+        assert not any("/jobs/" in path or "/apply" in path for _, path in requests)
+        cards = [c for c in snapshot.navigation_controls if c["kind"] == "cards"]
+        assert len(cards) >= 2
+        selected = cards[1]
+        result = await browser.read_agent_page(url, control=selected)
+        assert len(result.discovered_links) == 1
+        assert result.discovered_links[0].text == selected["label"]
+        assert not any("/apply" in path or method == "POST" for method, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_agent_navigation_rejects_unobserved_or_changed_selector_before_clicking():
+    with public_listing() as (url, requests):
+        browser = reader()
+        result = await browser.read_agent_page(url, control={"kind": "cards", "selector": "#apply", "label": "算法工程师"})
+        assert result.dynamic_listing["reason"] == "navigation_control_changed"
+        assert result.dynamic_listing["navigation_executed"] is False
+        assert result.navigation_controls
+        assert not any("/apply" in path or method == "POST" for method, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_identical_view_job_buttons_keep_plain_text_project_context():
+    with public_listing(entry=True, plain_projects=True, entry_tag="span") as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_agent_page(url)
+        controls = [c for c in snapshot.navigation_controls if c["kind"] == "entries"]
+        assert any("海洋科技人才" in c["label"] for c in controls)
+        assert any("航空人才" in c["label"] for c in controls)
+        selected = next(c for c in controls if "海洋科技人才" in c["label"])
+        await browser.read_agent_page(url, control=selected)
+        assert any("view=graduate" in path for _, path in requests)
+        assert not any("view=intern" in path for _, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_agent_rebinds_same_project_after_dom_wrapper_changes():
+    with public_listing(entry=True, plain_projects=True, entry_tag="span", shift_wrapper=True) as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_agent_page(url)
+        selected = next(c for c in snapshot.navigation_controls if c["kind"] == "entries" and "海洋科技人才" in c["label"])
+        await browser.read_agent_page(url, control=selected)
+        assert any("view=graduate" in path for _, path in requests)
+        assert not any("view=intern" in path or method == "POST" for method, path in requests)
+
+
+def test_rebinding_rejects_ambiguous_or_changed_project_labels():
+    from src.services.dynamic_recruitment_listing import resolve_selected_control
+    selected = {"selector": "#old", "label": "海洋科技人才 查看职位", "navigation": False}
+    one = {**selected, "selector": "#one"}
+    assert resolve_selected_control(selected, [one]) == one
+    assert resolve_selected_control(selected, [one, {**one, "selector": "#two"}]) is None
+    assert resolve_selected_control(selected, [{**one, "label": "航空人才 查看职位"}]) is None
+
+
+@pytest.mark.asyncio
+async def test_agent_switches_carousel_and_restores_in_page_state_before_next_click():
+    with public_listing(entry=True, plain_projects=True, entry_tag="span", carousel=True) as (url, requests):
+        browser = reader()
+        initial = await browser.read_agent_page(url)
+        assert not any("航空人才" in c["label"] for c in initial.navigation_controls if c["kind"] == "entries")
+        switch = next(c for c in initial.navigation_controls if c["label"].startswith("轮播第2页"))
+        changed = await browser.read_agent_page(url, control=switch)
+        target = next(c for c in changed.navigation_controls if c["kind"] == "entries" and "航空人才" in c["label"])
+        assert target["replay"] == [switch]
+        result = await browser.read_agent_page(url, control=target)
+        assert any("view=intern" in link.url for link in result.discovered_entries)
+        assert not any("view=graduate" in path or method == "POST" for method, path in requests)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("container", ['nav', 'div class="recruit-filter"'])
+async def test_agent_can_choose_observed_menu_or_company_filter_without_auto_clicking(container):
+    tag = container.split()[0]
+    prefix = (f'<{container}><span style="cursor:pointer" onclick="location.assign(\'/campus?view=company\')">海洋科技人才</span>'
+              '<button onclick="location.assign(\'/apply\')">申请</button> '
+              f'<button onclick="location.assign(\'/login\')">登录</button></{tag}>')
+    with public_listing(entry_prefix=prefix) as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_agent_page(url)
+        controls = [c for c in snapshot.navigation_controls if c["kind"] == "navigation"]
+        selected = next(c for c in controls if c["label"] == "海洋科技人才")
+        assert all(c["label"] not in {"申请", "登录"} for c in controls)
+        assert not any("view=company" in path for _, path in requests)
+        await browser.read_agent_page(url, control=selected)
+        assert any("view=company" in path for _, path in requests)
+        assert not any("/apply" in path or "/login" in path for _, path in requests)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("prefix,unresolved", [
+    ('<header><button onclick="location.assign(location.href)">校园招聘</button></header>', False),
+    ('<button>校园招聘</button>', True),
+])
+async def test_campaign_entry_ready_without_job_text_and_skips_self_or_inactive_controls(prefix, unresolved):
+    with public_listing(entry=True, entry_popup=True, entry_label="校园招聘", entry_prefix=prefix) as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_campaign_page(url)
+        assert [link.url for link in snapshot.discovered_entries] == [url + "?view=graduate"]
+        trace = browser.diagnostics_for(url)
+        assert not any(event["event"] == "wait_timeout" for event in trace["network"])
+        assert any(event["event"] == "navigation_unresolved" for event in trace["network"]) == unresolved
+        assert requests.count(("GET", "/campus")) == 1
+        assert not any("view=intern" in path or method == "POST" for method, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_campaign_page_resolves_one_public_job_card_without_applying():
+    with public_listing() as (url, requests):
+        snapshot = await reader().read_campaign_page(url)
+        assert len(snapshot.discovered_links) == 1
+        assert snapshot.discovered_links[0].url.endswith("/jobs/11")
+        assert snapshot.final_url == url
+        assert requests.count(("GET", "/campus")) == 1
+        assert not any(method == "POST" or "/apply" in path for method, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_campaign_observes_css_application_controls_without_clicking_them():
+    html = '''<style>.action{cursor:pointer}.hidden{display:none}</style>
+    <h1>算法工程师</h1><p>2027届校招 岗位职责：负责研发和系统评测</p>
+    <span class="action" onclick="fetch('/apply',{method:'POST'})">投递岗位</span>
+    <div role="button">加入意向单</div><div class="is-disabled"><span class="action">立即申请</span></div>
+    <button class="hidden">申请岗位</button><div class="cookie-settings"><button>Apply</button></div>'''
+    with public_listing(detail_html=html) as (url, requests):
+        snapshot = await reader().read_campaign_page(url.replace('/campus', '/jobs/123'))
+        assert set(snapshot.application_actions) == {'投递岗位', '加入意向单'}
+        assert not any(method == 'POST' or '/apply' in path for method, path in requests)
+
+
+@pytest.mark.asyncio
+async def test_campaign_renders_empty_http_listing_until_delayed_cards_are_available():
+    from types import SimpleNamespace
+
+    from src.services.company_evidence_reader import CompanyEvidenceReader
+    from src.services.url_reader import SafeHTTPReader
+
+    with public_listing(delayed=True) as (url, requests):
+        browser = reader()
+        worker = CompanyEvidenceReader(SafeHTTPReader(safety_checker=FixtureOnlySafetyChecker()),
+            browser=SimpleNamespace(read_evidence=browser.read_campaign_page), on_event=lambda *_: None,
+            collect_actions=True)
+        worker.browser_remaining = 1
+        page = await worker.read(url)
+        assert page['method'] == 'browser'
+        assert any(link.url.endswith('/jobs/11') for link in page['links'])
+        assert not any(method == 'POST' for method, _ in requests)
+
+
+@pytest.mark.asyncio
+async def test_campaign_resolves_announcement_navigation_even_when_job_cards_are_present():
+    prefix = '<header><span style="cursor:pointer" onclick="location.assign(\'/notice\')">校招公告</span></header>'
+    with public_listing(entry_prefix=prefix) as (url, requests):
+        snapshot = await reader().read_campaign_page(url)
+        assert snapshot.discovered_entries[0].url.endswith('/notice')
+        assert snapshot.discovered_links[0].url.endswith('/jobs/11')
+        assert not any(method == 'POST' or '/apply' in path for method, path in requests)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('active_inside', [False, True])
+async def test_campaign_reads_current_announcement_cards_without_mistaking_them_for_jobs(active_inside):
+    titles = ['2027届校招正式启动', '2027届校招提前批启动', '2027届仓储类管培生招聘启动',
+              '2027届研发实习生招聘正式启动']
+    prefix = '<li class="index_active__xyz" style="cursor:pointer"><div><span>校招公告</span></div></li>'
+    if active_inside:
+        prefix = '<li style="cursor:pointer"><div><span class="index_active__xyz">校招公告</span></div></li>'
+    prefix += ''.join(f'<a style="cursor:pointer" onclick="location.assign(\'/news/{i}\')">{title}</a>'
+                     for i, title in enumerate(titles))
+    with public_listing(entry_prefix=prefix) as (url, requests):
+        snapshot = await reader().read_campaign_page(url)
+        assert {link.url.rsplit('/', 1)[-1] for link in snapshot.discovered_entries} == {'0', '1', '2'}
+        assert all('/jobs/' in link.url for link in snapshot.discovered_links)
+        assert ('GET', '/news/3') not in requests
+
+
+@pytest.mark.asyncio
+async def test_campaign_uses_announcement_index_and_does_not_reclick_static_article_links():
+    prefix = ('<a href="/news/static"><span style="cursor:pointer">2027届校招正式启动</span></a>'
+              '<button onclick="location.assign(\'/notice\')">校招公告</button>'
+              '<button onclick="location.assign(\'/news/dynamic\')">2027届校招提前批启动</button>')
+    with public_listing(entry_prefix=prefix) as (url, requests):
+        snapshot = await reader().read_campaign_page(url)
+        assert [link.url.rsplit('/', 1)[-1] for link in snapshot.discovered_entries] == ['notice']
+        assert ('GET', '/news/static') not in requests and ('GET', '/news/dynamic') not in requests
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('header_tag', ['header', 'div'])
+async def test_campaign_waits_for_delayed_announcement_instead_of_navigation_shell(header_tag):
+    html = '''<HEADER class="index_headerContent__abc"><div><ul><li><div><span style="cursor:pointer">应届生招聘</span></div></li></ul></div></HEADER>
+    <main id="article"></main><script>
+    setTimeout(() => {document.getElementById('article').innerHTML =
+      '<h1>2027届仓储类管培生招聘启动</h1><p>面向2027届毕业生</p>';}, 1500);
+    </script>'''.replace('HEADER', header_tag)
+    with public_listing(detail_html=html) as (url, _):
+        snapshot = await reader().read_campaign_page(url.replace('/campus', '/jobs/notice'))
+        assert '2027届仓储类管培生招聘启动' in snapshot.visible_text
+
+
+@pytest.mark.asyncio
+async def test_linkless_cards_restore_observed_listing_after_replace_navigation():
+    with public_listing(replace_navigation=True) as (url, requests):
+        snapshot = await reader().read_dynamic_listing(url, max_links=2)
+        assert [link.url.rsplit('/', 1)[-1] for link in snapshot.discovered_links] == ['11', '12']
+        assert snapshot.final_url == url
+        assert not any(method == "POST" or "/apply" in path for method, path in requests)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("label,tag", [("查看12个职位", "p"), ("了解更多", "div")])
+async def test_campaign_detects_contextual_navigation_controls_without_site_selectors(label, tag):
+    with public_listing(entry=True, entry_label=label, entry_tag=tag) as (url, requests):
+        snapshot = await reader().read_campaign_page(url)
+        assert [link.url for link in snapshot.discovered_entries] == [url + "?view=graduate"]
+        assert not any("view=intern" in path or method == "POST" for method, path in requests)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("label", ["查看所有职位", "查看全部岗位", "View all jobs"])
+async def test_agent_can_select_all_jobs_button_and_reach_the_public_list(label):
+    with public_listing(entry=True, entry_label=label, entry_tag="div") as (url, requests):
+        browser = reader()
+        snapshot = await browser.read_agent_page(url)
+        control = next(c for c in snapshot.navigation_controls if c["kind"] == "entries" and "应届生" in c["label"])
+        assert label in control["label"]
+        assert not any("view=" in path for _, path in requests)
+        result = await browser.read_agent_page(url, control=control)
+        assert [link.url for link in result.discovered_entries] == [url + "?view=graduate"]
+        assert not any("view=intern" in path or "/apply" in path or method == "POST" for method, path in requests)
 
 
 @pytest.mark.asyncio

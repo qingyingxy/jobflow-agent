@@ -34,22 +34,25 @@ def homepage_declarations(page, company, candidate, observed_urls=()):
         return []
     result = []
     for link in page["links"]:
+        if re.search(r"\.(?:pdf|docx?|xlsx?|pptx?|zip|rar|png|jpe?g)(?:$|[?#])", link.url, re.IGNORECASE):
+            continue  # A named application form does not declare the file server as the company homepage.
         target = home_url(link.url)
         named = company_name_matches(company, link.text)
         official = bool(re.search(r"(?:公司)?官网|官方网站|official website|^website$|homepage", link.text, re.IGNORECASE))
-        related = target and under_domain(host(candidate), host(target))
+        related = target and (under_domain(host(candidate), host(target)) or under_domain(host(target), host(candidate)))
         if target and (related or named or official) and (named or company_name_matches(company, page["title"]) or (official and related)):
-            result.append({"url": target, "observation": "hyperlink", "quote": link.text[:400], "source_url": page["url"]})
+            result.append({"url": target, "declared_url": link.url, "observation": "hyperlink", "quote": link.text[:400], "source_url": page["url"]})
     if page.get("method") == "pdf":
         return result
     text = page["text"]
     for match in re.finditer(r"https?://[^\s<>\"'\u4e00-\u9fff，。；）】]+", text):
         before = text[max(0, match.start() - 50):match.start()]
-        label = re.search(r"(?:公司官网|官方网站|公司网址|企业官网|官网(?:地址|链接)?|official website)\s*[:：]?\s*$", before, re.IGNORECASE)
-        target = home_url(match.group().rstrip(".,;:，。；：)】]"))
-        if (label and target and under_domain(host(candidate), host(target))
+        label = re.search(r"(?:公司官网|官方网站|公司网址|企业网址|企业官网|官网(?:地址|链接)?|official website)\s*[:：]?\s*$", before, re.IGNORECASE)
+        declared = match.group().rstrip(".,;:，。；：)】]")
+        target = home_url(declared)
+        if (label and target and (under_domain(host(candidate), host(target)) or under_domain(host(target), host(candidate)))
                 and not re.search(r"非官方|假冒|仿冒|钓鱼|不是官网|非官网|示例", before[max(0, label.start() - 12):], re.IGNORECASE)):
-            result.append({"url": target, "observation": "labeled_text_url", "quote": before[label.start():] + match.group(), "source_url": page["url"]})
+            result.append({"url": target, "declared_url": declared, "observation": "labeled_text_url", "quote": before[label.start():] + match.group(), "source_url": page["url"]})
     # E.g. a government notice explicitly names the official domain. We only
     # choose a URL already seen, and do not turn arbitrary text into navigation.
     for match in re.finditer(r"官网(?:域名)?\s*(?:仅认准|为|是|[:：])\s*[\"“]?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", text):
@@ -61,5 +64,25 @@ def homepage_declarations(page, company, candidate, observed_urls=()):
         for url in observed_urls:
             if host(url) == domain and urlsplit(url).path in {"", "/"} and (target := home_url(url)):
                 result.append({"url": target, "observation": "explicit_domain", "quote": match.group(), "source_url": page["url"]})
+                break
+    # University employer profiles often say “请访问某公司网站：www.…”.
+    # Match a named website declaration, not a domain in an email or a list of
+    # customers; select only an already observed root URL and retain the quote.
+    pattern = r"(?:公司官网|官方网站|公司网址|企业网站|网站)\s*[:：]\s*((?:www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?![a-zA-Z0-9.-])"
+    for match in re.finditer(pattern, text):
+        before = text[max(0, match.start() - 70):match.start()]
+        if re.search(r"非官方|假冒|仿冒|钓鱼|不是|非官网|示例", before[-16:]):
+            continue
+        named = company_name_matches(company, before)
+        labeled = match.group().startswith(("公司官网", "官方网站", "公司网址", "企业网站"))
+        if not (named or (labeled and company_name_matches(company, page["title"]))):
+            continue
+        domain = match.group(1).lower().removeprefix("www.")
+        if not under_domain(host(candidate), domain):
+            continue
+        for url in observed_urls:
+            if host(url) == domain and urlsplit(url).path in {"", "/"} and (target := home_url(url)):
+                result.append({"url": target, "observation": "named_website_domain",
+                               "quote": before + match.group(), "source_url": page["url"]})
                 break
     return result

@@ -185,9 +185,6 @@ async def execute_multiround_search(
         matched = {}
         analysis_ids = []
         failures = []
-        hiring_resolver = OfficialHiringResolver(
-            sources=sources, reader=reader, browser=browser
-        )
         followup_links = []
         agent_enabled = settings.web_search_decision_mode == "agent"
         # Internal callers may supply the same code-owned candidates in controlled
@@ -230,7 +227,12 @@ async def execute_multiround_search(
             nonlocal snapshot
             snapshot = value
 
+        coverage = None
+
         def trace_event(kind, details):
+            metrics.observe(kind, details)
+            if coverage and kind in {"direct_search", "search_query"}:
+                coverage.observe(details.get("source_id"), kind, details)
             if kind == "direct_search" and details.get("source_read_attempted"):
                 metrics.source_read(details["source_id"], success=details.get("source_read_success", False),
                                     retry=details.get("source_retry", False))
@@ -338,7 +340,13 @@ async def execute_multiround_search(
 
         from src.services.direct_recruitment_search import DirectRecruitmentSearch
         from src.services.job_role_review import JobRoleReviewer, load_role_review
+        from src.services.search_resources import BoundedReader
 
+        reader = BoundedReader(reader, limit=settings.web_search_http_concurrency,
+                               stage="http", on_event=trace_event)
+        browser = BoundedReader(browser, limit=settings.web_search_browser_concurrency,
+                                stage="browser", on_event=trace_event)
+        hiring_resolver = OfficialHiringResolver(sources=sources, reader=reader, browser=browser)
         role_reviewer = JobRoleReviewer(settings, on_event=trace_event)
         from src.services.search_goal_service import SearchGoalService
         from src.services.source_understanding import (
@@ -349,7 +357,7 @@ async def execute_multiround_search(
         known_job_urls = {canonical_search_url(job.source_url) for job in SearchGoalService(session).postings(user_id)
                           if job.source_url}
         understanding = SourceUnderstanding(settings, on_event=trace_event, query=query, conditions=run.goal_conditions,
-                                              known_urls=known_job_urls)
+                                              known_urls=known_job_urls, include_qualifications=False)
         service.understanding = understanding
         if hasattr(browser, "read_dynamic_listing"):
             browser.search_understanding = understanding
@@ -784,6 +792,7 @@ async def execute_multiround_search(
                     "output_count": len(candidates),
                     "new_links": len(new_urls),
                     "new_details": new_jobs,
+                    "detail_count": sum(lead_discovery_kind(c) == "job" for c in candidates),
                     "duplicate_count": len(candidates) - len(new_urls),
                     "duration_ms": int((monotonic() - started) * 1000),
                     "useful_jobs_before": useful_before_search,
@@ -1535,13 +1544,15 @@ async def execute_multiround_search(
                 enqueue_company_discovery(session, goal, run_id=run_id)
                 trace_event("company_discovery_queued", {"summary": "新公司发现已排队，后台分步保存搜索、提取和核验进度"})
         search_deadline = monotonic() + seconds
-        async with browser.reuse() if hasattr(browser, "reuse") else nullcontext():
+        from src.services.search_resources import model_capacity
+
+        async with (browser.reuse() if hasattr(browser, "reuse") else nullcontext()), model_capacity(settings).foreground():
             try:
                 await run_search_pipeline(
                     bootstrap=bootstrap
                     if run.search_goal_id or (settings.web_search_direct_sources_enabled and direct.supported)
                     else None,
-                    max_concurrency=2,
+                    max_concurrency=settings.web_search_verification_inflight,
                     priority=lambda candidate: (4, cached_reviews[canonical_search_url(candidate.source_url)], 0)
                     if canonical_search_url(candidate.source_url) in cached_reviews else candidate_priority(
                         candidate,

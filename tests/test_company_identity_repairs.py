@@ -95,3 +95,172 @@ async def test_official_social_portal_follows_observed_campus_link(db_session):
 def test_negative_domain_declaration_does_not_grant_trust():
     page = {"url": PROOF, "title": NAME, "text": f'{NAME} 假冒官网为nova.example', "links": [], "method": "http"}
     assert not homepage_declarations(page, NAME, HOME, [HOME])
+
+
+@pytest.mark.parametrize("text,observed,expected", [
+    (f"了解详情，请访问{NAME}·财务云网站：www.nova.example", [HOME], True),
+    (f"{NAME}公司网址：www.nova.example", [HOME], True),
+    (f"{NAME}公司网址：www.nova.example", [], False),
+    (f"{NAME} 假冒网站：www.nova.example", [HOME], False),
+    (f"{NAME} 官方网站：www.nova.example.evil.com", [HOME], False),
+    (f"{NAME} 邮箱：jobs@nova.example", [HOME], False),
+    ("另一家公司网站：www.nova.example", [HOME], False),
+])
+def test_named_bare_domain_requires_explicit_declaration_and_observed_root(text, observed, expected):
+    page = {"url": PROOF, "title": NAME, "text": text, "links": [], "method": "http"}
+    result = homepage_declarations(page, NAME, HOME, observed)
+    assert bool(result) == expected
+    if expected:
+        assert result[0]["observation"] == "named_website_domain"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("root", ["english", "error", "unavailable"])
+async def test_corroborated_host_uses_observed_localized_recruitment_page(db_session, root):
+    local = HOME + "cn/campus"
+    worker, pages, _, _ = agent(db_session, results=[local, PROOF], suggestions=[{
+        "company": NAME, "homepage_url": HOME, "career_url": CAREER}])
+    pages.html[local] = f'<title>{NAME}校园招聘</title><a href="{CAREER}">立即申请职位</a>'
+    if root == "unavailable":
+        pages.html.pop(HOME)
+    else:
+        pages.html[HOME] = '<title>Nova Global</title>Innovation' if root == "english" else '<title>无法显示此网页</title>错误代码：123'
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == "verified" and row.homepage_url == HOME
+    assert row.evidence["homepage"]["url"] == local
+    assert row.evidence["entry_chain"][0]["url"] == local
+    assert row.evidence["corroboration"]["url"] == PROOF
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("proof,body,expected", [
+    (True, True, "verified"), (False, True, "pending"), (True, False, "pending"),
+])
+async def test_corroborated_campus_root_does_not_require_a_second_hiring_link(db_session, proof, body, expected):
+    worker, pages, _, _ = agent(db_session, results=[HOME, PROOF] if proof else [HOME], suggestions=[{
+        "company": NAME, "homepage_url": HOME, "career_url": HOME}])
+    pages.html[HOME] = f'<title>{NAME}校园招聘</title>' + (
+        '<p>2027届校园招聘开启。欢迎海内外应届毕业生加入我们。招聘流程包含简历投递、笔试测评、面试和录用。我们提供研发、咨询和销售岗位，请关注招聘动态了解更多信息。</p>' if body else '<div id="root"></div>')
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == expected
+    if expected == "verified":
+        assert row.career_url == HOME
+        assert row.evidence["entry_chain"][0]["relation"] == "corroborated_recruitment_page"
+
+
+@pytest.mark.asyncio
+async def test_neutral_title_can_use_company_body_with_independent_proof(db_session):
+    worker, pages, _, _ = agent(db_session)
+    pages.html[HOME] = f'<title>首页</title><h1>{NAME}</h1><a href="{CAREER}">校园招聘</a>'
+    await worker.run()
+    assert db_session.scalar(select(DiscoveredCompany)).status == "verified"
+
+
+def test_named_independent_result_precedes_unrelated_government_results(db_session):
+    worker, _, _, _ = agent(db_session)
+    unrelated = [f"https://agency{i}.gov.cn/search" for i in range(5)]
+    relevant = "https://zh.wikipedia.org/wiki/Nova"
+    urls = worker.evidence_urls([*unrelated, relevant], company=NAME,
+        hints={relevant: NAME + " 公司简介，官方网站 nova.example"})
+    assert urls[0] == relevant
+
+
+@pytest.mark.asyncio
+async def test_identity_search_includes_observed_domain_without_trusting_snippets(db_session):
+    worker, _, searches, _ = agent(db_session, results=[HOME])
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == "pending"
+    assert '"nova.example"' in searches[-1]
+
+
+@pytest.mark.parametrize("extension", ["doc", "docx", "pdf", "xlsx", "png"])
+def test_named_application_download_does_not_declare_a_company_homepage(extension):
+    url = f"https://download.nova.example/forms/2027.{extension}"
+    page = {"url": PROOF, "title": NAME, "text": NAME + "校园招聘",
+            "links": [HTMLLink(url, NAME + "应聘申请表")], "method": "http"}
+    assert not homepage_declarations(page, NAME, HOME)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("redirect,expected", [(HOME + "cn/", "verified"), ("https://other.example/", "pending")])
+async def test_observed_legacy_subdomain_redirect_can_resolve_parent_home(db_session, redirect, expected):
+    legacy = "https://legacy.nova.example/cn/"
+    worker, pages, _, _ = agent(db_session)
+    pages.html[HOME] = f'<title>{NAME}</title><a href="{CAREER}">校园招聘</a>'
+    pages.html[PROOF] = f'<title>{NAME}公司介绍</title><p>企业网址：{legacy}</p>'
+    pages.html[legacy] = pages.html[HOME]
+    pages.redirects[legacy] = redirect
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == expected
+    if expected == "verified":
+        assert row.homepage_url == HOME
+        assert row.evidence["corroboration"]["declared_url"] == legacy
+        assert row.evidence["corroboration"]["resolved_homepage"] == HOME
+        assert row.evidence["homepage"]["url"] == redirect
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("path,title,expected", [
+    ("cn/about/jobs/2026/20260922.html", NAME + "2027校园招聘公告", "verified"),
+    ("jobs/123", NAME + "研发工程师招聘", "pending"),
+])
+async def test_dated_recruitment_announcement_is_an_entry_but_single_job_is_not(db_session, path, title, expected):
+    entry = HOME + path
+    worker, pages, _, _ = agent(db_session, results=[entry, PROOF], suggestions=[{
+        "company": NAME, "homepage_url": HOME, "career_url": entry}])
+    pages.html[HOME] = '<title>Global home</title>'
+    pages.html[entry] = f'<title>{title}</title><p>' + (
+        '面向2027届应届毕业生开展校园招聘，招聘研发、咨询和销售等方向。欢迎符合条件的毕业生了解招聘安排，简历投递后开展在线测评与面试，录用结果将另行通知。') + '</p>'
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == expected
+    if expected == "verified":
+        assert row.career_url == entry
+        assert row.evidence["entry_chain"][0]["relation"] == "corroborated_recruitment_page"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("candidate", [HOME, "http://campus.nova.example/"])
+async def test_retired_campus_link_does_not_replace_readable_declared_company_home(db_session, candidate):
+    retired = "http://campus.nova.example/campusRecruitment/Jobs.html"
+    worker, pages, _, _ = agent(db_session, results=[HOME, PROOF, candidate], suggestions=[{
+        "company": NAME, "homepage_url": candidate, "career_url": CAREER}])
+    pages.html[PROOF] = (f'<title>{NAME}2019校园招聘</title><p>{NAME}官网：www.nova.example</p>'
+                        f'<p>{NAME}校招官网：campus.nova.example</p><a href="{retired}">校招官网</a>')
+    await worker.run()
+    row = db_session.scalar(select(DiscoveredCompany))
+    assert row.status == "verified" and row.homepage_url == HOME
+    assert row.evidence["corroboration"]["linked_homepage"] == HOME
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("redirect,expected", [(None, "verified"), ("https://www.hotjob.cn/wt/other/web/index", "pending")])
+async def test_legacy_hotjob_official_link_is_read_before_about_pages_with_tenant_isolation(db_session, redirect, expected):
+    career = "https://www.hotjob.cn/wt/nova/web/index?brandCode=1"
+    worker, pages, _, _ = agent(db_session, suggestions=[{
+        "company": NAME, "homepage_url": HOME, "career_url": career}])
+    pages.html[HOME] = f'<title>{NAME}</title>' + ''.join(
+        f'<a href="{HOME}about-{i}">公司介绍</a>' for i in range(5)) + f'<a href="{career}">加入我们</a>'
+    pages.html[career] = f'<title>{NAME}校园招聘</title><p>2027届招聘职位</p>'
+    if redirect:
+        pages.redirects[career] = redirect
+    await worker.run()
+    assert career in pages.calls
+    assert db_session.scalar(select(DiscoveredCompany)).status == expected
+    if expected == "verified":
+        assert not any("about-" in url for url in pages.calls)
+
+
+def test_legacy_hotjob_scope_never_trusts_shared_root_or_other_tenant():
+    from src.services.recruitment_trust import hiring_scope, within_scope
+
+    assert hiring_scope("https://www.hotjob.cn/") is None
+    assert hiring_scope("https://www.hotjob.cn/wt/") is None
+    scope = hiring_scope("https://www.hotjob.cn/wt/nova/web/index")
+    assert within_scope("https://www.hotjob.cn/wt/nova/web/jobs", scope)
+    assert not within_scope("https://www.hotjob.cn/wt/nova-other/web/jobs", scope)
+    assert not within_scope("https://other.hotjob.cn/wt/nova/web/jobs", scope)

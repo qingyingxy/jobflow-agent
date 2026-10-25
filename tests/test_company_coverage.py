@@ -20,6 +20,8 @@ QUERY = "2027届北京上海 Agent RAG 校招"
 
 @pytest.mark.parametrize("entry,observed,expected", [
     ("https://hr.example.com/campus", None, None),
+    ("https://hr.example.com/campus", "/campus/jobs", None),
+    ("https://hr.example.com/campus", "http://[invalid", None),
     ("https://hr.example.com/campus", "https://company.jobs.feishu.cn/campus", "company.jobs.feishu.cn"),
     ("https://wecruit.hotjob.cn/SU123/pb/index.html", None, "wecruit.hotjob.cn/SU123/"),
 ])

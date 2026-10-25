@@ -37,10 +37,15 @@ def within_redirect(url, requested, homepage):
 
 async def resolve_company_entry(agent, row, homepage):
     """At most four linked pages / three edges, plus one existing browser slot."""
-    queue = [(homepage, [])]
+    # Observed local-language recruitment pages on the corroborated exact host
+    # can carry the hiring link even when its global landing page cannot.
+    related = {p["url"]: p for p in agent.pages.values() if host(p["url"]) == host(row.homepage_url)
+               and company_name_matches(row.company, p["text"])}
+    queue = [(homepage, []), *((p, []) for p in related.values() if p["url"] != homepage["url"])]
     visited, fetched = set(), 0
     suggested = row.career_url
     from src.services.discovery_matching import search_filter_conditions
+    from src.services.lead_presentation import discovery_kind
     from src.services.recruitment_listing import recruitment_priority
 
     types = search_filter_conditions(agent.query)["job_types"]
@@ -52,10 +57,21 @@ async def resolve_company_entry(agent, row, homepage):
         visited.add(page["url"])
         if len(chain) >= 3:
             continue
+        # An independently corroborated root may itself be the campus site.
+        # It needs a real recruitment body, not just a title/JS shell, and does
+        # not need to link to a second recruitment site to establish its entry.
+        if (not chain and host(page["url"]) == host(row.homepage_url)
+                and company_name_matches(row.company, page["title"])
+                and RECRUITMENT.search(page["title"])
+                and (discovery_kind(page["url"], page["title"], observed_title=True) != "job"
+                     or re.search(r"招聘公告|招聘简章|校园招聘专题", page["title"]))
+                and len(page["text"].strip()) > len(page["title"].strip()) + 60):
+            fallback = page, [agent.proof(page, linked_url=page["url"], final_url=page["url"],
+                link_text="已核验的公司招聘页面", relation="corroborated_recruitment_page")]
         links = sorted(page["links"], key=lambda link: (
+            not bool(RECRUITMENT.search(link.text + " " + link.url)),
             recruitment_priority(link, types),
             not same_url(link.url, suggested),
-            not bool(RECRUITMENT.search(link.text + " " + link.url)),
         ))
         usable = [link for link in links if permitted_entry(link.url) and (
             RECRUITMENT.search(link.text + " " + urlsplit(link.url).path + " " + host(link.url))
@@ -71,9 +87,14 @@ async def resolve_company_entry(agent, row, homepage):
             is_hiring = bool(RECRUITMENT.search(link.text + " " + urlsplit(link.url).path + " " + host(link.url)))
             if not same_url(link.url, suggested) and DETAIL.search(urlsplit(link.url).path):
                 continue
-            if link.url in visited or fetched >= 4:
+            if link.url in visited:
                 continue
-            fetched += 1
+            # Agent-selected supplemental reads remain useful after the network
+            # budget is spent, but still need a real official outbound edge.
+            if link.url not in agent.pages:
+                if fetched >= 4:
+                    continue
+                fetched += 1
             target = await agent.read(link.url)
             if not target or not within_redirect(target["url"], link.url, row.homepage_url):
                 continue

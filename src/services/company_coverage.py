@@ -20,10 +20,24 @@ class CompanyCoverage:
             last = state.get("last_attempt_at") or state.get("updated_at") or ""
             return (bool(last), last, not supports_direct_listing(source), not getattr(source, "official_homepage_url", None))
 
+        from src.services.source_performance import select_sources
+
         self.sources = (
             [s for s in sources if s.id == continued_company]
-            if continued_company else sorted(sources, key=order)[:batch_size]
+            if continued_company else select_sources(sources, self.states, batch_size, order)
         )
+
+    def observe(self, source_id, kind, details):
+        from src.services.source_performance import observation
+
+        if source_id not in {s.id for s in self.sources}:
+            return
+        sample = observation(kind, details)
+        if sample is None:
+            return
+        state = self.states.setdefault(source_id, {})
+        state["performance"] = [*state.get("performance", []), sample][-12:]
+        self.store.save(source_id, state)
 
     def direct_states(self):
         # A completed listing is refreshed on its next turn. A partial listing
@@ -52,7 +66,7 @@ class CompanyCoverage:
         # The web fallback may complete while this company is still reading.
         # Its query cursor belongs to the web producer, not the listing copy.
         current = self.states.get(source_id, {})
-        state.update({k: current[k] for k in ("search_cursor", "search_status", "search_attempts") if k in current})
+        state.update({k: current[k] for k in ("search_cursor", "search_status", "search_attempts", "performance") if k in current})
         updates = self.result_updates.get(source_id, {})
         if updates:
             state["checked_urls"] = list(dict.fromkeys([*state.get("checked_urls", []), *updates]))
@@ -107,8 +121,14 @@ class CompanyCoverage:
                 entry = source.career_url  # Never broaden a registered ATS tenant.
             scope = ""
             if entry:
-                tenant = hiring_scope(entry)
-                scope = " site:" + urlsplit(entry).hostname + (tenant[1] if tenant else "")
+                try:
+                    tenant = hiring_scope(entry)
+                    parsed = urlsplit(entry)
+                    host = parsed.hostname if parsed.scheme in {"http", "https"} else None
+                except ValueError:
+                    host = None
+                if host:
+                    scope = " site:" + host + (tenant[1] if tenant else "")
             return SearchTask(
                 f"{source.company} {role} {context} 官方招聘 岗位职责{scope}".strip(),
                 "公司覆盖补搜", company_id=source.id,

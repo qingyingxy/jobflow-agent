@@ -242,6 +242,15 @@ async def run_body_review_batch(session_factory=SessionLocal, *, settings=None, 
             session.commit()
             return True
         selected_ids = select_review_batch(review_items(session, goal, now=now, settings=settings), goal)
+        from src.services.search_resources import model_capacity
+
+        if model_capacity(settings, client).foreground_runs:
+            selected_ids = [item for item in selected_ids if not item[2].get("qualification_only")]
+            if not selected_ids:
+                task.status, task.next_run_at = "queued", now + timedelta(seconds=30)
+                task.lease_token = task.lease_until = None
+                session.commit()
+                return True
         qualification_count = sum(bool(item[2].get("qualification_only")) for item in selected_ids)
         # Separate call budgets prevent optional qualification extraction from
         # consuming the calls needed to decide unfinished jobs. Source requests
@@ -250,7 +259,7 @@ async def run_body_review_batch(session_factory=SessionLocal, *, settings=None, 
             "web_search_semantic_max_calls": count,
             "web_search_semantic_timeout_seconds": settings.web_search_semantic_retry_timeout_seconds,
         }), client=client, query=goal.query, conditions=goal.conditions,
-            include_qualifications=False, on_event=on_event)
+            include_qualifications=False, background=True, on_event=on_event)
             for qualification, count in ((False, BATCH_SIZE - qualification_count), (True, qualification_count))}
         on_event("body_review_batch", {"goal_id": goal_id, "selected": [
             {"id": item[0], "lane": "qualifications" if item[2].get("qualification_only") else "source",

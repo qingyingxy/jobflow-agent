@@ -14,6 +14,7 @@ from src.api.application_attempts import router as application_attempts_router
 from src.api.application_packets import router as application_packets_router
 from src.api.applications import router as applications_router
 from src.api.ats_assistance import router as ats_assistance_router
+from src.api.campaigns import router as campaigns_router
 from src.api.company_sources import router as company_sources_router
 from src.api.discovery import router as discovery_router
 from src.api.evidence import router as evidence_router
@@ -21,8 +22,8 @@ from src.api.follow_ups import router as follow_ups_router
 from src.api.job_corrections import router as job_corrections_router
 from src.api.jobs import router as jobs_router
 from src.api.materials import router as materials_router
-from src.api.profiles import router as profile_router
 from src.api.portal_tracking import router as portal_tracking_router
+from src.api.profiles import router as profile_router
 from src.api.search_goals import router as search_goals_router
 from src.api.tracking import router as tracking_router
 from src.config import get_settings
@@ -38,10 +39,14 @@ logger = logging.getLogger("jobflow.api")
 @asynccontextmanager
 async def lifespan(app):
     from src.services.body_review_queue import body_review_loop
+    from src.services.campaign_discovery import (
+        discovery_loop as campaign_discovery_loop,
+    )
+    from src.services.campaign_scheduler import campaign_loop
     from src.services.company_discovery_queue import company_discovery_loop
     from src.services.search_goal_scheduler import scheduler_loop
 
-    tasks = [asyncio.create_task(loop()) for loop in (scheduler_loop, body_review_loop, company_discovery_loop)] if settings.app_env != "testing" else []
+    tasks = [asyncio.create_task(loop()) for loop in (scheduler_loop, body_review_loop, company_discovery_loop, campaign_loop, campaign_discovery_loop)] if settings.app_env != "testing" else []
     app.state.scheduler_running = bool(tasks)
     try:
         yield
@@ -65,6 +70,7 @@ app.include_router(ats_assistance_router)
 app.include_router(follow_ups_router)
 app.include_router(discovery_router)
 app.include_router(company_sources_router)
+app.include_router(campaigns_router)
 app.include_router(search_goals_router)
 app.include_router(tracking_router)
 app.include_router(portal_tracking_router)

@@ -98,7 +98,29 @@ class CompanyProgressStore:
         goal = self.session.get(SearchGoal, self.goal_id) if self.goal_id else None
         if not goal or goal.user_id != self.user_id or goal.version != self.version:
             return {}
-        return current_progress(goal.company_search_state or {}, self.version).get("sources", {})
+        states = deepcopy(current_progress(goal.company_search_state or {}, self.version).get("sources", {}))
+        missing = {key for key, value in states.items() if "performance" not in value}
+        if missing:
+            # Existing installations can immediately use recent observations;
+            # goal/user/version isolation also applies to scheduling evidence.
+            from src.domain.discovery import DiscoveryRun
+            from src.services.source_performance import observation
+
+            traces = list(self.session.scalars(select(DiscoveryRun.agent_trace).where(
+                DiscoveryRun.user_id == self.user_id,
+                DiscoveryRun.search_goal_id == self.goal_id,
+                DiscoveryRun.search_goal_version == self.version,
+                DiscoveryRun.finished_at.is_not(None),
+                DiscoveryRun.started_at >= datetime.now(UTC) - timedelta(days=7),
+            ).order_by(DiscoveryRun.started_at.desc()).limit(8)))
+            for trace in reversed(traces):
+                for event in trace or []:
+                    details = event.get("details") or {}
+                    key = details.get("source_id")
+                    if key in missing and (sample := observation(event.get("tool"), details)):
+                        sample["at"] = event.get("occurred_at") or sample["at"]
+                        states[key]["performance"] = [*states[key].get("performance", []), sample][-12:]
+        return states
 
     def load_verification(self):
         goal = self.session.get(SearchGoal, self.goal_id) if self.goal_id else None

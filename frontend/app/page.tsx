@@ -19,6 +19,7 @@ import SearchGoalControls, { type SearchGoal } from "./search-goal-controls";
 import SearchProgress from "./search-progress";
 import SearchActivity from "./search-activity";
 import TrackingCenter from "./tracking-center";
+import CampaignWorkspace, { type CampaignTarget } from "./campaign-workspace";
 import JobDescription from "./job-description";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:18001";
@@ -700,6 +701,8 @@ async function readError(response: Response): Promise<string> {
 export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [mode, setMode] = useState<WorkspaceMode>("discover");
+  const [discoveryMode, setDiscoveryMode] = useState<"jobs" | "campaigns">("jobs");
+  const [campaignYear, setCampaignYear] = useState<number | undefined>();
   const [trackingGoal, setTrackingGoal] = useState<SearchGoal | null>(null);
   const [focusedApplicationId, setFocusedApplicationId] = useState<string | null>(null);
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
@@ -949,6 +952,23 @@ export default function Home() {
     setDiscoveryRefreshToken(value => value + 1);
     void loadProfileSummary();
     void loadDiscoveryData();
+  }
+
+  async function findCampaignJobs(campaign: CampaignTarget) {
+    const conditions = { ...(activeGoalRef.current?.conditions || {}), graduation_years: [campaign.year],
+      job_types: ["校招"], excluded_job_types: [] };
+    const response = await fetch(`${apiUrl}/api/discovery/goals`, {
+      method: "POST", headers: { "Content-Type": "application/json", "X-User-ID": userId },
+      body: JSON.stringify({ input_text: `${campaign.company} ${campaign.year}届校招`,
+        name: `${campaign.company} ${campaign.year}届校招`, conditions, company_ids: [campaign.company_id] }),
+    });
+    if (!response.ok) throw new Error(await readError(response));
+    const goal = await response.json() as SearchGoal;
+    chooseGoal(goal);
+    setTrackingGoal(goal);
+    setDiscoveryQuery(goal.input_text);
+    setDiscoveryMode("jobs");
+    await runDiscovery(goal);
   }
 
   async function runDiscovery(goal: SearchGoal, continueCompanyId?: string) {
@@ -1484,7 +1504,8 @@ export default function Home() {
           </nav>
         <div className="topbar-trail">
           <TrackingCenter apiUrl={apiUrl} userId={userId}
-            onSelectGoal={goal => { setTrackingGoal(goal); setMode("discover"); }}
+            onSelectGoal={goal => { setTrackingGoal(goal); setDiscoveryMode("jobs"); setMode("discover"); }}
+            onOpenCampaigns={year => { setCampaignYear(year); setDiscoveryMode("campaigns"); setMode("discover"); }}
             onOpenBoard={() => { setMode("board"); void loadApplications(); }}
             onScheduleChange={() => setDiscoveryRefreshToken(value => value + 1)} />
           <button
@@ -1522,7 +1543,7 @@ export default function Home() {
                 {mode === "analysis"
                   ? "岗位匹配详情"
                   : mode === "discover"
-                    ? "发现适合你的岗位"
+                    ? discoveryMode === "campaigns" ? "关注公司的秋招动态" : "发现适合你的岗位"
                     : mode === "profile"
                       ? "核对你的经历"
                       : "跟进每份申请"}
@@ -1532,12 +1553,22 @@ export default function Home() {
               {mode === "profile"
                 ? "这里优先展示从简历自动解析的经历。确认或修改后，它们会成为岗位匹配的依据。"
                 : mode === "discover"
-                  ? "按本次输入的城市、方向和招聘类型搜索，无需先填写简历。添加简历后可进一步分析匹配情况。"
+                  ? discoveryMode === "campaigns" ? "先看哪些公司开招，再查看与你相关的岗位。" : "按本次输入的城市、方向和招聘类型搜索，无需先填写简历。添加简历后可进一步分析匹配情况。"
                   : mode === "analysis"
                     ? "根据岗位原文和已保存的经历，查看匹配依据与申请建议。"
                     : "查看当前状态、下一步和关键时间。"}
             </p>
           </section>
+
+          {mode === "discover" && <div className="discovery-mode-tabs" role="tablist" aria-label="发现方式">
+            {(["jobs", "campaigns"] as const).map(item => <button key={item} type="button" role="tab"
+              id={`discovery-mode-${item}`} aria-controls={`discovery-panel-${item}`} aria-selected={discoveryMode === item}
+              tabIndex={discoveryMode === item ? 0 : -1} onClick={() => setDiscoveryMode(item)}
+              onKeyDown={event => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+                event.preventDefault(); const next = event.key === "Home" ? "jobs" : event.key === "End" ? "campaigns" : item === "jobs" ? "campaigns" : "jobs";
+                setDiscoveryMode(next); document.getElementById(`discovery-mode-${next}`)?.focus();
+              } }}>{item === "jobs" ? "找岗位" : "看秋招"}</button>)}
+          </div>}
 
           {mode === "profile" ? (
             <><ProfileWorkspace apiUrl={apiUrl} userId={userId} onProfileChange={loadProfileSummary} /><AccountPrivacy apiUrl={apiUrl} userId={userId} /></>
@@ -1599,6 +1630,10 @@ export default function Home() {
               </section>
             </section>
           ) : mode === "discover" ? (
+            discoveryMode === "campaigns" ? <div id="discovery-panel-campaigns" role="tabpanel" aria-labelledby="discovery-mode-campaigns">
+              <CampaignWorkspace key={campaignYear} apiUrl={apiUrl} userId={userId}
+                initialYear={campaignYear ?? activeGoal?.conditions.graduation_years[0]} onFindJobs={findCampaignJobs} />
+            </div> : <div id="discovery-panel-jobs" role="tabpanel" aria-labelledby="discovery-mode-jobs">
             <DiscoveryWorkspace
               candidates={candidates}
               leads={jobLeads}
@@ -1656,6 +1691,7 @@ export default function Home() {
               onUpdate={updateCandidate}
               onCheckAvailability={checkJobAvailability}
             />
+            </div>
           ) : (
             <ApplicationBoard
               applications={applications}

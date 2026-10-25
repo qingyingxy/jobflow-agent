@@ -32,6 +32,12 @@ from .ats_assistance import (
     AtsSessionStatus,
     AtsSubmissionAuthorization,
 )
+from .campaign import (
+    CampaignDiscoveryTask,
+    CampaignEvent,
+    CampaignWatch,
+    RecruitmentCampaign,
+)
 from .company_source import DiscoveredCompany
 from .discovery import (
     DiscoveryRun,
@@ -132,6 +138,9 @@ __all__ = [
     "AtsSubmissionAuthorization",
     "AttemptStatus",
     "BlockerStatus",
+    "CampaignDiscoveryTask",
+    "CampaignEvent",
+    "CampaignWatch",
     "CandidateJob",
     "CandidatePrivateProfile",
     "CandidateProfileInput",
@@ -170,6 +179,7 @@ __all__ = [
     "PacketRevision",
     "PacketStatus",
     "PrivateFieldState",
+    "RecruitmentCampaign",
     "RequirementMatch",
     "ResumeAsset",
     "ResumeEvidence",

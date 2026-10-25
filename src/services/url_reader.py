@@ -20,15 +20,20 @@ from src.services.job_url import route_fragment
 class URLReaderError(RuntimeError):
     code = "url_read_failed"
 
-    def __init__(self, message: str, *, code: str | None = None, status_code: int | None = None) -> None:
+    def __init__(self, message: str, *, code: str | None = None, status_code: int | None = None, reason: str | None = None) -> None:
         super().__init__(message)
         self.status_code = status_code
+        self.reason = reason
         if code is not None:
             self.code = code
 
 
 class URLSafetyError(URLReaderError):
     code = "unsafe_url"
+
+    def __init__(self, message, *, reason="url_invalid"):
+        super().__init__(message)
+        self.reason = reason
 
 
 class URLFetchError(URLReaderError):
@@ -104,14 +109,14 @@ class URLSafetyChecker:
         if not self._is_proxy_allowed_host(host, scheme=scheme):
             resolved_ips = self._resolve(host, port or expected_port)
             if not resolved_ips:
-                raise URLSafetyError("URL 主机无法解析")
+                raise URLSafetyError("URL 主机无法解析", reason="dns_empty")
             for resolved_ip in resolved_ips:
                 try:
                     address = ipaddress.ip_address(resolved_ip)
                 except ValueError as error:
-                    raise URLSafetyError("URL 主机解析结果无效") from error
+                    raise URLSafetyError("URL 主机解析结果无效", reason="dns_invalid") from error
                 if not address.is_global:
-                    raise URLSafetyError("出于安全原因，禁止访问内网或保留地址")
+                    raise URLSafetyError("出于安全原因，禁止访问内网或保留地址", reason="dns_non_public")
 
         normalized_netloc = host
         if port is not None:
@@ -147,7 +152,7 @@ class URLSafetyChecker:
         try:
             records = self.resolver(host, port)
         except (OSError, socket.gaierror) as error:
-            raise URLSafetyError("URL 主机解析失败") from error
+            raise URLSafetyError("URL 主机解析失败", reason="dns_failed") from error
 
         resolved: list[str] = []
         for record in records:
@@ -221,9 +226,9 @@ class SafeHTTPReader:
                 if response.status_code in {301, 302, 303, 307, 308}:
                     location = response.headers.get("location")
                     if not location:
-                        raise URLFetchError("服务器重定向缺少 Location")
+                        raise URLFetchError("服务器重定向缺少 Location", reason="redirect_missing_location")
                     if redirect_count >= self.max_redirects:
-                        raise URLFetchError("重定向次数超过安全限制")
+                        raise URLFetchError("重定向次数超过安全限制", reason="redirect_limit")
                     target_url = await self.safety_checker.validate(
                         urljoin(current_url, location)
                     )

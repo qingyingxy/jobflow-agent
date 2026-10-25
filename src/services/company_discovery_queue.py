@@ -98,6 +98,12 @@ def discovery_queue_summary(session, goal):
 
 
 def _runtime(session, goal, task, *, settings, on_event, checkpoint):
+    return create_company_discovery_agent(session, user_id=goal.user_id, run_id=task.run_id,
+        query=goal.query, settings=settings, on_event=on_event, checkpoint=checkpoint)
+
+
+def create_company_discovery_agent(session, *, user_id, run_id, query, settings, on_event, checkpoint,
+                                   agent_class=CompanyDiscoveryAgent):
     from src.infrastructure.llm_client import create_structured_model_client
     from src.services.browser_job_reader import PlaywrightBrowserJobReader
     from src.services.company_registry import enabled_company_source_hosts
@@ -105,15 +111,20 @@ def _runtime(session, goal, task, *, settings, on_event, checkpoint):
     from src.services.web_search_service import create_web_search_provider
 
     reader = SafeHTTPReader(timeout_seconds=8, max_retries=0, proxy=settings.url_fetch_proxy,
-        proxy_allowed_hosts=enabled_company_source_hosts(session=session, user_id=goal.user_id),
+        proxy_allowed_hosts=enabled_company_source_hosts(session=session, user_id=user_id),
         proxy_allow_unlisted_hosts=settings.url_fetch_proxy_allow_unlisted_hosts)
-    return CompanyDiscoveryAgent(session, user_id=goal.user_id, run_id=task.run_id, query=goal.query,
+    agent = agent_class(session, user_id=user_id, run_id=run_id, query=query,
         reader=reader, provider_factory=create_web_search_provider,
         client_factory=lambda: create_structured_model_client(settings.model_copy(update={
             "llm_max_retries": 0, "llm_timeout_seconds": 30})),
         on_event=on_event, checkpoint=checkpoint, browser=PlaywrightBrowserJobReader(timeout_seconds=10),
         request_timeout=settings.company_discovery_request_timeout_seconds,
-        model_timeout=30, max_candidates=settings.company_discovery_max_candidates)
+        model_timeout=30, max_candidates=settings.company_discovery_max_candidates,
+        # Allow the configured evidence search to finish and checkpoint before
+        # the bounded page checks. The previous 45s total cut off a 60s search.
+        verification_timeout=min(150, settings.company_discovery_request_timeout_seconds + 45))
+    agent.settings = settings
+    return agent
 
 
 async def run_company_discovery_step(session_factory=SessionLocal, *, settings=None, agent_factory=None, now=None):

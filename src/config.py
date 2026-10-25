@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     web_search_semantic_history_max_calls: int = Field(default=4, ge=0, le=15)
     web_search_semantic_recovery_max_calls: int = Field(default=4, ge=0, le=10)
     web_search_semantic_concurrency: int = Field(default=2, ge=1, le=4)
+    web_search_http_concurrency: int = Field(default=4, ge=1, le=8)
+    web_search_browser_concurrency: int = Field(default=2, ge=1, le=3)
+    web_search_verification_inflight: int = Field(default=12, ge=1, le=24)
     web_search_semantic_timeout_seconds: float = Field(default=12, gt=0, le=60)
     web_search_semantic_retry_timeout_seconds: float = Field(default=30, gt=0, le=60)
     web_search_direct_sources_enabled: bool = False

@@ -1,6 +1,7 @@
 """Per-run measurements; cached evidence is never a successful fresh read."""
 
 from datetime import UTC, datetime
+from statistics import median
 
 from src.services.lead_retry import DEFERRED, utc_time
 
@@ -21,6 +22,28 @@ class SearchRunMetrics:
         self.first_recommended_ms = None
         self.first_fresh_recommended_ms = None
         self.first_new_recommended_ms = None
+        self.first_three_recommended_ms = None
+        self.first_three_new_recommended_ms = None
+        self.first_three_effective_ms = None
+        self.performance = {}
+        self.result_windows = {30: {}, 60: {}}
+
+    def observe(self, kind, details):
+        if kind not in {"transport", "source_understanding", "verification", "role_review_queue", "search_query"}:
+            return
+        # Budget-skipped calls have not spent model time.
+        if not isinstance(details.get("duration_ms"), (int, float)):
+            return
+        key = f"{kind}:{details['stage']}" if details.get("stage") else kind
+        bucket = self.performance.setdefault(key, {"calls": 0, "timeouts": 0, "errors": 0,
+                                                   "duration_ms": [], "queue_wait_ms": []})
+        bucket["calls"] += 1
+        error = details.get("error_code")
+        bucket["timeouts"] += int(bool(error and "timeout" in error.lower()))
+        bucket["errors"] += int(bool(error))
+        for name in ("duration_ms", "queue_wait_ms"):
+            if isinstance(details.get(name), (int, float)) and len(bucket[name]) < 1000:
+                bucket[name].append(details[name])
 
     def start_read(self, url, *, previous=None):
         previous = previous or {}
@@ -61,6 +84,18 @@ class SearchRunMetrics:
             self.first_new_recommended_ms = elapsed
         self.results[job_id] = useful
         self.recommended[job_id] = recommended
+        current = {key for key, value in self.recommended.items() if value}
+        new = current - self.baseline.keys()
+        if len(current) >= 3 and self.first_three_recommended_ms is None:
+            self.first_three_recommended_ms = elapsed
+        if len(new) >= 3 and self.first_three_new_recommended_ms is None:
+            self.first_three_new_recommended_ms = elapsed
+        if sum(self.results.values()) >= 3 and self.first_three_effective_ms is None:
+            self.first_three_effective_ms = elapsed
+        for seconds in self.result_windows:
+            if elapsed <= seconds * 1000:
+                self.result_windows[seconds] = {"recommended": len(current), "new_recommended": len(new),
+                                               "effective": sum(self.results.values())}
 
     def snapshot(self):
         attempts = len(self.reads)
@@ -74,7 +109,16 @@ class SearchRunMetrics:
         promoted_recommended = {k for k in recommended & self.baseline.keys()
                                if self.baseline[k].get("review_status") in {"pending", "excluded"}}
         return {
-            "version": 4,
+            "version": 5,
+            "first_three_recommended_ms": self.first_three_recommended_ms,
+            "first_three_new_recommended_ms": self.first_three_new_recommended_ms,
+            "first_three_effective_ms": self.first_three_effective_ms,
+            "result_windows": {str(k): v or {"recommended": 0, "new_recommended": 0, "effective": 0}
+                               for k, v in self.result_windows.items()},
+            "performance": {key: {**{k: b[k] for k in ("calls", "timeouts", "errors")},
+                **{name + "_median": round(median(b[name]), 1) if b[name] else None
+                   for name in ("duration_ms", "queue_wait_ms")}}
+                for key, b in self.performance.items()},
             "first_new_recommended_ms": self.first_new_recommended_ms,
             "first_recommended_ms": self.first_recommended_ms,
             "first_fresh_recommended_ms": self.first_fresh_recommended_ms,

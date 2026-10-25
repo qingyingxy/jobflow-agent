@@ -5,6 +5,7 @@ import { apiError } from "./api-error";
 import { parseApiTimestamp } from "./api-time";
 import FollowUpWorkspace from "./follow-up-workspace";
 import PortalTracking from "./portal-tracking";
+import { campaignTime, type CampaignCompany } from "./campaign-workspace";
 import type { SearchGoal } from "./search-goal-controls";
 
 type TrackingTask = {
@@ -16,6 +17,7 @@ type SearchTracking = { goal: SearchGoal; latest_run: null | {
   id: string; status: string; started_at: string; finished_at: string | null; new_count: number;
 } };
 type Snapshot = {
+  campaign_watches?: (CampaignCompany & { year: number; latest_change?: { title: string; kind: string; at: string } | null })[];
   checked_at: string; scheduler_running: boolean; searches: SearchTracking[]; tasks: TrackingTask[];
   counts: { scheduled_goals: number; today: number; overdue: number; attention: number };
 };
@@ -25,13 +27,14 @@ const timeText = (value?: string | null) => value ? parseApiTimestamp(value).toL
   timeZone: "Asia/Shanghai", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false,
 }) : "尚未更新";
 
-export default function TrackingCenter({ apiUrl, userId, onSelectGoal, onOpenBoard, onScheduleChange }: {
+export default function TrackingCenter({ apiUrl, userId, onSelectGoal, onOpenBoard, onOpenCampaigns, onScheduleChange }: {
   apiUrl: string; userId: string; onSelectGoal: (goal: SearchGoal) => void;
   onOpenBoard: () => void; onScheduleChange: () => void;
+  onOpenCampaigns: (year: number) => void;
 }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState<"jobs" | "tasks">("jobs");
+  const [tab, setTab] = useState<"jobs" | "campaigns" | "tasks">("jobs");
   const [managedApplication, setManagedApplication] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [changes, setChanges] = useState<Record<string, JobUpdate[]>>({});
@@ -152,14 +155,15 @@ export default function TrackingCenter({ apiUrl, userId, onSelectGoal, onOpenBoa
         <FollowUpWorkspace apiUrl={apiUrl} userId={userId} initialApplicationId={managedApplication || undefined} />
       </> : <>
         <div className="tracking-tabs" role="tablist" aria-label="追踪类型">
-          {(["jobs", "tasks"] as const).map(id => <button key={id} type="button" role="tab" aria-selected={tab === id}
+          {(["jobs", "campaigns", "tasks"] as const).map(id => <button key={id} type="button" role="tab" aria-selected={tab === id}
             id={`tracking-tab-${id}`} aria-controls={`tracking-panel-${id}`} tabIndex={tab === id ? 0 : -1}
             onKeyDown={event => {
               if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
               event.preventDefault();
-              const next = event.key === "Home" ? "jobs" : event.key === "End" ? "tasks" : id === "jobs" ? "tasks" : "jobs";
+              const tabs = ["jobs", "campaigns", "tasks"] as const;
+              const next = event.key === "Home" ? "jobs" : event.key === "End" ? "tasks" : tabs[(tabs.indexOf(id) + (event.key === "ArrowRight" ? 1 : 2)) % 3];
               setTab(next); document.getElementById(`tracking-tab-${next}`)?.focus();
-            }} onClick={() => setTab(id)}>{id === "jobs" ? "岗位追踪" : "投递跟进"}</button>)}
+            }} onClick={() => setTab(id)}>{id === "jobs" ? "岗位追踪" : id === "campaigns" ? "秋招追踪" : "投递跟进"}</button>)}
         </div>
         {error && <p role="alert" className="tracking-error">{error} <button type="button" onClick={() => void load()}>重试</button></p>}
         {!snapshot && !error && <p>正在读取追踪记录…</p>}
@@ -176,6 +180,17 @@ export default function TrackingCenter({ apiUrl, userId, onSelectGoal, onOpenBoa
             {goal.schedule_error && <p className="tracking-error">{goal.schedule_error}</p>}
             {run && <button className="quiet-button" type="button" aria-expanded={expandedGoal === goal.id} onClick={() => void showChanges(goal.id)}>查看本轮新增与变化</button>}
             {expandedGoal === goal.id && <div className="tracking-changes">{changeError ? <p role="alert">{changeError}</p> : !changes[goal.id] ? <p>正在读取…</p> : !changes[goal.id].length ? <p>本轮尚未发现新增、内容变更或关闭。</p> : changes[goal.id].map(update => <p key={`${update.kind}:${update.job_posting_id}`}><span>{{ new: "新增", changed: "变更", closed: "关闭" }[update.kind]}</span>{update.company} · {update.title}</p>)}</div>}
+          </article>)}
+        </section> : tab === "campaigns" ? <section id="tracking-panel-campaigns" role="tabpanel" aria-labelledby="tracking-tab-campaigns">
+          <p className="tracking-note">关注的公司每小时检查一次。{snapshot?.scheduler_running ? "后台服务运行中。" : "自动检查需要保持后端服务运行。"}</p>
+          {!snapshot?.campaign_watches?.length && <p className="tracking-empty">在“看秋招”中关注公司，这里会显示检查状态和下一次更新时间。</p>}
+          {snapshot?.campaign_watches?.map(company => <article className="tracking-goal" key={`${company.company_id}:${company.year}`}>
+            <h3>{company.company} · {company.year} 届</h3>
+            <p className="tracking-note">最近检查：{campaignTime(company.checked_at)} · {({ idle: "尚未检查", queued: "等待检查", running: "检查中", ready: "已检查", partial: "部分完成", failed: "检查未完成" } as Record<string, string>)[company.status]}</p>
+            <p className="tracking-note">下一次：{campaignTime(company.next_check_at)}</p>
+            {company.error && <p className="tracking-error">{company.error}</p>}
+            {company.latest_change && <p className="tracking-note">{({ first_seen: "首次发现", updated: "公告更新", deadline_changed: "截止时间变更", closed: "已结束", opened: "新开放" } as Record<string, string>)[company.latest_change.kind]}：{company.latest_change.title} · {campaignTime(company.latest_change.at)}</p>}
+            <button type="button" onClick={() => { dialog.current?.close(); onOpenCampaigns(company.year); }}>查看秋招动态</button>
           </article>)}
         </section> : <section id="tracking-panel-tasks" role="tabpanel" aria-labelledby="tracking-tab-tasks">
           <PortalTracking apiUrl={apiUrl} userId={userId} />

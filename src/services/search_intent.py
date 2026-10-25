@@ -274,6 +274,9 @@ def legacy_conditions(query: str | None) -> dict[str, object]:
             pending.append(clause.strip())
             continue
         rest = re.sub(year_pattern, "", clause)
+        # Consume the whole modifier before stripping 不限; otherwise 地点/届别
+        # becomes an accidental mandatory keyword on every returned JD.
+        rest = re.sub(r"(?:工作)?(?:地点|城市|地区|届别)\s*[:：]?\s*不限|不限\s*(?:工作)?(?:地点|城市|地区|届别)", " ", rest)
         for alias in aliases:
             pattern = (
                 rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"

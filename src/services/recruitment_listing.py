@@ -14,7 +14,9 @@ _NEXT = re.compile(
     r"^(?:下一页|下页|加载更多|更多职位|next(?: page)?|load more)[\s›»>]*$",
     re.IGNORECASE,
 )
-_VIEW_JOBS = re.compile(r"^(?:(?:查看|浏览|全部|搜索|进入)(?:职位|岗位)|(?:view|browse|all|search)\s+jobs)[\s→›»]*$", re.IGNORECASE)
+_VIEW_JOBS = re.compile(r"^(?:(?:查看|浏览|全部|搜索|进入)(?:在招|工作)?(?:\s*\d+\s*个?)?(?:职位|岗位)|(?:view|browse|all|search)\s+(?:\d+\s+)?jobs)[\s→›»>]*$", re.IGNORECASE)
+_RECRUITING_CONTROL = re.compile(r"^(?:\d{4}(?:届)?\s*)?(?:校园招聘|应届生招聘|应届校招|实习生招聘|社会招聘)(?:与实习)?[\s→›»]*$")
+_MORE_CONTROL = re.compile(r"^(?:了解更多|点击查看|马上启程|learn more|view more)[\s→›»>]*$", re.IGNORECASE)
 _ENTRY = re.compile(
     r"招聘|校招|应届|实习|职位|岗位|加入我们|careers?|jobs?|positions?|campus|internship",
     re.IGNORECASE,
@@ -72,7 +74,7 @@ def same_origin(url, expected):
     return (left.scheme, left.netloc) == (right.scheme, right.netloc)
 
 
-def allowed_listing_url(url, base):
+def allowed_listing_url(url, base, *, allow_documents=False):
     """Same employer origin or the exact ATS tenant, without action endpoints."""
     try:
         parsed, origin = urlsplit(url), urlsplit(base)
@@ -92,7 +94,8 @@ def allowed_listing_url(url, base):
         and (same_origin(url, base) or default_ports)
         and (not scope or within_scope(url, scope))
         and not navigation_action(url)
-        and not reference_link_reason(url)
+        and (not reference_link_reason(url) or allow_documents and reference_link_reason(url) in {
+            'article_or_discussion', 'attachment_or_document'})
     )
 
 
@@ -200,6 +203,19 @@ def inspect_listing(raw_html, *, url):
         for node in page.entry_buttons
     )
     for node in page.root.walk():
+        # A hint to inspect a visible control, never a fabricated navigation URL.
+        control = (node.tag in {"button", "a"} or node.attrs.get("role") in {"button", "link"}
+                   or "onclick" in node.attrs or re.search(r"cursor\s*:\s*pointer", node.attrs.get("style", "")))
+        if control and not node.attrs.get("href") and not _disabled(node):
+            parents = list(_ancestors(node))
+            text = node.text().strip()
+            safe = not any(n.tag in {"form", "footer", "aside", "template", "script"} or n.excluded for n in parents)
+            selected = node.attrs.get("aria-selected") == "true" or node.attrs.get("aria-current") == "page"
+            contextual_more = _MORE_CONTROL.fullmatch(text) and any(
+                len(p.text()) < 500 and re.search(r"校园|应届|校招|实习|graduate|campus", p.text(), re.IGNORECASE)
+                for p in parents[1:5])
+            if safe and not selected and (_VIEW_JOBS.fullmatch(text) or _RECRUITING_CONTROL.fullmatch(text) or contextual_more):
+                entry_controls = True
         structural = any(
             generic_card.search(parent.attrs.get("class", "")) and parent.text().startswith(node.text())
             and re.search(r"工作地点|所属业务|岗位职责|工作职责|location|department", parent.text(), re.IGNORECASE)
@@ -241,7 +257,8 @@ def inspect_listing(raw_html, *, url):
             else:
                 pagination_unresolved = True
             continue
-        if node.tag != "a" or not valid_href or not target or (not label and not ats_jobs_route(target)):
+        campus_portal = bool(target and hiring_scope(target) and re.search(r"/(?:campus|school|graduate|edu)(?:[-_/?.#]|$)", target, re.IGNORECASE))
+        if node.tag != "a" or not valid_href or not target or (not label and not ats_jobs_route(target) and not campus_portal):
             continue
         # An outbound ATS entry is only a candidate here. The caller must bind
         # it to the trusted employer page before reading it.
@@ -265,7 +282,7 @@ def inspect_listing(raw_html, *, url):
         elif (discovery_kind(target, label, observed_title=True) != "job"
               and not navigation_action(target)):
             context = label
-            if re.fullmatch(r"(?:立即)?(?:投递|申请)(?:职位|岗位)?[\s→›»]*", label):
+            if re.fullmatch(r"(?:立即)?(?:投递|申请)(?:职位|岗位)?[\s→›»]*", label) or _MORE_CONTROL.fullmatch(label):
                 # A navigation link is not a form submission. Associate a short
                 # CTA with its own recruitment section, not the whole document.
                 for parent in list(_ancestors(node.parent))[:4]:
@@ -273,7 +290,7 @@ def inspect_listing(raw_html, *, url):
                     if len(text) <= 500 and _ENTRY.search(text):
                         context = text
                         break
-            if ((_ENTRY.search(context + " " + urlsplit(target).path) or ats_jobs_route(target))
+            if ((_ENTRY.search(context + " " + urlsplit(target).path) or ats_jobs_route(target) or campus_portal)
                     and not re.search(r"\.(?:pdf|docx?|xlsx?|zip)$", urlsplit(target).path, re.IGNORECASE)):
                 entries[target] = HTMLLink(target, context)
     if len(next_urls) > 1:
@@ -298,7 +315,7 @@ def recruitment_priority(link, job_types):
         return 2
     social = bool(
         re.search(r"社招|社会招聘", text)
-        or re.search(r"/(?:social|experienced)(?:/|$)", path)
+        or re.search(r"/(?:social|experienced)(?:[-_/]|$)", path)
     )
     campus = bool(
         re.search(r"校招|校园|应届", text)

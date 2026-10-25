@@ -1,5 +1,92 @@
 @import "tailwindcss";
 
+.discovery-mode-tabs { display: flex; gap: 28px; margin: 0 0 24px; border-bottom: 1px solid #e7eae8; }
+.discovery-mode-tabs button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 12px 4px; color: #69736e; font-size: 16px; }
+.discovery-mode-tabs button[aria-selected="true"] { color: #245e49; border-bottom-color: #327456; font-weight: 650; }
+.campaign-workspace { background: #fff; color: #25322b; }
+.campaign-toolbar, .campaign-toolbar-actions, .campaign-filterbar, .campaign-card, .campaign-card-title, .campaign-company-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.campaign-toolbar { align-items: flex-start; margin-bottom: 26px; }
+.campaign-toolbar h2 { font-size: 20px; margin: 0 0 8px; font-weight: 650; }
+.campaign-toolbar p, .campaign-company-picker > p { color: #778079; font-size: 13px; margin: 0; }
+.campaign-toolbar-actions label { display: flex; align-items: center; gap: 10px; font-size: 13px; white-space: nowrap; }
+.campaign-workspace button:not(.campaign-title-link), .campaign-workspace select, .campaign-filterbar input { border: 1px solid #dce3de; border-radius: 6px; padding: 8px 12px; background: white; color: #365b47; font: inherit; font-size: 13px; }
+.campaign-workspace button:disabled { opacity: .55; }
+.campaign-workspace .campaign-primary { color: white !important; background: #356b50 !important; border-color: #356b50 !important; white-space: nowrap; }
+.campaign-filterbar { padding: 16px 0; border-top: 1px solid #eef0ee; border-bottom: 1px solid #eef0ee; }
+.campaign-view-options { display: flex; gap: 6px; }
+.campaign-view-options button { border-color: transparent !important; }
+.campaign-view-options button[aria-pressed="true"] { background: #edf4ee !important; color: #2f6548; }
+.campaign-filterbar input { width: 240px; max-width: 100%; color: #25322b; }
+.campaign-filterbar input::placeholder { color: #8b958e; opacity: 1; }
+.campaign-sortbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0 2px; font-size: 12px; color: #778079; }
+.campaign-open-filter { display: inline-flex; align-items: center; gap: 7px; color: #496451; cursor: pointer; white-space: nowrap; }
+.campaign-open-filter input { width: 15px; height: 15px; min-height: 0; padding: 0; margin: 0; accent-color: #356b50; }
+.campaign-closed { padding: 18px 0; border-bottom: 1px solid #e9eeea; }
+.campaign-closed > summary { cursor: pointer; font-size: 13px; color: #7b837d; }
+.campaign-card { padding: 23px 2px; border-bottom: 1px solid #e9eeea; align-items: flex-start; }
+.campaign-card-main { min-width: 0; }
+.campaign-company-note { margin: 0; font-size: 14px; color: #536b5c; }
+.campaign-check-state { margin: 8px 0; font-size: 12px; color: #7b837d; line-height: 1.7; }
+.campaign-company-evidence { margin-top: 12px; font-size: 13px; }
+.campaign-company-evidence summary, .campaign-discovery-progress summary { cursor: pointer; color: #416d53; }
+.campaign-evidence-row { padding: 12px 0; border-bottom: 1px solid #edf1ee; }
+.campaign-evidence-row p { margin: 6px 0; color: #7b837d; font-size: 12px; }
+.campaign-evidence-row a { display: inline-block; margin: 4px 16px 0 0; color: #416d53; }
+.campaign-discovery-progress { margin: 14px 0; padding: 12px 16px; background: #f2f7f3; border-radius: 6px; font-size: 13px; line-height: 1.8; color: #416d53; }
+.campaign-discovery-progress p { margin: 4px 0; }
+.campaign-card-title { justify-content: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.campaign-card-title h3 { margin: 0; font-size: 17px; font-weight: 650; }
+.campaign-card-title > span { color: #7d857f; font-size: 12px; }
+.campaign-card-title .campaign-status { padding: 3px 7px; border-radius: 4px; color: #68756b; background: #f3f5f3; }
+.campaign-card-title .campaign-status-open { color: #3c7052; background: #edf5ef; }
+.campaign-card-title .campaign-status-upcoming { color: #846b40; background: #f7f3eb; }
+.campaign-title-link { display: block; padding: 0; border: 0; background: none; color: #354c3d; text-align: left; font-size: 14px; line-height: 1.6; cursor: pointer; }
+.campaign-title-link:hover { text-decoration: underline; }
+.campaign-dates, .campaign-directions, .campaign-change { margin: 9px 0 0; color: #7b837d; font-size: 12px; line-height: 1.7; }
+.campaign-dates { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.campaign-directions { color: #63756a; }
+.campaign-change { color: #887340; }
+.campaign-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 14px; flex-wrap: wrap; max-width: 340px; flex-shrink: 0; padding-top: 3px; }
+.campaign-card-actions a { font-size: 13px; color: #657a6e; text-decoration: none; }
+.campaign-card-actions .campaign-apply-link { padding: 8px 12px; border: 1px solid #356b50; border-radius: 6px; background: #356b50; color: white; }
+.campaign-entry-evidence { margin: 22px 0; padding-top: 16px; border-top: 1px solid #e1e8e2; }
+.campaign-entry-evidence h3 { font-size: 15px; }
+.campaign-card-actions .campaign-follow { border: 0 !important; color: #768479 !important; background: none !important; padding-inline: 0 !important; }
+.campaign-footnote, .campaign-progress { font-size: 12px; line-height: 1.8; color: #818b84; margin: 14px 0 24px; }
+.campaign-progress { color: #416d53; }
+.campaign-empty { padding: 60px 18px; text-align: center; color: #7c867f; }
+.campaign-empty h3 { color: #4e6355; font-size: 17px; margin: 0 0 12px; font-weight: 500; }
+.campaign-empty p { font-size: 13px; line-height: 1.8; }
+.campaign-company-picker { border-top: 1px solid #e8ede9; padding-top: 18px; }
+.campaign-company-picker summary { cursor: pointer; font-size: 14px; color: #46604e; }
+.campaign-company-picker summary span { font-size: 12px; color: #8a928d; margin-left: 12px; }
+.campaign-company-picker > p { margin: 14px 0; line-height: 1.8; }
+.campaign-company-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; }
+.campaign-company-row { padding: 14px 0; border-bottom: 1px solid #eff2ef; }
+.campaign-company-row > div:first-child { display: grid; gap: 5px; min-width: 0; }
+.campaign-company-row strong { font-size: 13px; font-weight: 550; }
+.campaign-company-row small { color: #8b938d; font-size: 11px; }
+.campaign-company-row > div:last-child { display: flex; gap: 8px; flex-shrink: 0; }
+.campaign-company-row button { padding: 5px 9px !important; }
+.campaign-evidence-dialog { width: min(660px, calc(100vw - 32px)); max-height: 82vh; border: 1px solid #e1e8e2; border-radius: 10px; padding: 26px; color: #344f3e; }
+.campaign-evidence-dialog::backdrop { background: #15291d55; }
+.campaign-evidence-dialog header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.campaign-evidence-dialog h2 { font-size: 20px; line-height: 1.5; margin: 10px 0; }
+.campaign-evidence-dialog p, .campaign-evidence-dialog small { font-size: 12px; color: #7e897f; }
+.campaign-evidence-dialog dl > div { margin: 18px 0; }
+.campaign-evidence-dialog dt { font-size: 12px; color: #808d83; margin-bottom: 7px; }
+.campaign-evidence-dialog dd { margin: 0; font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .campaign-toolbar, .campaign-card { flex-direction: column; }
+  .campaign-toolbar-actions { width: 100%; flex-wrap: wrap; }
+  .campaign-filterbar { align-items: stretch; flex-direction: column; gap: 12px; }
+  .campaign-filterbar input { width: 100%; }
+  .campaign-card-actions { justify-content: flex-start; max-width: none; }
+  .campaign-company-list { grid-template-columns: 1fr; }
+  .campaign-company-picker summary span { display: block; margin: 8px 0; }
+  .campaign-evidence-dialog { padding: 20px; }
+}
+
 .goal-selector, .goal-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 14px 0; }
 .goal-selector label { display: grid; gap: 6px; flex: 1; min-width: 180px; }
 .goal-selector select, .goal-fields input, .goal-auto-update select { border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; background: var(--paper-soft); color: var(--ink); width: 100%; }

@@ -1,12 +1,13 @@
 param(
-    [ValidateSet('Start', 'Stop', 'Status')][string]$Action = 'Status'
+    [ValidateSet('Start', 'Stop', 'Status')][string]$Action = 'Status',
+    [ValidateRange(1, 65535)][int]$FrontendPort = 3000
 )
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path $PSScriptRoot -Parent
 $RuntimeDir = Join-Path $ProjectRoot 'data/local-runtime'
 $StateFile = Join-Path $RuntimeDir 'services.json'
 $BackendUrl = 'http://127.0.0.1:18001'
-$FrontendUrl = 'http://localhost:3000'
+$FrontendUrl = "http://localhost:$FrontendPort"
 
 function Get-OwnedProcess($Record) {
     $Process = Get-Process -Id $Record.pid -ErrorAction SilentlyContinue
@@ -45,6 +46,10 @@ function Wait-Ready([string]$Url, $Process) {
 }
 
 $Records = @(Read-State)
+$SavedFrontend = $Records | Where-Object { $_.name -eq 'frontend' } | Select-Object -First 1
+if ($SavedFrontend.url -and ($Action -ne 'Start' -or (Get-OwnedProcess $SavedFrontend))) {
+    $FrontendUrl = $SavedFrontend.url
+}
 if ($Action -eq 'Stop') {
     foreach ($Record in $Records) {
         Stop-OwnedProcess $Record
@@ -73,9 +78,12 @@ if ($Running.Count) {
     }
     throw 'A previous managed service is still running. Run -Action Stop, then Start.'
 }
-foreach ($Port in @(18001, 3000)) {
+if ($FrontendPort -eq 18001) { throw 'FrontendPort must differ from backend port 18001.' }
+foreach ($Port in @(18001, $FrontendPort)) {
     $Listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $Port)
-    try { $Listener.Start() } catch { throw "Port $Port is already occupied; no existing service was stopped." } finally { $Listener.Stop() }
+    try { $Listener.Start() } catch {
+        throw "Cannot bind port ${Port}: $($_.Exception.InnerException.Message) For the frontend, select another -FrontendPort. No existing service was stopped."
+    } finally { $Listener.Stop() }
 }
 $PythonPath = Join-Path $ProjectRoot '.venv/Scripts/python.exe'
 $FrontendRoot = Join-Path $ProjectRoot 'frontend'
@@ -88,14 +96,14 @@ $Previous = @{}
 foreach ($Name in $Names) { $Previous[$Name] = [Environment]::GetEnvironmentVariable($Name, 'Process') }
 $Started = @()
 try {
-    $env:FRONTEND_ORIGINS = 'http://localhost:3000,http://127.0.0.1:3000'
+    $env:FRONTEND_ORIGINS = "http://localhost:$FrontendPort,http://127.0.0.1:$FrontendPort"
     $env:NEXT_DIST_DIR = '.next-tracking-build'
     $Backend = Start-Process -FilePath $PythonPath -ArgumentList '-m uvicorn src.main:app --host 127.0.0.1 --port 18001' -WorkingDirectory $ProjectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $RuntimeDir 'backend.log') -RedirectStandardError (Join-Path $RuntimeDir 'backend.error.log')
-    $Started += @{name='backend'; pid=$Backend.Id; started=$Backend.StartTime.ToUniversalTime().Ticks.ToString(); executable=$Backend.Path}
+    $Started += @{name='backend'; pid=$Backend.Id; started=$Backend.StartTime.ToUniversalTime().Ticks.ToString(); executable=$PythonPath}
     Save-State $Started
     Wait-Ready ($BackendUrl + '/health') $Backend
-    $Frontend = Start-Process -FilePath $NodePath -ArgumentList 'node_modules/next/dist/bin/next start --hostname localhost --port 3000' -WorkingDirectory $FrontendRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $RuntimeDir 'frontend.log') -RedirectStandardError (Join-Path $RuntimeDir 'frontend.error.log')
-    $Started += @{name='frontend'; pid=$Frontend.Id; started=$Frontend.StartTime.ToUniversalTime().Ticks.ToString(); executable=$Frontend.Path}
+    $Frontend = Start-Process -FilePath $NodePath -ArgumentList "node_modules/next/dist/bin/next start --hostname localhost --port $FrontendPort" -WorkingDirectory $FrontendRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $RuntimeDir 'frontend.log') -RedirectStandardError (Join-Path $RuntimeDir 'frontend.error.log')
+    $Started += @{name='frontend'; pid=$Frontend.Id; started=$Frontend.StartTime.ToUniversalTime().Ticks.ToString(); executable=$NodePath; url=$FrontendUrl}
     Save-State $Started
     Wait-Ready $FrontendUrl $Frontend
     Write-Output "JobFlow running: $FrontendUrl"

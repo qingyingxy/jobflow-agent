@@ -373,10 +373,11 @@ def pending_review_fields(job, *, query, conditions, role_review=None, primary=F
 class SourceUnderstanding:
     """Bounded foreground, listing and historical lanes; history cannot starve discovery."""
 
-    def __init__(self, settings, *, client=None, on_event=None, query=None, conditions=None, known_urls=None, include_qualifications=True):
+    def __init__(self, settings, *, client=None, on_event=None, query=None, conditions=None, known_urls=None, include_qualifications=True, background=False):
         self.settings = settings
         self.client = client
         self.include_qualifications = include_qualifications
+        self.background = background
         self.calls = 0
         self._field_calls = 0
         self._recovery_calls = 0
@@ -425,7 +426,10 @@ class SourceUnderstanding:
         listing = kind == "job_listing_order"
         slots = self._listing_slots if listing else self._history_slots if historical else self._slots
         queued_at = monotonic()
-        async with slots:
+        from src.services.search_resources import model_capacity
+
+        priority = 3 if kind == "job_qualifications" else 2 if historical or self.background else 1 if listing else 0
+        async with slots, model_capacity(self.settings, self.client).slot(priority):
             if cache_key in self._cache:
                 return self._cache[cache_key]
             from src.services.semantic_retry import (

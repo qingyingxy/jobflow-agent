@@ -95,7 +95,7 @@ class BingRSSSearchProvider:
 
     @property
     def effective_query(self) -> str:
-        if self.search_purpose == "companies":
+        if self.search_purpose in {"companies", "campaigns"}:
             return self.query
         scope = ""
         if self.company_names:
@@ -126,7 +126,7 @@ class BingRSSSearchProvider:
                 response.body,
                 max_results=self.max_results,
             )
-            if self.search_purpose == "companies" or _looks_like_job_search_result(candidate)
+            if self.search_purpose in {"companies", "campaigns"} or _looks_like_job_search_result(candidate)
         ]
 
 
@@ -154,7 +154,7 @@ class TavilySearchProvider:
 
     @property
     def effective_query(self) -> str:
-        if self.search_purpose == "companies":
+        if self.search_purpose in {"companies", "campaigns"}:
             return self.query
         company_scope = (
             f"，优先公司：{'、'.join(self.company_names)}" if self.company_names else ""
@@ -210,7 +210,7 @@ class TavilySearchProvider:
                 search_snippet=_clean_snippet_text(str(item.get("content", ""))),
                 discovered_at=discovered_at,
             )
-            if self.search_purpose == "companies" or _looks_like_job_search_result(candidate):
+            if self.search_purpose in {"companies", "campaigns"} or _looks_like_job_search_result(candidate):
                 candidates.append(candidate)
             if len(candidates) >= self.max_results:
                 break

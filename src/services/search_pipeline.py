@@ -329,7 +329,7 @@ async def run_search_pipeline(
             )
 
     consumers = [
-        asyncio.create_task(worker()) for _ in range(max(1, min(3, max_concurrency)))
+        asyncio.create_task(worker()) for _ in range(max(1, min(24, max_concurrency)))
     ]
     review_consumers = (
         [

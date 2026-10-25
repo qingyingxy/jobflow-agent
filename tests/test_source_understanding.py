@@ -39,10 +39,12 @@ def engine(decisions, **options):
 
 
 @pytest.mark.asyncio
-async def test_two_cohorts_are_recovered_without_erasing_degree_clause_and_cached():
+@pytest.mark.parametrize("qualifications", [True, False])
+async def test_two_cohorts_are_recovered_without_erasing_degree_clause_and_cached(qualifications):
     original = job(1)
     index = next(i for i, p in enumerate(paragraphs(original.raw_content)) if "2026/2027" in p)
     runtime = engine([decision("graduation_year", "matched", [index])])
+    runtime.include_qualifications = qualifications
     updated = await runtime.review(original, query=QUERY)
     check = next(c for c in classify_discovery_job(updated, query=QUERY).checks if c["field"] == "graduation_year")
     assert check["status"] == "matched"
