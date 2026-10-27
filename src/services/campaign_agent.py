@@ -20,7 +20,7 @@ from src.services.company_evidence_reader import (
 )
 from src.services.search_resources import model_capacity
 
-VERSION = "campus-navigation-agent-v15"
+VERSION = "campus-navigation-agent-v16-recruitment-kind"
 
 
 class CampaignAction(BaseModel):
@@ -45,9 +45,12 @@ read：url 必须来自已观察入口、链接或搜索结果；HTTP 读取，�
 render：用浏览器补读一个已观察 URL，适用于 JS 页面壳、无链接按钮、未加载的列表。不要因 DOM 状态猜测否定正文已有的实际岗位。
 navigate：在已渲染的 url 页面点击一个 navigation_controls 中的公开导航控件，用 control_index 指定序号；url 留空时表示 current_page.url。工具会重新核对控件，不会自动选择其他按钮。跳转所得的新链接会交给你继续读取。
 report：由你综合本轮工具记录和已读页面，直接提交最终 report。不会再调用独立提取器或用规则重判你的结论。
-report.status：found=目标公司官方招聘渠道中存在至少一个实际校招岗位；empty=已确认目标公司的校招列表确实暂无岗位；unknown=证据不足。
+report.status：found=目标公司官方招聘渠道中存在至少一个面向毕业生的正式校招岗位；internship_only=当前只找到明确的实习岗位，尚未发现正式校招岗位；empty=已确认目标公司的校招列表确实暂无岗位；unknown=证据不足。
+先判断每个引用岗位的招聘性质，再决定公司结论。校园招聘菜单或平台栏目可以同时包含实习，不证明其中每个岗位都是正式校招。
+实习岗位即使写2027/2028届优先或转正机会，也不能据此报告found；先沿已观察链接补查正式岗位，最终仅有实习时报告internship_only。
+found的job_titles只列支持正式校招结论的实际岗位；internship_only列已读的实习岗位。两类同时存在时可以found，但必须引用正式岗位。
 report.kind/title对应主要证据页，action.url填该页地址；report.recruitment_url填公司级招聘入口，避免用岗位详情代替入口。没有可靠地址时留空。
-report.job_titles填写实际校招岗位名称，最多5个；unknown/empty时为空。report.cohort_status由你判断：确认目标届别用confirmed，未注明用unspecified。
+report.job_titles填写支持所报招聘性质的实际岗位名称，最多5个；unknown/empty时为空。report.cohort_status由你判断：确认目标届别用confirmed，未注明用unspecified。
 report.campus_quote保留校招依据；year_quote只填毕业届别或毕业日期范围，不能填写网申、投递、发布或版权年份。未写毕业届别/时间时year_quote留空、cohort_status为unspecified，不把target_year或上轮判断补成原文。citations逐条记录来源URL和短引用，可引用多个页面，不要求所有证据挤进一个连续片段。
 由你检查引用页面是否在本轮成功读取、内容是否确实存在并支持结论；只引用read_pages中的资料，搜索摘要、历史记录和失败读取不算本轮已读正文。
 report.reasoning说明官方渠道、公司归属和实际校招岗位的判断依据；不足时具体说明缺什么。不要仅复述结论。
@@ -206,7 +209,7 @@ class CampaignAgentReader:
                         continue
                     final_report = action.report.model_dump()
                     job_check, facts = report_result(action.report, url or "", year, datetime.now(UTC).isoformat())
-                    if action.report.status in {"found", "empty"}:
+                    if action.report.status in {"found", "empty", "internship_only"}:
                         found.append((facts, url or ""))
                         if self.on_observation:
                             self.on_observation(facts, url or "")

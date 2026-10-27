@@ -6,7 +6,7 @@ from src.services.campaign_navigation import job_filter_url
 
 def job_observation(facts):
     entry = facts.get("entry") or {}
-    if entry.get("job_presence") not in {"found", "empty"}:
+    if entry.get("job_presence") not in {"found", "empty", "internship_only"}:
         return None
     report = facts.get("agent_report") or {}
     return {"status": entry["job_presence"], "checked_at": entry.get("checked_at"),
@@ -21,6 +21,9 @@ def check_result(found, *, complete):
     positive = next((item for item in observations if item["status"] == "found"), None)
     if positive:
         return positive
+    internship = next((item for item in observations if item["status"] == "internship_only"), None)
+    if internship and complete:
+        return internship
     empty = next((item for item in observations if item["status"] == "empty"
                   and not job_filter_url(item["url"])), None)
     if empty and complete:

@@ -103,7 +103,7 @@ def _runtime(session, goal, task, *, settings, on_event, checkpoint):
 
 
 def create_company_discovery_agent(session, *, user_id, run_id, query, settings, on_event, checkpoint,
-                                   agent_class=CompanyDiscoveryAgent):
+                                   agent_class=CompanyDiscoveryAgent, extraction_timeout=30):
     from src.infrastructure.llm_client import create_structured_model_client
     from src.services.browser_job_reader import PlaywrightBrowserJobReader
     from src.services.company_registry import enabled_company_source_hosts
@@ -116,10 +116,10 @@ def create_company_discovery_agent(session, *, user_id, run_id, query, settings,
     agent = agent_class(session, user_id=user_id, run_id=run_id, query=query,
         reader=reader, provider_factory=create_web_search_provider,
         client_factory=lambda: create_structured_model_client(settings.model_copy(update={
-            "llm_max_retries": 0, "llm_timeout_seconds": 30})),
+            "llm_max_retries": 0, "llm_timeout_seconds": max(30, extraction_timeout)})),
         on_event=on_event, checkpoint=checkpoint, browser=PlaywrightBrowserJobReader(timeout_seconds=10),
         request_timeout=settings.company_discovery_request_timeout_seconds,
-        model_timeout=30, max_candidates=settings.company_discovery_max_candidates,
+        model_timeout=extraction_timeout, max_candidates=settings.company_discovery_max_candidates,
         # Allow the configured evidence search to finish and checkpoint before
         # the bounded page checks. The previous 45s total cut off a 60s search.
         verification_timeout=min(150, settings.company_discovery_request_timeout_seconds + 45))

@@ -11,11 +11,16 @@ LABELS = {"degree": "学历要求", "major": "专业要求", "experience": "经�
 
 def qualification_hints(job, clauses, highest):
     hints = []
+    conflicted_categories = {c["category"] for c in clauses if c.get("conflicting_evidence")}
     for clause in clauses:
         preferred = clause["strength"] == "preferred"
         status = "preferred" if preferred else "review"
         note = "加分项，不作为硬性淘汰条件" if preferred else "原文有此要求，个人资料尚未核对"
-        if clause["strength"] in {"conditional", "uncertain"} or clause["scope"]:
+        conflicts = clause.get("conflicting_evidence", [])
+        if conflicts:
+            status = "source_conflict"
+            note = "招聘项目与任职条件存在不同表述，需向招聘方核对" + (f"：{clause['scope']}" if clause["scope"] else "")
+        elif clause["strength"] in {"conditional", "uncertain"} or clause["scope"]:
             note = ("加分项，不作为硬性淘汰条件；" if preferred else "") + "此条件包含适用范围或例外，请核对完整原文" + (f"：{clause['scope']}" if clause["scope"] else "")
         elif clause["category"] == "degree" and clause["strength"] == "required" and highest and clause["accepted_degrees"]:
             floor = min(DEGREE_RANK[level] for level in clause["accepted_degrees"])
@@ -27,8 +32,11 @@ def qualification_hints(job, clauses, highest):
                 status, note = "satisfied", "当前学历达到本条要求；其他任职条件仍需分别核对"
             else:
                 note = "当前学历不在原文明列的选项中，需核对是否接受其他学历；暂不判定符合或排除"
+        if status in {"satisfied", "attention"} and clause["category"] in conflicted_categories:
+            status, note = "review", "同类资格在原文中存在冲突，需结合冲突条款核对"
         hints.append({"category": clause["category"], "status": status, "label": LABELS[clause["category"]],
-                      "reason": note, "evidence": clause["evidence"], "source_url": job.source_url, "source": "ai"})
+                      "reason": note, "evidence": clause["evidence"], "conflicting_evidence": conflicts,
+                      "source_url": job.source_url, "source": "ai"})
     return hints
 
 

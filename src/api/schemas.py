@@ -361,6 +361,13 @@ class DiscoveryAgentTraceStep(BaseModel):
     error_code: str | None = None
     details: dict[str, object] = Field(default_factory=dict)
 
+    @field_validator("decision", mode="before")
+    @classmethod
+    def absent_decision_is_empty(cls, value):
+        # Older failed model calls saved null because no decision was produced.
+        # Keep the failed trace and its diagnostics without inventing a reason.
+        return "" if value is None else value
+
 
 class DiscoveryResultMatchRead(BaseModel):
     job_posting_id: str

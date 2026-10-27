@@ -22,6 +22,8 @@ from src.infrastructure.llm_client import (
     StructuredModelRequest,
     create_structured_model_client,
 )
+from src.services.job_fact_understanding import WorkLocation, attach_locations
+from src.services.qualification_understanding import VERSION as QUALIFICATION_VERSION
 from src.services.qualification_understanding import (
     QualificationClause,
     attach_qualifications,
@@ -113,6 +115,7 @@ class FieldDecision(BaseModel):
 class DecisionOutput(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     decisions: list[FieldDecision] = Field(max_length=4)
+    work_locations: list[WorkLocation] | None = Field(default=None, max_length=20)
 
 
 class UnderstandingOutput(DecisionOutput):
@@ -132,6 +135,7 @@ class DetailOutput(BaseModel):
 
 class PageDecisionOutput(DetailOutput):
     decisions: list[FieldDecision] = Field(max_length=4)
+    work_locations: list[WorkLocation] | None = Field(default=None, max_length=20)
 
 
 class PageUnderstandingOutput(PageDecisionOutput):
@@ -229,7 +233,7 @@ def attach_page_understanding(job):
     if set(checked_decisions(updated, conditions)) != set(requested_fields(conditions)):
         return queue_review(job, conditions=conditions, fields=requested_fields(conditions),
                             error="semantic_invalid", primary=True)
-    return attach_qualifications(updated, output.get("qualifications"))
+    return attach_locations(attach_qualifications(updated, output.get("qualifications")), output.get("work_locations"))
 
 
 def review_attempt(job, conditions):
@@ -416,6 +420,11 @@ class SourceUnderstanding:
         if "qualifications" in schema.model_fields:
             from src.services.qualification_understanding import INSTRUCTION
             instruction += INSTRUCTION
+        if "work_locations" in schema.model_fields:
+            from src.services.job_fact_understanding import (
+                INSTRUCTION as LOCATION_INSTRUCTION,
+            )
+            instruction += LOCATION_INSTRUCTION
         cache_key = json.dumps([VERSION, kind, payload], ensure_ascii=False, sort_keys=True)
         if cache_key in self._cache:
             return self._cache[cache_key]
@@ -537,7 +546,7 @@ class SourceUnderstanding:
         payload = {
             "url": job.detail_url, "title": job.title, "conditions": conditions, "fields": needed,
             "paragraphs": [{"id": i, **p} for i, p in enumerate(passages)],
-            "qualification_version": "qualification-clauses-v1" if self.include_qualifications else None,
+            "qualification_version": QUALIFICATION_VERSION if self.include_qualifications else None,
         }
         if exclusion_review:
             # A separate payload prevents reusing the first-pass cache. The
@@ -626,6 +635,7 @@ class SourceUnderstanding:
                                                              "source_review_attempt", attempt))
         if not error:
             updated = attach_qualifications(updated, output.get("qualifications"))
+            updated = attach_locations(updated, output.get("work_locations"))
         if on_checkpoint:
             on_checkpoint(updated)
         return updated
@@ -697,9 +707,10 @@ class SourceUnderstanding:
         sections = {"content_hash": hashlib.sha256(body.encode()).hexdigest(),
                     "duties": [parts[i] for i in output["duty_ids"]],
                     "requirements": [parts[i] for i in output["requirement_ids"]],
-                    "understanding": {"version": VERSION, "conditions": self.conditions, "output": {"qualifications": output.get("qualifications"), "decisions": [
+                    "understanding": {"version": VERSION, "conditions": self.conditions, "output": {"work_locations": output.get("work_locations"), "qualifications": output.get("qualifications"), "decisions": [
                         {**d, "evidence_ids": [i - first for i in d["evidence_ids"]]} for d in decisions]}}}
-        return replace(document, text=body, title=title, company=None, locations=[],
+        return replace(document, text=body, title=title, company=None,
+                       locations=[item["value"] for item in output.get("work_locations") or []],
                        job_type=None, published_at=None, json_ld=[]), {**output, "sections": sections}
 
     async def recover_detail(self, document, *, url, title_hint=None):

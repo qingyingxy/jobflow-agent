@@ -157,7 +157,7 @@ class TavilySearchProvider:
         if self.search_purpose in {"companies", "campaigns"}:
             return self.query
         company_scope = (
-            f"，优先公司：{'、'.join(self.company_names)}" if self.company_names else ""
+            f"，限定公司：{'、'.join(self.company_names)}" if self.company_names else ""
         )
         return f"{self.query}{company_scope}。只返回仍可申请的具体招聘岗位详情页。"
 

@@ -4,7 +4,7 @@ import type { Campaign, CampaignCompanyCard } from "../app/campaign-workspace";
 const now = "2026-10-22T08:00:00Z";
 async function fixture(page: Page, withJudgment = false) {
   const mutations: { path: string; body: Record<string, unknown> }[] = [];
-  const presenceOverrides = new Map<string, "empty" | "unknown">();
+  const presenceOverrides = new Map<string, "empty" | "unknown" | "internship">();
   const discovery = { enabled: true, status: "idle", stage: "search", queries_completed: 0, queries_total: 0,
     companies_found: 0, companies_verified: 0, companies_queued: 0,
     pending_companies: [] as { company: string; reason: string }[], next_run_at: null, error: null };
@@ -26,7 +26,7 @@ async function fixture(page: Page, withJudgment = false) {
       excluded_job_types: [], keywords: [], pending_conditions: [] } }];
   await page.route("http://127.0.0.1:18001/api/**", async route => {
     const url = new URL(route.request().url()), path = url.pathname, method = route.request().method();
-    const headers = { "access-control-allow-origin": "http://localhost:3000", "access-control-allow-headers": "content-type,x-user-id", "access-control-allow-methods": "GET,POST,PUT,PATCH,OPTIONS" };
+    const headers = { "access-control-allow-origin": route.request().headers().origin || "http://localhost:3000", "access-control-allow-headers": "content-type,x-user-id", "access-control-allow-methods": "GET,POST,PUT,PATCH,OPTIONS" };
     const json = (data: unknown, status = 200) => route.fulfill({ headers, json: data, status });
     if (method === "OPTIONS") return json({});
     const body = method === "GET" ? {} : route.request().postDataJSON();
@@ -77,6 +77,39 @@ test("company card shows the agent judgment and cited source", async ({ page }) 
   await expect(card.getByText("已读官方校招列表中有实际软件工程师岗位。", { exact: true })).toBeVisible();
   await expect(card.getByText("2027届校园招聘：软件工程师", { exact: true })).toBeVisible();
   await expect(card.getByRole("link", { name: "查看来源 ↗", exact: true })).toHaveAttribute("href", "https://example.com/campus/jobs");
+});
+
+test("internship only stays outside formal jobs and budget pause is resumable", async ({ page }) => {
+  const { presenceOverrides, discovery, mutations } = await fixture(page);
+  presenceOverrides.set("baidu", "internship");
+  Object.assign(discovery, { status: "paused", stage: "budget_limit", queries_completed: 17, queries_total: 17,
+    companies_found: 16, companies_verified: 16, companies_queued: 16 });
+  await page.goto("/");
+  await page.getByRole("tab", { name: "看秋招", exact: true }).click();
+  await expect(page.getByText("本轮查找额度已用完，结果已保存", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "继续发现公司", exact: true })).toBeEnabled();
+  const card = page.getByRole("article", { name: "百度校招", exact: true });
+  await expect(card.getByText("仅发现实习", { exact: true })).toBeVisible();
+  await page.getByLabel("只看有岗位").check();
+  await expect(card).toHaveCount(0);
+  await expect(page.getByRole("article", { name: "小米校招", exact: true })).toBeVisible();
+  expect(mutations).toEqual([]);
+});
+
+test("model retry wait keeps company results and resumes by polling", async ({ page }) => {
+  const { discovery, mutations } = await fixture(page);
+  Object.assign(discovery, { status: "waiting", stage: "model_retry", companies_found: 2,
+    next_run_at: new Date(Date.now() + 30_000).toISOString(),
+    error: "模型服务暂时不可用，进度已保存，将自动进行第 1 次重试。" });
+  await page.goto("/");
+  await page.getByRole("tab", { name: "看秋招", exact: true }).click();
+  await expect(page.getByRole("button", { name: "等待自动重试…", exact: true })).toBeDisabled();
+  await expect(page.getByText("预计自动重试：", { exact: false })).toBeVisible();
+  await expect(page.getByText("本轮搜索完成，部分公司等待复核", { exact: false })).toHaveCount(0);
+  await expect(page.getByRole("article", { name: "百度校招", exact: true })).toBeVisible();
+  Object.assign(discovery, { status: "completed", stage: "done", next_run_at: null, error: null });
+  await expect(page.getByRole("button", { name: "发现更多公司", exact: true })).toBeEnabled({ timeout: 15_000 });
+  expect(mutations).toEqual([]);
 });
 
 test("two discovery modes show announcement dates and grounded details", async ({ page }, testInfo) => {

@@ -7,7 +7,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-VERSION = "qualification-clauses-v1"
+from src.services.job_fact_understanding import WorkLocation, attach_locations
+
+VERSION = "qualification-clauses-v2-conflicts"
 INSTRUCTION = (
     "同时抽取当前岗位对申请人的任职条件qualifications，不能判断具体候选人是否合格。"
     "逐条区分required必备、preferred优先、conditional有替代或分支、uncertain范围不清。"
@@ -18,6 +20,13 @@ INSTRUCTION = (
     "不要求博士、优秀硕士可放宽、多方向任选等必须保留条件，不能标成无条件博士必备。"
     "scope写适用的方向或例外条件；全岗位通用填null。非学历项accepted_degrees为空。"
     "只抽取原文写明的学历、专业、经验、院校、论文等资格；没有就返回空数组。"
+    "必须同时检查岗位标题、招聘项目和正文要求，不能只抽取任职要求小节。"
+    "若同一资格有互相矛盾的表述，在该条conflicting_evidence中逐字引用其他冲突原文，"
+    "strength填uncertain，scope说明冲突，不能只选择更宽松的一段。"
+    "例如项目写2027届博士生招聘，正文写硕士或博士学位，且没有明确放宽说明，"
+    "应保留这两处证据并标为待核对；不能把项目学历限制只当作毕业年份。"
+    "明确的多方向条件或放宽例外不等于矛盾，使用conditional和scope保留适用范围。"
+    "没有冲突时conflicting_evidence为空数组。"
 )
 
 
@@ -28,11 +37,13 @@ class QualificationClause(BaseModel):
     evidence: str = Field(min_length=2, max_length=3000)
     accepted_degrees: list[Literal["associate", "bachelor", "master", "doctor"]] = Field(max_length=4)
     scope: str | None = Field(max_length=500)
+    conflicting_evidence: list[str] = Field(default_factory=list, max_length=5)
 
 
 class QualificationOutput(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     qualifications: list[QualificationClause] = Field(max_length=20)
+    work_locations: list[WorkLocation] | None = Field(default=None, max_length=20)
 
 
 def body_key(job):
@@ -98,6 +109,8 @@ async def review_qualifications(runtime, job, *, on_checkpoint=None):
             on_checkpoint(pending)
         raise
     updated = attach_qualifications(pending, result["qualifications"] if result else None)
+    if result:
+        updated = attach_locations(updated, result.get("work_locations"))
     if cached_qualifications(updated) is None:
         cache_key = json.dumps([source_version, "job_qualifications", payload], ensure_ascii=False, sort_keys=True)
         error = runtime._errors.get(cache_key, "semantic_invalid")

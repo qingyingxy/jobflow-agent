@@ -50,8 +50,11 @@ def enrich_result(match, job, profile, *, conditions):
     search["missing_fields"] = missing if readable else []
     hints = personal_requirement_hints(job, profile) if readable else []
     conflict = any(h["status"] == "attention" for h in hints)
+    source_conflict = any(h["status"] == "source_conflict" for h in hints)
     satisfied = [h for h in hints if h["status"] == "satisfied"]
-    if conflict:
+    if source_conflict:
+        personal = {"state": "source_conflict", "label": "岗位资格原文存在冲突，需核对"}
+    elif conflict:
         personal = {"state": "conflict", "label": "个人门槛存在冲突"}
     elif not readable:
         personal = {"state": "unreviewed", "label": "个人门槛待核对"}
@@ -64,7 +67,7 @@ def enrich_result(match, job, profile, *, conditions):
     personal["reason"] = "搜索条件符合不代表全部任职资格符合；未提取到门槛也不代表已通过"
     match.update(personal_requirements=hints, personal_gate_conflict=conflict,
                  result_status={"reading": quality, "analysis": analysis, "search": search, "personal": personal})
-    if conflict and match.get("review_status") == "recommended":
+    if (conflict or source_conflict) and match.get("review_status") == "recommended":
         match["review_status"] = "pending"
-        match["review_caveats"] = [*match.get("review_caveats", []), "个人门槛存在冲突"]
+        match["review_caveats"] = [*match.get("review_caveats", []), "岗位资格原文存在冲突" if source_conflict else "个人门槛存在冲突"]
     return match

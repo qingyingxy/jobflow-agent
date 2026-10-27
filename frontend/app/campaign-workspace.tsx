@@ -25,7 +25,7 @@ export type Campaign = {
 };
 export type CampaignTarget = Pick<Campaign, "company_id" | "company" | "year">;
 export type CampaignCompanyCard = CampaignCompany & CampaignTarget & {
-  recruitment_status: "open" | "upcoming" | "empty" | "unknown"; status_note: string;
+  recruitment_status: "open" | "upcoming" | "empty" | "unknown" | "internship"; status_note: string;
   recruitment_url: string; cohort_status: "confirmed" | "unspecified";
   availability_checked_at: string | null; availability_stale: boolean;
   first_seen_at: string | null; opening_date: string | null; directions: string[];
@@ -89,6 +89,8 @@ export default function CampaignWorkspace({ apiUrl, userId, initialYear, onFindJ
     && c.company.toLowerCase().includes(keyword.toLowerCase())) || [];
   const active = data?.companies.filter(c => ["queued", "running"].includes(c.status)) || [];
   const discovery = data?.discovery;
+  const waitingForModel = discovery?.status === "waiting" && discovery.stage === "model_retry";
+  const budgetPaused = discovery?.status === "paused" && discovery.stage === "budget_limit";
   const discovering = !!discovery && ["queued", "running"].includes(discovery.status);
   const yearOptions = [...new Set([activeYear, new Date().getFullYear(), new Date().getFullYear() + 1, new Date().getFullYear() + 2].filter((v): v is number => !!v))].sort();
 
@@ -114,7 +116,7 @@ export default function CampaignWorkspace({ apiUrl, userId, initialYear, onFindJ
   function companyCard(c: CampaignCompanyCard) {
     const evidence = data?.campaigns.filter(item => c.evidence_ids.includes(item.id)) || [];
     return <article className="campaign-card" key={c.company_id} aria-label={`${c.company}校招`}>
-      <div className="campaign-card-main"><div className="campaign-card-title"><h3>{c.company}</h3><span>{c.cohort_status === "confirmed" ? `${c.year} 届` : "届别待核实"}</span><span className={`campaign-status campaign-status-${c.recruitment_status}`}>{c.recruitment_status === "open" ? "有校招岗位" : c.recruitment_status === "empty" ? "暂未发现校招岗位" : "待确认"}</span></div>
+      <div className="campaign-card-main"><div className="campaign-card-title"><h3>{c.company}</h3><span>{c.cohort_status === "confirmed" ? `${c.year} 届` : "届别待核实"}</span><span className={`campaign-status campaign-status-${c.recruitment_status}`}>{c.recruitment_status === "open" ? "有校招岗位" : c.recruitment_status === "internship" ? "仅发现实习" : c.recruitment_status === "empty" ? "暂未发现校招岗位" : "待确认"}</span></div>
         <p className="campaign-company-note">{c.status_note}</p>
         {c.judgment_reason && <details className="campaign-company-evidence"><summary>判断依据</summary>
           <p>{c.judgment_reason}</p>
@@ -157,17 +159,19 @@ export default function CampaignWorkspace({ apiUrl, userId, initialYear, onFindJ
         <label>毕业届别<select aria-label="秋招毕业届别" value={activeYear || ""} disabled={!!busy} onChange={e => setYear(Number(e.target.value) || undefined)}>
           <option value="">请选择届别</option>{yearOptions.map(y => <option key={y} value={y}>{y} 届</option>)}
         </select></label>
-        <button type="button" className="campaign-primary" disabled={!activeYear || !!busy || discovering || !discovery?.enabled}
-          onClick={() => void mutate("/discover", "POST", { year: activeYear }, "discover")}>{discovering ? "正在发现公司…" : discovery?.status === "blocked" ? "重试公司发现" : "发现更多公司"}</button>
+        <button type="button" className="campaign-primary" disabled={!activeYear || !!busy || discovering || waitingForModel || !discovery?.enabled}
+          onClick={() => void mutate("/discover", "POST", { year: activeYear }, "discover")}>{waitingForModel ? "等待自动重试…" : discovering ? "正在发现公司…" : budgetPaused ? "继续发现公司" : discovery?.status === "blocked" ? "重试公司发现" : "发现更多公司"}</button>
         <button type="button" disabled={!activeYear || !!busy || active.length > 0}
           onClick={() => void mutate("/refresh", "POST", { year: activeYear }, "refresh")}>{active.length ? `正在检查 ${active.length} 家` : "检查已收录公司"}</button>
       </div>
     </div>
     {error && <p role="alert" className="goal-error">{error} <button type="button" onClick={() => void load()}>重新读取</button></p>}
     {discovery && discovery.status !== "idle" && <div className="campaign-discovery-progress" role="status">
-      <p>{discovering ? "正在搜索和核验公司" : discovery.status === "completed" ? "本轮公司发现完成" : discovery.status === "waiting" ? "本轮搜索完成，部分公司等待复核；可继续发现更多公司" : "公司发现待继续"} · 搜索进度 {discovery.queries_completed}/{discovery.queries_total} · 发现 {discovery.companies_found} 家 · 已核验官网 {discovery.companies_verified} 家 · 已安排校招检查 {discovery.companies_queued} 家</p>
+      <p>{waitingForModel ? "连接暂时中断，等待自动重试" : discovering ? "正在搜索和核验公司" : budgetPaused ? "本轮查找额度已用完，结果已保存" : discovery.status === "completed" ? "本轮公司发现完成" : discovery.status === "waiting" ? "本轮搜索完成，部分公司等待复核；可继续发现更多公司" : "公司发现待继续"} · 搜索进度 {discovery.queries_completed}/{discovery.queries_total} · 发现 {discovery.companies_found} 家 · 已核验官网 {discovery.companies_verified} 家 · 已安排校招检查 {discovery.companies_queued} 家</p>
+      {budgetPaused && <p>可以继续查看已有公司，或点击“继续发现公司”接着查找。</p>}
       {discovery.error && <p>{discovery.error}</p>}
-      {(discovering || discovery.status === "waiting") && discovery.next_run_at && new Date(discovery.next_run_at).getTime() > Date.now() + 60000 && <p>下一次继续核验：{campaignTime(discovery.next_run_at)}</p>}
+      {waitingForModel && discovery.next_run_at ? <p>预计自动重试：{campaignTime(discovery.next_run_at)}</p> :
+        (discovering || discovery.status === "waiting") && discovery.next_run_at && new Date(discovery.next_run_at).getTime() > Date.now() + 60000 && <p>下一次继续核验：{campaignTime(discovery.next_run_at)}</p>}
       {!!discovery.pending_companies.length && <details><summary>待核验公司 · {discovery.pending_companies.length} 家</summary>{discovery.pending_companies.map(c => <p key={c.company}>{c.company}：{c.reason}</p>)}</details>}
     </div>}
     {discovery && !discovery.enabled && <p className="campaign-footnote">启用公司发现并配置模型服务后，可搜索更多公司。</p>}

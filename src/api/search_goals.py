@@ -175,9 +175,21 @@ async def update_goal(
 
 
 @router.get("/{goal_id}/library")
-def read_goal_library(goal_id: str, user_id: CurrentUserId, session: DatabaseSession, include_progress: bool = True):
+def read_goal_library(goal_id: str, user_id: CurrentUserId, session: DatabaseSession, include_progress: bool = True, compact: bool = False):
     try:
-        return SearchGoalService(session).library(user_id, goal_id, include_progress=include_progress)
+        return SearchGoalService(session).library(user_id, goal_id, include_progress=include_progress, compact=compact)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@router.get("/{goal_id}/jobs/{job_id}")
+def read_goal_job(goal_id: str, job_id: str, expected_version: int, user_id: CurrentUserId, session: DatabaseSession):
+    service = SearchGoalService(session)
+    try:
+        goal = service.get(user_id, goal_id)
+        if goal.version != expected_version:
+            raise HTTPException(status_code=409, detail="目标条件已变化，请刷新岗位列表")
+        return service.library(user_id, goal_id, include_progress=False, job_id=job_id)
     except LookupError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 

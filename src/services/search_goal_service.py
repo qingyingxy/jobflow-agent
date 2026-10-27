@@ -226,7 +226,8 @@ class SearchGoalService:
         return result
 
     def refresh_candidates(self, user_id, *, query, conditions, limit=8,
-                           company_id=None, source_group=None, primary=None, include_body_reviews=True):
+                           company_id=None, source_group=None, primary=None, include_body_reviews=True,
+                           company_sources=None):
         """Recheck stale sources and resume unresolved reviews on fresh evidence."""
         now = datetime.now(UTC)
         result = []
@@ -249,6 +250,10 @@ class SearchGoalService:
         ignored = set(self.session.scalars(select(CandidateJob.job_posting_id).where(
             CandidateJob.user_id == user_id, CandidateJob.status == "IGNORED")))
         for job in self.postings(user_id):
+            from src.services.company_scope import in_company_scope
+
+            if not in_company_scope(job, company_sources):
+                continue
             from urllib.parse import urlsplit
 
             group = source_group(job.source_url or "", job.company) if source_group else (job.company or urlsplit(job.source_url or "").hostname)
@@ -330,7 +335,7 @@ class SearchGoalService:
         return result
 
     def resume_candidates(self, user_id, *, goal_id, version, current_run_id, limit=16,
-                          company_id=None, source_group=None, now=None):
+                          company_id=None, source_group=None, now=None, company_sources=None):
         """Resume latest unresolved observations, fairly across update attempts.
 
         Old failed observations cannot resurrect a subsequently verified, closed
@@ -365,6 +370,10 @@ class SearchGoalService:
         if limit <= 0:
             return result
         for lead in sorted(latest.values(), key=queue_order):
+            from src.services.company_scope import in_company_scope
+
+            if not in_company_scope(lead, company_sources):
+                continue
             if company_id and (
                 source_group(lead.source_url, lead.company_hint) if source_group else lead.source_id
             ) != company_id:
@@ -433,8 +442,9 @@ class SearchGoalService:
                 "review_queue": review_queue_summary(self.session, goal),
                 "company_discovery_queue": discovery_queue_summary(self.session, goal)}
 
-    def library(self, user_id, goal_id, *, include_progress=True, summary_only=False):
+    def library(self, user_id, goal_id, *, include_progress=True, summary_only=False, compact=False, job_id=None):
         from src.domain.models import UserProfile
+        from src.services.company_scope import goal_company_sources, in_company_scope
         from src.services.source_understanding import ai_policy_enabled
 
         primary = ai_policy_enabled()
@@ -443,6 +453,7 @@ class SearchGoalService:
         from src.services.company_discovery_queue import discovery_queue_summary
         from src.services.company_search_progress import progress_summaries
         goal = self.get(user_id, goal_id)
+        company_sources = goal_company_sources(self.session, goal)
         runs = list(
             self.session.scalars(
                 select(DiscoveryRun)
@@ -460,6 +471,10 @@ class SearchGoalService:
         current_matches = {}
         now = datetime.now(UTC)
         for job in self.postings(user_id):
+            if job_id and job.id != job_id:
+                continue
+            if not in_company_scope(job, company_sources):
+                continue
             stub = posting_stub(job)
             match = classify_discovery_job(
                 stub,
@@ -504,6 +519,10 @@ class SearchGoalService:
                         "filter_status": match["filter_status"],
                     }
                 )
+        if job_id:
+            if not matches:
+                raise LookupError("当前目标下未找到该岗位")
+            return matches[0]
         counts = {
             **{s: sum(m["filter_status"] == s for m in matches) for s in ("matched", "pending", "excluded")},
             "closed": sum("closed" in m["mismatch_reasons"] for m in matches),
@@ -527,7 +546,7 @@ class SearchGoalService:
         lead_ids = (
             list(
                 self.session.scalars(
-                    select(JobLead.id).where(
+                    select(JobLead).where(
                         JobLead.user_id == user_id,
                         JobLead.discovery_run_id.in_([r.id for r in runs]),
                     )
@@ -536,6 +555,9 @@ class SearchGoalService:
             if runs
             else []
         )
+        scoped_job_ids = {m["job_posting_id"] for m in matches}
+        lead_ids = [lead.id for lead in lead_ids if lead.job_posting_id in scoped_job_ids
+                    or in_company_scope(lead, company_sources)]
         from src.services.body_review_queue import review_queue_summary
 
         return {
@@ -544,7 +566,7 @@ class SearchGoalService:
             "query": goal.query,
             **({"review_queue": review_queue_summary(self.session, goal),
                 "company_discovery_queue": discovery_queue_summary(self.session, goal)} if include_progress else {}),
-            "result_matches": matches,
+            "result_matches": [compact_match(m) for m in matches] if compact else matches,
             "lead_ids": lead_ids,
             "latest_run_id": latest.id if latest else None,
             "company_progress": progress_summaries(goal, self.session,
@@ -553,3 +575,15 @@ class SearchGoalService:
             "updates": updates,
             "counts": counts,
         }
+
+
+def compact_match(match):
+    """Keep list decisions; load full quotations only when a job is opened."""
+    check_keys = {"field", "status", "reason", "diagnosis", "role_relation", "review_required", "required"}
+    return {**{k: match[k] for k in ("job_posting_id", "goal_version", "filter_status", "review_status",
+            "match_tier", "mismatch_reasons", "mismatch_labels", "preference_score", "personal_gate_conflict",
+            "review_caveats", "result_status") if k in match},
+        "details_compact": True,
+        "checks": [{**{k: v for k, v in c.items() if k in check_keys}, "evidence": []} for c in match.get("checks", [])],
+        "personal_requirements": [{k: v for k, v in h.items() if k in {"category", "status", "label", "reason"}}
+                                  for h in match.get("personal_requirements", []) if h["status"] in {"attention", "source_conflict"}]}

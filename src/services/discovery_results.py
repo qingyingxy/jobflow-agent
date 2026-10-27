@@ -25,6 +25,9 @@ def current_run_matches(session, runs):
         canonical = representative(group)[1]
         aliases.update({job.id: canonical for _, job in group})
     profile = session.get(UserProfile, runs[0].user_id)
+    from src.services.company_scope import in_company_scope, run_company_sources
+
+    scopes = {run.id: run_company_sources(session, run) for run in runs}
     by_run = {run.id: run for run in runs}
     results = {
         run.id: {item["job_posting_id"]: item for item in run.result_matches or []}
@@ -82,6 +85,9 @@ def current_run_matches(session, runs):
     for run_id, items in results.items():
         current = {}
         for job_id, match in items.items():
+            job = aliases.get(job_id) or session.get(JobPosting, job_id)
+            if scopes[run_id] is not None and (job is None or not in_company_scope(job, scopes[run_id])):
+                continue
             canonical_id = aliases[job_id].id if job_id in aliases else job_id
             current.setdefault(canonical_id, items.get(canonical_id, {**match, "job_posting_id": canonical_id}))
         deduped[run_id] = list(current.values())

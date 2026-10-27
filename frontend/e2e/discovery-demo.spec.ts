@@ -464,7 +464,7 @@ test("filter results hide explicit conflicts until requested", async ({ page }) 
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "搜索岗位" })).toBeVisible();
 
-  await page.getByText("优先公司（可选）", { exact: true }).click();
+  await page.getByText("公司范围（可选）", { exact: true }).click();
   await page.getByRole("checkbox", { name: /腾讯/ }).check();
   await page.getByLabel("你想找什么").fill("北京的 AI Agent 校招岗位");
   if (process.env.UPDATE_DEMO_ASSETS === "1") {

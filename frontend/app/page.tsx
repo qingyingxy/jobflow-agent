@@ -308,13 +308,14 @@ type DiscoveryRunItem = {
 
 type DiscoveryResultMatch = {
   job_posting_id: string;
+  details_compact?: boolean;
   match_tier: "strict" | "expanded";
   mismatch_reasons: string[];
   mismatch_labels: string[];
   filter_status?: "matched" | "pending" | "excluded";
   review_status?: "recommended" | "pending" | "excluded" | null;
   preference_score?: number;
-  personal_requirements?: { category: string; status: string; label: string; reason: string; evidence: string; source_url: string | null }[];
+  personal_requirements?: { category: string; status: string; label: string; reason: string; evidence: string; conflicting_evidence?: string[]; source_url: string | null }[];
   personal_gate_conflict?: boolean;
   result_status?: {
     reading: { status: string; reason?: string | null };
@@ -793,7 +794,7 @@ export default function Home() {
     setGoalLibraryLoading(true);
     void loadGoalProgress(goal);
     const promise = (async () => { try {
-      const response = await fetch(`${apiUrl}/api/discovery/goals/${goal.id}/library?include_progress=false`, {
+      const response = await fetch(`${apiUrl}/api/discovery/goals/${goal.id}/library?include_progress=false&compact=true`, {
         headers: { "X-User-ID": userId }, cache: "no-store",
       });
       if (!response.ok) throw new Error(await readError(response));
@@ -2257,7 +2258,7 @@ function DiscoveryCompanyScope({
   return (
     <div className="discovery-company-scope" role="group" aria-labelledby="discovery-company-label">
       <div className="discovery-company-heading">
-        <span id="discovery-company-label">优先公司</span>
+        <span id="discovery-company-label">公司范围</span>
         <strong>{selectedCompanyIds.length > 0 ? `${selectedCompanyIds.length} 家已选` : "不限公司"}</strong>
       </div>
       <div className="discovery-company-grid">
@@ -2286,7 +2287,7 @@ function DiscoveryCompanyScope({
         </details>
       ) : null}
       <div className="discovery-company-legend" aria-label="公司筛选说明">
-        <span>不选择时搜索全网；选择后优先查找这些公司的岗位。</span>
+        <span>不选择时搜索全网；选择后仅查找和展示这些公司的岗位。</span>
       </div>
     </div>
   );
@@ -2666,7 +2667,7 @@ function DiscoveryWorkspace({
             <button type="button" onClick={() => onPasteJD()}>粘贴岗位 JD</button>
         <details className="discovery-filters">
           <summary>
-            <span>优先公司（可选）</span>
+            <span>公司范围（可选）</span>
             <strong>{selectedCompanyIds.length > 0 ? `${selectedCompanyIds.length} 家公司` : "不限公司"}</strong>
           </summary>
           <div className="discovery-filter-content">
@@ -2871,6 +2872,10 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
   const [selected, setSelected] = useState<CandidateItem | null>(null);
   const [detailTab, setDetailTab] = useState<"description" | "evidence">("description");
   const [showOther, setShowOther] = useState(false);
+  const [resultFilter, setResultFilter] = useState("all");
+  const [fullMatch, setFullMatch] = useState<DiscoveryResultMatch | null>(null);
+  const [matchError, setMatchError] = useState("");
+  const [matchRetry, setMatchRetry] = useState(0);
   const [rowLimit, setRowLimit] = useState(30);
   const [leadSelections, setLeadSelections] = useState<Record<string, CandidateStatus>>({});
   const [selectionError, setSelectionError] = useState("");
@@ -2880,7 +2885,7 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
   useEffect(() => {
     let saved: Record<string, unknown> = {};
     try { saved = JSON.parse(localStorage.getItem(filterKey) || "{}") || {}; } catch { /* Storage is optional. */ }
-    dialog.current?.close(); setSelected(null); setScope("current"); setShowOther(false);
+    dialog.current?.close(); setSelected(null); setScope("current"); setShowOther(false); setResultFilter("all");
     setKeyword(saved.viewVersion === 3 && typeof saved.keyword === "string" ? saved.keyword : "");
     setRowLimit(30); setHydratedFilters(filterKey);
   }, [filterKey]);
@@ -2888,7 +2893,7 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
     if (hydratedFilters !== filterKey) return;
     try { localStorage.setItem(filterKey, JSON.stringify({ viewVersion: 3, keyword })); } catch { /* Storage is optional. */ }
   }, [filterKey, hydratedFilters, keyword]);
-  useEffect(() => { setRowLimit(30); }, [scope, keyword, showOther]);
+  useEffect(() => { setRowLimit(30); }, [scope, keyword, showOther, resultFilter]);
   const [detail, setDetail] = useState<{
     raw_content: string;
     availability_status?: JobAvailabilityStatus;
@@ -2930,13 +2935,16 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
       setLeadSelections((old) => ({ ...old, [c.id]: status }));
     } catch (error) { setSelectionError(error instanceof Error ? error.message : "保存失败，请重试"); }
   }
-  const rows = allRows.filter((c) =>
+  const scopedRows = allRows.filter((c) =>
     (scope === "ignored" ? c.status === "IGNORED" : c.status !== "IGNORED")
     && (scope !== "current" || ((goalScoped || Boolean(latestRunId)) && (Boolean(c.pendingLead) || matchMap.has(c.job_posting_id))))
     && (showOther || scope === "saved" || scope === "ignored" || filterStatus(c) !== "excluded")
     && (scope !== "saved" || c.status === "SAVED")
     && (!keyword || `${c.job.company ?? ""} ${c.job.title ?? ""}`.toLowerCase().includes(keyword.toLowerCase()))
   ).sort((a, b) => tier(a) - tier(b) || rowOrder(a) - rowOrder(b));
+  const category = (c: CandidateItem) => c.pendingLead ? "unread" : filterStatus(c);
+  const rows = scopedRows.filter(c => resultFilter === "all" || category(c) === resultFilter);
+  const resultCounts = Object.fromEntries(["matched", "pending", "unread", "excluded"].map(value => [value, scopedRows.filter(c => category(c) === value).length]));
   const companyName = (value?: string | null) => {
     const name = value?.trim().replace(/\s+/g, " ");
     return !name || /^(未知|待确认|公司待确认|尚未识别|unknown|moka|mokahr|北森)$/i.test(name) ? "公司待确认" : name;
@@ -2972,7 +2980,25 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
     return () => controller.abort();
   }, [selected]);
   const safeUrl = (url: string | null) => url && /^https?:\/\//i.test(url) ? url : null;
-  const selectedMatch = selected ? matchMap.get(selected.job_posting_id) : undefined;
+  const summaryMatch = selected ? matchMap.get(selected.job_posting_id) : undefined;
+  const selectedMatch = fullMatch && fullMatch.job_posting_id === selected?.job_posting_id ? fullMatch : summaryMatch;
+  useEffect(() => {
+    setFullMatch(null); setMatchError("");
+    if (!selected || selected.pendingLead || !summaryMatch?.details_compact || !workspaceId) return;
+    const controller = new AbortController();
+    const [goalId, version] = workspaceId.split(":");
+    void (async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/discovery/goals/${goalId}/jobs/${selected.job_posting_id}?expected_version=${version}`, {
+          headers: { "X-User-ID": userId }, signal: controller.signal, cache: "no-store",
+        });
+        if (!response.ok) throw new Error(await readError(response));
+        const match = await response.json() as DiscoveryResultMatch;
+        if (!controller.signal.aborted) setFullMatch(match);
+      } catch (error) { if (!controller.signal.aborted) setMatchError(error instanceof Error ? error.message : "筛选依据加载失败"); }
+    })();
+    return () => controller.abort();
+  }, [selected?.job_posting_id, summaryMatch?.details_compact, workspaceId, matchRetry]);
   function selectDetailTab(tab: "description" | "evidence", focus = false) {
     setDetailTab(tab);
     if (focus) dialog.current?.querySelector<HTMLButtonElement>(`#job-detail-tab-${tab}`)?.focus();
@@ -2981,7 +3007,7 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
     <div className="job-results-toolbar">
       <div className="job-results-heading"><h2>{scope === "saved" ? "收藏夹" : scope === "ignored" ? "已忽略岗位" : scope === "all" ? "全部候选" : "岗位列表"}</h2>
         {dataReady && <span className="job-result-count" aria-label="岗位数量">{rows.length}</span>}
-        <label className="result-scope"><span className="sr-only">岗位范围</span><select value={scope} onChange={e => { setScope(e.target.value); setShowOther(false); }}>
+        <label className="result-scope"><span className="sr-only">岗位范围</span><select value={scope} onChange={e => { setScope(e.target.value); setShowOther(false); setResultFilter("all"); }}>
           <option value="current">{goalScoped ? "当前目标" : "本轮搜索"}</option><option value="saved">收藏夹</option><option value="all">全部候选</option><option value="ignored">已忽略</option>
         </select></label>
         {dataReady && uniformJobType && <span className="result-type-summary">{uniformJobType}</span>}
@@ -2989,12 +3015,19 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
       <div className="job-results-tools">
         <label className="results-search"><span className="sr-only">在结果中搜索</span><input type="search" value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="在结果中搜索" /></label>
         <details className="result-options"><summary>查看选项</summary><div>
-          <label className="result-checkbox"><input type="checkbox" checked={showOther} onChange={e => setShowOther(e.target.checked)} />显示不符或已关闭的岗位</label>
+          <label className="result-checkbox"><input type="checkbox" checked={showOther} onChange={e => { setShowOther(e.target.checked); if (resultFilter === "excluded") setResultFilter("all"); }} />显示不符或已关闭的岗位</label>
         </div></details>
         <button type="button" className="quiet-button" onClick={onRefresh} disabled={refreshing}>{refreshing ? "更新中…" : "刷新"}</button>
       </div>
     </div>
     {selectionError && <p role="alert">{selectionError}</p>}
+    {dataReady && <div className="result-breakdown" aria-label="结果分类">
+      <span>当前范围：符合搜索条件 {resultCounts.matched} · 条件待确认 {resultCounts.pending} · 正文待核验 {resultCounts.unread}{resultCounts.excluded > 0 ? ` · 已排除 ${resultCounts.excluded}` : ""}</span>
+      <label>结果类别 <select aria-label="结果类别" value={resultFilter} onChange={e => setResultFilter(e.target.value)}>
+        <option value="all">全部结果</option><option value="matched">符合搜索条件</option><option value="pending">条件待确认</option><option value="unread">正文待核验</option>
+        {(showOther || scope === "saved" || scope === "ignored") && <option value="excluded">已排除</option>}
+      </select></label>
+    </div>}
     {!dataReady && <p className="results-notice" role="status">{loadError ? "岗位读取失败，请刷新重试。" : "正在读取岗位…"}</p>}
     <div className="job-list-scroll" id="discovery-jobs"><table className={`job-list${showJobType ? "" : " job-list-uniform-type"}`}>
       <colgroup><col className="company-column"/><col className="title-column"/><col className="location-column"/>{showJobType && <col className="type-column"/>}<col className="advice-column"/><col className="website-column"/></colgroup>
@@ -3060,7 +3093,8 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
           <section className="job-detail-description"><h3>{selected.pendingLead ? (selected.pendingLead.extracted_fields?.basis === "screenshot" ? "截图识别正文（可能不完整，待核验）" : selected.pendingLead.extracted_fields?.raw_content ? "已读取的页面正文（待核验）" : "搜索摘要（未经正文核验）") : "岗位原文"}</h3><JobDescription content={detail.raw_content}/></section>}
       </div> : <div id="job-detail-panel-evidence" role="tabpanel" aria-labelledby="job-detail-tab-evidence" tabIndex={0}>
         {selected.pendingLead ? <p className="job-detail-note">正文尚未核验，完成核验后可查看筛选依据。</p> : <>
-          <JobDetailReview match={selectedMatch} />
+          {summaryMatch?.details_compact && !fullMatch ? <p role={matchError ? "alert" : "status"}>{matchError || "正在读取完整筛选依据…"}
+            {matchError && <button type="button" onClick={() => setMatchRetry(value => value + 1)}>重试读取依据</button>}</p> : <JobDetailReview match={selectedMatch} />}
           <button className="job-detail-availability" disabled={checkingId === selected.job.id} onClick={() => onCheckAvailability(selected.job.id)}>{checkingId === selected.job.id ? "正在检查…" : "检查开放状态"}</button>
         </>}
         {detail?.recruitment_context?.status === "verified" && <details className="job-detail-quote" aria-label="关联招聘批次"><summary>关联招聘批次 · {detail.recruitment_context.batch_name}</summary><div>
@@ -3078,12 +3112,12 @@ function DiscoveryTable({ onTrackApplication, trackingApplication, onRefresh, ca
 
 function JobDetailStatus({ match, pendingLeadStatus, closed }: { match?: DiscoveryResultMatch; pendingLeadStatus?: string; closed: boolean }) {
   const stages = match?.result_status;
-  const conflict = match?.personal_requirements?.find(hint => hint.status === "attention");
-  const hasConflict = Boolean(conflict || match?.personal_gate_conflict || stages?.personal.state === "conflict");
+  const conflict = match?.personal_requirements?.find(hint => ["attention", "source_conflict"].includes(hint.status));
+  const hasConflict = Boolean(conflict || match?.personal_gate_conflict || ["conflict", "source_conflict"].includes(stages?.personal.state || ""));
   const search = closed ? "岗位已关闭" : pendingLeadStatus ? "正文待核验"
     : stages?.analysis.state && stages.analysis.state !== "completed" ? stages.analysis.label
     : stages?.search.label || (match?.filter_status === "matched" ? "符合搜索条件" : match?.filter_status === "excluded" ? "不符搜索条件" : "搜索条件待核对");
-  const personal = hasConflict ? conflict?.reason || "个人门槛存在冲突" : stages?.personal.label || "个人资格待核对";
+  const personal = hasConflict ? conflict?.reason || stages?.personal.label || "个人门槛存在冲突" : stages?.personal.label || "个人资格待核对";
   return <p className="job-detail-status" aria-label="岗位状态"><span>{search}</span>
     {!pendingLeadStatus && <span className={hasConflict ? "job-detail-conflict" : ""}>{personal}</span>}
   </p>;
@@ -3108,9 +3142,11 @@ function JobDetailReview({ match }: { match?: DiscoveryResultMatch }) {
       <p className="job-detail-note">{profileMissing ? "补充个人资料后，可核对以下任职要求。" : "以下为已识别的要求；完整资格与经历匹配可进入岗位分析。"}</p>
       {hints.map((hint, index) => <details className="job-detail-quote job-detail-requirement" key={index}>
         <summary><span className="job-detail-requirement-label">{hint.label}
-          {hint.status === "attention" ? <em className="job-detail-conflict">存在冲突</em> : hint.status === "preferred" ? <em>优先项</em> : hint.status === "satisfied" ? <em>已满足</em> : !profileMissing && <em>待核对</em>}
+          {hint.status === "source_conflict" ? <em className="job-detail-conflict">原文冲突，待核对</em> : hint.status === "attention" ? <em className="job-detail-conflict">存在冲突</em> : hint.status === "preferred" ? <em>优先项</em> : hint.status === "satisfied" ? <em>已满足</em> : !profileMissing && <em>待核对</em>}
         </span><span className="job-detail-requirement-text">{hint.evidence}</span></summary>
-        <div>{!profileMissing && <p>{hint.reason}</p>}<blockquote>{hint.evidence}</blockquote></div>
+        <div>{(!profileMissing || hint.status === "source_conflict") && <p>{hint.reason}</p>}<blockquote>{hint.evidence}</blockquote>
+          {hint.conflicting_evidence?.map((quote, i) => <blockquote key={i}>{quote}</blockquote>)}
+        </div>
       </details>)}
     </section>}
   </>;
@@ -3535,7 +3571,7 @@ function ApplicationBoard({
         ? "浏览器辅助填写"
         : "安排后续跟进";
   const toolDescription = activeTool === "packet"
-    ? "冻结本次使用的岗位、简历和回答，确认无误后再批准。"
+    ? "核对本次申请使用的岗位、简历和回答，保存可追溯的材料版本。"
     : activeTool === "attempt"
       ? "记录官网填写、人工接管和提交回执，不自动替你确认投递。"
       : activeTool === "assisted"
@@ -3614,11 +3650,11 @@ function ApplicationBoard({
                 <span>所选申请</span>
                 <strong>{selected ? `${selected.job.company ?? "未命名公司"} / ${selected.job.title ?? "未命名岗位"}` : "请选择一条申请"}</strong>
               </div>
-              <p>按当前进度选择下一步；每一步都需要你核对后才会继续。</p>
+              <p>已在官网投递可直接记录；需要准备材料或辅助填写时，再使用下方工具。</p>
             </div>
             <div className="application-tool-grid">
               <button aria-label="准备申请材料" onClick={() => setActiveTool("packet")} type="button">
-                <span>01</span><strong>准备申请材料</strong><small>冻结并审核本次材料</small>
+                <span>01</span><strong>准备申请材料</strong><small>核对并保存本次材料</small>
               </button>
               <button aria-label="记录投递过程" onClick={() => setActiveTool("attempt")} type="button">
                 <span>02</span><strong>记录投递过程</strong><small>处理阻塞并保存回执</small>
@@ -3885,7 +3921,7 @@ function SuggestionPanel({ application }: { application: ApplicationItem | null 
               />
             </label>
             <div className="suggestion-composer-footer">
-              <small>JobAnalysis 会自动绑定到当前岗位的最新有效分析。</small>
+              <small>建议会参考当前岗位的最新分析和你已确认的经历。</small>
               <button className="suggestion-generate" onClick={createSuggestion} disabled={creating} type="button">
                 {creating ? "生成中…" : "生成材料建议 ↗"}
               </button>

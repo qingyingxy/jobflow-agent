@@ -405,8 +405,8 @@ export default function PacketWorkspace({ apiUrl, userId }: { apiUrl: string; us
     <section className="packet-workspace" aria-live="polite">
       <header className="packet-workspace-heading">
         <div>
-          <div className="section-kicker"><span>M15</span> 可审核投递包</div>
-          <h2>批准一份冻结材料，<em>不是批准一组会变化的链接。</em></h2>
+          <div className="section-kicker">申请材料</div>
+          <h2>核对本次申请要使用的材料。</h2>
         </div>
         <button
           className="packet-refresh"
@@ -460,9 +460,9 @@ export default function PacketWorkspace({ apiUrl, userId }: { apiUrl: string; us
           {selectedApplication && !selectedPacket ? (
             <div className="packet-create-state">
               <div>
-                <span>APPLICATION / {selectedApplication.id.slice(-8).toUpperCase()}</span>
+                <span>所选申请</span>
                 <h3>{selectedApplication.job.company ?? "未命名公司"} / {selectedApplication.job.title ?? "未命名岗位"}</h3>
-                <p>系统会绑定当前有效分析、JD 哈希、私密画像修订和所选简历。资料缺失会成为阻塞项，不会被猜测。</p>
+                <p>选择简历后，核对岗位要求、申请信息和回答。缺少的资料会列出，方便你补充。</p>
               </div>
               <label>
                 <span>初始简历版本</span>
@@ -474,7 +474,7 @@ export default function PacketWorkspace({ apiUrl, userId }: { apiUrl: string; us
                 </select>
               </label>
               <button className="packet-primary-action" type="button" onClick={() => void generatePacket()} disabled={state === "saving"}>
-                生成冻结草稿 <span>↗</span>
+                准备材料草稿 <span>↗</span>
               </button>
             </div>
           ) : null}
@@ -663,9 +663,9 @@ export default function PacketWorkspace({ apiUrl, userId }: { apiUrl: string; us
               {isCurrentRevision ? (
                 <footer className="packet-approval-dock">
                   <div>
-                    <span>FROZEN PAYLOAD</span>
-                    <strong>{shortHash(inspectedRevision.payload_hash)}</strong>
-                    <p>批准仅绑定这一个修订号和内容哈希，不改变申请提交状态。</p>
+                    <span>本次材料版本</span>
+                    <strong>已保存，可追溯</strong>
+                    <p>批准后保留当前材料版本；仍需你前往官网完成投递。</p>
                   </div>
                   <div className="packet-actions">
                     {canEdit ? <button type="button" onClick={() => void saveDraft()} disabled={state === "saving"}>保存并重新冻结</button> : null}

@@ -102,7 +102,7 @@ async def test_historical_verification_does_not_delay_supplemental_search(db_ses
 
     searched, verifying = asyncio.Event(), asyncio.Event()
     pending = LeadCandidate(provider=LeadProviderKind.EXTERNAL_AGENT,
-        source_url='https://historical.example/jobs/123', discovered_at=datetime.now(UTC))
+        source_url='https://historical.example/jobs/123', company_hint=SOURCE.company, discovered_at=datetime.now(UTC))
 
     class Provider:
         source_id, source_url = 'test', SOURCE.career_url

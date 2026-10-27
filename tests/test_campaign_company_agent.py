@@ -1,4 +1,5 @@
 import asyncio
+import json
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -96,6 +97,131 @@ async def test_agent_drives_search_read_extract_verify_and_company_card_queue(db
     assert row.status == "verified"
     assert db_session.scalar(select(CampaignWatch)).company_id == row.id
     assert [h["action"] for h in task.state["planner"]["history"]] == ["search", "read", "extract", "verify", "finish"]
+
+
+@pytest.mark.asyncio
+async def test_truncated_id_gets_exact_options_then_agent_repairs_without_losing_tool_budget(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([action("search", query="2027 新公司"), action("read", url=HOME), action("extract")])
+    for _ in range(3):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    company_id = task.state["verify_ids"][0]
+    harness.actions.extend([action("verify", company_id=company_id[:-1]), action("verify"), action("finish")])
+    await step(db_session, harness)
+    db_session.refresh(task)
+    planner = task.state["planner"]
+    rejected = planner["history"][-1]["result"]
+    assert rejected["executed"] is False
+    assert rejected["verification_options"] == [{"company_id": company_id, "company": NAME}]
+    assert planner["steps"] == 3 and planner["invalid_streak"] == 1
+    assert db_session.get(DiscoveredCompany, company_id).attempts == 0
+    for _ in range(2):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    assert task.status == "completed"
+    assert task.state["planner"]["steps"] == 5
+    assert task.state["planner"]["invalid_streak"] == 0
+    assert harness.contexts[-2]["verification_options"] == rejected["verification_options"]
+
+
+@pytest.mark.asyncio
+async def test_repeated_invalid_actions_pause_early_and_retry_preserves_evidence(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([action("search", query="2027 公司"), action("read", url=HOME),
+                       *(action("read", url=HOME) for _ in range(3))])
+    for _ in range(5):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    assert task.status == "blocked" and task.stage == "action_error"
+    assert task.state["planner"]["status"] == "stalled"
+    assert task.state["planner"]["steps"] == 2
+    assert task.next_run_at is None
+    evidence = deepcopy(task.state["planner"]["evidence"])
+    resumed = enqueue_discovery(db_session, "owner", 2027)
+    assert resumed.state["planner"]["invalid_actions"] == 0
+    assert resumed.state["planner"]["evidence"] == evidence
+
+
+@pytest.mark.asyncio
+async def test_company_decision_schema_contains_only_current_exact_ids(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([])
+    agent = harness.factory(db_session, task, settings=SETTINGS, on_event=lambda *_: None, checkpoint=lambda *_: None)
+    client = FakeModelClient(output=action("verify", company_id="company_exact").model_dump())
+    agent.client = client
+    await CampaignCompanyAgent.decide(agent, {"verification_options":[{"company_id":"company_exact","company":NAME}]})
+    assert client.requests[0].json_schema["properties"]["company_id"]["enum"] == ["", "company_exact"]
+
+
+@pytest.mark.asyncio
+async def test_resuming_many_verified_companies_keeps_new_discovery_pages_for_extraction(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([action("search", query="2027 新公司"), action("read", url=HOME), action("extract")])
+    for _ in range(2):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    fresh_evidence = deepcopy(task.state["planner"]["evidence"])
+    for index in range(14):
+        url = f"https://known{index}.example/"
+        evidence = deepcopy(fresh_evidence)
+        evidence["read_cache"][0].update(url=url, title=f"旧公司{index}", text="旧公司招聘", links=[])
+        db_session.add(DiscoveredCompany(user_id="owner", company=f"旧公司{index}", status="verified",
+            homepage_url=url, career_url=url, discovered_query="校招", discovery_run_id=task.run_id,
+            evidence=evidence))
+    db_session.commit()
+    await step(db_session, harness)
+    context = json.loads(harness.client.requests[-1].messages[-1].content)
+    assert HOME in {page["url"] for page in context["pages"]}
+    assert HOME in {page["url"] for page in harness.contexts[-1]["pages"]}
+    db_session.refresh(task)
+    assert HOME in {page["url"] for page in task.state["planner"]["evidence"]["read_cache"]}
+    assert task.state["planner"]["history"][-1]["result"]["companies"] == [NAME]
+
+
+@pytest.mark.asyncio
+async def test_page_evicted_from_checkpoint_can_be_read_again(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([action("search", query="2027 新公司"), action("read", url=HOME), action("read", url=HOME)])
+    for _ in range(2):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    state = deepcopy(task.state)
+    state["planner"]["evidence"]["read_cache"] = []
+    task.state = state
+    db_session.commit()
+    await step(db_session, harness)
+    db_session.refresh(task)
+    assert task.state["planner"]["history"][-1]["result"]["code"] == "page_read"
+    assert harness.pages.calls.count(HOME) == 2
+
+
+@pytest.mark.asyncio
+async def test_failed_tool_cannot_loop_on_unchanged_evidence(db_session):
+    task = enqueue_discovery(db_session, "owner", 2027)
+    harness = Harness([action("search", query="2027 公司"), action("read", url=HOME),
+                       action("extract"), action("extract"), action("extract"),
+                       action("read", url=PROOF), action("extract")])
+    original = harness.factory
+    calls = []
+
+    def factory(*args, **kwargs):
+        agent = original(*args, **kwargs)
+        async def fail(*args, **kwargs):
+            calls.append(True)
+            raise TimeoutError()
+        agent.extract = fail
+        return agent
+
+    harness.factory = factory
+    for _ in range(5):
+        await step(db_session, harness)
+    db_session.refresh(task)
+    assert len(calls) == 2
+    assert task.state["planner"]["history"][-1]["result"]["code"] == "failed_action_repeated"
+    for _ in range(2):
+        await step(db_session, harness)
+    assert len(calls) == 3  # New evidence permits a new attempt.
 
 
 @pytest.mark.asyncio

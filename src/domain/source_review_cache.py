@@ -7,7 +7,7 @@ REVIEW_MAPS = {
     "source_review_attempt": "source_review_attempts",
 }
 REVIEW_KEYS = (*REVIEW_MAPS, *REVIEW_MAPS.values(), "understanding_policy",
-               "qualification_understanding", "qualification_review_attempt")
+               "qualification_understanding", "qualification_review_attempt", "work_location_understanding")
 
 
 def records(context, kind):

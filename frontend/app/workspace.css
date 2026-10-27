@@ -97,6 +97,9 @@ html, body { background: #fff; }
 .job-result-count { font-size: 14px; color: #677282; font-variant-numeric: tabular-nums; }
 .jobflow-clean .result-scope select { width: auto; margin: 0; padding: 5px 8px; border: 1px solid #e1e6ed; border-radius: 4px; background: #fff; color: #596577; font-size: 12px; cursor: pointer; }
 .result-type-summary { color: #677282; font-size: 12px; }
+.result-breakdown { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 14px; color: #596577; font-size: 12px; line-height: 1.8; }
+.result-breakdown label { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.jobflow-clean .result-breakdown select { width: auto; margin: 0; padding: 5px 8px; border: 1px solid #dfe4eb; border-radius: 4px; background: #fff; font-size: 12px; }
 .job-results-tools { display: flex; align-items: center; gap: 20px; }
 .jobflow-clean .results-search input { width: 224px; height: 34px; padding: 6px 12px; border: 1px solid #dfe4eb; border-radius: 5px; background: #fff; color: #202733; font-size: 13px; }
 .jobflow-clean .results-search input::placeholder { color: #9098a5; }

@@ -171,7 +171,18 @@ async def execute_multiround_search(
         seconds = max(1, min(900, settings.web_search_budget_seconds))
         target = max(1, min(20, settings.web_search_target_jobs))
         sources = enabled_company_sources(company_ids or None, session=session, user_id=user_id)
-        provider = create_web_search_provider(query, company_ids, **provider_source_options(company_ids, sources))
+        from src.services.company_scope import in_company_scope
+
+        scoped_sources = sources if company_ids else None
+        other_sources = ([s for s in enabled_company_sources(session=session, user_id=user_id)
+                          if s.id not in company_ids] if company_ids else [])
+
+        def outside_selected_companies(candidate):
+            return (scoped_sources is not None and not in_company_scope(candidate, scoped_sources)
+                    and in_company_scope(candidate, other_sources))
+
+        retrieval_query = query + ("；限定公司：" + "、".join(s.company for s in sources) if company_ids else "")
+        provider = create_web_search_provider(retrieval_query, company_ids, **provider_source_options(company_ids, sources))
         service = JobLeadService(session)
         hosts = enabled_company_source_hosts(session=session, user_id=user_id)
         reader = SafeHTTPReader(
@@ -193,9 +204,9 @@ async def execute_multiround_search(
             list(query_tasks)
             if query_tasks is not None
             else (
-                build_agent_search_tasks(query, sources)
+                build_agent_search_tasks(retrieval_query, sources)
                 if agent_enabled
-                else build_search_tasks(query, sources)
+                else build_search_tasks(retrieval_query, sources)
             )
         )
         completed_queries = set()
@@ -285,7 +296,7 @@ async def execute_multiround_search(
                     "outcome": "failed" if error else "completed",
                     "observation": details.get("summary")
                     or f"{kind}：{details.get('url', '')}",
-                    "decision": details.get("reason")
+                    "decision": (details.get("reason") or "")
                     if is_decision
                     else (
                         "已保留证据；失败不删除已发现链接"
@@ -513,11 +524,13 @@ async def execute_multiround_search(
                     user_id, goal_id=run.search_goal_id, version=run.search_goal_version,
                     current_run_id=run_id,
                     company_id=continued_company, source_group=source_group,
+                    company_sources=scoped_sources,
                 )
                 refreshed = goals.refresh_candidates(user_id, query=run.search_query,
                     conditions=run.goal_conditions, company_id=continued_company,
                     limit=settings.web_search_semantic_history_max_calls if understanding.primary else 8,
                     source_group=source_group, primary=understanding.primary,
+                    company_sources=scoped_sources,
                     include_body_reviews=not understanding.primary)
                 for candidate in refreshed:
                     if goals.cached_posting(user_id, candidate.source_url):
@@ -528,8 +541,9 @@ async def execute_multiround_search(
                                    for url in state.get('pending_candidates', {})}
                                   if settings.web_search_direct_sources_enabled and direct.supported else set())
                 history = [c for c in [*refreshed, *resumed]
-                           if canonical_search_url(c.source_url) not in direct_pending
-                           or canonical_search_url(c.source_url) in cached_reviews]
+                           if in_company_scope(c, scoped_sources) and (
+                               canonical_search_url(c.source_url) not in direct_pending
+                               or canonical_search_url(c.source_url) in cached_reviews)]
                 historical_candidates.update(canonical_search_url(c.source_url) for c in history)
                 publish(history)
 
@@ -733,6 +747,11 @@ async def execute_multiround_search(
                     raise SearchRequestTimeout(
                         "单次搜索请求超时，继续在剩余预算内补搜"
                     ) from None
+                unrelated = [c for c in candidates if outside_selected_companies(c)]
+                if unrelated:
+                    trace_event("company_scope", {"ignored_count": len(unrelated),
+                        "summary": "搜索返回的其他公司线索保留在搜索证据中，不进入本次岗位队列"})
+                    candidates = [c for c in candidates if not outside_selected_companies(c)]
                 # Persist before any slow fetch or parser. Evidence contains all
                 # occurrences even when multiple queries return the same URL.
                 for candidate in candidates:
@@ -868,6 +887,10 @@ async def execute_multiround_search(
                     coverage.record_match(group, candidate.source_url, False)
 
         async def verify(candidate):
+            if outside_selected_companies(candidate):
+                trace_event("company_scope", {"url": candidate.source_url,
+                    "summary": "该线索属于其他公司，未纳入本次公司查询"})
+                return None
             if candidate.search_context.get("deferred") and not candidate.search_context.get("resumed"):
                 service.capture_candidate(user_id=user_id, discovery_run_id=run_id, candidate=candidate)
                 trace_event("verification_deferred", {
@@ -1337,6 +1360,10 @@ async def execute_multiround_search(
                                     created=verified.posting_created)
 
         def publish_verified(posting, lead, *, session, created=False):
+            if not in_company_scope(posting, scoped_sources):
+                trace_event("company_scope", {"url": posting.source_url,
+                    "summary": "正文已确认属于其他公司，未计入本次公司查询结果"})
+                return None
             stub = JobStub(
                 source_id=posting.source_id or provider.source_id,
                 source_job_id=posting.source_job_id or posting.id,
@@ -1378,6 +1405,8 @@ async def execute_multiround_search(
             )
 
         def publish_match(posting, match, *, created=False):
+            if not in_company_scope(posting, scoped_sources):
+                return False
             match = apply_posting_availability(match, posting)
             useful = match.filter_status == "matched"
             from src.domain.discovery import JobLead

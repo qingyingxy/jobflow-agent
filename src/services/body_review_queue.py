@@ -36,9 +36,14 @@ BATCH_SIZE = 6
 
 
 def review_items(session, goal, *, now=None, settings=None):
+    from src.services.company_scope import goal_company_sources, in_company_scope
+
+    company_sources = goal_company_sources(session, goal)
     now = now or datetime.now(UTC)
     items = []
     for candidate, job in unique_candidates(session, goal.user_id):
+        if not in_company_scope(job, company_sources):
+            continue
         from src.services.body_quality import readable_body
 
         if not readable_body(job.raw_content, title=job.title):
@@ -76,6 +81,8 @@ def review_items(session, goal, *, now=None, settings=None):
         JobLead.status.in_(["DEFERRED", "VERIFYING"]))))
     snapshots = service.pending_page_snapshots(goal.user_id, [lead.normalized_url for lead in leads], now=now)
     for lead in leads:
+        if not in_company_scope(lead, company_sources):
+            continue
         snapshot = snapshots.get(lead.normalized_url)
         if snapshot is None or lead.normalized_url in seen:
             continue

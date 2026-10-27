@@ -12,7 +12,7 @@ class CampusCitation(BaseModel):
 
 class CampusReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    status: Literal["found", "empty", "unknown"]
+    status: Literal["found", "empty", "unknown", "internship_only"]
     title: str = Field(max_length=300)
     kind: Literal["job", "listing", "project", "other"]
     recruitment_url: str = Field(max_length=2500, pattern=r"^(https?://|$)")

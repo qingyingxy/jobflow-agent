@@ -1287,3 +1287,36 @@ async def test_discovery_api_returns_run_and_candidate_pool(monkeypatch) -> None
     assert candidates_response.status_code == 200
     assert len(candidates_response.json()) == 1
     assert candidates_response.json()[0]["status"] == "DISCOVERED"
+
+
+@pytest.mark.asyncio
+async def test_history_and_detail_preserve_failed_traces_with_legacy_null_decision(db_session):
+    failed = {"phase": "plan", "tool": "search_decision", "outcome": "failed",
+              "observation": "模型连接失败", "decision": None,
+              "error_code": "model_unavailable", "details": {"attempt": 1}}
+    success = {"phase": "stop", "tool": "search", "outcome": "completed",
+               "observation": "已保留岗位", "decision": "查看已保存的结果"}
+    run = DiscoveryRun(id="legacy-failed-decision", user_id="history-owner", source="test",
+                       source_url="https://example.com/jobs", status="SUCCEEDED",
+                       started_at=datetime.now(UTC), finished_at=datetime.now(UTC),
+                       agent_trace=[failed, success], result_matches=[])
+    db_session.add(run)
+    db_session.commit()
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        for path in ("/api/discovery/runs", f"/api/discovery/runs/{run.id}"):
+            response = await client.get(path, headers={"X-User-ID": "history-owner"})
+            assert response.status_code == 200
+            data = response.json()
+            actual = (data[0] if isinstance(data, list) else data)["agent_trace"]
+            assert len(actual) == 2
+            assert actual[0]["decision"] == "" and actual[0]["outcome"] == "failed"
+            assert actual[0]["error_code"] == "model_unavailable"
+            assert actual[0]["details"] == {"attempt": 1}
+            assert actual[1]["decision"] == success["decision"]
+        for path in ("/api/discovery/runs?compact=true", f"/api/discovery/runs/{run.id}?compact=true"):
+            assert (await client.get(path, headers={"X-User-ID": "history-owner"})).status_code == 200
+        assert (await client.get("/api/discovery/runs", headers={"X-User-ID": "other"})).json() == []
+        assert (await client.get(f"/api/discovery/runs/{run.id}", headers={"X-User-ID": "other"})).status_code == 404
+    db_session.refresh(run)
+    assert run.agent_trace[0]["decision"] is None  # Compatibility read doesn't rewrite history.

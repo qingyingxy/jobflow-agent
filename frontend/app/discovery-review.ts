@@ -17,6 +17,10 @@ type ReviewSummary = { label: string; reason: string; tone: "recommended" | "pen
 // Summarize existing evidence only; search relevance is not personal eligibility.
 export function jobReviewSummary(match?: ReviewMatch, source: { closed?: boolean; pendingLeadStatus?: string; missingCompany?: boolean; missingLocation?: boolean } = {}): ReviewSummary {
   if (source.closed) return { label: "已关闭", reason: "岗位已停止招聘", tone: "muted" };
+  const sourceConflict = match?.personal_requirements?.find(hint => hint.status === "source_conflict");
+  if (sourceConflict || match?.result_status?.personal.state === "source_conflict") {
+    return { label: "资格原文有冲突", reason: sourceConflict?.reason || "招聘项目与正文要求不一致，需核对", tone: "conflict" };
+  }
   const conflict = match?.personal_requirements?.find(hint => hint.status === "attention");
   if (conflict || match?.personal_gate_conflict || match?.result_status?.personal.state === "conflict") {
     return { label: "存在门槛冲突", reason: conflict?.reason || conflict?.label || "个人条件与岗位要求冲突，查看详情", tone: "conflict" };

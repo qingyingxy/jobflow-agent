@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function workspaceFixture(page: Page) {
+async function workspaceFixture(page: Page, compact = false) {
   const input = "27届，北京上海都可以，想找 Agent / RAG 相关开发岗。\n实习和校招都看看，优先应用开发。";
   const conditions = { locations: ["北京", "上海"], roles: ["Agent", "RAG"], job_types: ["校招", "实习"], graduation_years: [2027], preferred_roles: ["应用开发"], preferred_locations: [], excluded_locations: [], excluded_roles: [], excluded_job_types: [], keywords: [], pending_conditions: ["是否接受转专业"] };
   const goals = [{ id: "agent", name: "不应展示这个生成标题", input_text: input, query: input, version: 1, conditions, condition_sources: {}, company_ids: null },
@@ -42,6 +42,7 @@ async function workspaceFixture(page: Page) {
   const lead = { id: "lead", created_at: "2026-10-21T02:00:00Z", updated_at: "2026-10-21T02:00:00Z", discovered_at: "2026-10-21T02:00:00Z", discovery_run_id: "run", status: "DEFERRED", discovery_kind: "job", provider: "external_agent", title_hint: "RAG 研发工程师", company_hint: "百川智能", source_url: "https://example.com/jobs/lead", normalized_url: "https://example.com/jobs/lead", job_posting_id: null, failure_reason: "等待核验", next_action: "retry_verification" };
   const entry = { ...lead, id: "entry", discovery_kind: "entry", title_hint: "官方招聘入口", source_url: "https://example.com/careers", normalized_url: "https://example.com/careers" };
   const writes: { path: string; body: Record<string, unknown> }[] = [];
+  const detailReads: string[] = [];
   await page.addInitScript(() => localStorage.setItem("jobflow:job-filters:local-user:agent:1", JSON.stringify({ viewVersion: 2, scope: "all", city: "昆明", kind: "full_time", keyword: "过期筛选", strictOnly: true })));
   await page.route("http://127.0.0.1:18001/api/**", async route => {
     const req = route.request(), path = new URL(req.url()).pathname;
@@ -50,9 +51,14 @@ async function workspaceFixture(page: Page) {
     if (req.method() !== "GET") writes.push({ path, body: req.postDataJSON() });
     if (path === "/api/profile" || path.endsWith("/analysis")) return route.fulfill({ headers, status: 404, json: {} });
     if (path === "/api/discovery/goals") return route.fulfill({ headers, json: goals });
+    if (path.startsWith("/api/discovery/goals/agent/jobs/")) {
+      detailReads.push(path);
+      if (detailReads.length === 1) return route.fulfill({ headers, status: 503, json: { detail: "筛选依据暂时不可用" } });
+      return route.fulfill({ headers, json: matches.find(m => path.endsWith("/" + m.job_posting_id)) });
+    }
     if (path.endsWith("/library")) {
       const other = path.includes("/other/");
-      return route.fulfill({ headers, json: { goal_id: other ? "other" : "agent", goal_version: 1, query: other ? goals[1].query : input, lead_ids: other ? [] : ["lead", "entry"], result_matches: other ? [{ ...matches[0], job_posting_id: "unrelated" }] : matches, counts: {}, updates: [], latest_run_id: other ? null : "run", company_progress: other ? [] : [{ source_id: "bytedance", company: "字节跳动", official_url: "https://jobs.bytedance.com", status: "paused", checked_count: 3, matched_count: 2, pages_checked: 1, remaining_count: 7, can_continue: true }] } });
+      return route.fulfill({ headers, json: { goal_id: other ? "other" : "agent", goal_version: 1, query: other ? goals[1].query : input, lead_ids: other ? [] : ["lead", "entry"], result_matches: other ? [{ ...matches[0], job_posting_id: "unrelated" }] : compact ? matches.map(m => ({ ...m, details_compact: true, checks: m.checks.map(c => ({ ...c, evidence: [] })) })) : matches, counts: {}, updates: [], latest_run_id: other ? null : "run", company_progress: other ? [] : [{ source_id: "bytedance", company: "字节跳动", official_url: "https://jobs.bytedance.com", status: "paused", checked_count: 3, matched_count: 2, pages_checked: 1, remaining_count: 7, can_continue: true }] } });
     }
     if (path === "/api/candidates") return route.fulfill({ headers, json: candidates });
     if (path.startsWith("/api/candidates/")) {
@@ -67,8 +73,33 @@ async function workspaceFixture(page: Page) {
     if (path.startsWith("/api/jobs/")) return route.fulfill({ headers, json: { raw_content: "负责 Agent 应用开发与检索增强系统建设。岗位要求：熟悉 Python，有相关项目经验。", availability_status: "ACTIVE" } });
     return route.fulfill({ headers, json: [] });
   });
-  return { writes, input };
+  return { writes, input, detailReads };
 }
+
+test("result categories and compact details load independently and can retry", async ({ page }) => {
+  const { detailReads } = await workspaceFixture(page, true);
+  await page.goto("/");
+  await expect(page.getByLabel("结果分类")).toContainText("符合搜索条件 2 · 条件待确认 3 · 正文待核验 1");
+  await page.getByLabel("结果类别", { exact: true }).selectOption("unread");
+  await expect(page.locator(".job-title")).toHaveText(["RAG 研发工程师"]);
+  await page.getByLabel("结果类别", { exact: true }).selectOption("matched");
+  await expect(page.locator(".job-list tbody tr")).toHaveCount(2);
+  expect(detailReads).toEqual([]);
+  await page.getByRole("button", { name: "Agent 开发工程师 · AI Platform", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "岗位详情" });
+  await dialog.getByRole("tab", { name: "筛选依据" }).click();
+  await expect(dialog.getByRole("alert")).toContainText("请求失败（503）");
+  await dialog.getByRole("button", { name: "重试读取依据" }).click();
+  await dialog.locator(".job-detail-check .job-detail-quote summary").first().click();
+  await expect(dialog.getByText("负责 Agent 应用开发与检索增强系统建设", { exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("combobox", { name: "岗位范围", exact: true }).selectOption("all");
+  await expect(page.getByLabel("结果类别", { exact: true })).toHaveValue("all");
+  await page.getByRole("button", { name: "Agent 基础系统研发工程师 · 火山方舟", exact: true }).click();
+  await dialog.getByRole("tab", { name: "筛选依据" }).click();
+  await expect(dialog.getByText("原文未说明毕业届别", { exact: true })).toBeVisible();
+  expect(detailReads).toHaveLength(3);
+});
 
 test("compact white job list keeps actual fields, ignores obsolete filters and searches locally", async ({ page }, testInfo) => {
   const { writes, input } = await workspaceFixture(page);
@@ -213,7 +244,7 @@ test("review advice keeps uncertainty and personal conflicts visible with source
   await expect(conflict.locator(".job-advice-label")).toHaveText("存在门槛冲突");
   await expect(conflict.locator(".job-advice-reason")).toHaveText("要求硕士及以上，当前资料为本科");
   await expect(row("RAG 研发工程师").locator(".job-advice-label")).toHaveText("待核验");
-  await expect(row("Agent 应用工程师").locator(".job-advice-reason")).toHaveText("地点待确认，招聘类型待确认");
+  await expect(row("Agent 应用工程师").locator(".job-advice-reason")).toHaveText("地点待确认 · 招聘类型待确认");
   await conflict.locator(".job-title").click();
   const detail = page.getByRole("dialog", { name: "岗位详情" });
   await expect(detail.getByLabel("岗位状态")).toContainText("要求硕士及以上，当前资料为本科");

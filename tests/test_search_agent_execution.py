@@ -24,7 +24,7 @@ from src.services.search_planner import SearchTask
 async def test_real_search_orchestration_observes_results_and_persists_decisions(
     db_session, monkeypatch, mode, invalid
 ):
-    queries, inputs, client_settings = [], [], []
+    queries, inputs, client_settings, verified_urls = [], [], [], []
 
     class Provider:
         source_id = "test"
@@ -40,7 +40,9 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
                     provider=LeadProvider.EXTERNAL_AGENT,
                     source_url="https://example.com/jobs/1",
                     discovered_at=datetime.now(UTC),
-                )
+                ),
+                LeadCandidate(provider=LeadProvider.EXTERNAL_AGENT,
+                    source_url="https://unselected.example/jobs/2", discovered_at=datetime.now(UTC)),
             ]
 
     def provider_factory(query, company_ids):
@@ -91,6 +93,7 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
 
     async def fail_verify(service, *, user_id, lead_id, **kwargs):
         lead = service.get_lead(user_id=user_id, lead_id=lead_id)
+        verified_urls.append(lead.source_url)
         lead.status = "NEEDS_USER"
         lead.failure_code = "lead_not_job_page"
         lead.failure_reason = "未找到岗位正文"
@@ -118,7 +121,8 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
         "enabled_company_sources",
         lambda *args, **kwargs: [
                 SimpleNamespace(id="example", company="Example", career_url="https://example.com/careers", enabled=True)
-        ],
+        ] + ([] if args and args[0] else [SimpleNamespace(id="unselected", company="Other",
+            career_url="https://unselected.example/careers", enabled=True)]),
     )
     monkeypatch.setattr(execution, "create_structured_model_client", client_factory)
     monkeypatch.setattr(
@@ -144,7 +148,9 @@ async def test_real_search_orchestration_observes_results_and_persists_decisions
     db_session.expire_all()
     evidence = list(db_session.scalars(select(SearchEvidence)))
     decisions = [step for step in run.agent_trace if step["tool"] == "search_decision"]
-    assert queries[0] == original
+    assert queries[0] == original + "；限定公司：Example"
+    assert all("Example" in q for q in queries)
+    assert verified_urls and all(url.startswith("https://example.com/") for url in verified_urls)
     assert len(evidence) == len(queries)
     assert all(record.raw_response == "fixture" for record in evidence)
     if mode == "agent" and not invalid:

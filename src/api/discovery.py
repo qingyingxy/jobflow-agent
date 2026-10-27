@@ -613,7 +613,10 @@ def list_discovery_runs(
     # A history summary reports the saved run outcome. Re-evaluate current jobs
     # through the goal library or full detail endpoint, not every history poll.
     if compact:
-        outdated = [run for run in runs if _outdated_decisions(run)]
+        from src.services.company_scope import run_company_sources
+
+        outdated = [run for run in runs if _outdated_decisions(run)
+                    or run_company_sources(session, run) is not None]
         matches = current_run_matches(session, outdated)
         return [_compact_run(run, summary=index > 0, matches=matches.get(run.id)) for index, run in enumerate(runs)]
     matches = current_run_matches(session, runs)

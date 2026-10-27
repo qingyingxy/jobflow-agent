@@ -140,7 +140,7 @@ def company_card(source, watch, campaigns, year):
     """Visible campus jobs answer the company question; announcements are supplementary."""
     now = datetime.now(UTC)
     observations = [value for c in campaigns if (value := job_observation(c["facts"]))
-                    and value["status"] == "found"]
+                    and value["status"] in {"found", "internship_only"}]
     cached = (getattr(watch, "cache", None) or {}).get("job_check")
     if cached:
         observations.append(cached)
@@ -149,7 +149,7 @@ def company_card(source, watch, campaigns, year):
     fresh = recently_checked(checked, now)
     failed = bool(watch and watch.status == "failed" and (iso(watch.checked_at) or "") >= (checked or ""))
     presence = check.get("status", "unknown") if fresh and not failed else "unknown"
-    status = "open" if presence == "found" else "empty" if presence == "empty" else "unknown"
+    status = "open" if presence == "found" else "internship" if presence == "internship_only" else "empty" if presence == "empty" else "unknown"
     evidence = [c for c in campaigns if (c["facts"].get("entry") or {}).get("job_presence") == "found"] or campaigns
     # Prefer an observed public campus portal, never promote a job URL to the company's main entrance.
     portals = [c["entry_url"] for c in evidence if c.get("entry_url")
@@ -157,6 +157,7 @@ def company_card(source, watch, campaigns, year):
     confirmed = check.get("cohort_status") == "confirmed"
     dates = sorted(c["facts"]["starts"]["value"] for c in evidence if c["facts"].get("starts"))
     note = ("官网已发现校招岗位" if confirmed else "官网已发现校招岗位，届别未注明") if status == "open" else (
+        "目前只发现实习岗位，正式校招仍待确认" if status == "internship" else
         "本次读取的校招列表暂无岗位" if status == "empty" else
         "岗位信息待重新检查" if checked and not fresh else
         "校招岗位待确认" if campaigns or watch else "尚未检查校招岗位")
@@ -166,7 +167,7 @@ def company_card(source, watch, campaigns, year):
             "cohort_status": "confirmed" if confirmed else "unspecified",
             "availability_checked_at": checked,
             "availability_stale": bool(checked and not fresh),
-            "job_titles": check.get("job_titles", []) if status == "open" else [],
+            "job_titles": check.get("job_titles", []) if status in {"open", "internship"} else [],
             "judgment_reason": check.get("reasoning", ""), "citations": check.get("citations", []),
             "first_seen_at": min((c["first_seen_at"] for c in campaigns), default=None),
             "opening_date": dates[0] if dates else None,

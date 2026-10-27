@@ -5,6 +5,8 @@ import copy
 import hashlib
 import json
 import re
+import socket
+import ssl
 from time import perf_counter
 from typing import Any, Literal, Protocol
 from urllib.parse import urlparse
@@ -84,6 +86,51 @@ def is_retryable_model_error(error: ModelClientError) -> bool:
             529,
         }
     return False
+
+
+def model_error_diagnostics(error: Exception) -> dict[str, Any]:
+    """Bounded operational fields only; never retain exception messages or URLs."""
+    chain, current = [], error
+    while current is not None and len(chain) < 6 and all(current is not item for item in chain):
+        chain.append(current)
+        current = current.__cause__ or current.__context__
+    result: dict[str, Any] = {
+        "type": type(error).__name__,
+        "cause_types": [type(item).__name__ for item in chain[1:]],
+        "retryable": isinstance(error, TimeoutError) or (
+            isinstance(error, ModelClientError) and is_retryable_model_error(error)),
+    }
+    details = error.details if isinstance(error, ModelClientError) else {}
+    for key in ("status_code", "request_duration_ms", "timeout_seconds"):
+        value = details.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            result[key] = value
+    if details.get("timeout_stage") in {"connect", "read", "write", "pool", "unknown"}:
+        result["timeout_stage"] = details["timeout_stage"]
+    # A transport cause identifies the failing layer without logging hostnames,
+    # proxy URLs, credentials, request bodies, or arbitrary provider details.
+    kinds = ((socket.gaierror, "dns"), (ssl.SSLError, "tls"),
+             (httpx.ProxyError, "proxy"), (httpx.ConnectTimeout, "connect_timeout"),
+             (httpx.ReadTimeout, "read_timeout"), (httpx.WriteTimeout, "write_timeout"),
+             (httpx.PoolTimeout, "pool_timeout"), (httpx.ConnectError, "connect"),
+             (httpx.ReadError, "read"), (httpx.WriteError, "write"),
+             (httpx.RemoteProtocolError, "remote_protocol"),
+             (httpx.LocalProtocolError, "local_protocol"))
+    reason = next((label for cls, label in kinds if any(isinstance(item, cls) for item in chain)), None)
+    if reason:
+        result["transport_reason"] = reason
+    elif isinstance(error, TimeoutError):
+        result["transport_reason"] = "decision_timeout"
+    transport = next((item for item in chain if isinstance(item, httpx.HTTPError)), None)
+    if transport is not None:
+        result["transport_error_type"] = type(transport).__name__
+    for item in chain:
+        if isinstance(item, OSError):
+            for key in ("errno", "winerror"):
+                value = getattr(item, key, None)
+                if isinstance(value, int):
+                    result.setdefault(key, value)
+    return result
 
 
 class StructuredModelClient(Protocol):
@@ -695,7 +742,9 @@ class OpenAICompatibleModelClient:
                 },
             ) from error
         except httpx.HTTPError as error:
-            raise ModelUnavailableError("无法连接结构化模型服务") from error
+            raise ModelUnavailableError("无法连接结构化模型服务", {
+                "request_duration_ms": round((perf_counter() - request_started) * 1000, 2),
+            }) from error
 
         if response.status_code >= 400:
             raise ModelResponseError(

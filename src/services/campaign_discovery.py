@@ -41,8 +41,11 @@ def enqueue_discovery(session, user_id, year):
     old = task_for(session, user_id, year)
     if old and old.status in {"queued", "running"}:
         return old
+    if old and old.status == "waiting" and old.stage == "model_retry":
+        return old  # Repeated clicks must not bypass backoff or reset its budget.
     state = deepcopy(old.state) if old else {}
-    if old and old.status == "blocked":
+    resuming = bool(old and old.status in {"blocked", "paused"})
+    if resuming:
         for query in state["queries"]:
             if query["stage"] == "failed":
                 query.update(stage="extract" if query.get("results") else "search", attempts=0)
@@ -51,7 +54,9 @@ def enqueue_discovery(session, user_id, year):
             # A user-requested retry gets a new execution budget while keeping
             # observed evidence, pending candidates and guarded task ownership.
             planner.update(status="active", steps=0, reads=0, search_count=0,
-                           decision_failures=0, verification_attempts={}, verification_revisions={})
+                           decision_failures=0, verification_attempts={}, verification_revisions={},
+                           model_retries=0, model_retry_at=None, model_error=None,
+                           model_retry_exhausted=False, invalid_actions=0, invalid_streak=0)
     else:
         cycle = state.get("cycle", -1) + 1
         previous_searches = [*state.get("previous_searches", []),
@@ -66,7 +71,7 @@ def enqueue_discovery(session, user_id, year):
                  "verify_ids": backlog, "scheduled_ids": [], "verification_attempts": attempts,
                  "previous_searches": previous_searches}
     values = {"id": identifier(), "user_id": user_id, "year": year,
-              "run_id": old.run_id if old and old.status == "blocked" else identifier(),
+              "run_id": old.run_id if resuming else identifier(),
               "status": "queued", "stage": "search", "state": state,
               "lease_token": None, "lease_until": None, "next_run_at": now,
               "error": None, "updated_at": now}
@@ -86,22 +91,31 @@ def discovery_summary(session, user_id, year):
         DiscoveredCompany.user_id == user_id,
         DiscoveredCompany.id.in_(state.get("verify_ids", [])))))
     settings = get_settings()
+    # Old saved tasks used "blocked/done" for a normal execution limit.
+    limited = bool(task and task.status in {"blocked", "paused"}
+                   and state.get("planner", {}).get("status") == "budget_exhausted")
     return {"enabled": settings.company_discovery_enabled and settings.structured_model_provider != "fake",
-            "status": task.status if task else "idle", "stage": task.stage if task else "search",
+            "status": "paused" if limited else task.status if task else "idle",
+            "stage": "budget_limit" if limited else task.stage if task else "search",
             "queries_completed": sum(q["stage"] in {"done", "failed"} for q in queries),
             "queries_total": len(queries), "companies_found": len(rows),
             "companies_verified": sum(r.status in ACCEPTED_COMPANY_STATUSES for r in rows),
             "companies_queued": len(state.get("scheduled_ids", [])),
             "pending_companies": [{"company": r.company, "reason": r.reason}
                                   for r in rows if r.status == "pending"],
-            "next_run_at": task.next_run_at if task else None, "error": task.error if task else None}
+            "model_retries": state.get("planner", {}).get("model_retries", 0),
+            "next_run_at": task.next_run_at if task else None,
+            "error": None if limited else task.error if task else None}
 
 
 def _runtime(session, task, *, settings, on_event, checkpoint):
     from src.services.campaign_company_agent import CampaignCompanyAgent
     return create_company_discovery_agent(session, user_id=task.user_id, run_id=task.run_id,
         query=f"发现中国国内面向{task.year}届毕业生的秋季校园招聘公司，不限岗位方向和城市",
-        settings=settings, on_event=on_event, checkpoint=checkpoint, agent_class=CampaignCompanyAgent)
+        settings=settings, on_event=on_event, checkpoint=checkpoint, agent_class=CampaignCompanyAgent,
+        # Up to six suggestions from several pages take longer than one action
+        # decision. Decisions retain their own 25-second bound.
+        extraction_timeout=75)
 
 
 async def run_discovery_step(session_factory=SessionLocal, *, settings=None, agent_factory=None, now=None):
@@ -220,12 +234,34 @@ async def run_discovery_step(session_factory=SessionLocal, *, settings=None, age
                 next_at = min(utc(r.last_checked_at) + timedelta(hours=min(24, max(1, r.attempts) * 2))
                               if r.last_checked_at else next_at for r in retryable)
             active = unfinished or bool(retryable)
-            planner_failed = state.get("planner", {}).get("status") in {"failed", "budget_exhausted"}
+            planner_failed = state.get("planner", {}).get("status") in {"failed", "budget_exhausted", "stalled"}
             blocked = bool(pending) or planner_failed or any(q["stage"] == "failed" for q in state["queries"])
             has_failures = planner_failed or any(q["stage"] == "failed" for q in state["queries"]) or any(r.attempts for r in pending)
             # Flush watches in the same guarded transaction as their scheduled IDs.
             session.flush()
-            persist(status="queued" if unfinished else "waiting" if retryable else "blocked" if blocked else "completed",
+            planner = state.get("planner", {})
+            model_retry_at = planner.get("model_retry_at")
+            if model_retry_at and planner.get("status") == "active":
+                persist(status="waiting", stage="model_retry",
+                        next_run_at=datetime.fromisoformat(model_retry_at), lease_token=None, lease_until=None,
+                        error=f"模型服务暂时不可用，进度已保存，将自动进行第 {planner['model_retries']} 次重试。")
+            elif planner.get("status") == "failed" and planner.get("model_error"):
+                # Reaching the retry limit must not be undone by the separate
+                # pending-company queue or its later cooldown wakeups.
+                message = ("模型服务重试已达上限，进度已保存；服务恢复后可点击重试公司发现。"
+                           if planner.get("model_retry_exhausted") else
+                           "模型请求未成功，进度已保存；请检查模型配置或服务状态后重试。")
+                persist(status="blocked", stage="model_error", next_run_at=None,
+                        lease_token=None, lease_until=None, error=message)
+            elif planner.get("status") == "stalled":
+                persist(status="blocked", stage="action_error", next_run_at=None,
+                        lease_token=None, lease_until=None,
+                        error="公司发现多次未能纠正无效动作，已暂停并保存进度及纠正提示，可重试继续。")
+            elif planner.get("status") == "budget_exhausted":
+                persist(status="paused", stage="budget_limit", next_run_at=None,
+                        lease_token=None, lease_until=None, error=None)
+            else:
+                persist(status="queued" if unfinished else "waiting" if retryable else "blocked" if blocked else "completed",
                     stage="agent" if state.get("planner", {}).get("status") == "active" else
                           next((q["stage"] for q in state["queries"] if q["stage"] not in {"done", "failed"}),
                                "verify" if pending else "done"),
@@ -236,7 +272,11 @@ async def run_discovery_step(session_factory=SessionLocal, *, settings=None, age
         except asyncio.CancelledError:
             session.rollback()
             try:
-                persist(status="queued", lease_token=None, lease_until=None, next_run_at=datetime.now(UTC))
+                retry_at = state.get("planner", {}).get("model_retry_at")
+                persist(status="waiting" if retry_at else "queued",
+                        stage="model_retry" if retry_at else task.stage,
+                        lease_token=None, lease_until=None,
+                        next_run_at=datetime.fromisoformat(retry_at) if retry_at else datetime.now(UTC))
             except LostLease:
                 pass
             raise

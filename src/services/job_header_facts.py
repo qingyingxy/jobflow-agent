@@ -132,6 +132,11 @@ def header_location_evidence(text: str, title: str | None) -> list[dict]:
 
 def effective_job_locations(job) -> list[str]:
     """Read-through repair for old saved jobs; never overwrites stored metadata."""
+    from src.services.job_fact_understanding import cached_locations
+
+    understood = cached_locations(job)
+    if understood:
+        return understood
     return location_field_values(list(job.locations or [])) or [
         item["value"]
         for item in header_location_evidence(job.raw_content or "", job.title)
